@@ -17,47 +17,71 @@
 package org.tomitribe.crest;
 
 import org.apache.xbean.finder.AnnotationFinder;
+import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.util.JarLocation;
+import org.tomitribe.crest.util.ObjectMap;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * @author David Blevins
  */
 public class Main {
 
-    public static Map<String, Cmd> commands = new HashMap<String, Cmd>();
+    public Map<String, Cmd> commands = new HashMap<String, Cmd>();
 
-    static {
+    private static Archive defaultArchive() {
         try {
             final File file = JarLocation.jarLocation(Main.class);
-            final AnnotationFinder finder = new AnnotationFinder(ClasspathArchive.archive(Main.class.getClassLoader(), file.toURI().toURL()));
-
-            for (Method method : finder.findAnnotatedMethods(Command.class)) {
-                final Cmd cmd = new Cmd(method);
-                commands.put(cmd.getName(), cmd);
-            }
+            return ClasspathArchive.archive(Main.class.getClassLoader(), file.toURI().toURL());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         }
     }
 
+    public Main() {
+        this(defaultArchive());
+    }
 
-    public static void main(String[] args) throws Throwable {
-        final List<String> list = new ArrayList<String>();
+    public Main(Archive archive) {
+        final AnnotationFinder finder = new AnnotationFinder(archive);
+
+        for (Method method : finder.findAnnotatedMethods(Command.class)) {
+            add(new Cmd(method));
+        }
+
+        installHelp();
+    }
+
+    private void add(Cmd cmd) {
+        commands.put(cmd.getName(), cmd);
+    }
+
+    private void installHelp() {
+        try {
+            add(new Cmd(new Help(), Help.class.getDeclaredMethod("help")));
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static void main(String... args) throws Exception {
+        final Main main = new Main();
+        main.exec(args);
+    }
+
+    public Object exec(String... args) throws Exception {
+        final List<String> list = new ArrayList<String>(Arrays.asList(args));
 
         final String command = (list.size() == 0) ? "help" : list.remove(0);
         args = list.toArray(new String[list.size()]);
@@ -67,114 +91,24 @@ public class Main {
         if (cmd == null) {
             System.err.println("Unknown command: " + command);
             System.err.println();
-            Help.main(args);
-            return;
+            commands.get("help").exec();
+            throw new IllegalArgumentException();
         }
 
-        cmd.exec(args);
+        return cmd.exec(args);
     }
 
-    public static void add(Class<?> clazz) {
-        commands.putAll(Cmd.get(clazz));
-    }
 
-    public static <A extends Annotation> A get(Annotation[] annotations, Class<A> annotationClass) {
-        for (Annotation annotation : annotations) {
-            if (annotationClass.equals(annotation.annotationType())) return (A) annotation;
-        }
-        return null;
-    }
+    public class Help {
 
-    public static class Reflection {
+        public void help() {
+            System.out.println("Commands: ");
+            System.out.printf("   %-20s", "");
+            System.out.println();
 
-        public static Iterable<Parameter> params(final Method method) {
-            return new Iterable<Parameter>() {
-                @Override
-                public Iterator<Parameter> iterator() {
-                    return new Iterator<Parameter>() {
-                        private int index = 0;
-
-                        @Override
-                        public boolean hasNext() {
-                            return index < method.getParameterTypes().length;
-                        }
-
-                        @Override
-                        public Parameter next() {
-                            if (!hasNext()) throw new NoSuchElementException();
-                            return new Parameter(method.getParameterAnnotations()[index], method.getParameterTypes()[index++]);
-                        }
-
-                        @Override
-                        public void remove() {
-                            throw new UnsupportedOperationException();
-                        }
-                    };
-                }
-            };
-        }
-
-        public static Iterable<Parameter> params(final Constructor constructor) {
-            return new Iterable<Parameter>() {
-                @Override
-                public Iterator<Parameter> iterator() {
-                    return new Iterator<Parameter>() {
-                        private int index = 0;
-
-                        @Override
-                        public boolean hasNext() {
-                            return index < constructor.getParameterTypes().length;
-                        }
-
-                        @Override
-                        public Parameter next() {
-                            if (!hasNext()) throw new NoSuchElementException();
-                            return new Parameter(constructor.getParameterAnnotations()[index], constructor.getParameterTypes()[index++]);
-                        }
-
-                        @Override
-                        public void remove() {
-                            throw new UnsupportedOperationException();
-                        }
-                    };
-                }
-            };
+            for (String command : commands.keySet()) {
+                System.out.printf("   %-20s%n", command);
+            }
         }
     }
-
-    public static class Parameter implements AnnotatedElement {
-
-        private final Annotation[] annotations;
-        private final Class<?> type;
-
-        public Parameter(Annotation[] annotations, Class<?> type) {
-            this.annotations = annotations;
-            this.type = type;
-        }
-
-        public Class<?> getType() {
-            return type;
-        }
-
-        @Override
-        public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
-            return getAnnotation(annotationClass) != null;
-        }
-
-        @Override
-        public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-            return get(annotations, annotationClass);
-        }
-
-        @Override
-        public Annotation[] getAnnotations() {
-            return annotations;
-        }
-
-        @Override
-        public Annotation[] getDeclaredAnnotations() {
-            return getAnnotations();
-        }
-    }
-
 }

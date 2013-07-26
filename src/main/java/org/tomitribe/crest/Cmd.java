@@ -12,9 +12,12 @@ import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.util.Converter;
 import org.tomitribe.crest.util.Join;
+import org.tomitribe.crest.util.ObjectMap;
 
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,13 +28,54 @@ import java.util.Map;
  */
 public class Cmd {
 
+    private final Object bean;
     private final Method method;
     private final String name;
 
-    public Cmd(Method method) {
+    public Cmd(Object bean, Method method) {
+        this.bean = bean;
         this.method = method;
+        this.name = name(method);
+    }
+
+    private static String name(Method method) {
         final Command command = method.getAnnotation(Command.class);
-        this.name = value(command.value(), method.getName());
+        if (command == null) return method.getName();
+        return value(command.value(), method.getName());
+    }
+
+    public Cmd(Method method) {
+        this(null, method);
+    }
+
+    public String getUsage() {
+        final String usage = usage();
+
+        if (usage != null) {
+            if (!usage.startsWith(name)) {
+                return name + " " + usage;
+            } else {
+                return usage;
+            }
+        }
+
+        final List<Object> args = new ArrayList<Object>();
+
+        for (Parameter parameter : Reflection.params(method)) {
+            if (parameter.getAnnotation(Option.class) != null) {
+                continue;
+            }
+            args.add(parameter.getType().getSimpleName());
+        }
+
+        return String.format("%s %s %s", name, args.size() == method.getParameterTypes().length ? "" : "[options]", Join.join(" ", args));
+    }
+
+    private String usage() {
+        final Command command = method.getAnnotation(Command.class);
+        if (command == null) return null;
+        if ("".equals(command.usage())) return null;
+        return command.usage();
     }
 
     public static Map<String, Cmd> get(Class<?> clazz) {
@@ -50,7 +94,55 @@ public class Cmd {
         return name;
     }
 
-    public void exec(String... rawArgs) {
+    public Object exec(String... rawArgs) {
+        validate();
+
+        final List<Object> args;
+        try {
+            args = parseArgs(rawArgs);
+        } catch (Exception e) {
+            help(System.err);
+            throw new IllegalArgumentException(e);
+        }
+
+        try {
+            final Object[] array = args.toArray();
+            method.getName();
+            return method.invoke(bean, array);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e.getCause());
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void validate() {
+        if (bean == null && !Modifier.isStatic(method.getModifiers())) {
+            throw new IllegalStateException("Method not static : " + method.getName());
+        }
+    }
+
+    private void help(PrintStream out) {
+        out.println();
+        out.print("Usage: ");
+        out.println(getUsage());
+        out.println();
+        out.println("Options: ");
+        out.printf("   %-20s   %s%n", "", "(default)");
+
+        for (Map.Entry<String, String> entry : getOptions().entrySet()) {
+            if (entry instanceof ObjectMap.Member) {
+                ObjectMap.Member<String, String> member = (ObjectMap.Member<String, String>) entry;
+                out.printf("   --%-20s %s%n", entry.getKey() + "=<" + member.getType().getSimpleName() + ">", entry.getValue());
+            } else {
+                out.printf("   --%-20s %s%n", entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    private List<Object> parseArgs(String... rawArgs) {
         final List<String> list = new ArrayList<String>();
 
         final Map<String, String> options = getOptions();
@@ -84,7 +176,7 @@ public class Cmd {
 
         final List<Object> args = new ArrayList<Object>();
 
-        for (Main.Parameter parameter : Main.Reflection.params(method)) {
+        for (Parameter parameter : Reflection.params(method)) {
             final Option option = parameter.getAnnotation(Option.class);
             if (option != null) {
                 final String value = options.remove(option.value());
@@ -109,20 +201,13 @@ public class Cmd {
                 }
             }, options.keySet()));
         }
-
-        try {
-            method.invoke(null, args.toArray());
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getCause());
-        }
+        return args;
     }
 
-    private Map<String, String> getOptions() {
+    public Map<String, String> getOptions() {
         final Map<String, String> options = new HashMap<String, String>();
 
-        for (Main.Parameter parameter : Main.Reflection.params(method)) {
+        for (Parameter parameter : Reflection.params(method)) {
             final Option option = parameter.getAnnotation(Option.class);
 
             if (option == null) continue;
@@ -139,4 +224,5 @@ public class Cmd {
     public static String value(String value, String defaultValue) {
         return value == null || value.length() == 0 ? defaultValue : value;
     }
+
 }

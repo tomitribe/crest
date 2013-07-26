@@ -77,7 +77,11 @@ public class Main {
 
     public static void main(String... args) throws Exception {
         final Main main = new Main();
-        main.exec(args);
+        try {
+            main.exec(args);
+        } catch (Exception e) {
+            System.exit(-1);
+        }
     }
 
     public Object exec(String... args) throws Exception {

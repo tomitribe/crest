@@ -101,21 +101,35 @@ public class Cmd {
         try {
             args = parseArgs(rawArgs);
         } catch (Exception e) {
-            help(System.err);
-            throw new IllegalArgumentException(e);
+            reportWithHelp(e);
+            throw toRuntimeException(e);
         }
 
         try {
             final Object[] array = args.toArray();
             method.getName();
             return method.invoke(bean, array);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getCause());
+            final Throwable cause = e.getCause();
+            if (cause instanceof IllegalArgumentException) {
+                reportWithHelp(e);
+            }
+            throw toRuntimeException(cause);
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            throw toRuntimeException(e);
         }
+    }
+
+    private void reportWithHelp(Exception e) {
+        System.err.println(e.getMessage());
+        help(System.err);
+    }
+
+    private RuntimeException toRuntimeException(Throwable e) {
+        if (e instanceof RuntimeException) {
+            return (RuntimeException) e;
+        }
+        return new IllegalArgumentException(e);
     }
 
     private void validate() {

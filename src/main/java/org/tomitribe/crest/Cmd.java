@@ -15,13 +15,16 @@ import org.tomitribe.crest.util.Join;
 import org.tomitribe.crest.util.ObjectMap;
 
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Revision$ $Date$
@@ -36,6 +39,17 @@ public class Cmd {
         this.bean = bean;
         this.method = method;
         this.name = name(method);
+
+        validate();
+    }
+
+    private void validate() {
+        final Set<String> names = new HashSet<String>();
+        for (Parameter param : Reflection.params(method)) {
+            final Option option = param.getAnnotation(Option.class);
+            if (option == null) continue;
+            if (!names.add(option.value())) throw new IllegalArgumentException("Duplicate option: " + option.value());
+        }
     }
 
     private static String name(Method method) {
@@ -95,7 +109,9 @@ public class Cmd {
     }
 
     public Object exec(String... rawArgs) {
-        validate();
+        final Object bean = getBean();
+
+        validate(bean);
 
         final List<Object> args;
         try {
@@ -132,7 +148,7 @@ public class Cmd {
         return new IllegalArgumentException(e);
     }
 
-    private void validate() {
+    private void validate(final Object bean) {
         if (bean == null && !Modifier.isStatic(method.getModifiers())) {
             throw new IllegalStateException("Method not static : " + method.getName());
         }
@@ -188,6 +204,12 @@ public class Cmd {
             }
         }
 
+        final Map<String, String> properties = Substitution.getSystemProperties();
+        for (Map.Entry<String, String> entry : options.entrySet()) {
+            final String value = Substitution.format(entry.getValue(), properties);
+            options.put(entry.getKey(), value);
+        }
+
         final List<Object> args = new ArrayList<Object>();
 
         for (Parameter parameter : Reflection.params(method)) {
@@ -239,4 +261,21 @@ public class Cmd {
         return value == null || value.length() == 0 ? defaultValue : value;
     }
 
+    private Object getBean() {
+        if (bean != null) return bean;
+        if (!Modifier.isStatic(method.getModifiers())) {
+            try {
+                final Class<?> declaringClass = method.getDeclaringClass();
+                final Constructor<?> constructor = declaringClass.getConstructor();
+                return constructor.newInstance();
+            } catch (NoSuchMethodException e) {
+                return null;
+            } catch (InvocationTargetException e) {
+                throw new IllegalStateException(e.getCause());
+            } catch (Throwable e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return bean;
+    }
 }

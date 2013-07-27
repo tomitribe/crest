@@ -15,8 +15,6 @@ import org.tomitribe.crest.api.Command;
  */
 public class MainTest extends TestCase {
 
-    public static String state;
-
     public void test() throws Exception {
 
         final Main main = new Main(new ClassesArchive(Foo.class));

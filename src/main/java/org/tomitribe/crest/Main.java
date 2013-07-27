@@ -85,7 +85,7 @@ public class Main {
     }
 
     public Object exec(String... args) throws Exception {
-        final List<String> list = new ArrayList<String>(Arrays.asList(args));
+        final List<String> list = processSystemProperties(args);
 
         final String command = (list.size() == 0) ? "help" : list.remove(0);
         args = list.toArray(new String[list.size()]);
@@ -102,6 +102,24 @@ public class Main {
         return cmd.exec(args);
     }
 
+    public static List<String> processSystemProperties(String[] args) {
+        final List<String> list = new ArrayList<String>();
+
+        // Read in and apply the properties specified on the command line
+        for (String arg : args) {
+            if (arg.startsWith("-D")) {
+
+                final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf("="));
+                final String value = arg.substring(arg.indexOf("=") + 1);
+
+                System.setProperty(name, value);
+            } else {
+                list.add(arg);
+            }
+        }
+
+        return list;
+    }
 
     public class Help {
 

@@ -19,12 +19,6 @@ public class MainTest extends TestCase {
 
         final Main main = new Main(new ClassesArchive(Foo.class));
 
-        try{
-            main.exec("red");
-            fail("Non-static should not be allowed in this case");
-        }catch (IllegalStateException e) {
-        }
-
         assertEquals("green", main.exec("green"));
 
         try {

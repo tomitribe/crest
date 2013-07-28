@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.api.Required;
 
 import java.io.File;
 import java.util.Map;
@@ -58,6 +59,14 @@ public class CmdTest extends TestCase {
         } catch (IllegalArgumentException e) {
         }
 
+        // Required option
+        try {
+            final Cmd tail = commands.get("required");
+            tail.exec();
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
         // primitives
         // boolean options default to false
         {
@@ -97,6 +106,10 @@ public class CmdTest extends TestCase {
 
         @Command
         public static void tar(@Option("x") File file) {
+        }
+
+        @Command
+        public static void required(@Option("pass") @Required String pass) {
         }
     }
 }

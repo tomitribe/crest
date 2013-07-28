@@ -10,6 +10,7 @@ package org.tomitribe.crest;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.util.Converter;
 import org.tomitribe.crest.util.Join;
 import org.tomitribe.crest.util.ObjectMap;
@@ -178,6 +179,7 @@ public class Cmd {
         final Map<String, String> options = getOptions();
 
         final List<String> invalid = new ArrayList<String>();
+        final List<String> required = new ArrayList<String>();
 
         // Read in and apply the options specified on the command line
         for (String arg : rawArgs) {
@@ -217,7 +219,11 @@ public class Cmd {
             final Option option = parameter.getAnnotation(Option.class);
             if (option != null) {
                 final String value = options.remove(option.value());
-                args.add(Converter.convert(value, parameter.getType(), option.value()));
+                if (value == null && parameter.isAnnotationPresent(Required.class)) {
+                    required.add(option.value());
+                } else {
+                    args.add(Converter.convert(value, parameter.getType(), option.value()));
+                }
             } else if (list.size() > 0) {
                 final String value = list.remove(0);
                 args.add(Converter.convert(value, parameter.getType(), "[" + parameter.getType().getSimpleName() + "]"));
@@ -238,6 +244,7 @@ public class Cmd {
                 }
             }, options.keySet()));
         }
+
         if (invalid.size() > 0) {
             throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback() {
                 @Override
@@ -245,6 +252,15 @@ public class Cmd {
                     return "--" + object;
                 }
             }, invalid));
+        }
+
+        if (required.size() > 0) {
+            throw new IllegalArgumentException("Required: " + Join.join(", ", new Join.NameCallback() {
+                @Override
+                public String getName(Object object) {
+                    return "--" + object;
+                }
+            }, required));
         }
         return args;
     }

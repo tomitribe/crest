@@ -11,4 +11,11 @@
   <artifactId>tomitribe-crest-archetype</artifactId>
   <name>Tomitribe :: Crest Archetype</name>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.tomitribe</groupId>
+      <artifactId>tomitribe-crest</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+  </dependencies>
 </project>

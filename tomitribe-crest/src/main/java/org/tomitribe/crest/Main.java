@@ -20,10 +20,13 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.StreamingOutput;
+import org.tomitribe.crest.util.IO;
 import org.tomitribe.crest.util.JarLocation;
 import org.tomitribe.crest.util.ObjectMap;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -78,7 +81,12 @@ public class Main {
     public static void main(String... args) throws Exception {
         final Main main = new Main();
         try {
-            main.exec(args);
+            final Object result = main.exec(args);
+            if (result instanceof StreamingOutput) {
+                ((StreamingOutput)result).write(System.out);
+            } else if (result instanceof String) {
+                System.out.println(result);
+            }
         } catch (Cmd.CommandFailedException e) {
             e.getCause().printStackTrace();
             System.exit(-1);

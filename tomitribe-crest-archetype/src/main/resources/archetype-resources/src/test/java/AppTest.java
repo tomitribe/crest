@@ -1,38 +1,22 @@
-package $org.tomitribe;
+package $groupId;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.apache.xbean.finder.archive.ClassesArchive;
+import org.junit.Assert;
+import org.junit.Test;
+import org.tomitribe.crest.Main;
 
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+public class AppTest extends Assert {
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
+    @Test
+    public void testApp() throws Exception {
+        final Main main = new Main(new ClassesArchive(App.class));
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+        assertEquals("Hello, World!", main.exec("hello"));
+        assertEquals("Hello, Wisconsin!", main.exec("hello", "--name=Wisconsin"));
+        assertEquals("Hola, Ecuador!", main.exec("hello", "--name=Ecuador", "--language=ES"));
     }
 }

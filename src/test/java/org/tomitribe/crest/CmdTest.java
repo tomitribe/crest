@@ -40,10 +40,24 @@ public class CmdTest extends TestCase {
             tail.exec("--number=45", "/some/file.txt", "45");
             tail.exec("/some/file.txt", "100");
         }
-        {
+
+        // Missing arguments
+        try {
             final Cmd tail = commands.get("tail");
             tail.exec();
+            fail();
+        } catch (IllegalArgumentException e) {
+
         }
+
+        // Invalid arguments
+        try {
+            final Cmd tail = commands.get("tail");
+            tail.exec("/some/file.txt", "100", "--color");
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
     }
 
 

@@ -237,6 +237,14 @@ public class Cmd {
                 }
             }, options.keySet()));
         }
+        if (invalid.size() > 0) {
+            throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback() {
+                @Override
+                public String getName(Object object) {
+                    return "--" + object;
+                }
+            }, invalid));
+        }
         return args;
     }
 

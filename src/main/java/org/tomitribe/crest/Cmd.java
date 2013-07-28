@@ -206,6 +206,7 @@ public class Cmd {
 
         final Map<String, String> properties = Substitution.getSystemProperties();
         for (Map.Entry<String, String> entry : options.entrySet()) {
+            if (entry.getValue() == null) continue;
             final String value = Substitution.format(entry.getValue(), properties);
             options.put(entry.getKey(), value);
         }

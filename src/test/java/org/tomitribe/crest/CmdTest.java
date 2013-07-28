@@ -29,7 +29,7 @@ public class CmdTest extends TestCase {
             touch.exec("/some/file.txt");
         }
 
-        {
+        { // Boolean options
             final Cmd ls = commands.get("ls");
             ls.exec("--long=true", "/some/file.txt");
             ls.exec("--long", "/some/file.txt");
@@ -50,7 +50,7 @@ public class CmdTest extends TestCase {
 
         }
 
-        // Invalid arguments
+        // Invalid option
         try {
             final Cmd tail = commands.get("tail");
             tail.exec("/some/file.txt", "100", "--color");
@@ -58,8 +58,16 @@ public class CmdTest extends TestCase {
         } catch (IllegalArgumentException e) {
         }
 
-    }
+        // primitives
+        // boolean options default to false
+        {
+            final Cmd cmd = commands.get("booleanOption");
+            assertEquals(false, cmd.exec());
+            assertEquals(true, cmd.exec("--long"));
+        }
 
+
+    }
 
     public static class Commands {
 
@@ -77,9 +85,18 @@ public class CmdTest extends TestCase {
         }
 
         @Command
+        public static boolean booleanOption(@Option("long") boolean longform) {
+            return longform;
+        }
+
+        @Command
         public static void tail(@Option("number") @Default("100") int number, File file, int expected) {
             assertEquals(expected, number);
             assertEquals("/some/file.txt", file.getAbsolutePath());
+        }
+
+        @Command
+        public static void tar(@Option("x") File file) {
         }
     }
 }

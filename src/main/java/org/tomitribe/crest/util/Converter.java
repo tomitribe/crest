@@ -25,7 +25,10 @@ import java.lang.reflect.Modifier;
  */
 public class Converter {
     public static Object convert(Object value, Class<?> targetType, final String name) {
-        if (value == null) return value;
+        if (value == null) {
+            if (targetType.equals(Boolean.TYPE)) return false;
+            return value;
+        }
 
         final Class<? extends Object> actualType = value.getClass();
 

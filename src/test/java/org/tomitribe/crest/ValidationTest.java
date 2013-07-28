@@ -25,7 +25,6 @@ public class ValidationTest extends Assert {
             final Map<String, Cmd> map = Cmd.get(Duplicates.class);
             fail();
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

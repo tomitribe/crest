@@ -131,9 +131,15 @@ public class Cmd {
             if (cause instanceof IllegalArgumentException) {
                 reportWithHelp(e);
             }
-            throw toRuntimeException(cause);
+            throw new CommandFailedException(cause);
         } catch (Throwable e) {
             throw toRuntimeException(e);
+        }
+    }
+
+    public static class CommandFailedException extends RuntimeException {
+        public CommandFailedException(Throwable cause) {
+            super(cause);
         }
     }
 

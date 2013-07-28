@@ -79,7 +79,10 @@ public class Main {
         final Main main = new Main();
         try {
             main.exec(args);
-        } catch (Exception e) {
+        } catch (Cmd.CommandFailedException e) {
+            e.getCause().printStackTrace();
+            System.exit(-1);
+        } catch (Exception alreadyHandled) {
             System.exit(-1);
         }
     }

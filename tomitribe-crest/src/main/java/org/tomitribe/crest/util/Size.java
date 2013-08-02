@@ -59,7 +59,7 @@ public class Size {
             // get the number
             for (; i < s.length(); i++) {
                 char c = s.charAt(i);
-                if (Character.isDigit(c) || i == 0 && c == '-') {
+                if (Character.isDigit(c) || i == 0 && c == '-' || i > 0 && c == '.') {
                     t.append(c);
                 } else {
                     break;
@@ -89,12 +89,22 @@ public class Size {
                 }
             }
 
-            part.size = Integer.parseInt(t.toString());
 
             part.unit = parseUnit(u.toString());
 
             if (part.unit == null) {
                 part.unit = defaultUnit;
+            }
+
+            final String size = t.toString();
+            if (size.contains(".")) {
+                if (part.unit == null) throw new IllegalArgumentException("unit must be specified with floating point numbers");
+                final double d = Double.parseDouble(size);
+                final long bytes = part.unit.toBytes(1);
+                part.size = (long) (bytes * d);
+                part.unit = SizeUnit.BYTES;
+            } else {
+                part.size = Integer.parseInt(size);
             }
 
             total = total.add(part);

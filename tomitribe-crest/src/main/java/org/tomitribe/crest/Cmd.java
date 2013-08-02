@@ -161,7 +161,7 @@ public class Cmd {
         }
     }
 
-    private void help(PrintStream out) {
+    public void help(PrintStream out) {
         out.println();
         out.print("Usage: ");
         out.println(getUsage());

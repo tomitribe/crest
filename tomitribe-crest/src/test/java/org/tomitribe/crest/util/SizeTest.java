@@ -64,6 +64,10 @@ public class SizeTest extends TestCase {
         assertEquals(new Size(-1, null), new Size("-1"));
     }
 
+    public void testDecimals() throws Exception {
+        assertEquals(new Size(1234223277, BYTES), new Size("1.14946gb"));
+        assertEquals(new Size("1.20224609", GIGABYTES).getSize(KILOBYTES), new Size("1.2gb and 2.3mb").getSize(KILOBYTES));
+    }
 
     public void testUnitConversion() throws Exception {
         assertEquals(3, new Size(3, BYTES).getSize(BYTES));

@@ -4,3 +4,11 @@
 *.jar
 *.war
 *.ear
+
+# Emacs
+*~
+
+# Intellij
+*.iml
+.idea
+Maven__*

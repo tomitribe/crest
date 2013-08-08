@@ -76,6 +76,16 @@
       <artifactId>xbean-finder-shaded</artifactId>
       <version>3.12</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.bval</groupId>
+      <artifactId>bval-jsr303</artifactId>
+      <version>0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-validation_1.0_spec</artifactId>
+      <version>1.1</version>
+    </dependency>
   </dependencies>
 
 </project>

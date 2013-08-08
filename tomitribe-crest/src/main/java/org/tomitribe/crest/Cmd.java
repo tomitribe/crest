@@ -14,7 +14,10 @@ import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.util.Converter;
 import org.tomitribe.crest.util.Join;
 import org.tomitribe.crest.util.ObjectMap;
+import org.tomitribe.crest.val.BeanValidation;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -114,18 +117,19 @@ public class Cmd {
 
         validate(bean);
 
-        final List<Object> args;
+        final Object[] args;
         try {
-            args = parseArgs(rawArgs);
+            final List<Object> list = parseArgs(rawArgs);
+            args = list.toArray();
+            BeanValidation.validateParameters(method.getDeclaringClass(), method, args);
         } catch (Exception e) {
             reportWithHelp(e);
             throw toRuntimeException(e);
         }
 
         try {
-            final Object[] array = args.toArray();
             method.getName();
-            return method.invoke(bean, array);
+            return method.invoke(bean, args);
         } catch (InvocationTargetException e) {
             final Throwable cause = e.getCause();
             if (cause instanceof IllegalArgumentException) {
@@ -144,7 +148,14 @@ public class Cmd {
     }
 
     private void reportWithHelp(Exception e) {
-        System.err.println(e.getMessage());
+        if (e instanceof ConstraintViolationException) {
+            final ConstraintViolationException cve = (ConstraintViolationException) e;
+            for (ConstraintViolation<?> violation : cve.getConstraintViolations()) {
+                System.err.println(violation.getMessage());
+            }
+        } else {
+            System.err.println(e.getMessage());
+        }
         help(System.err);
     }
 

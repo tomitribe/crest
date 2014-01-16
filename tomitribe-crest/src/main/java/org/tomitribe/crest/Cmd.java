@@ -19,6 +19,7 @@ import org.tomitribe.crest.val.BeanValidation;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.io.PrintStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,12 +36,16 @@ import java.util.Set;
  */
 public class Cmd {
 
-    private final Object bean;
+    private final Target target;
     private final Method method;
     private final String name;
 
     public Cmd(Object bean, Method method) {
-        this.bean = bean;
+        this(method, new SimpleBean(bean));
+    }
+
+    public Cmd(Method method, Target target) {
+        this.target = target;
         this.method = method;
         this.name = name(method);
 
@@ -113,9 +118,6 @@ public class Cmd {
     }
 
     public Object exec(String... rawArgs) {
-        final Object bean = getBean();
-
-        validate(bean);
 
         final Object[] args;
         try {
@@ -128,8 +130,7 @@ public class Cmd {
         }
 
         try {
-            method.getName();
-            return method.invoke(bean, args);
+            return target.invoke(method, args);
         } catch (InvocationTargetException e) {
             final Throwable cause = e.getCause();
             if (cause instanceof IllegalArgumentException) {
@@ -164,12 +165,6 @@ public class Cmd {
             return (RuntimeException) e;
         }
         return new IllegalArgumentException(e);
-    }
-
-    private void validate(final Object bean) {
-        if (bean == null && !Modifier.isStatic(method.getModifiers())) {
-            throw new IllegalStateException("Method not static : " + method.getName());
-        }
     }
 
     public void help(PrintStream out) {
@@ -242,8 +237,20 @@ public class Cmd {
                     args.add(Converter.convert(value, parameter.getType(), option.value()));
                 }
             } else if (list.size() > 0) {
-                final String value = list.remove(0);
-                args.add(Converter.convert(value, parameter.getType(), "[" + parameter.getType().getSimpleName() + "]"));
+                if (parameter.getType().isArray()) {
+                    // TODO: must be last param
+                    final Class<?> type = parameter.getType().getComponentType();
+                    final List<Object> objects = new ArrayList<Object>();
+                    for (String value : list) {
+                        objects.add(Converter.convert(value, type, "[" + type.getSimpleName() + "]"));
+                    }
+                    list.clear();
+                    final Object[] array = objects.toArray((Object[]) Array.newInstance(type, objects.size()));
+                    args.add(array);
+                } else {
+                    final String value = list.remove(0);
+                    args.add(Converter.convert(value, parameter.getType(), "[" + parameter.getType().getSimpleName() + "]"));
+                }
             } else {
                 throw new IllegalArgumentException("Missing argument [" + parameter.getType().getSimpleName() + "]");
             }
@@ -303,9 +310,27 @@ public class Cmd {
         return value == null || value.length() == 0 ? defaultValue : value;
     }
 
-    private Object getBean() {
-        if (bean != null) return bean;
-        if (!Modifier.isStatic(method.getModifiers())) {
+    public static interface Target {
+        public Object invoke(Method method, Object... args) throws InvocationTargetException, IllegalAccessException;
+    }
+
+    public static class SimpleBean implements Target {
+        private final Object bean;
+
+        public SimpleBean(Object bean) {
+            this.bean = bean;
+        }
+
+        @Override
+        public Object invoke(Method method, Object... args) throws InvocationTargetException, IllegalAccessException {
+            final Object bean = getBean(method);
+            return method.invoke(bean, args);
+        }
+
+        private Object getBean(Method method) {
+            if (bean != null) return bean;
+            if (Modifier.isStatic(method.getModifiers())) return bean;
+
             try {
                 final Class<?> declaringClass = method.getDeclaringClass();
                 final Constructor<?> constructor = declaringClass.getConstructor();
@@ -318,6 +343,7 @@ public class Cmd {
                 throw new IllegalStateException(e);
             }
         }
-        return bean;
     }
+
+
 }

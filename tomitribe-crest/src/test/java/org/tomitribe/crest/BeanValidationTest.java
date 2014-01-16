@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.val.Directory;
+import org.tomitribe.crest.val.Writable;
 
 import javax.validation.ConstraintViolationException;
 import java.io.File;

@@ -25,21 +25,9 @@ import java.util.Map;
  */
 public class CmdTest extends TestCase {
 
+    private final Map<String, Cmd> commands = Cmd.get(Commands.class);
 
     public void test() throws Exception {
-        final Map<String, Cmd> commands = Cmd.get(Commands.class);
-
-        {
-            final Cmd touch = commands.get("touch");
-            assertNotNull(touch);
-            touch.exec("/some/file.txt");
-        }
-
-        { // Boolean options
-            final Cmd ls = commands.get("ls");
-            ls.exec("--long=true", "/some/file.txt");
-            ls.exec("--long", "/some/file.txt");
-        }
 
         {
             final Cmd tail = commands.get("tail");
@@ -63,15 +51,9 @@ public class CmdTest extends TestCase {
             fail();
         } catch (IllegalArgumentException e) {
         }
+    }
 
-        // Required option
-        try {
-            final Cmd tail = commands.get("required");
-            tail.exec();
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
+    public void testImplicitPrimitiveDefaults() {
         // primitives
         // boolean options default to false
         {
@@ -79,8 +61,40 @@ public class CmdTest extends TestCase {
             assertEquals(false, cmd.exec());
             assertEquals(true, cmd.exec("--long"));
         }
+    }
 
+    public void testRequiredOption() {
+        // Required option
+        try {
+            final Cmd tail = commands.get("required");
+            tail.exec();
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+    }
 
+    public void testMissingOptionsWithExtraValues() {
+        // Wrong arguments, should not be passed in as the two options
+        // as they do not have "--key=name" and "--value=thx1138"
+        try {
+            final Cmd tail = commands.get("tail");
+            tail.exec("name", "value");
+            fail();
+        } catch (IllegalArgumentException e) {
+
+        }
+    }
+
+    public void testBooleanOptions() {
+        final Cmd ls = commands.get("ls");
+        ls.exec("--long=true", "/some/file.txt");
+        ls.exec("--long", "/some/file.txt");
+    }
+
+    public void testFileParameter() {
+        final Cmd touch = commands.get("touch");
+        assertNotNull(touch);
+        touch.exec("/some/file.txt");
     }
 
     public static class Commands {
@@ -88,6 +102,12 @@ public class CmdTest extends TestCase {
         @Command
         public static void touch(File file) {
             assertEquals("/some/file.txt", file.getAbsolutePath());
+        }
+
+        @Command
+        public static void set(@Option("key") String key, @Option("value") String value) {
+            assertEquals("name", key);
+            assertEquals("thx1138", value);
         }
 
         @Command

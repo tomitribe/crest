@@ -299,7 +299,22 @@ public class Cmd {
 
             final Default def = parameter.getAnnotation(Default.class);
 
-            options.put(option.value(), def == null ? null : def.value());
+            if (def != null) {
+                options.put(option.value(), def.value());
+            } else if (parameter.getType().isPrimitive()) {
+                final Class<?> type = parameter.getType();
+                if (boolean.class.equals(type)) options.put(option.value(), "false");
+                else if (byte.class.equals(type)) options.put(option.value(), "0");
+                else if (char.class.equals(type)) options.put(option.value(), "\u0000");
+                else if (short.class.equals(type)) options.put(option.value(), "0");
+                else if (int.class.equals(type)) options.put(option.value(), "0");
+                else if (long.class.equals(type)) options.put(option.value(), "0");
+                else if (float.class.equals(type)) options.put(option.value(), "0");
+                else if (double.class.equals(type)) options.put(option.value(), "0");
+                else options.put(option.value(), null);
+            } else {
+                options.put(option.value(), null);
+            }
         }
 
         return options;

@@ -53,6 +53,20 @@ public class Cmd {
     }
 
     private void validate() {
+        validateOptions();
+        validateArgs();
+    }
+
+    private void validateArgs() {
+        for (Parameter param : Reflection.params(method)) {
+            final Option option = param.getAnnotation(Option.class);
+            if (option != null) continue;
+
+            if (param.isAnnotationPresent(Default.class))  throw new IllegalArgumentException("@Default not allowed on args, only options.  Remedy: 1) Add @Option or 2) remove @Default");
+        }
+    }
+
+    private void validateOptions() {
         final Set<String> names = new HashSet<String>();
         for (Parameter param : Reflection.params(method)) {
             final Option option = param.getAnnotation(Option.class);

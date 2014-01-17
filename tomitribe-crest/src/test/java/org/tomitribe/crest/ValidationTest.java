@@ -9,6 +9,7 @@ package org.tomitribe.crest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 
 import java.util.Map;
@@ -20,9 +21,18 @@ public class ValidationTest extends Assert {
 
     @Test
     public void duplicateOptions() {
-
         try {
             final Map<String, Cmd> map = Cmd.get(Duplicates.class);
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
+    @Test
+    public void defaultOnArg() {
+
+        try {
+            final Map<String, Cmd> map = Cmd.get(DefaultUse.class);
             fail();
         } catch (Exception e) {
         }
@@ -33,6 +43,14 @@ public class ValidationTest extends Assert {
 
         @Command
         public void color(@Option("red") String s, @Option("red") String s1) {
+
+        }
+    }
+
+    public static class DefaultUse {
+
+        @Command
+        public void color(@Default("red") String s1) {
 
         }
     }

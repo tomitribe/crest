@@ -99,7 +99,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         @Command
         public void doChar(@Option("p1") char parameter1, char arg1, @Option("p2") char parameter2, char arg2) {
             assertEquals(uninitializedChar, parameter1);
-            assertEquals(9, parameter2);
+            assertEquals('9', parameter2);
             assertEquals('3', arg1);
             assertEquals('7', arg2);
         }
@@ -139,7 +139,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         @Command
         public void doFloat(@Option("p1") float parameter1, float arg1, @Option("p2") float parameter2, float arg2) {
             assertEquals(uninitializedFloat, parameter1);
-            assertEquals(9, parameter2);
+            assertEquals(9f, parameter2);
             assertEquals(3f, arg1);
             assertEquals(7f, arg2);
         }
@@ -147,7 +147,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         @Command
         public void doDouble(@Option("p1") double parameter1, double arg1, @Option("p2") double parameter2, double arg2) {
             assertEquals(uninitializedDouble, parameter1);
-            assertEquals(9, parameter2);
+            assertEquals(9d, parameter2);
             assertEquals(3d, arg1);
             assertEquals(7d, arg2);
         }
@@ -155,7 +155,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         @Command
         public void doString(@Option("p1") String parameter1, String arg1, @Option("p2") String parameter2, String arg2) {
             assertEquals(null, parameter1);
-            assertEquals(null, parameter2);
+            assertEquals("9", parameter2);
             assertEquals("3", arg1);
             assertEquals("7", arg2);
         }

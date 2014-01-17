@@ -62,7 +62,9 @@ public class Cmd {
             final Option option = param.getAnnotation(Option.class);
             if (option != null) continue;
 
-            if (param.isAnnotationPresent(Default.class))  throw new IllegalArgumentException("@Default not allowed on args, only options.  Remedy: 1) Add @Option or 2) remove @Default");
+            if (param.isAnnotationPresent(Default.class)){
+                throw new IllegalArgumentException("@Default not allowed on args, only options.  Remedy: 1) Add @Option or 2) remove @Default");
+            }
         }
     }
 
@@ -243,29 +245,46 @@ public class Cmd {
 
         for (Parameter parameter : Reflection.params(method)) {
             final Option option = parameter.getAnnotation(Option.class);
+
             if (option != null) {
+
                 final String value = options.remove(option.value());
+
                 if (value == null && parameter.isAnnotationPresent(Required.class)) {
+
                     required.add(option.value());
+
                 } else {
+
                     args.add(Converter.convert(value, parameter.getType(), option.value()));
+
                 }
+
             } else if (list.size() > 0) {
+
                 if (parameter.getType().isArray()) {
+
                     // TODO: must be last param
                     final Class<?> type = parameter.getType().getComponentType();
                     final List<Object> objects = new ArrayList<Object>();
+
                     for (String value : list) {
+
                         objects.add(Converter.convert(value, type, "[" + type.getSimpleName() + "]"));
                     }
+
                     list.clear();
                     final Object[] array = objects.toArray((Object[]) Array.newInstance(type, objects.size()));
                     args.add(array);
+
                 } else {
+
                     final String value = list.remove(0);
                     args.add(Converter.convert(value, parameter.getType(), "[" + parameter.getType().getSimpleName() + "]"));
                 }
+
             } else {
+
                 throw new IllegalArgumentException("Missing argument [" + parameter.getType().getSimpleName() + "]");
             }
         }

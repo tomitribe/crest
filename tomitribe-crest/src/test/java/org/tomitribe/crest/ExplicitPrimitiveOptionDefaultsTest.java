@@ -59,6 +59,10 @@ public class ExplicitPrimitiveOptionDefaultsTest extends TestCase {
         commands.get("doDouble").exec();
     }
 
+    public void testAll() throws Exception {
+        commands.get("doAll").exec();
+    }
+
     public static class Commands {
 
         private byte defaultByte = (byte) 42;
@@ -110,5 +114,27 @@ public class ExplicitPrimitiveOptionDefaultsTest extends TestCase {
         public void doDouble(@Option("value") @Default("20.0") double value) {
             assertEquals(defaultDouble, value);
         }
+
+        @Command
+        public void doAll(
+                @Option("byte") @Default("42") byte byteValue,
+                @Option("char") @Default("D") char charValue,
+                @Option("boolean") @Default("true") boolean booleanValue,
+                @Option("short") @Default("1024") short shortValue,
+                @Option("int") @Default("3301976") int intValue,
+                @Option("long") @Default("10000000000") long longValue,
+                @Option("float") @Default("10.0") float floatValue,
+                @Option("double") @Default("20.0") double doubleValue
+        ) {
+            assertEquals(defaultByte, byteValue);
+            assertEquals(defaultChar, charValue);
+            assertEquals(defaultBoolean, booleanValue);
+            assertEquals(defaultShort, shortValue);
+            assertEquals(defaultInt, intValue);
+            assertEquals(defaultLong, longValue);
+            assertEquals(defaultFloat, floatValue);
+            assertEquals(defaultDouble, doubleValue);
+        }
+
     }
 }

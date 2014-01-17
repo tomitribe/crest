@@ -24,8 +24,6 @@ import java.util.Map;
 
 public class ImplicitPrimitiveOptionDefaultsTest extends TestCase {
 
-    private char uninitialized;
-
     private final Map<String, Cmd> commands = Cmd.get(Commands.class);
 
     public void testByte() throws Exception {
@@ -58,6 +56,10 @@ public class ImplicitPrimitiveOptionDefaultsTest extends TestCase {
 
     public void testDouble() throws Exception {
         commands.get("doDouble").exec();
+    }
+
+    public void testAll() throws Exception {
+        commands.get("doAll").exec();
     }
 
     public static class Commands {
@@ -110,6 +112,27 @@ public class ImplicitPrimitiveOptionDefaultsTest extends TestCase {
         @Command
         public void doDouble(@Option("value") double value) {
             assertEquals(uninitializedDouble, value);
+        }
+
+        @Command
+        public void doAll(
+                @Option("byte") byte byteValue,
+                @Option("char") char charValue,
+                @Option("boolean") boolean booleanValue,
+                @Option("short") short shortValue,
+                @Option("int") int intValue,
+                @Option("long") long longValue,
+                @Option("float") float floatValue,
+                @Option("double") double doubleValue
+        ) {
+            assertEquals(uninitializedByte, byteValue);
+            assertEquals(uninitializedChar, charValue);
+            assertEquals(uninitializedBoolean, booleanValue);
+            assertEquals(uninitializedShort, shortValue);
+            assertEquals(uninitializedInt, intValue);
+            assertEquals(uninitializedLong, longValue);
+            assertEquals(uninitializedFloat, floatValue);
+            assertEquals(uninitializedDouble, doubleValue);
         }
     }
 }

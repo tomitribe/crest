@@ -11,10 +11,15 @@ import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Required;
-import org.tomitribe.crest.util.Converter;
-import org.tomitribe.crest.util.Join;
-import org.tomitribe.crest.util.ObjectMap;
 import org.tomitribe.crest.val.BeanValidation;
+import org.tomitribe.crest.util.Converter;
+import org.tomitribe.util.Join;
+import org.tomitribe.util.collect.ObjectMap;
+//import org.tomitribe.util.editor.Converter;
+import org.tomitribe.util.reflect.Generics;
+import org.tomitribe.util.reflect.Generics;
+import org.tomitribe.util.reflect.Parameter;
+import org.tomitribe.util.reflect.Reflection;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -24,18 +29,30 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
+import java.util.Queue;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @version $Revision$ $Date$
  */
 public class Cmd {
 
+    private static final String LIST_SEPARATOR = "\u0000";
+    private static final String LIST_TYPE = "\uFFFF￿\uFFFF￿";
     private final Target target;
     private final Method method;
     private final String name;
@@ -191,7 +208,7 @@ public class Cmd {
         out.println("Options: ");
         out.printf("   %-20s   %s%n", "", "(default)");
 
-        for (Map.Entry<String, String> entry : getOptions().entrySet()) {
+        for (Map.Entry<String, String> entry : getDefaults().entrySet()) {
             if (entry instanceof ObjectMap.Member) {
                 ObjectMap.Member<String, String> member = (ObjectMap.Member<String, String>) entry;
                 out.printf("   --%-20s %s%n", entry.getKey() + "=<" + member.getType().getSimpleName() + ">", entry.getValue());
@@ -202,46 +219,15 @@ public class Cmd {
     }
 
     private List<Object> parseArgs(String... rawArgs) {
-        final List<String> list = new ArrayList<String>();
+        return convert(new Arguments(rawArgs));
+    }
 
-        final Map<String, String> options = getOptions();
+    private List<Object> convert(Arguments args) {
 
-        final List<String> invalid = new ArrayList<String>();
-        final List<String> required = new ArrayList<String>();
+        final Map<String, String> options = args.options;
+        final List<String> list = args.list;
 
-        // Read in and apply the options specified on the command line
-        for (String arg : rawArgs) {
-            if (arg.startsWith("--")) {
-
-                final String name;
-                final String value;
-
-                if (arg.indexOf("=") > 0) {
-                    name = arg.substring(arg.indexOf("--") + 2, arg.indexOf("="));
-                    value = arg.substring(arg.indexOf("=") + 1);
-                } else {
-                    name = arg.substring(arg.indexOf("--") + 2);
-                    value = "true";
-                }
-
-                if (options.containsKey(name)) {
-                    options.put(name, value);
-                } else {
-                    invalid.add(name);
-                }
-            } else {
-                list.add(arg);
-            }
-        }
-
-        final Map<String, String> properties = Substitution.getSystemProperties();
-        for (Map.Entry<String, String> entry : options.entrySet()) {
-            if (entry.getValue() == null) continue;
-            final String value = Substitution.format(entry.getValue(), properties);
-            options.put(entry.getKey(), value);
-        }
-
-        final List<Object> args = new ArrayList<Object>();
+        final List<Object> converted = new ArrayList<Object>();
 
         for (Parameter parameter : Reflection.params(method)) {
             final Option option = parameter.getAnnotation(Option.class);
@@ -250,13 +236,25 @@ public class Cmd {
 
                 final String value = options.remove(option.value());
 
-                if (value == null && parameter.isAnnotationPresent(Required.class)) {
+                if (Collection.class.isAssignableFrom(parameter.getType())) {
 
-                    required.add(option.value());
+                    final Type type = Generics.getType(parameter);
+
+                    final List<String> split = new ArrayList<String>(Arrays.asList(value.split(LIST_TYPE + "|" + LIST_SEPARATOR)));
+                    split.remove(0);
+
+                    final Collection<Object> collection = instantiate((Class<? extends Collection>) parameter.getType());
+                    for (String string : split) {
+
+                        collection.add(Converter.convert(string, (Class<?>) type, option.value()));
+
+                    }
+
+                    converted.add(collection);
 
                 } else {
 
-                    args.add(Converter.convert(value, parameter.getType(), option.value()));
+                    converted.add(Converter.convert(value, parameter.getType(), option.value()));
 
                 }
 
@@ -275,12 +273,12 @@ public class Cmd {
 
                     list.clear();
                     final Object[] array = objects.toArray((Object[]) Array.newInstance(type, objects.size()));
-                    args.add(array);
+                    converted.add(array);
 
                 } else {
 
                     final String value = list.remove(0);
-                    args.add(Converter.convert(value, parameter.getType(), "[" + parameter.getType().getSimpleName() + "]"));
+                    converted.add(Converter.convert(value, parameter.getType(), "[" + parameter.getType().getSimpleName() + "]"));
                 }
 
             } else {
@@ -302,27 +300,56 @@ public class Cmd {
             }, options.keySet()));
         }
 
-        if (invalid.size() > 0) {
-            throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback() {
-                @Override
-                public String getName(Object object) {
-                    return "--" + object;
-                }
-            }, invalid));
-        }
-
-        if (required.size() > 0) {
-            throw new IllegalArgumentException("Required: " + Join.join(", ", new Join.NameCallback() {
-                @Override
-                public String getName(Object object) {
-                    return "--" + object;
-                }
-            }, required));
-        }
-        return args;
+        return converted;
     }
 
-    public Map<String, String> getOptions() {
+    public static Collection<Object> instantiate(Class<? extends Collection> aClass) {
+        if (aClass.isInterface()) {
+            // Sub iterfaces listed first
+
+            // Sets
+            if (NavigableSet.class.isAssignableFrom(aClass)) return new TreeSet<Object>();
+            if (SortedSet.class.isAssignableFrom(aClass)) return new TreeSet<Object>();
+            if (Set.class.isAssignableFrom(aClass)) return new LinkedHashSet<Object>();
+
+            // Queues
+            if (Deque.class.isAssignableFrom(aClass)) return new LinkedList<Object>();
+            if (Queue.class.isAssignableFrom(aClass)) return new LinkedList<Object>();
+
+            // Lists
+            if (List.class.isAssignableFrom(aClass)) return new ArrayList<Object>();
+
+            // Collection
+            if (Collection.class.isAssignableFrom(aClass)) return new LinkedList<Object>();
+
+            // Iterable
+            if (Iterable.class.isAssignableFrom(aClass)) return new LinkedList<Object>();
+
+            throw new IllegalStateException("Unsupported Collection type: " + aClass.getName());
+        }
+
+        if (Modifier.isAbstract(aClass.getModifiers())) {
+
+            throw new IllegalStateException("Unsupported Collection type: " + aClass.getName() + " - Type is Abstract");
+        }
+
+        try {
+
+            final Constructor<? extends Collection> constructor = aClass.getConstructor();
+
+            return constructor.newInstance();
+
+        } catch (NoSuchMethodException e) {
+
+            throw new IllegalStateException("Unsupported Collection type: " + aClass.getName() + " - No default constructor");
+
+        } catch (Exception e) {
+
+            throw new IllegalStateException("Cannot construct java.util.Collection type: " + aClass.getName(), e);
+        }
+    }
+
+    public Map<String, String> getDefaults() {
         final Map<String, String> options = new HashMap<String, String>();
 
         for (Parameter parameter : Reflection.params(method)) {
@@ -333,8 +360,22 @@ public class Cmd {
             final Default def = parameter.getAnnotation(Default.class);
 
             if (def != null) {
-                options.put(option.value(), def.value());
+                if (Collection.class.isAssignableFrom(parameter.getType())) {
+
+                    options.put(option.value(), LIST_TYPE + def.value());
+
+                } else {
+
+                    options.put(option.value(), def.value());
+
+                }
+
+            } else if (Collection.class.isAssignableFrom(parameter.getType())) {
+
+                options.put(option.value(), LIST_TYPE);
+
             } else if (parameter.getType().isPrimitive()) {
+
                 final Class<?> type = parameter.getType();
                 if (boolean.class.equals(type)) options.put(option.value(), "false");
                 else if (byte.class.equals(type)) options.put(option.value(), "0");
@@ -345,8 +386,11 @@ public class Cmd {
                 else if (float.class.equals(type)) options.put(option.value(), "0");
                 else if (double.class.equals(type)) options.put(option.value(), "0");
                 else options.put(option.value(), null);
+
             } else {
+
                 options.put(option.value(), null);
+
             }
         }
 
@@ -393,5 +437,122 @@ public class Cmd {
         }
     }
 
+    private class Arguments {
+        private final List<String> list = new ArrayList<String>();
+        private final Map<String, String> options = new HashMap<String, String>();
 
+        private Arguments(final String[] rawArgs) {
+
+            final Map<String, String> defaults = getDefaults();
+            final Map<String, String> supplied = new HashMap<String, String>();
+
+            final List<String> invalid = new ArrayList<String>();
+            final Set<String> repeated = new HashSet<String>();
+
+            // Read in and apply the options specified on the command line
+            for (String arg : rawArgs) {
+                if (arg.startsWith("--")) {
+
+                    final String name;
+                    String value;
+
+                    if (arg.indexOf("=") > 0) {
+                        name = arg.substring(arg.indexOf("--") + 2, arg.indexOf("="));
+                        value = arg.substring(arg.indexOf("=") + 1);
+                    } else {
+                        name = arg.substring(arg.indexOf("--") + 2);
+                        value = "true";
+                    }
+
+                    if (defaults.containsKey(name)) {
+                        final boolean isList = defaults.get(name) != null && defaults.get(name).startsWith(LIST_TYPE);
+                        final String existing = supplied.get(name);
+
+                        if (isList) {
+
+                            if (existing == null) {
+
+                                value = LIST_TYPE + value;
+
+                            } else {
+
+                                value = existing + LIST_SEPARATOR + value;
+
+                            }
+
+                        } else if (existing != null) {
+
+                            repeated.add(name);
+                        }
+
+                        supplied.put(name, value);
+                    } else {
+                        invalid.add(name);
+                    }
+                } else {
+                    this.list.add(arg);
+                }
+            }
+
+            checkInvalid(invalid);
+            checkRequired(supplied);
+            checkRepeated(repeated);
+
+            this.options.putAll(defaults);
+            this.options.putAll(supplied);
+
+            interpret();
+        }
+
+        private void interpret() {
+            final Map<String, String> properties = Substitution.getSystemProperties();
+            for (Map.Entry<String, String> entry : this.options.entrySet()) {
+                if (entry.getValue() == null) continue;
+                final String value = Substitution.format(entry.getValue(), properties);
+                this.options.put(entry.getKey(), value);
+            }
+        }
+
+        private void checkInvalid(List<String> invalid) {
+            if (invalid.size() > 0) {
+                throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback() {
+                    @Override
+                    public String getName(Object object) {
+                        return "--" + object;
+                    }
+                }, invalid));
+            }
+        }
+
+        private void checkRequired(Map<String, String> supplied) {
+            final List<String> required = new ArrayList<String>();
+            for (Parameter parameter : Reflection.params(method)) {
+                if (!parameter.isAnnotationPresent(Required.class)) continue;
+
+                final Option option = parameter.getAnnotation(Option.class);
+                if (option == null) {
+                    throw new IllegalStateException("@Required used without @Option");
+                }
+
+                if (!supplied.containsKey(option.value())) {
+                    required.add(option.value());
+                }
+            }
+
+            if (required.size() > 0) {
+                throw new IllegalArgumentException("Required: " + Join.join(", ", new Join.NameCallback() {
+                    @Override
+                    public String getName(Object object) {
+                        return "--" + object;
+                    }
+                }, required));
+            }
+        }
+
+        private void checkRepeated(Set<String> repeated) {
+            if (repeated.size() > 0) {
+                throw new IllegalArgumentException("Cannot be specified more than once: " + Join.join(", ", repeated));
+            }
+        }
+    }
 }

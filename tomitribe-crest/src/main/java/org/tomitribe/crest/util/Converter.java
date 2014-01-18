@@ -49,7 +49,15 @@ public class Converter {
 
         if (Enum.class.isAssignableFrom(targetType)) {
             Class<? extends Enum> enumType = (Class<? extends Enum>) targetType;
-            return Enum.valueOf(enumType, stringValue.toUpperCase());
+            try {
+                return Enum.valueOf(enumType, stringValue);
+            } catch (IllegalArgumentException e) {
+                try {
+                    return Enum.valueOf(enumType, stringValue.toUpperCase());
+                } catch (IllegalArgumentException e1) {
+                    return Enum.valueOf(enumType, stringValue.toLowerCase());
+                }
+            }
         }
 
         try {

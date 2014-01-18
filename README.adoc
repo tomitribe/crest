@@ -1,4 +1,4 @@
-# CREST - Command-line API styled after JAX-RS
+= CREST - Command-line API styled after JAX-RS
 
 CREST allows you to get to the real work as quickly as possible when writing command line tools in Java.
 
@@ -14,7 +14,7 @@ CREST allows you to get to the real work as quickly as possible when writing com
 Simply annotate the parameters of any Java method so it can be invoked from a command-line interface
  with near-zero additional work.  Command-registration, help text and validation is taken care of for you.
 
-# API Goals
+== API Goals
 
 Rather than create elaborate API classes that require you to implement special interfaces, building up command objects,
 parse command line options, or validate input.

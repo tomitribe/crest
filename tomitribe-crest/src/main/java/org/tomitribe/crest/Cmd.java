@@ -231,39 +231,14 @@ public class Cmd {
         for (Parameter parameter : Reflection.params(method)) {
             final Option option = parameter.getAnnotation(Option.class);
 
-            final boolean isArray = parameter.getType().isArray();
-
             if (option != null) {
 
                 final String value = options.remove(option.value());
 
+
                 if (isListable(parameter)) {
-                    final Class<?> type = getListableType(parameter);
-                    final List<String> split = getDefaultValues(value);
 
-                    if (isArray) {
-
-                        final Object array = Array.newInstance(type, split.size());
-                        int i = 0;
-                        for (String string : split) {
-                            Array.set(array, i++, Converter.convert(string, type, "[" + type.getSimpleName() + "]"));
-                        }
-
-                        converted.add(array);
-
-                    } else {
-
-                        final Collection<Object> collection = instantiate((Class<? extends Collection>) parameter.getType());
-
-                        for (String string : split) {
-
-                            collection.add(Converter.convert(string, type, "[" + type.getSimpleName() + "]"));
-
-                        }
-
-                        converted.add(collection);
-
-                    }
+                    converted.add(convert(parameter, getSeparatedValues(value), option.value()));
 
                 } else {
 
@@ -273,18 +248,11 @@ public class Cmd {
 
             } else if (list.size() > 0) {
 
-                if (isArray) {
+                if (isListable(parameter)) {
 
-                    // TODO: must be last param
-                    final Class<?> type = parameter.getType().getComponentType();
-                    final Object array = Array.newInstance(type, list.size());
+                    converted.add(convert(parameter, list, null));
 
-                    int i = 0;
-                    for (String string : list) {
-                        Array.set(array, i++, Converter.convert(string, type, "[" + type.getSimpleName() + "]"));
-                    }
-
-                    converted.add(array);
+                    list.clear();
 
                 } else {
 
@@ -314,7 +282,36 @@ public class Cmd {
         return converted;
     }
 
-    private static List<String> getDefaultValues(String value) {
+    private static Object convert(final Parameter parameter, final List<String> values, final String name) {
+        final Class<?> type = getListableType(parameter);
+
+        final String description = name == null ? "[" + type.getSimpleName() + "]" : name;
+
+        if (parameter.getType().isArray()) {
+
+            final Object array = Array.newInstance(type, values.size());
+            int i = 0;
+            for (String string : values) {
+                Array.set(array, i++, Converter.convert(string, type, description));
+            }
+
+            return array;
+
+        } else {
+
+            final Collection<Object> collection = instantiate((Class<? extends Collection>) parameter.getType());
+
+            for (String string : values) {
+
+                collection.add(Converter.convert(string, type, description));
+
+            }
+
+            return collection;
+        }
+    }
+
+    private static List<String> getSeparatedValues(String value) {
         final List<String> split = new ArrayList<String>(Arrays.asList(value.split(LIST_TYPE + "|" + LIST_SEPARATOR)));
         split.remove(0);
         return split;

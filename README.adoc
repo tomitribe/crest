@@ -38,3 +38,23 @@ Things you won't need to do 90% of the time:
 The result is an API that exist only in method signatures and, in most cases, zero runtime API usage.  The moment your method is invoked,
 CREST has done all it's work and you should have all the data you need.
 
+== Examples
+
+A simple command might look like the following
+
+[source,java]
+----
+    @Command
+    public StreamingOutput cat(final File file) {
+        Files.exists(file);
+        Files.readable(file);
+        Files.file(file);
+
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream os) throws IOException {
+                IO.copy(file, os);
+            }
+        };
+    }
+----

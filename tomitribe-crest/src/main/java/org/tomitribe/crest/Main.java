@@ -31,9 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author David Blevins
- */
 public class Main {
 
     public Map<String, Cmd> commands = new HashMap<String, Cmd>();

@@ -53,8 +53,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-//import org.tomitribe.util.editor.Converter;
-
 /**
  * @version $Revision$ $Date$
  */
@@ -399,7 +397,7 @@ public class Cmd {
 
                 if (isListable(parameter)) {
 
-                    options.put(option.value(), LIST_TYPE + def.value());
+                    options.put(option.value(), LIST_TYPE + normalize(def));
 
                 } else {
 
@@ -432,6 +430,26 @@ public class Cmd {
         }
 
         return options;
+    }
+
+    public String normalize(Default def) {
+        final String value = def.value();
+
+        if (value.contains(LIST_SEPARATOR)) {
+            return value;
+        }
+
+        if (value.contains("\t")) {
+            final String[] split = value.split("\t");
+            return Join.join(LIST_SEPARATOR, split);
+        }
+
+        if (value.contains(",")) {
+            final String[] split = value.split(",");
+            return Join.join(LIST_SEPARATOR, split);
+        }
+
+        return value;
     }
 
     public boolean isListable(Parameter parameter) {

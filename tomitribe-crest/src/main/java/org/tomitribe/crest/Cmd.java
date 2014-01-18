@@ -541,18 +541,19 @@ public class Cmd {
             checkRequired(supplied);
             checkRepeated(repeated);
 
+            interpret(defaults);
+
             this.options.putAll(defaults);
             this.options.putAll(supplied);
 
-            interpret();
         }
 
-        private void interpret() {
+        private void interpret(final Map<String, String> map) {
             final Map<String, String> properties = Substitution.getSystemProperties();
-            for (Map.Entry<String, String> entry : this.options.entrySet()) {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
                 if (entry.getValue() == null) continue;
                 final String value = Substitution.format(entry.getValue(), properties);
-                this.options.put(entry.getKey(), value);
+                map.put(entry.getKey(), value);
             }
         }
 

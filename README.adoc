@@ -1,0 +1,40 @@
+# CREST - Command-line API styled after JAX-RS
+
+CREST allows you to get to the real work as quickly as possible when writing command line tools in Java.
+
+  - 100% annotation based
+  - Use Bean Validation
+  - Contains Several builtin validations
+  - Generates help from annotations
+  - Supports default values
+  - Use ${foo} substitution on defaults
+  - Supports lists and var-ags
+  - Supports any java type, usually out of the box
+
+Simply annotate the parameters of any Java method so it can be invoked from a command-line interface
+ with near-zero additional work.  Command-registration, help text and validation is taken care of for you.
+
+# API Goals
+
+Rather than create elaborate API classes that require you to implement special interfaces, building up command objects,
+parse command line options, or validate input.
+
+Taking a page from JAX-RS, CREST gives you a smart annotation-driven API focused on describing methods and method
+parameters which become the actual commands.
+
+Things you won't need to do 50% of the time:
+
+ - Validate your parameters
+
+Things you won't need to do 90% of the time:
+
+ - Implement special interfaces
+ - Subclass special any classes
+ - Override special method
+ - Build "command" objects to describe commands or arguments
+ - Register commands in some way to make them seen
+ - Create or register PropertyEditors of any kind
+
+The result is an API that exist only in method signatures and, in most cases, zero runtime API usage.  The moment your method is invoked,
+CREST has done all it's work and you should have all the data you need.
+

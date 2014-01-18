@@ -11,12 +11,10 @@ import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Required;
-import org.tomitribe.crest.val.BeanValidation;
 import org.tomitribe.crest.util.Converter;
+import org.tomitribe.crest.val.BeanValidation;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.collect.ObjectMap;
-//import org.tomitribe.util.editor.Converter;
-import org.tomitribe.util.reflect.Generics;
 import org.tomitribe.util.reflect.Generics;
 import org.tomitribe.util.reflect.Parameter;
 import org.tomitribe.util.reflect.Reflection;
@@ -29,7 +27,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,6 +42,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+//import org.tomitribe.util.editor.Converter;
 
 /**
  * @version $Revision$ $Date$
@@ -79,7 +78,7 @@ public class Cmd {
             final Option option = param.getAnnotation(Option.class);
             if (option != null) continue;
 
-            if (param.isAnnotationPresent(Default.class)){
+            if (param.isAnnotationPresent(Default.class)) {
                 throw new IllegalArgumentException("@Default not allowed on args, only options.  Remedy: 1) Add @Option or 2) remove @Default");
             }
         }
@@ -222,7 +221,7 @@ public class Cmd {
         return convert(new Arguments(rawArgs));
     }
 
-    private List<Object> convert(Arguments args) {
+    private <T> List<Object> convert(Arguments args) {
 
         final Map<String, String> options = args.options;
         final List<String> list = args.list;
@@ -232,25 +231,39 @@ public class Cmd {
         for (Parameter parameter : Reflection.params(method)) {
             final Option option = parameter.getAnnotation(Option.class);
 
+            final boolean isArray = parameter.getType().isArray();
+
             if (option != null) {
 
                 final String value = options.remove(option.value());
 
-                if (Collection.class.isAssignableFrom(parameter.getType())) {
+                if (isListable(parameter)) {
+                    final Class<?> type = getListableType(parameter);
+                    final List<String> split = getDefaultValues(value);
 
-                    final Type type = Generics.getType(parameter);
+                    if (isArray) {
 
-                    final List<String> split = new ArrayList<String>(Arrays.asList(value.split(LIST_TYPE + "|" + LIST_SEPARATOR)));
-                    split.remove(0);
+                        final Object array = Array.newInstance(type, split.size());
+                        int i = 0;
+                        for (String string : split) {
+                            Array.set(array, i++, Converter.convert(string, type, "[" + type.getSimpleName() + "]"));
+                        }
 
-                    final Collection<Object> collection = instantiate((Class<? extends Collection>) parameter.getType());
-                    for (String string : split) {
+                        converted.add(array);
 
-                        collection.add(Converter.convert(string, (Class<?>) type, option.value()));
+                    } else {
+
+                        final Collection<Object> collection = instantiate((Class<? extends Collection>) parameter.getType());
+
+                        for (String string : split) {
+
+                            collection.add(Converter.convert(string, type, "[" + type.getSimpleName() + "]"));
+
+                        }
+
+                        converted.add(collection);
 
                     }
-
-                    converted.add(collection);
 
                 } else {
 
@@ -260,19 +273,17 @@ public class Cmd {
 
             } else if (list.size() > 0) {
 
-                if (parameter.getType().isArray()) {
+                if (isArray) {
 
                     // TODO: must be last param
                     final Class<?> type = parameter.getType().getComponentType();
-                    final List<Object> objects = new ArrayList<Object>();
+                    final Object array = Array.newInstance(type, list.size());
 
-                    for (String value : list) {
-
-                        objects.add(Converter.convert(value, type, "[" + type.getSimpleName() + "]"));
+                    int i = 0;
+                    for (String string : list) {
+                        Array.set(array, i++, Converter.convert(string, type, "[" + type.getSimpleName() + "]"));
                     }
 
-                    list.clear();
-                    final Object[] array = objects.toArray((Object[]) Array.newInstance(type, objects.size()));
                     converted.add(array);
 
                 } else {
@@ -301,6 +312,24 @@ public class Cmd {
         }
 
         return converted;
+    }
+
+    private static List<String> getDefaultValues(String value) {
+        final List<String> split = new ArrayList<String>(Arrays.asList(value.split(LIST_TYPE + "|" + LIST_SEPARATOR)));
+        split.remove(0);
+        return split;
+    }
+
+    private static Class<?> getListableType(Parameter parameter) {
+
+        if (parameter.getType().isArray()) {
+
+            return parameter.getType().getComponentType();
+
+        } else {
+
+            return (Class<?>) Generics.getType(parameter);
+        }
     }
 
     public static Collection<Object> instantiate(Class<? extends Collection> aClass) {
@@ -360,7 +389,8 @@ public class Cmd {
             final Default def = parameter.getAnnotation(Default.class);
 
             if (def != null) {
-                if (Collection.class.isAssignableFrom(parameter.getType())) {
+
+                if (isListable(parameter)) {
 
                     options.put(option.value(), LIST_TYPE + def.value());
 
@@ -370,7 +400,7 @@ public class Cmd {
 
                 }
 
-            } else if (Collection.class.isAssignableFrom(parameter.getType())) {
+            } else if (isListable(parameter)) {
 
                 options.put(option.value(), LIST_TYPE);
 
@@ -395,6 +425,12 @@ public class Cmd {
         }
 
         return options;
+    }
+
+    public boolean isListable(Parameter parameter) {
+        final Class<?> type = parameter.getType();
+
+        return Collection.class.isAssignableFrom(type) || type.isArray();
     }
 
 

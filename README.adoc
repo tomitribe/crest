@@ -1,4 +1,6 @@
-= CREST * Command-line API styled after JAX-RS
+= CREST
+
+[big]Command-line API styled after JAX-RS
 
 CREST allows you to get to the real work as quickly as possible when writing command line tools in Java.
 

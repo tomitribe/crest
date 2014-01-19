@@ -37,29 +37,29 @@ public class SupportedCollectionTypesTest extends TestCase {
 
     public void testList() {
 
-        assertEquals(TreeSet.class, Cmd.instantiate(NavigableSet.class).getClass());
-        assertEquals(TreeSet.class, Cmd.instantiate(SortedSet.class).getClass());
-        assertEquals(LinkedHashSet.class, Cmd.instantiate(Set.class).getClass());
+        assertEquals(TreeSet.class, CmdMethod.instantiate(NavigableSet.class).getClass());
+        assertEquals(TreeSet.class, CmdMethod.instantiate(SortedSet.class).getClass());
+        assertEquals(LinkedHashSet.class, CmdMethod.instantiate(Set.class).getClass());
 
-        assertEquals(LinkedList.class, Cmd.instantiate(Deque.class).getClass());
-        assertEquals(LinkedList.class, Cmd.instantiate(Queue.class).getClass());
+        assertEquals(LinkedList.class, CmdMethod.instantiate(Deque.class).getClass());
+        assertEquals(LinkedList.class, CmdMethod.instantiate(Queue.class).getClass());
 
-        assertEquals(ArrayList.class, Cmd.instantiate(List.class).getClass());
-        assertEquals(LinkedList.class, Cmd.instantiate(Collection.class).getClass());
+        assertEquals(ArrayList.class, CmdMethod.instantiate(List.class).getClass());
+        assertEquals(LinkedList.class, CmdMethod.instantiate(Collection.class).getClass());
 
-        assertEquals(ArrayList.class, Cmd.instantiate(ArrayList.class).getClass());
-        assertEquals(LinkedList.class, Cmd.instantiate(LinkedList.class).getClass());
-        assertEquals(LinkedHashSet.class, Cmd.instantiate(LinkedHashSet.class).getClass());
+        assertEquals(ArrayList.class, CmdMethod.instantiate(ArrayList.class).getClass());
+        assertEquals(LinkedList.class, CmdMethod.instantiate(LinkedList.class).getClass());
+        assertEquals(LinkedHashSet.class, CmdMethod.instantiate(LinkedHashSet.class).getClass());
 
 
         try {
-            Cmd.instantiate(AbstractList.class).getClass();
+            CmdMethod.instantiate(AbstractList.class).getClass();
             fail();
         } catch (IllegalStateException e) {
         }
 
         try {
-            Cmd.instantiate(AbstractSet.class).getClass();
+            CmdMethod.instantiate(AbstractSet.class).getClass();
             fail();
         } catch (IllegalStateException e) {
         }

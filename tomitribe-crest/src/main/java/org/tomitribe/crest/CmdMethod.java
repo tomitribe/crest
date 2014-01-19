@@ -56,7 +56,7 @@ import java.util.TreeSet;
 /**
  * @version $Revision$ $Date$
  */
-public class Cmd {
+public class CmdMethod implements Executable {
 
     private static final String LIST_SEPARATOR = "\u0000";
     private static final String LIST_TYPE = "\uFFFF￿\uFFFF￿";
@@ -64,11 +64,11 @@ public class Cmd {
     private final Method method;
     private final String name;
 
-    public Cmd(Object bean, Method method) {
+    public CmdMethod(Object bean, Method method) {
         this(method, new SimpleBean(bean));
     }
 
-    public Cmd(Method method, Target target) {
+    public CmdMethod(Method method, Target target) {
         this.target = target;
         this.method = method;
         this.name = name(method);
@@ -107,10 +107,11 @@ public class Cmd {
         return value(command.value(), method.getName());
     }
 
-    public Cmd(Method method) {
+    public CmdMethod(Method method) {
         this(null, method);
     }
 
+    @Override
     public String getUsage() {
         final String usage = usage();
 
@@ -141,22 +142,12 @@ public class Cmd {
         return command.usage();
     }
 
-    public static Map<String, Cmd> get(Class<?> clazz) {
-        Map<String, Cmd> map = new HashMap<String, Cmd>();
-
-        for (Method method : clazz.getMethods()) {
-            if (method.isAnnotationPresent(Command.class)) {
-                final Cmd cmd = new Cmd(method);
-                map.put(cmd.getName(), cmd);
-            }
-        }
-        return map;
-    }
-
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public Object exec(String... rawArgs) {
 
         final Object[] args;
@@ -182,12 +173,6 @@ public class Cmd {
         }
     }
 
-    public static class CommandFailedException extends RuntimeException {
-        public CommandFailedException(Throwable cause) {
-            super(cause);
-        }
-    }
-
     private void reportWithHelp(Exception e) {
         if (e instanceof ConstraintViolationException) {
             final ConstraintViolationException cve = (ConstraintViolationException) e;
@@ -207,6 +192,7 @@ public class Cmd {
         return new IllegalArgumentException(e);
     }
 
+    @Override
     public void help(PrintStream out) {
         out.println();
         out.print("Usage: ");
@@ -461,41 +447,6 @@ public class Cmd {
 
     public static String value(String value, String defaultValue) {
         return value == null || value.length() == 0 ? defaultValue : value;
-    }
-
-    public static interface Target {
-        public Object invoke(Method method, Object... args) throws InvocationTargetException, IllegalAccessException;
-    }
-
-    public static class SimpleBean implements Target {
-        private final Object bean;
-
-        public SimpleBean(Object bean) {
-            this.bean = bean;
-        }
-
-        @Override
-        public Object invoke(Method method, Object... args) throws InvocationTargetException, IllegalAccessException {
-            final Object bean = getBean(method);
-            return method.invoke(bean, args);
-        }
-
-        private Object getBean(Method method) {
-            if (bean != null) return bean;
-            if (Modifier.isStatic(method.getModifiers())) return bean;
-
-            try {
-                final Class<?> declaringClass = method.getDeclaringClass();
-                final Constructor<?> constructor = declaringClass.getConstructor();
-                return constructor.newInstance();
-            } catch (NoSuchMethodException e) {
-                return null;
-            } catch (InvocationTargetException e) {
-                throw new IllegalStateException(e.getCause());
-            } catch (Throwable e) {
-                throw new IllegalStateException(e);
-            }
-        }
     }
 
     private class Arguments {

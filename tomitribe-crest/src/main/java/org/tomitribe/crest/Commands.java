@@ -22,6 +22,8 @@ import org.tomitribe.util.collect.FilteredIterator;
 import org.tomitribe.util.reflect.Reflection;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Commands {
 
@@ -34,5 +36,17 @@ public class Commands {
                     }
                 }
         );
+    }
+
+    public static Map<String, Executable> get(Class<?> clazz) {
+        final Map<String, Executable> map = new HashMap<String, Executable>();
+
+        for (Method method : clazz.getMethods()) {
+            if (method.isAnnotationPresent(Command.class)) {
+                final CmdMethod cmd = new CmdMethod(method);
+                map.put(cmd.getName(), cmd);
+            }
+        }
+        return map;
     }
 }

@@ -22,6 +22,7 @@ import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.util.JarLocation;
+import org.tomitribe.util.PrintString;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -33,7 +34,7 @@ import java.util.Map;
 
 public class Main {
 
-    public Map<String, Cmd> commands = new HashMap<String, Cmd>();
+    public Map<String, Executable> commands = new HashMap<String, Executable>();
 
     private static Archive defaultArchive() {
         try {
@@ -52,19 +53,19 @@ public class Main {
         final AnnotationFinder finder = new AnnotationFinder(archive);
 
         for (Method method : finder.findAnnotatedMethods(Command.class)) {
-            add(new Cmd(method));
+            add(new CmdMethod(method));
         }
 
         installHelp();
     }
 
-    private void add(Cmd cmd) {
+    private void add(Executable cmd) {
         commands.put(cmd.getName(), cmd);
     }
 
     private void installHelp() {
         try {
-            add(new Cmd(new Help(), Help.class.getDeclaredMethod("help")));
+            add(new CmdMethod(new Help(), Help.class.getDeclaredMethod("help")));
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException(e);
         }
@@ -79,7 +80,7 @@ public class Main {
             } else if (result instanceof String) {
                 System.out.println(result);
             }
-        } catch (Cmd.CommandFailedException e) {
+        } catch (CommandFailedException e) {
             e.getCause().printStackTrace();
             System.exit(-1);
         } catch (Exception alreadyHandled) {
@@ -93,7 +94,7 @@ public class Main {
         final String command = (list.size() == 0) ? "help" : list.remove(0);
         args = list.toArray(new String[list.size()]);
 
-        final Cmd cmd = commands.get(command);
+        final Executable cmd = commands.get(command);
 
         if (cmd == null) {
             System.err.println("Unknown command: " + command);
@@ -126,14 +127,29 @@ public class Main {
 
     public class Help {
 
-        public void help() {
-            System.out.println("Commands: ");
-            System.out.printf("   %-20s", "");
-            System.out.println();
+        @Command
+        public String help() {
+            final PrintString string = new PrintString();
+            string.println("Commands: ");
+            string.printf("   %-20s", "");
+            string.println();
 
             for (String command : commands.keySet()) {
-                System.out.printf("   %-20s%n", command);
+                string.printf("   %-20s%n", command);
             }
+
+            return string.toString();
+        }
+
+        @Command
+        public String help(String name) {
+            final Executable cmd = commands.get(name);
+
+            if (cmd == null) {
+                return String.format("No such command: %s%n", name);
+            }
+
+            return cmd.getUsage();
         }
     }
 }

@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class DefaultOptionListsAndOptionsTest extends TestCase {
 
-    private final Map<String, Cmd> commands = Cmd.get(Commands.class);
+    private final Map<String, Executable> commands = org.tomitribe.crest.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
         commands.get("doByte").exec("--color=orange", "green");

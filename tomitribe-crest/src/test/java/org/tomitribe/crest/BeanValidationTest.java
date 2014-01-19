@@ -21,7 +21,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.val.Directory;
-import org.tomitribe.crest.val.Writable;
 
 import javax.validation.ConstraintViolationException;
 import java.io.File;
@@ -34,9 +33,9 @@ public class BeanValidationTest extends Assert {
 
     @Test
     public void invalidOptions() {
-        final Map<String,Cmd> cmds = Cmd.get(Duplicates.class);
+        final Map<String, Executable> cmds = Commands.get(Duplicates.class);
 
-        final Cmd check = cmds.get("check");
+        final Executable check = cmds.get("check");
 
         check.exec(new File("").getAbsolutePath());
 

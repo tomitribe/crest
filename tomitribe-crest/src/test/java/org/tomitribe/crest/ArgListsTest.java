@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class ArgListsTest extends TestCase {
 
-    private final Map<String, Executable> commands = org.tomitribe.crest.Commands.get(Commands.class);
+    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
         commands.get("doByte").exec("2", "3", "5");

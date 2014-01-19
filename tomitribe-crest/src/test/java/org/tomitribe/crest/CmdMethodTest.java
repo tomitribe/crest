@@ -35,19 +35,19 @@ import java.util.Map;
  */
 public class CmdMethodTest extends TestCase {
 
-    private final Map<String, Executable> commands = org.tomitribe.crest.Commands.get(Commands.class);
+    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
 
     public void test() throws Exception {
 
         {
-            final Executable tail = commands.get("tail");
+            final Cmd tail = commands.get("tail");
             tail.exec("--number=45", "/some/file.txt", "45");
             tail.exec("/some/file.txt", "100");
         }
 
         // Missing arguments
         try {
-            final Executable tail = commands.get("tail");
+            final Cmd tail = commands.get("tail");
             tail.exec();
             fail();
         } catch (IllegalArgumentException e) {
@@ -56,7 +56,7 @@ public class CmdMethodTest extends TestCase {
 
         // Invalid option
         try {
-            final Executable tail = commands.get("tail");
+            final Cmd tail = commands.get("tail");
             tail.exec("/some/file.txt", "100", "--color");
             fail();
         } catch (IllegalArgumentException e) {
@@ -67,7 +67,7 @@ public class CmdMethodTest extends TestCase {
         // primitives
         // boolean options default to false
         {
-            final Executable cmd = commands.get("booleanOption");
+            final Cmd cmd = commands.get("booleanOption");
             assertEquals(false, cmd.exec());
             assertEquals(true, cmd.exec("--long"));
         }
@@ -76,7 +76,7 @@ public class CmdMethodTest extends TestCase {
     public void testRequiredOption() {
         // Required option
         try {
-            final Executable tail = commands.get("required");
+            final Cmd tail = commands.get("required");
             tail.exec();
             fail();
         } catch (IllegalArgumentException e) {
@@ -87,7 +87,7 @@ public class CmdMethodTest extends TestCase {
         // Wrong arguments, should not be passed in as the two options
         // as they do not have "--key=name" and "--value=thx1138"
         try {
-            final Executable tail = commands.get("tail");
+            final Cmd tail = commands.get("tail");
             tail.exec("name", "value");
             fail();
         } catch (IllegalArgumentException e) {
@@ -96,13 +96,13 @@ public class CmdMethodTest extends TestCase {
     }
 
     public void testBooleanOptions() {
-        final Executable ls = commands.get("ls");
+        final Cmd ls = commands.get("ls");
         ls.exec("--long=true", "/some/file.txt");
         ls.exec("--long", "/some/file.txt");
     }
 
     public void testFileParameter() {
-        final Executable touch = commands.get("touch");
+        final Cmd touch = commands.get("touch");
         assertNotNull(touch);
         touch.exec("/some/file.txt");
     }

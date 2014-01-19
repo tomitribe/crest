@@ -33,9 +33,9 @@ public class BeanValidationTest extends Assert {
 
     @Test
     public void invalidOptions() {
-        final Map<String, Executable> cmds = Commands.get(Duplicates.class);
+        final Map<String, Cmd> cmds = Commands.get(Duplicates.class);
 
-        final Executable check = cmds.get("check");
+        final Cmd check = cmds.get("check");
 
         check.exec(new File("").getAbsolutePath());
 

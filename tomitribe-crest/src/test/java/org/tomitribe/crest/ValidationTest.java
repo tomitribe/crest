@@ -32,7 +32,7 @@ public class ValidationTest extends Assert {
     @Test
     public void duplicateOptions() {
         try {
-            final Map<String, Executable> map = Commands.get(Duplicates.class);
+            final Map<String, Cmd> map = Commands.get(Duplicates.class);
             fail();
         } catch (Exception e) {
         }
@@ -42,7 +42,7 @@ public class ValidationTest extends Assert {
     public void defaultOnArg() {
 
         try {
-            final Map<String, Executable> map = Commands.get(DefaultUse.class);
+            final Map<String, Cmd> map = Commands.get(DefaultUse.class);
             fail();
         } catch (Exception e) {
         }

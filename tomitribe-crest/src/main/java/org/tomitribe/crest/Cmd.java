@@ -18,7 +18,7 @@ package org.tomitribe.crest;
 
 import java.io.PrintStream;
 
-public interface Executable {
+public interface Cmd {
     String getUsage();
 
     String getName();

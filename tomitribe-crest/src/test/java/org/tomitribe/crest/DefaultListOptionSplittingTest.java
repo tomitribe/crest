@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class DefaultListOptionSplittingTest extends TestCase {
 
-    private final Map<String, Executable> commands = org.tomitribe.crest.Commands.get(Commands.class);
+    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
 
     public void testComma() throws Exception {
         commands.get("onComma").exec();

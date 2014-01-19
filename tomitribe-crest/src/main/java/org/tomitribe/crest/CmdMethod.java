@@ -56,7 +56,7 @@ import java.util.TreeSet;
 /**
  * @version $Revision$ $Date$
  */
-public class CmdMethod implements Executable {
+public class CmdMethod implements Cmd {
 
     private static final String LIST_SEPARATOR = "\u0000";
     private static final String LIST_TYPE = "\uFFFF￿\uFFFF￿";

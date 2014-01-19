@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class OptionArraysTest extends TestCase {
 
-    private final Map<String, Executable> commands = org.tomitribe.crest.Commands.get(Commands.class);
+    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
         commands.get("doByte").exec("--foo=22", "--foo=33", "--foo=55");

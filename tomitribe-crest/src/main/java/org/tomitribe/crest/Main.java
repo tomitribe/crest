@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class Main {
 
-    public Map<String, Executable> commands = new HashMap<String, Executable>();
+    public Map<String, Cmd> commands = new HashMap<String, Cmd>();
 
     private static Archive defaultArchive() {
         try {
@@ -59,7 +59,7 @@ public class Main {
         installHelp();
     }
 
-    private void add(Executable cmd) {
+    private void add(Cmd cmd) {
         commands.put(cmd.getName(), cmd);
     }
 
@@ -94,7 +94,7 @@ public class Main {
         final String command = (list.size() == 0) ? "help" : list.remove(0);
         args = list.toArray(new String[list.size()]);
 
-        final Executable cmd = commands.get(command);
+        final Cmd cmd = commands.get(command);
 
         if (cmd == null) {
             System.err.println("Unknown command: " + command);
@@ -143,7 +143,7 @@ public class Main {
 
         @Command
         public String help(String name) {
-            final Executable cmd = commands.get(name);
+            final Cmd cmd = commands.get(name);
 
             if (cmd == null) {
                 return String.format("No such command: %s%n", name);

@@ -38,8 +38,8 @@ public class Commands {
         );
     }
 
-    public static Map<String, Executable> get(Class<?> clazz) {
-        final Map<String, Executable> map = new HashMap<String, Executable>();
+    public static Map<String, Cmd> get(Class<?> clazz) {
+        final Map<String, Cmd> map = new HashMap<String, Cmd>();
 
         for (Method method : clazz.getMethods()) {
             if (method.isAnnotationPresent(Command.class)) {

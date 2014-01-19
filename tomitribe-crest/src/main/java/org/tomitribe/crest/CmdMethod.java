@@ -32,14 +32,17 @@ import org.tomitribe.util.reflect.Reflection;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,6 +66,8 @@ public class CmdMethod implements Cmd {
     private final Target target;
     private final Method method;
     private final String name;
+    private final List<OptionParameter> optionParameters;
+    private final List<Parameter> argumentParameters;
 
     public CmdMethod(Object bean, Method method) {
         this(method, new SimpleBean(bean));
@@ -73,7 +78,32 @@ public class CmdMethod implements Cmd {
         this.method = method;
         this.name = name(method);
 
+        final List<OptionParameter> options = new ArrayList<OptionParameter>();
+        final List<Parameter> arguments = new ArrayList<Parameter>();
+        for (Parameter parameter : Reflection.params(method)) {
+            if (parameter.isAnnotationPresent(Option.class)){
+                options.add(new OptionParameter(parameter));
+            } else {
+                arguments.add(parameter);
+            }
+        }
+
+        this.optionParameters = Collections.unmodifiableList(options);
+        this.argumentParameters = Collections.unmodifiableList(arguments);
+
         validate();
+    }
+
+    public List<Parameter> getArgumentParameters() {
+        return argumentParameters;
+    }
+
+    public static class OptionParameter extends Parameter {
+        public OptionParameter(Parameter parameter) {
+            super(parameter.getAnnotations(), parameter.getType(), parameter.getGenericType());
+        }
+
+
     }
 
     private void validate() {
@@ -82,21 +112,20 @@ public class CmdMethod implements Cmd {
     }
 
     private void validateArgs() {
-        for (Parameter param : Reflection.params(method)) {
-            final Option option = param.getAnnotation(Option.class);
-            if (option != null) continue;
-
+        for (Parameter param : argumentParameters) {
             if (param.isAnnotationPresent(Default.class)) {
-                throw new IllegalArgumentException("@Default not allowed on args, only options.  Remedy: 1) Add @Option or 2) remove @Default");
+                throw new IllegalArgumentException("@Default only usable with @Option parameters.");
+            }
+            if (param.isAnnotationPresent(Required.class)) {
+                throw new IllegalArgumentException("@Required only usable with @Option parameters.");
             }
         }
     }
 
     private void validateOptions() {
         final Set<String> names = new HashSet<String>();
-        for (Parameter param : Reflection.params(method)) {
+        for (Parameter param : optionParameters) {
             final Option option = param.getAnnotation(Option.class);
-            if (option == null) continue;
             if (!names.add(option.value())) throw new IllegalArgumentException("Duplicate option: " + option.value());
         }
     }
@@ -129,10 +158,7 @@ public class CmdMethod implements Cmd {
 
         final List<Object> args = new ArrayList<Object>();
 
-        for (Parameter parameter : Reflection.params(method)) {
-            if (parameter.getAnnotation(Option.class) != null) {
-                continue;
-            }
+        for (Parameter parameter : argumentParameters) {
             args.add(parameter.getType().getSimpleName());
         }
 
@@ -236,6 +262,16 @@ public class CmdMethod implements Cmd {
 
         final List<Object> converted = new ArrayList<Object>();
 
+        /**
+         * Here we iterate over the method's parameters and convert
+         * strings into their equivalent Option or Arg value.
+         *
+         * The result is a List of objects that matches perfectly
+         * the list of arguments required to pass into the
+         * java.lang.reflect.Method.invoke() method.
+         *
+         * Thus, iteration order is very significant in this loop.
+         */
         for (Parameter parameter : Reflection.params(method)) {
             final Option option = parameter.getAnnotation(Option.class);
 
@@ -386,11 +422,8 @@ public class CmdMethod implements Cmd {
     public Map<String, String> getDefaults() {
         final Map<String, String> options = new HashMap<String, String>();
 
-        for (Parameter parameter : Reflection.params(method)) {
+        for (Parameter parameter : optionParameters) {
             final Option option = parameter.getAnnotation(Option.class);
-
-            if (option == null) continue;
-
             final Default def = parameter.getAnnotation(Default.class);
 
             if (def != null) {
@@ -553,13 +586,10 @@ public class CmdMethod implements Cmd {
 
         private void checkRequired(Map<String, String> supplied) {
             final List<String> required = new ArrayList<String>();
-            for (Parameter parameter : Reflection.params(method)) {
+            for (Parameter parameter : optionParameters) {
                 if (!parameter.isAnnotationPresent(Required.class)) continue;
 
                 final Option option = parameter.getAnnotation(Option.class);
-                if (option == null) {
-                    throw new IllegalStateException("@Required used without @Option");
-                }
 
                 if (!supplied.containsKey(option.value())) {
                     required.add(option.value());

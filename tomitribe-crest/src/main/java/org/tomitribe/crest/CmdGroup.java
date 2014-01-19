@@ -20,19 +20,28 @@ import org.tomitribe.crest.util.Join;
 import org.tomitribe.util.collect.ObjectMap;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class CmdGroup implements Cmd {
 
     private final String name;
-    private final List<CmdMethod> methods = new ArrayList<CmdMethod>();
+    private final Set<CmdMethod> methods;
 
     public CmdGroup(String name) {
         this.name = name;
+
+        this.methods = new TreeSet<CmdMethod>(new Comparator<CmdMethod>() {
+            @Override
+            public int compare(CmdMethod a, CmdMethod b) {
+                return a.getArgumentParameters().size() - b.getArgumentParameters().size();
+            }
+        });
     }
 
     @Override
@@ -83,7 +92,7 @@ public class CmdGroup implements Cmd {
 
     @Override
     public void help(PrintStream out) {
-        if (methods.size() == 0) throw new IllegalStateException("No method in group: "+name);
+        if (methods.size() == 0) throw new IllegalStateException("No method in group: " + name);
 
         out.println();
         { // usage

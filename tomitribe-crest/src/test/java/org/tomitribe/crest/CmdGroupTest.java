@@ -76,9 +76,9 @@ public class CmdGroupTest extends Assert {
                         "\n" +
                         "Options: \n" +
                         "                          (default)\n" +
-                        "   --level                0\n" +
-                        "   --colors               false\n" +
-                        "   --lang                 null\n",
+                        "   --colors=<boolean>     false\n" +
+                        "   --lang=<String>        null\n" +
+                        "   --level=<int>          0\n",
                 out.toString());
     }
 

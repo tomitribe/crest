@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class CmdGroup implements Cmd {
@@ -104,22 +105,13 @@ public class CmdGroup implements Cmd {
             }
         }
         out.println();
-        out.println("Options: ");
-        out.printf("   %-20s   %s%n", "", "(default)");
 
-        final Map<String, String> defaults = new HashMap<String, String>();
+        final Map<String, CmdMethod.OptionParameter> options = new TreeMap<String, CmdMethod.OptionParameter>();
         for (CmdMethod method : methods) {
-            defaults.putAll(method.getDefaults());
+            options.putAll(method.getOptionParameters());
         }
 
-        for (Map.Entry<String, String> entry : defaults.entrySet()) {
-            if (entry instanceof ObjectMap.Member) {
-                ObjectMap.Member<String, String> member = (ObjectMap.Member<String, String>) entry;
-                out.printf("   --%-20s %s%n", entry.getKey() + "=<" + member.getType().getSimpleName() + ">", entry.getValue());
-            } else {
-                out.printf("   --%-20s %s%n", entry.getKey(), entry.getValue());
-            }
-        }
+        CmdMethod.optionHelp(out, options.values());
     }
 
     public void add(CmdMethod cmd) {

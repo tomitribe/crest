@@ -44,7 +44,19 @@ public class Commands {
         for (Method method : clazz.getMethods()) {
             if (method.isAnnotationPresent(Command.class)) {
                 final CmdMethod cmd = new CmdMethod(method);
-                map.put(cmd.getName(), cmd);
+
+                final Cmd existing = map.get(cmd.getName());
+                if (existing == null) {
+                    map.put(cmd.getName(), cmd);
+                } else if (existing instanceof CmdGroup) {
+                    final CmdGroup group = (CmdGroup) existing;
+                    group.add(cmd);
+                } else {
+                    final CmdGroup group = new CmdGroup(cmd.getName());
+                    group.add((CmdMethod) existing);
+                    group.add(cmd);
+                    map.put(group.getName(), group);
+                }
             }
         }
         return map;

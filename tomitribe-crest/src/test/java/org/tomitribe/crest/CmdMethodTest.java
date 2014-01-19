@@ -37,6 +37,12 @@ public class CmdMethodTest extends TestCase {
 
     private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
 
+    public void testGetUsage() {
+        assertEquals("ls [options] File", commands.get("ls").getUsage());
+        assertEquals("tail [options] File int", commands.get("tail").getUsage());
+        assertEquals("set [options]", commands.get("set").getUsage());
+    }
+
     public void test() throws Exception {
 
         {
@@ -114,8 +120,8 @@ public class CmdMethodTest extends TestCase {
             assertEquals("/some/file.txt", file.getAbsolutePath());
         }
 
-        @Command
-        public static void set(@Option("key") String key, @Option("value") String value) {
+        @Command("set")
+        public static void setProperty(@Option("key") String key, @Option("value") String value) {
             assertEquals("name", key);
             assertEquals("thx1138", value);
         }

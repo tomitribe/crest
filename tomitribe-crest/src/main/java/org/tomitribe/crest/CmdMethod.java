@@ -111,6 +111,10 @@ public class CmdMethod implements Cmd {
         this(null, method);
     }
 
+    /**
+     * Returns a single line description of the command
+     * @return
+     */
     @Override
     public String getUsage() {
         final String usage = usage();
@@ -132,7 +136,7 @@ public class CmdMethod implements Cmd {
             args.add(parameter.getType().getSimpleName());
         }
 
-        return String.format("%s %s %s", name, args.size() == method.getParameterTypes().length ? "" : "[options]", Join.join(" ", args));
+        return String.format("%s %s %s", name, args.size() == method.getParameterTypes().length ? "" : "[options]", Join.join(" ", args)).trim();
     }
 
     private String usage() {
@@ -149,10 +153,20 @@ public class CmdMethod implements Cmd {
 
     @Override
     public Object exec(String... rawArgs) {
+        final List<Object> list;
+        try {
+            list = parse(rawArgs);
+        } catch (Exception e) {
+            reportWithHelp(e);
+            throw toRuntimeException(e);
+        }
 
+        return exec(list);
+    }
+
+    public Object exec(List<Object> list) {
         final Object[] args;
         try {
-            final List<Object> list = parseArgs(rawArgs);
             args = list.toArray();
             BeanValidation.validateParameters(method.getDeclaringClass(), method, args);
         } catch (Exception e) {
@@ -185,7 +199,7 @@ public class CmdMethod implements Cmd {
         help(System.err);
     }
 
-    private RuntimeException toRuntimeException(Throwable e) {
+    public static RuntimeException toRuntimeException(Throwable e) {
         if (e instanceof RuntimeException) {
             return (RuntimeException) e;
         }
@@ -211,7 +225,7 @@ public class CmdMethod implements Cmd {
         }
     }
 
-    private List<Object> parseArgs(String... rawArgs) {
+    public List<Object> parse(String... rawArgs) {
         return convert(new Arguments(rawArgs));
     }
 

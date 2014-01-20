@@ -104,7 +104,7 @@ public class CmdGroup implements Cmd {
         }
         out.println();
 
-        final Map<String, CmdMethod.OptionParameter> options = new TreeMap<String, CmdMethod.OptionParameter>();
+        final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
         for (CmdMethod method : methods) {
             options.putAll(method.getOptionParameters());
         }

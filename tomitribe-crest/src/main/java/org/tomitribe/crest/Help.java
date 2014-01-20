@@ -39,17 +39,17 @@ public class Help {
         commands = commands1;
     }
 
-    public static void optionHelp(final Class<Help> clazz, final String commandName, final Collection<CmdMethod.OptionParameter> optionParameters, PrintStream out) {
-        if (optionParameters.size() == 0) return;
+    public static void optionHelp(final Class<Help> clazz, final String commandName, final Collection<OptionParam> optionParams, PrintStream out) {
+        if (optionParams.size() == 0) return;
 
         final ResourceBundle general = ResourceBundle.getBundle(Classes.packageName(clazz) + ".OptionDescriptions");
 
-        final List<Item> items = new ArrayList<Item>(optionParameters.size());
+        final List<Item> items = new ArrayList<Item>(optionParams.size());
 
         int width = 20;
-        for (CmdMethod.OptionParameter optionParameter : optionParameters) {
-            final String description = getDescription(general, commandName, optionParameter.getName());
-            final Item item = new Item(optionParameter, description);
+        for (OptionParam optionParam : optionParams) {
+            final String description = getDescription(general, commandName, optionParam.getName());
+            final Item item = new Item(optionParam, description);
             items.add(item);
 
             width = Math.max(width, item.flag.length());
@@ -105,7 +105,7 @@ public class Help {
         private final List<String> note = new LinkedList<String>();
         private final String description;
 
-        private Item(CmdMethod.OptionParameter p, String description) {
+        private Item(OptionParam p, String description) {
             this.description = description;
 
             final Class<?> type = p.getType();
@@ -123,7 +123,7 @@ public class Help {
                 defaultValue = null;
 
             } else {
-                this.flag = String.format("--%s=<%s>", p.getName(), getDisplayType(p));
+                this.flag = String.format("--%s=<%s>", p.getName(), p.getDisplayType());
             }
 
             if (defaultValue != null) {
@@ -150,17 +150,6 @@ public class Help {
             }
 
         }
-
-        private String getDisplayType(CmdMethod.OptionParameter parameter) {
-
-            if (parameter.isListable()) {
-
-                return parameter.getListableType().getSimpleName() + "[]";
-            }
-
-            return parameter.getType().getSimpleName();
-        }
-
     }
 
     @Command

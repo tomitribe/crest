@@ -24,7 +24,6 @@ import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.util.Converter;
 import org.tomitribe.crest.val.BeanValidation;
 import org.tomitribe.util.Join;
-import org.tomitribe.util.reflect.Generics;
 import org.tomitribe.util.reflect.Parameter;
 import org.tomitribe.util.reflect.Reflection;
 
@@ -37,7 +36,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -59,13 +57,12 @@ import java.util.TreeSet;
  */
 public class CmdMethod implements Cmd {
 
-    private static final String LIST_SEPARATOR = "\u0000";
-    private static final String LIST_TYPE = "\uFFFF￿\uFFFF￿";
     private final Target target;
     private final Method method;
     private final String name;
-    private final Map<String, OptionParameter> optionParameters;
-    private final List<Parameter> argumentParameters;
+    private final Map<String, OptionParam> optionParameters;
+    private final List<Param> argumentParameters;
+    private final List<Param> parameters;
 
     public CmdMethod(Object bean, Method method) {
         this(method, new SimpleBean(bean));
@@ -76,135 +73,42 @@ public class CmdMethod implements Cmd {
         this.method = method;
         this.name = name(method);
 
-        final Map<String, OptionParameter> options = new TreeMap<String, OptionParameter>();
-        final List<Parameter> arguments = new ArrayList<Parameter>();
+        final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
+        final List<Param> arguments = new ArrayList<Param>();
+        final List<Param> parameters = new ArrayList<Param>();
         for (Parameter parameter : Reflection.params(method)) {
 
-            if (parameter.isAnnotationPresent(Option.class)){
+            if (parameter.isAnnotationPresent(Option.class)) {
 
-                final OptionParameter optionParameter = new OptionParameter(parameter);
+                final OptionParam optionParam = new OptionParam(parameter);
 
-                final OptionParameter existing = options.put(optionParameter.getName(), optionParameter);
+                final OptionParam existing = options.put(optionParam.getName(), optionParam);
 
-                if (existing != null) throw new IllegalArgumentException("Duplicate option: " + optionParameter.getName());
+                if (existing != null) throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
+
+                parameters.add(optionParam);
 
             } else {
 
-                arguments.add(parameter);
-
+                final Param e = new Param(parameter);
+                arguments.add(e);
+                parameters.add(e);
             }
         }
 
         this.optionParameters = Collections.unmodifiableMap(options);
         this.argumentParameters = Collections.unmodifiableList(arguments);
+        this.parameters = Collections.unmodifiableList(parameters);
 
         validate();
     }
 
-    public List<Parameter> getArgumentParameters() {
+    public List<Param> getArgumentParameters() {
         return argumentParameters;
     }
 
-    public class OptionParameter extends Parameter {
-
-        private final String name;
-        private final String defaultValue;
-
-        public OptionParameter(Parameter parameter) {
-            super(parameter.getAnnotations(), parameter.getType(), parameter.getGenericType());
-
-            this.name = getAnnotation(Option.class).value();
-            this.defaultValue = initDefault();
-        }
-
-        private String initDefault() {
-            final Default def = getAnnotation(Default.class);
-
-            if (def != null) {
-
-                if (isListable()) {
-
-                    return LIST_TYPE + normalize(def);
-
-                } else {
-
-                    return def.value();
-
-                }
-
-            } else if (isListable()) {
-
-                return LIST_TYPE;
-
-            } else if (getType().isPrimitive()) {
-
-                final Class<?> type = getType();
-                if (boolean.class.equals(type)) return "false";
-                else if (byte.class.equals(type)) return "0";
-                else if (char.class.equals(type)) return "\u0000";
-                else if (short.class.equals(type)) return "0";
-                else if (int.class.equals(type)) return "0";
-                else if (long.class.equals(type)) return "0";
-                else if (float.class.equals(type)) return "0";
-                else if (double.class.equals(type)) return "0";
-                else return null;
-
-            } else {
-
-                return null;
-            }
-        }
-        public String normalize(Default def) {
-            final String value = def.value();
-
-            if (value.contains(LIST_SEPARATOR)) {
-                return value;
-            }
-
-            if (value.contains("\t")) {
-                final String[] split = value.split("\t");
-                return Join.join(LIST_SEPARATOR, split);
-            }
-
-            if (value.contains(",")) {
-                final String[] split = value.split(",");
-                return Join.join(LIST_SEPARATOR, split);
-            }
-
-            return value;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getDefaultValue() {
-            return defaultValue;
-        }
-
-        public List<String> getDefaultValues() {
-            return getSeparatedValues(defaultValue);
-        }
-
-        public boolean isListable() {
-            return CmdMethod.this.isListable(this);
-        }
-
-        public Class getListableType() {
-            return CmdMethod.this.getListableType(this);
-        }
-
-        @Override
-        public String toString() {
-            return "Option{" +
-                    "name='" + name + '\'' +
-                    ", default='" + defaultValue + '\'' +
-                    '}';
-        }
-    }
-
     private void validate() {
-        for (Parameter param : argumentParameters) {
+        for (Param param : argumentParameters) {
             if (param.isAnnotationPresent(Default.class)) {
                 throw new IllegalArgumentException("@Default only usable with @Option parameters.");
             }
@@ -242,7 +146,7 @@ public class CmdMethod implements Cmd {
 
         final List<Object> args = new ArrayList<Object>();
 
-        for (Parameter parameter : argumentParameters) {
+        for (Param parameter : argumentParameters) {
             args.add(parameter.getType().getSimpleName());
         }
 
@@ -316,7 +220,7 @@ public class CmdMethod implements Cmd {
         return new IllegalArgumentException(e);
     }
 
-    public Map<String, OptionParameter> getOptionParameters() {
+    public Map<String, OptionParam> getOptionParameters() {
         return optionParameters;
     }
 
@@ -351,7 +255,7 @@ public class CmdMethod implements Cmd {
          *
          * Thus, iteration order is very significant in this loop.
          */
-        for (Parameter parameter : Reflection.params(method)) {
+        for (Param parameter : parameters) {
             final Option option = parameter.getAnnotation(Option.class);
 
             if (option != null) {
@@ -359,9 +263,9 @@ public class CmdMethod implements Cmd {
                 final String value = options.remove(option.value());
 
 
-                if (isListable(parameter)) {
+                if (parameter.isListable()) {
 
-                    converted.add(convert(parameter, getSeparatedValues(value), option.value()));
+                    converted.add(convert(parameter, OptionParam.getSeparatedValues(value), option.value()));
 
                 } else {
 
@@ -371,7 +275,7 @@ public class CmdMethod implements Cmd {
 
             } else if (list.size() > 0) {
 
-                if (isListable(parameter)) {
+                if (parameter.isListable()) {
 
                     converted.add(convert(parameter, list, null));
 
@@ -405,8 +309,8 @@ public class CmdMethod implements Cmd {
         return converted;
     }
 
-    private static Object convert(final Parameter parameter, final List<String> values, final String name) {
-        final Class<?> type = getListableType(parameter);
+    private static Object convert(final Param parameter, final List<String> values, final String name) {
+        final Class<?> type = parameter.getListableType();
 
         final String description = name == null ? "[" + type.getSimpleName() + "]" : name;
 
@@ -431,25 +335,6 @@ public class CmdMethod implements Cmd {
             }
 
             return collection;
-        }
-    }
-
-    private static List<String> getSeparatedValues(String value) {
-        if (value == null) return Collections.EMPTY_LIST;
-        final List<String> split = new ArrayList<String>(Arrays.asList(value.split(LIST_TYPE + "|" + LIST_SEPARATOR)));
-        if (split.size() > 0) split.remove(0);
-        return split;
-    }
-
-    private static Class<?> getListableType(Parameter parameter) {
-
-        if (parameter.getType().isArray()) {
-
-            return parameter.getType().getComponentType();
-
-        } else {
-
-            return (Class<?>) Generics.getType(parameter);
         }
     }
 
@@ -502,19 +387,12 @@ public class CmdMethod implements Cmd {
     public Map<String, String> getDefaults() {
         final Map<String, String> options = new HashMap<String, String>();
 
-        for (OptionParameter parameter : optionParameters.values()) {
+        for (OptionParam parameter : optionParameters.values()) {
             options.put(parameter.getName(), parameter.getDefaultValue());
         }
 
         return options;
     }
-
-    public boolean isListable(Parameter parameter) {
-        final Class<?> type = parameter.getType();
-
-        return Collection.class.isAssignableFrom(type) || type.isArray();
-    }
-
 
     public static String value(String value, String defaultValue) {
         return value == null || value.length() == 0 ? defaultValue : value;
@@ -548,18 +426,18 @@ public class CmdMethod implements Cmd {
                     }
 
                     if (defaults.containsKey(name)) {
-                        final boolean isList = defaults.get(name) != null && defaults.get(name).startsWith(LIST_TYPE);
+                        final boolean isList = defaults.get(name) != null && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
                         final String existing = supplied.get(name);
 
                         if (isList) {
 
                             if (existing == null) {
 
-                                value = LIST_TYPE + value;
+                                value = OptionParam.LIST_TYPE + value;
 
                             } else {
 
-                                value = existing + LIST_SEPARATOR + value;
+                                value = existing + OptionParam.LIST_SEPARATOR + value;
 
                             }
 
@@ -610,7 +488,7 @@ public class CmdMethod implements Cmd {
 
         private void checkRequired(Map<String, String> supplied) {
             final List<String> required = new ArrayList<String>();
-            for (Parameter parameter : optionParameters.values()) {
+            for (Param parameter : optionParameters.values()) {
                 if (!parameter.isAnnotationPresent(Required.class)) continue;
 
                 final Option option = parameter.getAnnotation(Option.class);

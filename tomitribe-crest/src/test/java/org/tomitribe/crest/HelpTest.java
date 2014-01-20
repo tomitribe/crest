@@ -74,7 +74,7 @@ public class HelpTest extends Assert {
 
     @Test
     public void testRsync() throws Exception {
-        assertCommandHelp(DefaultsAndEnums.class, "rsync");
+        assertCommandHelp(Rsync.class, "rsync");
     }
 
 
@@ -170,6 +170,7 @@ public class HelpTest extends Assert {
     }
 
     private void assertCommandHelp(Class clazz, Cmd cmd) throws IOException {
+        assertNotNull(cmd);
         final URL resource = clazz.getResource("/help/" + helpFileName(clazz, cmd.getName()));
         assertNotNull(resource);
 

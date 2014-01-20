@@ -1,0 +1,6 @@
+
+Usage: doDouble [options] Color
+
+Options: 
+  --color=<Color>          enum: red, green, blue, orange
+  --foo=<Double[]>         default: 2, 3, 5

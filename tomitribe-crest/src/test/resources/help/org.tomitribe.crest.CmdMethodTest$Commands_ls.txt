@@ -1,0 +1,5 @@
+
+Usage: ls [options] File
+
+Options: 
+  --long=<Boolean>         

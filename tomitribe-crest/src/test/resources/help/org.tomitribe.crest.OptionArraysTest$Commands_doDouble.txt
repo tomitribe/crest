@@ -1,0 +1,5 @@
+
+Usage: doDouble [options]
+
+Options: 
+  --foo=<double[]>         

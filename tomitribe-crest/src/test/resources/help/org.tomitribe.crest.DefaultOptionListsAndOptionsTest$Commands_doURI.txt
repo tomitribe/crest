@@ -1,0 +1,6 @@
+
+Usage: doURI [options] Color
+
+Options: 
+  --color=<Color>          enum: red, green, blue, orange
+  --foo=<URI[]>            default: 2, 3, 5

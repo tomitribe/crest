@@ -17,12 +17,15 @@
 package org.tomitribe.crest;
 
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.util.Join;
 import org.tomitribe.util.PrintString;
 import org.tomitribe.util.reflect.Classes;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -37,41 +40,46 @@ public class Help {
     }
 
     public static void optionHelp(final Class<Help> clazz, final String commandName, final Collection<CmdMethod.OptionParameter> optionParameters, PrintStream out) {
+        if (optionParameters.size() == 0) return;
 
         final ResourceBundle general = ResourceBundle.getBundle(Classes.packageName(clazz) + ".OptionDescriptions");
 
-        final List<Row> rows = new ArrayList<Row>(optionParameters.size());
+        final List<Item> items = new ArrayList<Item>(optionParameters.size());
 
+        int width = 20;
         for (CmdMethod.OptionParameter optionParameter : optionParameters) {
-            final String string = getDescription(general, commandName, optionParameter.getName());
-            final Row row = new Row(optionParameter, string);
-            rows.add(row);
+            final String description = getDescription(general, commandName, optionParameter.getName());
+            final Item item = new Item(optionParameter, description);
+            items.add(item);
+
+            width = Math.max(width, item.flag.length());
         }
 
-        final String format = "  %-" + widest(rows, 0, 20) + "s  %-" + widest(rows, 1, 9) + "s  %s%n";
+        final String format = "  %-" + width + "s     %s%n";
 
         out.println("Options: ");
-        out.printf(format, "", "(default)", "(description)");
 
-        for (Row row : rows) {
-            out.printf(format, row.columns.toArray());
+        for (Item item : items) {
+            final List<String> lines = new ArrayList<String>();
+
+            if (item.description != null) {
+                lines.add(item.description);
+            }
+
+            lines.addAll(item.note);
+            if (lines.size() == 0) lines.add("");
+
+            out.printf(format, item.flag, lines.remove(0));
+            for (String line : lines) {
+                out.printf(format, "", String.format("(%s)", line));
+            }
+
+//            out.println();
         }
-    }
-
-    public static int widest(List<Row> rows, final int column, final int min) {
-        int c1 = min;
-
-        for (Row row : rows) {
-            final String s = row.columns.get(column);
-            final int length = (s == null) ? 0 : s.length();
-            c1 = Math.max(c1, length);
-        }
-
-        return c1;
     }
 
     public static String getDescription(ResourceBundle general, String commandName, String name) {
-        if (general == null) return "";
+        if (general == null) return null;
 
         try {
 
@@ -85,23 +93,72 @@ public class Help {
 
             } catch (MissingResourceException e1) {
 
-                return "";
+                return null;
             }
         }
     }
 
-    private static class Row {
-        final List<String> columns = new ArrayList<String>(3);
 
-        private Row(CmdMethod.OptionParameter parameter, String description) {
-            if (boolean.class.equals(parameter.getType())) {
-                columns.add("--[no-]" + parameter.getName());
-                columns.add("true".equals(parameter.getDefaultValue()) ? "enabled" : "disabled");
+    private static class Item {
+
+        private final String flag;
+        private final List<String> note = new LinkedList<String>();
+        private final String description;
+
+        private Item(CmdMethod.OptionParameter p, String description) {
+            this.description = description;
+
+            final Class<?> type = p.getType();
+
+            String defaultValue = p.getDefaultValue();
+
+            if (boolean.class.equals(type) || (Boolean.class.equals(type) && defaultValue != null)) {
+
+                if ("true".equals(defaultValue)) {
+                    this.flag = "--no-" + p.getName();
+                } else {
+                    this.flag = "--" + p.getName();
+                }
+
+                defaultValue = null;
+
             } else {
-                columns.add(String.format("--%s=<%s>", parameter.getName(), parameter.getType().getSimpleName()));
-                columns.add(parameter.getDefaultValue());
+                this.flag = String.format("--%s=<%s>", p.getName(), getDisplayType(p));
             }
-            columns.add(description);
+
+            if (defaultValue != null) {
+
+                if (p.isListable()) {
+                    final List<String> defaultValues = p.getDefaultValues();
+
+                    if (defaultValues.size() > 0) {
+                        this.note.add(String.format("default: %s", Join.join(", ", defaultValues)));
+                    }
+
+                } else {
+
+                    this.note.add(String.format("default: %s", p.getDefaultValue()));
+
+                }
+            }
+
+            if (Enum.class.isAssignableFrom(type)) {
+                final Class<? extends Enum> enumType = (Class<? extends Enum>) type;
+                final EnumSet<? extends Enum> enums = EnumSet.allOf(enumType);
+                final String join = Join.join(", ", enums);
+                this.note.add(String.format("enum: %s", join));
+            }
+
+        }
+
+        private String getDisplayType(CmdMethod.OptionParameter parameter) {
+
+            if (parameter.isListable()) {
+
+                return parameter.getListableType().getSimpleName() + "[]";
+            }
+
+            return parameter.getType().getSimpleName();
         }
 
     }

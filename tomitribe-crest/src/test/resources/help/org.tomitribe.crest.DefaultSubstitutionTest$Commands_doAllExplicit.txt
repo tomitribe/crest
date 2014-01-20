@@ -1,0 +1,8 @@
+
+Usage: doAllExplicit [options] Value Value[]
+
+Options: 
+  --directory=<Value[]>     default: ${user.home}, ${user.dir}
+  --format=<Value>          
+  --pattern=<Value[]>       
+  --user-home=<Value>       default: ${user.home}

@@ -1,0 +1,5 @@
+
+Usage: doByte [options]
+
+Options: 
+  --foo=<Byte[]>           

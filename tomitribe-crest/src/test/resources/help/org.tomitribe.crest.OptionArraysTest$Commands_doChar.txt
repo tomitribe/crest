@@ -1,0 +1,5 @@
+
+Usage: doChar [options]
+
+Options: 
+  --foo=<char[]>           

@@ -1,0 +1,5 @@
+
+Usage: tail [options] File int
+
+Options: 
+  --number=<int>           default: 100

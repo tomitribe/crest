@@ -1,0 +1,5 @@
+
+Usage: doBoolean [options]
+
+Options: 
+  --foo=<Boolean[]>        default: false, true, false

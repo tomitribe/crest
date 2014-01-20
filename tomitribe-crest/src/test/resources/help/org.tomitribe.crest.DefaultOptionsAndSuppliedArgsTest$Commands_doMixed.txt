@@ -1,0 +1,6 @@
+
+Usage: doMixed [options] URI String
+
+Options: 
+  --p1=<String>            
+  --p2=<URI>               

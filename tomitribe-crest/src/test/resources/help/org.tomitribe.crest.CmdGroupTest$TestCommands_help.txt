@@ -1,0 +1,9 @@
+
+Usage: help [options]
+       help [options] String
+       help [options] String String
+
+Options: 
+  --colors                 
+  --lang=<String>          
+  --level=<int>            default: 0

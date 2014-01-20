@@ -1,0 +1,5 @@
+
+Usage: doChar [options]
+
+Options: 
+  --value=<char>           default: D

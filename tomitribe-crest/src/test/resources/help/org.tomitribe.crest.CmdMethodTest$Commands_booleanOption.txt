@@ -1,0 +1,5 @@
+
+Usage: booleanOption [options]
+
+Options: 
+  --long                   

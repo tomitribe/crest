@@ -1,0 +1,5 @@
+
+Usage: doByte [options]
+
+Options: 
+  --value=<byte>           default: 0

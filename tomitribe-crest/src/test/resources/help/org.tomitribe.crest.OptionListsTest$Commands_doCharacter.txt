@@ -1,0 +1,5 @@
+
+Usage: doCharacter [options]
+
+Options: 
+  --foo=<Character[]>      

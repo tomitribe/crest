@@ -1,0 +1,5 @@
+
+Usage: doShort [options]
+
+Options: 
+  --value=<short>          default: 0

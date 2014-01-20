@@ -1,0 +1,6 @@
+
+Usage: doShort [options] short short
+
+Options: 
+  --p1=<short>             default: 0
+  --p2=<short>             default: 0

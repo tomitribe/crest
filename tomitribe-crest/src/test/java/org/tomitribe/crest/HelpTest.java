@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.util.Files;
 import org.tomitribe.crest.util.IO;
@@ -39,6 +40,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -62,6 +64,7 @@ public class HelpTest extends Assert {
                           @Option("exclude-from") File excludeFrom,
                           @Option("include") Pattern include,
                           @Option("include-from") File includeFrom,
+                          @Option("progress") @Default("true") boolean progress,
                           URI source,
                           URI dest
         ) {
@@ -71,7 +74,73 @@ public class HelpTest extends Assert {
 
     @Test
     public void testRsync() throws Exception {
-        generateHelp(getHelpBase(), Rsync.class);
+        assertCommandHelp(DefaultsAndEnums.class, "rsync");
+    }
+
+
+    public static class DefaultsAndEnums {
+
+        @Command
+        public void test(@Option("recursive") boolean recursive,
+                         @Option("links") boolean links,
+                         @Option("perms") boolean perms,
+                         @Option("owner") @Default("${user.name}") String owner,
+                         @Option("group") boolean group,
+                         @Option("devices") boolean devices,
+                         @Option("specials") boolean specials,
+                         @Option("times") boolean times,
+                         @Option("exclude") Pattern exclude,
+                         @Option("exclude-from") File excludeFrom,
+                         @Option("include") @Default(".*") Pattern include,
+                         @Option("include-from") File includeFrom,
+                         @Option("highlight") @Default("orange") Color highlight,
+                         @Option("foreground") @Default("orange") Color foreground,
+                         @Option("background") Color background,
+                         URI source,
+                         URI dest
+        ) {
+
+        }
+    }
+
+    public static enum Color {
+        red, green, blue, orange;
+    }
+
+    @Test
+    public void testDefaultsAndEnums() throws Exception {
+        assertCommandHelp(DefaultsAndEnums.class, "test");
+    }
+
+    public static class OptionLists {
+
+        @Command
+        public void test(@Option("recursive") List<Boolean> recursive,
+                         @Option("links") boolean[] links,
+                         @Option("perms") boolean perms,
+                         @Option("owner") @Default("${user.name}") String owner,
+                         @Option("group") boolean group,
+                         @Option("devices") boolean devices,
+                         @Option("specials") boolean specials,
+                         @Option("times") boolean times,
+                         @Option("exclude") Pattern[] exclude,
+                         @Option("exclude-from") File excludeFrom,
+                         @Option("include") @Default(".*") Pattern include,
+                         @Option("include-from") File[] includeFrom,
+                         @Option("highlight") @Default("orange,red") Color[] highlight,
+                         @Option("foreground") @Default("orange") List<Color> foreground,
+                         @Option("background") Color[] background,
+                         URI source,
+                         URI dest
+        ) {
+
+        }
+    }
+
+    @Test
+    public void testOptionLists() throws Exception {
+        generateHelp(getHelpBase(), OptionLists.class);
+        assertCommandHelp(OptionLists.class, "test");
     }
 
     @Test
@@ -95,9 +164,14 @@ public class HelpTest extends Assert {
         }
     }
 
+    private void assertCommandHelp(Class clazz, String name) throws IOException {
+        final Map<String, Cmd> commands = Commands.get(clazz);
+        assertCommandHelp(clazz, commands.get(name));
+    }
+
     private void assertCommandHelp(Class clazz, Cmd cmd) throws IOException {
-        final URL resource = clazz.getResource("help/" + helpFileName(clazz, cmd.getName()));
-        if (resource == null) return;
+        final URL resource = clazz.getResource("/help/" + helpFileName(clazz, cmd.getName()));
+        assertNotNull(resource);
 
         final String expected = IO.slurp(resource);
 

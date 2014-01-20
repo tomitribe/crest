@@ -1,0 +1,5 @@
+
+Usage: doString [options]
+
+Options: 
+  --foo=<String[]>         

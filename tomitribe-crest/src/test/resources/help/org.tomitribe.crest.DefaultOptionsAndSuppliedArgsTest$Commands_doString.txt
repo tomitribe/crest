@@ -1,0 +1,6 @@
+
+Usage: doString [options] String String
+
+Options: 
+  --p1=<String>            
+  --p2=<String>            

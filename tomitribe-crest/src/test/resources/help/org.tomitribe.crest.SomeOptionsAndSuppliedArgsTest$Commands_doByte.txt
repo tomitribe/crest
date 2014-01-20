@@ -1,0 +1,6 @@
+
+Usage: doByte [options] byte byte
+
+Options: 
+  --p1=<byte>              default: 0
+  --p2=<byte>              default: 0

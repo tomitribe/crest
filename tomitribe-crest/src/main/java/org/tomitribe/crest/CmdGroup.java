@@ -109,7 +109,7 @@ public class CmdGroup implements Cmd {
             options.putAll(method.getOptionParameters());
         }
 
-        Help.optionHelp(Help.class, "", options.values(), out);
+        Help.optionHelp(Help.class, getName(), options.values(), out);
     }
 
     public void add(CmdMethod cmd) {

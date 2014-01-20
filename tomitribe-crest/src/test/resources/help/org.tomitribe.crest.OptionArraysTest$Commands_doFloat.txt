@@ -1,0 +1,5 @@
+
+Usage: doFloat [options]
+
+Options: 
+  --foo=<float[]>          

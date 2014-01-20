@@ -182,8 +182,16 @@ public class CmdMethod implements Cmd {
             return defaultValue;
         }
 
+        public List<String> getDefaultValues() {
+            return getSeparatedValues(defaultValue);
+        }
+
         public boolean isListable() {
             return CmdMethod.this.isListable(this);
+        }
+
+        public Class getListableType() {
+            return CmdMethod.this.getListableType(this);
         }
 
         @Override
@@ -319,7 +327,7 @@ public class CmdMethod implements Cmd {
         out.println(getUsage());
         out.println();
 
-        Help.optionHelp(Help.class, "", optionParameters.values(), out);
+        Help.optionHelp(Help.class, getName(), optionParameters.values(), out);
     }
 
     public List<Object> parse(String... rawArgs) {
@@ -427,8 +435,9 @@ public class CmdMethod implements Cmd {
     }
 
     private static List<String> getSeparatedValues(String value) {
+        if (value == null) return Collections.EMPTY_LIST;
         final List<String> split = new ArrayList<String>(Arrays.asList(value.split(LIST_TYPE + "|" + LIST_SEPARATOR)));
-        split.remove(0);
+        if (split.size() > 0) split.remove(0);
         return split;
     }
 
@@ -626,5 +635,12 @@ public class CmdMethod implements Cmd {
                 throw new IllegalArgumentException("Cannot be specified more than once: " + Join.join(", ", repeated));
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Command{" +
+                "name='" + name + '\'' +
+                '}';
     }
 }

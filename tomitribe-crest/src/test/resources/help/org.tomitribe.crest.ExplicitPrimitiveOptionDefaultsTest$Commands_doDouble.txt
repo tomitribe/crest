@@ -1,0 +1,5 @@
+
+Usage: doDouble [options]
+
+Options: 
+  --value=<double>         default: 20.0

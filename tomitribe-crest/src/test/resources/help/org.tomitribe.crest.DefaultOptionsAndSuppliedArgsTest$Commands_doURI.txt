@@ -1,0 +1,6 @@
+
+Usage: doURI [options] URI URI
+
+Options: 
+  --p1=<URI>               
+  --p2=<URI>               

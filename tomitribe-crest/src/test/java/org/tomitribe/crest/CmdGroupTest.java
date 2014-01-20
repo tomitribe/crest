@@ -62,27 +62,6 @@ public class CmdGroupTest extends Assert {
         assertEquals("help3 en true foo bar", help.exec("--lang=en", "--colors", "foo", "bar"));
     }
 
-    @Test
-    public void testHelp() throws Exception {
-        final Cmd help = commands.get("help");
-        final PrintString out = new PrintString();
-        help.help(out);
-
-        assertEquals(
-                "\n" +
-                        "Usage: help [options]\n" +
-                        "       help [options] String\n" +
-                        "       help [options] String String\n" +
-                        "\n" +
-                        "Options: \n" +
-                        "                          (default)\n" +
-                        "   --colors=<boolean>     false\n" +
-                        "   --lang=<String>        null\n" +
-                        "   --level=<int>          0\n",
-                out.toString());
-    }
-
-
     public static class TestCommands {
 
         @Command

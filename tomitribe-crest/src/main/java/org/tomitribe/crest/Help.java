@@ -48,7 +48,7 @@ public class Help {
             rows.add(row);
         }
 
-        final String format = "  %-" + widest(rows, 0, 20) + "s  %-" + widest(rows, 1, 1) + "s  %s%n";
+        final String format = "  %-" + widest(rows, 0, 20) + "s  %-" + widest(rows, 1, 9) + "s  %s%n";
 
         out.println("Options: ");
         out.printf(format, "", "(default)", "(description)");

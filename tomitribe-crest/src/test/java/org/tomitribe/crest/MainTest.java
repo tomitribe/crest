@@ -62,7 +62,6 @@ public class MainTest extends TestCase {
                         "   green               \n",
                 help.exec());
 
-        assertEquals("", help.exec("green"));
     }
 
     public static class Foo {

@@ -421,8 +421,13 @@ public class CmdMethod implements Cmd {
                         name = arg.substring(arg.indexOf("--") + 2, arg.indexOf("="));
                         value = arg.substring(arg.indexOf("=") + 1);
                     } else {
-                        name = arg.substring(arg.indexOf("--") + 2);
-                        value = "true";
+                        if (arg.startsWith("--no-")) {
+                            name = arg.substring(5);
+                            value = "false";
+                        } else {
+                            name = arg.substring(2);
+                            value = "true";
+                        }
                     }
 
                     if (defaults.containsKey(name)) {

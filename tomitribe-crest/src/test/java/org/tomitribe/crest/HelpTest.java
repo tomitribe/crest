@@ -23,24 +23,56 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.util.Files;
 import org.tomitribe.crest.util.IO;
 import org.tomitribe.crest.util.JarLocation;
 import org.tomitribe.util.PrintString;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 public class HelpTest extends Assert {
+
+
+    public static class Rsync {
+
+        @Command
+        public void rsync(@Option("recursive") boolean recursive,
+                          @Option("links") boolean links,
+                          @Option("perms") boolean perms,
+                          @Option("owner") boolean owner,
+                          @Option("group") boolean group,
+                          @Option("devices") boolean devices,
+                          @Option("specials") boolean specials,
+                          @Option("times") boolean times,
+                          @Option("exclude") Pattern exclude,
+                          @Option("exclude-from") File excludeFrom,
+                          @Option("include") Pattern include,
+                          @Option("include-from") File includeFrom,
+                          URI source,
+                          URI dest
+        ) {
+
+        }
+    }
+
+    @Test
+    public void testRsync() throws Exception {
+        generateHelp(getHelpBase(), Rsync.class);
+    }
 
     @Test
     public void test() throws Exception {
@@ -85,25 +117,30 @@ public class HelpTest extends Assert {
 
         for (Class clazz : classes) {
 
-            final Map<String, Cmd> commands;
+            generateHelp(helpBase, clazz);
+        }
+    }
+
+    public void generateHelp(File helpBase, Class clazz) throws FileNotFoundException {
+        final Map<String, Cmd> commands;
+        try {
+            commands = Commands.get(clazz);
+        } catch (Exception e) {
+            return;
+        }
+
+        for (Cmd cmd : commands.values()) {
+            final String name = cmd.getName();
+            final File file = new File(helpBase, helpFileName(clazz, name));
+
+            final PrintStream print = IO.print(file);
+
             try {
-                commands = Commands.get(clazz);
+                cmd.help(print);
             } catch (Exception e) {
                 continue;
-            }
-
-            for (Cmd cmd : commands.values()) {
-                final String name = cmd.getName();
-                final File file = new File(helpBase, helpFileName(clazz, name));
-
-                final PrintStream print = IO.print(file);
-
-                try {
-                    cmd.help(print);
-                } catch (Exception e) {
-                    print.close();
-                    continue;
-                }
+            } finally {
+                print.close();
             }
         }
     }

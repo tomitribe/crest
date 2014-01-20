@@ -1,0 +1,17 @@
+
+Usage: rsync [options] URI URI
+
+Options: 
+                         (default)  (description)
+  --[no-]devices         disabled   preserve device files (super-user only)
+  --exclude=<Pattern>    null       exclude files matching PATTERN
+  --exclude-from=<File>  null       read exclude patterns from FILE
+  --[no-]group           disabled   preserve group
+  --include=<Pattern>    null       don't exclude files matching PATTERN
+  --include-from=<File>  null       read include patterns from FILE
+  --[no-]links           disabled   copy symlinks as symlinks
+  --[no-]owner           disabled   preserve owner (super-user only)
+  --[no-]perms           disabled   preserve permissions
+  --[no-]recursive       disabled   recurse into directories
+  --[no-]specials        disabled   preserve special files
+  --[no-]times           disabled   preserve times

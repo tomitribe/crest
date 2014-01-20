@@ -107,8 +107,8 @@ public class CmdMethod implements Cmd {
 
     public class OptionParameter extends Parameter {
 
-        private final String defaultValue;
         private final String name;
+        private final String defaultValue;
 
         public OptionParameter(Parameter parameter) {
             super(parameter.getAnnotations(), parameter.getType(), parameter.getGenericType());
@@ -184,6 +184,14 @@ public class CmdMethod implements Cmd {
 
         public boolean isListable() {
             return CmdMethod.this.isListable(this);
+        }
+
+        @Override
+        public String toString() {
+            return "Option{" +
+                    "name='" + name + '\'' +
+                    ", default='" + defaultValue + '\'' +
+                    '}';
         }
     }
 

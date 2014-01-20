@@ -71,6 +71,8 @@ public class Help {
     }
 
     public static String getDescription(ResourceBundle general, String commandName, String name) {
+        if (general == null) return "";
+
         try {
 
             return general.getString(commandName + "." + name);

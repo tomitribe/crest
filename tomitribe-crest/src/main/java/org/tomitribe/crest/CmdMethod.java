@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -314,6 +315,20 @@ public class CmdMethod implements Cmd {
 
         final String description = name == null ? "[" + type.getSimpleName() + "]" : name;
 
+        if (Enum.class.isAssignableFrom(type) && isBoolean(values)) {
+            final boolean all = "true".equals(values.get(0));
+
+            values.clear();
+
+            if (all) {
+                final Class<? extends Enum> elementType = (Class<? extends Enum>) type;
+                final EnumSet<? extends Enum> enums = EnumSet.allOf(elementType);
+                for (Enum e : enums) {
+                    values.add(e.name());
+                }
+            }
+        }
+
         if (parameter.getType().isArray()) {
 
             final Object array = Array.newInstance(type, values.size());
@@ -336,6 +351,13 @@ public class CmdMethod implements Cmd {
 
             return collection;
         }
+    }
+
+    private static boolean isBoolean(List<String> values) {
+        if (values.size() != 1) return false;
+        if ("true".equals(values.get(0))) return true;
+        if ("false".equals(values.get(0))) return true;
+        return false;
     }
 
     public static Collection<Object> instantiate(Class<? extends Collection> aClass) {

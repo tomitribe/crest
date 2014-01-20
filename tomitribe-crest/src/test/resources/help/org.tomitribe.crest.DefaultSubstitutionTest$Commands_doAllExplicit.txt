@@ -1,5 +1,5 @@
 
-Usage: doAllExplicit [options] Value Value[]
+Usage: doAllExplicit [options] Value Value...
 
 Options: 
   --directory=<Value[]>     default: ${user.home}, ${user.dir}

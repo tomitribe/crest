@@ -1,3 +1,3 @@
 
-Usage: doLong  List
+Usage: doLong  Long...
 

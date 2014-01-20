@@ -1,5 +1,5 @@
 
-Usage: doRelyOnDefaults [options] Value Value[]
+Usage: doRelyOnDefaults [options] Value Value...
 
 Options: 
   --directory=<Value[]>     default: ${user.home}, ${user.dir}

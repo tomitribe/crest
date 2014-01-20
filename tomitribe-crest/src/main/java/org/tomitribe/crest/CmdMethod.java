@@ -147,7 +147,7 @@ public class CmdMethod implements Cmd {
         final List<Object> args = new ArrayList<Object>();
 
         for (Param parameter : argumentParameters) {
-            args.add(parameter.getType().getSimpleName());
+            args.add(parameter.getDisplayType().replace("[]", "..."));
         }
 
         return String.format("%s %s %s", name, args.size() == method.getParameterTypes().length ? "" : "[options]", Join.join(" ", args)).trim();

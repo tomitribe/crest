@@ -19,6 +19,8 @@ package org.tomitribe.crest;
 import junit.framework.TestCase;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Option;
+import org.tomitribe.util.Join;
 
 /**
  * @version $Revision$ $Date$
@@ -46,6 +48,22 @@ public class MainTest extends TestCase {
         }
     }
 
+    public void testHelp() throws Exception {
+
+        final Main main = new Main(new ClassesArchive(Foo.class));
+        final Cmd help = main.commands.get("help");
+
+        assertEquals(
+                "Commands: \n" +
+                        "                       \n" +
+                        "   help                \n" +
+                        "   red                 \n" +
+                        "   blue                \n" +
+                        "   green               \n",
+                help.exec());
+
+        assertEquals("", help.exec("green"));
+    }
 
     public static class Foo {
 

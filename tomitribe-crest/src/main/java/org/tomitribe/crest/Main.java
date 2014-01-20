@@ -22,7 +22,6 @@ import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.util.JarLocation;
-import org.tomitribe.util.PrintString;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -64,10 +63,9 @@ public class Main {
     }
 
     private void installHelp() {
-        try {
-            add(new CmdMethod(new Help(), Help.class.getDeclaredMethod("help")));
-        } catch (NoSuchMethodException e) {
-            throw new IllegalStateException(e);
+        final Map<String, Cmd> stringCmdMap = Commands.get(new Help(Main.this.commands));
+        for (Cmd cmd : stringCmdMap.values()) {
+            add(cmd);
         }
     }
 
@@ -125,31 +123,4 @@ public class Main {
         return list;
     }
 
-    public class Help {
-
-        @Command
-        public String help() {
-            final PrintString string = new PrintString();
-            string.println("Commands: ");
-            string.printf("   %-20s", "");
-            string.println();
-
-            for (String command : commands.keySet()) {
-                string.printf("   %-20s%n", command);
-            }
-
-            return string.toString();
-        }
-
-        @Command
-        public String help(String name) {
-            final Cmd cmd = commands.get(name);
-
-            if (cmd == null) {
-                return String.format("No such command: %s%n", name);
-            }
-
-            return cmd.getUsage();
-        }
-    }
 }

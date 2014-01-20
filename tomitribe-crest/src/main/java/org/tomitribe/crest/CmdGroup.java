@@ -17,11 +17,9 @@
 package org.tomitribe.crest;
 
 import org.tomitribe.crest.util.Join;
-import org.tomitribe.util.collect.ObjectMap;
 
 import java.io.PrintStream;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +109,7 @@ public class CmdGroup implements Cmd {
             options.putAll(method.getOptionParameters());
         }
 
-        CmdMethod.optionHelp(out, options.values());
+        Help.optionHelp(Help.class, "", options.values(), out);
     }
 
     public void add(CmdMethod cmd) {

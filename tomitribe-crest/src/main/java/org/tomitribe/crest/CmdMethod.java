@@ -311,18 +311,7 @@ public class CmdMethod implements Cmd {
         out.println(getUsage());
         out.println();
 
-        optionHelp(out, optionParameters.values());
-    }
-
-    public static void optionHelp(PrintStream out, final Collection<OptionParameter> optionParameters) {
-        out.println("Options: ");
-        out.printf("   %-20s   %s%n", "", "(default)");
-
-        for (OptionParameter o : optionParameters) {
-
-            out.printf("   --%-20s %s%n", o.getName() + "=<" + o.getType().getSimpleName() + ">", o.getDefaultValue());
-
-        }
+        Help.optionHelp(Help.class, "", optionParameters.values(), out);
     }
 
     public List<Object> parse(String... rawArgs) {

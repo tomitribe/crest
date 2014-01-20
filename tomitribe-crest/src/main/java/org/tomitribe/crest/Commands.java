@@ -38,12 +38,22 @@ public class Commands {
         );
     }
 
+    public static Map<String, Cmd> get(Object bean) {
+        return get(bean.getClass(), new SimpleBean(bean));
+    }
+
     public static Map<String, Cmd> get(Class<?> clazz) {
+        return get(clazz, new SimpleBean(null));
+    }
+
+    public static Map<String, Cmd> get(Class<?> clazz, final Target target) {
+        if (target == null) throw new IllegalArgumentException("Target cannot be null");
+
         final Map<String, Cmd> map = new HashMap<String, Cmd>();
 
         for (Method method : clazz.getMethods()) {
             if (method.isAnnotationPresent(Command.class)) {
-                final CmdMethod cmd = new CmdMethod(method);
+                final CmdMethod cmd = new CmdMethod(method, target);
 
                 final Cmd existing = map.get(cmd.getName());
                 if (existing == null) {

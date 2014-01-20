@@ -1,0 +1,5 @@
+
+Usage: primitive [options]
+
+Options: 
+  --no-action              

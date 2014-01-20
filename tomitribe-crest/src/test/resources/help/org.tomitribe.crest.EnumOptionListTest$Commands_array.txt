@@ -1,0 +1,5 @@
+
+Usage: array [options]
+
+Options: 
+  --action=<Action[]>      default: WALK

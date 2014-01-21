@@ -5,7 +5,7 @@ Command-line API styled after JAX-RS
 CREST allows you to get to the real work as quickly as possible when writing command line tools in Java.
 
  * 100% annotation based
- * Use Bean Validation
+ * Use Bean Validation on use input
  * Contains Several builtin validations
  * Generates help from annotations
  * Supports default values
@@ -16,47 +16,526 @@ CREST allows you to get to the real work as quickly as possible when writing com
 Simply annotate the parameters of any Java method so it can be invoked from a command-line interface
  with near-zero additional work.  Command-registration, help text and validation is taken care of for you.
 
-== API Goals
+== Example
 
-Rather than create elaborate API classes that require you to implement special interfaces, building up command objects,
-parse command line options, or validate input.
-
-Taking a page from JAX-RS, CREST gives you a smart annotation-driven API focused on describing methods and method
-parameters which become the actual commands.
-
-Things you won't need to do 50% of the time:
-
- * Validate your parameters
-
-Things you won't need to do 90% of the time:
-
- * Implement special interfaces
- * Subclass special any classes
- * Override special method
- * Build "command" objects to describe commands or arguments
- * Register commands in some way to make them seen
- * Create or register PropertyEditors of any kind
-
-The result is an API that exist only in method signatures and, in most cases, zero runtime API usage.  The moment your method is invoked,
-CREST has done all it's work and you should have all the data you need.
-
-== Examples
-
-A simple command might look like the following
+For example, to do something that might be similar to rsync in java, you could create the following
+method signature in any java object.
 
 [source,java]
 ----
-    @Command
-    public StreamingOutput cat(final File file) {
-        Files.exists(file);
-        Files.readable(file);
-        Files.file(file);
+package org.example.toolz;
 
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream os) throws IOException {
-                IO.copy(file, os);
-            }
-        };
+import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Default;
+import org.tomitribe.crest.api.Option;
+
+import java.io.File;
+import java.net.URI;
+import java.util.regex.Pattern;
+
+public class AnyName {
+
+    @Command
+    public void rsync(@Option("recursive") boolean recursive,
+                      @Option("links") boolean links,
+                      @Option("perms") boolean perms,
+                      @Option("owner") boolean owner,
+                      @Option("group") boolean group,
+                      @Option("devices") boolean devices,
+                      @Option("specials") boolean specials,
+                      @Option("times") boolean times,
+                      @Option("exclude") Pattern exclude,
+                      @Option("exclude-from") File excludeFrom,
+                      @Option("include") Pattern include,
+                      @Option("include-from") File includeFrom,
+                      @Option("progress") @Default("true") boolean progress,
+                      URI[] sources,
+                      URI dest) {
+
+        // TODO write the implementation...
     }
+}
 ----
+
+Some quick notes on `@Command` usage:
+
+  - Multiple classes that use `@Command` are allowed
+  - Muttiple `@Command` methods are allowed in a class
+  - `@Command` methods in a class may have the same or different name
+  - The command name is derived from the method name if not specified in `@Command`
+
+=== Executing the Command
+
+Pack this class in an uber jar with the Crest library and you could execute this command from the command line as follows:
+
+[source,bash]
+----
+$ java -jar target/toolz-1.1-SNAPSHOT.jar rsync
+Missing argument: URI...
+
+Usage: rsync [options] URI... URI
+
+Options:
+  --devices
+  --exclude=<Pattern>
+  --exclude-from=<File>
+  --group
+  --include=<Pattern>
+  --include-from=<File>
+  --links
+  --owner
+  --perms
+  --no-progress
+  --recursive
+  --specials
+  --times
+----
+
+Of course, if we execute the command without the required arguments it will error out.  This is the value of Crest -- it does this dance for you.
+
+In a dozen and more years of writing tools on different teams, two truths seem to prevail:
+
+ - 90% of writing scripts is parsing and validating user input
+ - Don't do that well and you'll be lucky if it gets more than six months of use
+
+Computers are easy, humans are complex.  Let Crest deal with the humans, you just write code.
+
+== Help Text
+
+In the above example we have no details in our help other than what can be generated from inspecting the code.  To add actual descriptions to our
+code we simply need to put an `OptionDescriptions.properties` in the same package as our class.
+[source, properties]
+----
+# Valid syntax is either:
+# <option> = <description>
+# <command>.<option> = <description>
+# The most specific key always wins
+
+recursive    = recurse into directories
+links        = copy symlinks as symlinks
+perms        = preserve permissions
+owner        = preserve owner (super-user only)
+group        = preserve group
+times        = preserve times
+devices      = preserve device files (super-user only)
+specials     = preserve special files
+exclude      = exclude files matching PATTERN
+exclude-from = read exclude patterns from FILE
+include      = don't exclude files matching PATTERN
+include-from = read include patterns from FILE
+progress       = this is not the description that will be chosen
+rsync.progress = don't show progress during transfer
+----
+
+Some quick notes on `OptionDescription.properties` files:
+
+ - These are Java `java.util.ResourceBundle` objects, so i18n is supported
+ - Use `OptionDescription_en.properties` and similar for Locale specific help text
+ - In DRY spirit, every `@Command` in the package shares the same `OptionDescription` ResourceBundle and keys
+ - Use `<command>.<option>` as the key for situations where sharing is not desired
+
+With the above in our classpath, our command's help will now look like the following:
+
+[source, bash]
+----
+$ java -jar target/toolz-1.1-SNAPSHOT.jar rsync
+Missing argument: URI...
+
+Usage: rsync [options] URI... URI
+
+Options:
+  --devices                 preserve device files (super-user only)
+  --exclude=<Pattern>       exclude files matching PATTERN
+  --exclude-from=<File>     read exclude patterns from FILE
+  --group                   preserve group
+  --include=<Pattern>       don't exclude files matching PATTERN
+  --include-from=<File>     read include patterns from FILE
+  --links                   copy symlinks as symlinks
+  --owner                   preserve owner (super-user only)
+  --perms                   preserve permissions
+  --no-progress             don't show progress during transfer
+  --recursive               recurse into directories
+  --specials                preserve special files
+  --times                   preserve times
+----
+
+== @Default values
+
+Setting defaults to the `@Option` parameters of our `@Command` method can be done via the `@Default` annotation.  Using as
+ simplified version of our `rsync`
+ example, we might possibly wish to specify a default `exclude` pattern.
+
+
+[source,java]
+----
+@Command
+public void rsync(@Option("exclude") @Default(".*~") Pattern exclude,
+                  @Option("include") Pattern include,
+                  @Option("progress") @Default("true") boolean progress,
+                  URI[] sources,
+                  URI dest) {
+
+    // TODO write the implementation...
+}
+----
+
+Some quick notes about `@Option`:
+
+ - `@Option` parameters are, by default, optional
+ - When `@Default` is not used, the value will be its equivalent JVM default -- typically `0` or `null`
+ - Add `@Required` to force a user to specify a value
+
+Default values will show up in help output automatically, no need to update your `OptionDescriptions.properties`
+
+[source, bash]
+----
+Usage: rsync [options] URI... URI
+
+Options:
+  --exclude=<Pattern>      exclude files matching PATTERN
+                           (default: .*~)
+  --include=<Pattern>      don't exclude files matching PATTERN
+  --no-progress            don't show progress during transfer
+----
+
+== @Option Lists and Arrays
+
+There are situations where you might want to allow the same flag to be specified twice.  Simply turn the `@Option` parameter into an
+array or list that uses generics.
+
+[source,java]
+----
+@Command
+public void rsync(@Option("exclude") @Default(".*~") Pattern[] excludes,
+                  @Option("include") Pattern include,
+                  @Option("progress") @Default("true") boolean progress,
+                  URI[] sources,
+                  URI dest) {
+
+    // TODO write the implementation...
+}
+----
+
+The user can now specify multiple values when invoking the command by repeating the flag.
+
+[source,bash]
+$ java -jar target/toolz-1.1-SNAPSHOT.jar rsync --exclude=".*\.log" --exclude=".*\.iml"  ...
+
+== @Default @Option Lists and Arrays
+
+Should you want to specify these two `exclude` values as the defaults, simply use a *comma* `,` to separate them in `@Default`
+
+[source,java]
+----
+@Command
+public void rsync(@Option("exclude") @Default(".*\\.iml,.*\\.iml") Pattern[] excludes,
+                  @Option("include") Pattern include,
+                  @Option("progress") @Default("true") boolean progress,
+                  URI[] sources,
+                  URI dest) {
+
+}
+----
+
+If you happen to need comma for something, use *tab* `\t` instead.  When a tab is present in the `@Default` string, it becomes the preferred splitter.
+
+[source,java]
+----
+@Command
+public void rsync(@Option("exclude") @Default(".*\\.iml\t.*\\.iml") Pattern[] excludes,
+                  @Option("include") Pattern include,
+                  @Option("progress") @Default("true") boolean progress,
+                  URI[] sources,
+                  URI dest) {
+
+}
+----
+
+If you happen to need both tab and comma for something (really????), use *unicode* zero `\u0000` instead.
+
+[source,java]
+----
+@Command
+public void rsync(@Option("exclude") @Default(".*\\.iml\u0000.*\\.iml") Pattern[] excludes,
+                  @Option("include") Pattern include,
+                  @Option("progress") @Default("true") boolean progress,
+                  URI[] sources,
+                  URI dest) {
+
+}
+----
+
+
+== @Default and ${variable} Substitution
+
+In the event you want to make defaults contextual, you can use `${some.property}` in the `@Default` string and
+ the `java.lang.System.getProperties()` object to supply the value.
+
+[source,java]
+----
+@Command
+public void hello(@Option("name") @Default("${user.name}") String user) throws Exception
+    System.out.printf("Hello, %s%n", user);
+}
+----
+
+== Return Values
+
+In the above we wrote to the console, which is fine for simple things but can make testing hard.  So far our commands are still POJOs and
+nothing is stopping us from unit testing them as plain java objects -- except asserting output writen to `System.out`.
+
+Simply return `java.lang.String` and it will be written to `System.out` for you.
+
+[source,java]
+----
+@Command
+public String hello(@Option("name") @Default("${user.name}") String user) throws Exception
+    return String.format("Hello, %s%n", user);
+}
+----
+
+In the event you need to write a significant amount of data, you can return `org.tomitribe.crest.api.StreamingOutput` which is an exact copy of the
+equivalent JAX-RS http://docs.oracle.com/javaee/6/api/javax/ws/rs/core/StreamingOutput.html[StreamingOutput] interface.
+
+[source,java]
+----
+@Command
+public StreamingOutput cat(final File file) {
+    if (!file.exists()) throw new IllegalStateException("File does not exist: " + file.getAbsolutePath());
+    if (!file.canRead()) throw new IllegalStateException("Not readable: " + file.getAbsolutePath());
+    if (!file.isFile()) throw new IllegalStateException("Not a file: " + file.getAbsolutePath());
+
+    return new StreamingOutput() {
+        @Override
+        public void write(OutputStream output) throws IOException {
+            final InputStream input = new BufferedInputStream(new FileInputStream(file));
+            try {
+                final byte[] buffer = new byte[1024];
+                int length;
+                while ((length = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, length);
+                }
+                output.flush();
+            } finally {
+                if (input != null) input.close();
+            }
+        }
+    };
+}
+----
+
+Note a `null` check is not necessary for the `File file` parameter as Crest will not let the value of any plain argument be unspecified.  All parameters which do not use `@Option` are treated as required
+
+
+== Custom Java Types
+
+You may have been seeing `File` and `Pattern` in the above examples and wondering exactly which Java classes Crest supports parameters to `@Command` methods.
+The short answer is, any.  Crest does *not* use `java.beans.PropertyEditor` implementations by default like libraries such as Spring do.
+
+After nearly 20 years of Java's existence, it's safe to say two styles dominate converting a `String` into a Java object:
+
+ * A *Constructor* that take a single String as an argument.  Examples:
+ ** `java.io.File(String)`
+ ** `java.lang.Integer(String)`
+ ** `java.net.URL(String)`
+ * A *static method* that returns an instance of the same class.  Examples:
+ ** `java.util.regex.Pattern.compile(String)`
+ ** `java.net.URI.create(String)`
+ ** `java.util.concurrent.TimeUnit.valueOf(String)`
+
+
+Use either of these conventions and Crest will have no problem instantiating your object with the user-supplied `String` from the command-line args.
+
+This should cover *95%* of all cases, but in the event it does not, you can create a `java.beans.PropertyEditor` and register it with the JVM.
+Use your Google-fu to learn how to do that.
+
+The order of precedence is as follows:
+
+ 1. Constructor
+ 2. Static method
+ 3. `java.beans.PropertyEditor`
+
+== Custom Validation
+
+If we look at our `cat` command we had earlier and yank the very boiler-plate read/write stream logic, all we have left is some code validating the user input.
+
+[source,java]
+----
+@Command
+public StreamingOutput cat(final File file) {
+    if (!file.exists()) throw new IllegalStateException("File does not exist: " + file.getAbsolutePath());
+    if (!file.canRead()) throw new IllegalStateException("Not readable: " + file.getAbsolutePath());
+    if (!file.isFile()) throw new IllegalStateException("Not a file: " + file.getAbsolutePath());
+
+    return new StreamingOutput() {
+        @Override
+        public void write(OutputStream os) throws IOException {
+            IO.copy(file, os);
+        }
+    };
+}
+----
+
+This validation code, too, can be yanked.  Crest supports the use of http://beanvalidation.org[Bean Validation] to validate `@Command` method
+parameters.
+
+[source,java]
+----
+@Command
+public StreamingOutput cat(@Exists @Readable final File file) {
+    if (!file.isFile()) throw new IllegalStateException("Not a file: " + file.getAbsolutePath());
+
+    return new StreamingOutput() {
+        @Override
+        public void write(OutputStream os) throws IOException {
+            IO.copy(file, os);
+        }
+    };
+}
+----
+
+Here we've eliminated two of our very tedious checks with Bean Validation annotations that Crest provides out of the box, but we still have one more to
+get rid of.  We can eliminate that one by writing our own annotation and using the Bean Validation API to wire it all together.
+
+Here is what an annotation to do the `file.isFile()` check might look like -- let's call the annotation simply `@IsFile`
+
+
+[source,java]
+----
+package org.example.toolz;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.Payload;
+import java.io.File;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.tomitribe.crest.val.Exists;
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+@Exists
+@Documented
+@javax.validation.Constraint(validatedBy = {IsFile.Constraint.class})
+@Target({METHOD, FIELD, ANNOTATION_TYPE, PARAMETER})
+@Retention(RUNTIME)
+public @interface IsFile {
+    Class<?>[] groups() default {};
+
+    String message() default "{org.exampe.toolz.IsFile.message}";
+
+    Class<? extends Payload>[] payload() default {};
+
+    public static class Constraint implements ConstraintValidator<IsFile, File> {
+
+        @Override
+        public void initialize(IsFile constraintAnnotation) {
+        }
+
+        @Override
+        public boolean isValid(File file, ConstraintValidatorContext context) {
+            return file.isDirectory();
+        }
+    }
+}
+----
+
+We can then update our code as follows to use this validation and eliminate all our boiler-plate.
+
+[source,java]
+----
+@Command
+public StreamingOutput cat(@IsFile @Readable final File file) {
+
+    return new StreamingOutput() {
+        @Override
+        public void write(OutputStream os) throws IOException {
+            IO.copy(file, os);
+        }
+    };
+}
+----
+
+Notice that we also removed `@Exists` from the method parameter?  Since we put `@Exists` on the `@IsFile` annotation,
+the `@IsFile` annotation effectively inherits the `@Exists` logic.
+Our `@IsFile` annotation could inherit any number of annotations this way.
+
+As the true strength of a great library of tools is the effort put into ensuring correct input, it's very wise to
+bite the bullet and proactively invest in creating a reusable set of validation annotations to cover your typical input
+types.
+
+Pull requests are *very* strongly encouraged for any annotations that might be useful to others.
+
+== Maven pom.xml setup
+
+The following sample pom.xml will get you 90% of your way to fun with Crest and project
+that will output a small uber jar with all the required dependencies.
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.example</groupId>
+  <artifactId>toolz</artifactId>
+  <version>1.1-SNAPSHOT</version>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.tomitribe</groupId>
+      <artifactId>tomitribe-crest</artifactId>
+      <version>1.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>org.tomitribe.crest.Main</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+----
+
+
+== Maven Archetype
+
+A maven archetype is available to quickly bootstrap small projects complete with the a pom like the above.  Save yourself some time on copy/paste then find/replace.
+
+[source,bash]
+mvn archetype:generate \
+ -DarchetypeGroupId=org.tomitribe \
+ -DarchetypeArtifactId=tomitribe-crest-archetype \
+ -DarchetypeVersion=1.1-SNAPSHOT

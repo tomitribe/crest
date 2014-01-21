@@ -39,10 +39,10 @@ public class Help {
         commands = commands1;
     }
 
-    public static void optionHelp(final Class<Help> clazz, final String commandName, final Collection<OptionParam> optionParams, PrintStream out) {
+    public static void optionHelp(final Class<?> clazz, final String commandName, final Collection<OptionParam> optionParams, PrintStream out) {
         if (optionParams.size() == 0) return;
 
-        final ResourceBundle general = ResourceBundle.getBundle(Classes.packageName(clazz) + ".OptionDescriptions");
+        final ResourceBundle general = getResourceBundle(clazz);
 
         final List<Item> items = new ArrayList<Item>(optionParams.size());
 
@@ -75,6 +75,14 @@ public class Help {
             }
 
 //            out.println();
+        }
+    }
+
+    public static ResourceBundle getResourceBundle(Class<?> clazz) {
+        try {
+            return ResourceBundle.getBundle(Classes.packageName(clazz) + ".OptionDescriptions");
+        } catch (java.util.MissingResourceException ok) {
+            return null;
         }
     }
 

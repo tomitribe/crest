@@ -65,8 +65,8 @@ public class CmdMethod implements Cmd {
     private final List<Param> argumentParameters;
     private final List<Param> parameters;
 
-    public CmdMethod(Object bean, Method method) {
-        this(method, new SimpleBean(bean));
+    public CmdMethod(Method method) {
+        this(method, new SimpleBean(null));
     }
 
     public CmdMethod(Method method, Target target) {
@@ -104,6 +104,10 @@ public class CmdMethod implements Cmd {
         validate();
     }
 
+    public Method getMethod() {
+        return method;
+    }
+
     public List<Param> getArgumentParameters() {
         return argumentParameters;
     }
@@ -123,10 +127,6 @@ public class CmdMethod implements Cmd {
         final Command command = method.getAnnotation(Command.class);
         if (command == null) return method.getName();
         return value(command.value(), method.getName());
-    }
-
-    public CmdMethod(Method method) {
-        this(null, method);
     }
 
     /**
@@ -232,7 +232,7 @@ public class CmdMethod implements Cmd {
         out.println(getUsage());
         out.println();
 
-        Help.optionHelp(Help.class, getName(), optionParameters.values(), out);
+        Help.optionHelp(method.getDeclaringClass(), getName(), optionParameters.values(), out);
     }
 
     public List<Object> parse(String... rawArgs) {
@@ -289,12 +289,12 @@ public class CmdMethod implements Cmd {
                 } else {
 
                     final String value = available.remove(0);
-                    converted.add(Converter.convert(value, parameter.getType(), "[" + parameter.getType().getSimpleName() + "]"));
+                    converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")));
                 }
 
             } else {
 
-                throw new IllegalArgumentException("Missing argument [" + parameter.getType().getSimpleName() + "]");
+                throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
             }
         }
 

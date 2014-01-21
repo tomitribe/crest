@@ -65,7 +65,7 @@ public class HelpTest extends Assert {
                           @Option("include") Pattern include,
                           @Option("include-from") File includeFrom,
                           @Option("progress") @Default("true") boolean progress,
-                          URI source,
+                          URI[] sources,
                           URI dest
         ) {
 

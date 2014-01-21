@@ -1,5 +1,5 @@
 
-Usage: rsync [options] URI URI
+Usage: rsync [options] URI... URI
 
 Options: 
   --devices                 preserve device files (super-user only)

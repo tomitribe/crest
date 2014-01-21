@@ -1,11 +1,11 @@
-package org.example;
+package org.example.toolz;
 
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.StreamingOutput;
-import org.tomitribe.crest.util.Files;
 import org.tomitribe.crest.util.IO;
+import org.tomitribe.crest.val.Readable;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,10 +17,7 @@ import java.io.OutputStream;
 public class App {
 
     @Command
-    public StreamingOutput cat(final File file) {
-        Files.exists(file);
-        Files.readable(file);
-        Files.file(file);
+    public StreamingOutput cat(@IsFile @Readable final File file) {
 
         return new StreamingOutput() {
             @Override

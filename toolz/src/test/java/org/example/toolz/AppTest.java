@@ -1,4 +1,4 @@
-package org.example;
+package org.example.toolz;
 
 
 import org.apache.xbean.finder.archive.ClassesArchive;

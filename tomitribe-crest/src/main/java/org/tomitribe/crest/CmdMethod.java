@@ -113,8 +113,8 @@ public class CmdMethod implements Cmd {
             if (param.isAnnotationPresent(Default.class)) {
                 throw new IllegalArgumentException("@Default only usable with @Option parameters.");
             }
-            if (param.isAnnotationPresent(Required.class)) {
-                throw new IllegalArgumentException("@Required only usable with @Option parameters.");
+            if (!param.isListable() && param.isAnnotationPresent(Required.class)) {
+                throw new IllegalArgumentException("@Required only usable with @Option parameters and lists.");
             }
         }
     }
@@ -242,16 +242,17 @@ public class CmdMethod implements Cmd {
     private <T> List<Object> convert(Arguments args) {
 
         final Map<String, String> options = args.options;
-        final List<String> list = args.list;
+        final List<String> available = args.list;
 
         final List<Object> converted = new ArrayList<Object>();
+        int needed = argumentParameters.size();
 
         /**
          * Here we iterate over the method's parameters and convert
          * strings into their equivalent Option or Arg value.
          *
          * The result is a List of objects that matches perfectly
-         * the list of arguments required to pass into the
+         * the available of arguments required to pass into the
          * java.lang.reflect.Method.invoke() method.
          *
          * Thus, iteration order is very significant in this loop.
@@ -274,17 +275,20 @@ public class CmdMethod implements Cmd {
 
                 }
 
-            } else if (list.size() > 0) {
+            } else if (available.size() > 0) {
+                needed--;
 
                 if (parameter.isListable()) {
+                    final List<String> glob = new ArrayList<String>(available.size());
 
-                    converted.add(convert(parameter, list, null));
+                    for (int i = available.size(); i > needed; i--) {
+                        glob.add(available.remove(0));
+                    }
 
-                    list.clear();
-
+                    converted.add(convert(parameter, glob, null));
                 } else {
 
-                    final String value = list.remove(0);
+                    final String value = available.remove(0);
                     converted.add(Converter.convert(value, parameter.getType(), "[" + parameter.getType().getSimpleName() + "]"));
                 }
 
@@ -294,8 +298,8 @@ public class CmdMethod implements Cmd {
             }
         }
 
-        if (list.size() > 0) {
-            throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", list));
+        if (available.size() > 0) {
+            throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", available));
         }
 
         if (options.size() > 0) {
@@ -312,6 +316,15 @@ public class CmdMethod implements Cmd {
 
     private static Object convert(final Param parameter, final List<String> values, final String name) {
         final Class<?> type = parameter.getListableType();
+
+        if (parameter.isAnnotationPresent(Required.class) && values.size()==0) {
+            if (parameter instanceof OptionParam) {
+                final OptionParam optionParam = (OptionParam) parameter;
+                throw new IllegalArgumentException(String.format("--%s must be specified at least once", optionParam.getName()));
+            } else {
+                throw new IllegalArgumentException(String.format("Argument for %s requires at least one value", parameter.getDisplayType().replace("[]", "...")));
+            }
+        }
 
         final String description = name == null ? "[" + type.getSimpleName() + "]" : name;
 

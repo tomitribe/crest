@@ -1,0 +1,5 @@
+
+Usage: copy [options] URI... URI
+
+Options: 
+  --foo=<URI>              

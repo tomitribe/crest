@@ -1,0 +1,3 @@
+
+Usage: copy  URI... URI
+

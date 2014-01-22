@@ -27,8 +27,6 @@ import org.tomitribe.util.Join;
 import org.tomitribe.util.reflect.Parameter;
 import org.tomitribe.util.reflect.Reflection;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -211,10 +209,9 @@ public class CmdMethod implements Cmd {
     }
 
     private void reportWithHelp(Exception e) {
-        if (e instanceof ConstraintViolationException) {
-            final ConstraintViolationException cve = (ConstraintViolationException) e;
-            for (ConstraintViolation<?> violation : cve.getConstraintViolations()) {
-                System.err.println(violation.getMessage());
+        if (BeanValidation.isActive()) {
+            for (final String message : BeanValidation.messages(e)) {
+                System.err.println(message);
             }
         } else {
             System.err.println(e.getMessage());

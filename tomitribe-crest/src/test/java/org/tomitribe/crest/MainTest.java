@@ -53,13 +53,14 @@ public class MainTest extends TestCase {
         final Main main = new Main(new ClassesArchive(Foo.class));
         final Cmd help = main.commands.get("help");
 
+        final String ln = System.getProperty("line.separator");
         assertEquals(
-                "Commands: \n" +
-                        "                       \n" +
-                        "   help                \n" +
-                        "   red                 \n" +
-                        "   blue                \n" +
-                        "   green               \n",
+                "Commands: " + ln +
+                        "                       " + ln +
+                        "   help                " + ln +
+                        "   red                 " + ln +
+                        "   blue                " + ln +
+                        "   green               " + ln,
                 help.exec());
 
     }

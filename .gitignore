@@ -13,3 +13,6 @@ target
 *.iml
 .idea
 Maven__*
+
+# Maven plugins
+dependency-reduced-pom.xml

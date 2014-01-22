@@ -34,6 +34,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 public class CmdMethodTest extends TestCase {
+    private static final String SOME_FILE = new File("/tmp/file.txt").getAbsolutePath();
 
     private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
 
@@ -47,8 +48,8 @@ public class CmdMethodTest extends TestCase {
 
         {
             final Cmd tail = commands.get("tail");
-            tail.exec("--number=45", "/some/file.txt", "45");
-            tail.exec("/some/file.txt", "100");
+            tail.exec("--number=45", SOME_FILE, "45");
+            tail.exec(SOME_FILE, "100");
         }
 
         // Missing arguments
@@ -63,7 +64,7 @@ public class CmdMethodTest extends TestCase {
         // Invalid option
         try {
             final Cmd tail = commands.get("tail");
-            tail.exec("/some/file.txt", "100", "--color");
+            tail.exec(SOME_FILE, "100", "--color");
             fail();
         } catch (IllegalArgumentException e) {
         }
@@ -103,21 +104,21 @@ public class CmdMethodTest extends TestCase {
 
     public void testBooleanOptions() {
         final Cmd ls = commands.get("ls");
-        ls.exec("--long=true", "/some/file.txt");
-        ls.exec("--long", "/some/file.txt");
+        ls.exec("--long=true", SOME_FILE);
+        ls.exec("--long", SOME_FILE);
     }
 
     public void testFileParameter() {
         final Cmd touch = commands.get("touch");
         assertNotNull(touch);
-        touch.exec("/some/file.txt");
+        touch.exec(SOME_FILE);
     }
 
     public static class Commands {
 
         @Command
         public static void touch(File file) {
-            assertEquals("/some/file.txt", file.getAbsolutePath());
+            assertEquals(SOME_FILE, file.getAbsolutePath());
         }
 
         @Command("set")
@@ -131,7 +132,7 @@ public class CmdMethodTest extends TestCase {
             assertNotNull(longform);
             assertTrue(longform);
 
-            assertEquals("/some/file.txt", file.getAbsolutePath());
+            assertEquals(SOME_FILE, file.getAbsolutePath());
         }
 
         @Command
@@ -142,7 +143,7 @@ public class CmdMethodTest extends TestCase {
         @Command
         public static void tail(@Option("number") @Default("100") int number, File file, int expected) {
             assertEquals(expected, number);
-            assertEquals("/some/file.txt", file.getAbsolutePath());
+            assertEquals(SOME_FILE, file.getAbsolutePath());
         }
 
         @Command

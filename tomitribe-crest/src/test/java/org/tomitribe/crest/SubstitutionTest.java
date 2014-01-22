@@ -67,8 +67,7 @@ public class SubstitutionTest extends Assert {
         }
     }
 
-    private static class MapDefaultsContext implements DefaultsContext
-    {
+    private static class MapDefaultsContext implements DefaultsContext {
         private final Map<String, String> values;
 
         MapDefaultsContext(Map<String, String> values) {
@@ -76,8 +75,7 @@ public class SubstitutionTest extends Assert {
         }
 
         @Override
-        public String find(final Target cmd, final Method commandMethod, final String key)
-        {
+        public String find(final Target cmd, final Method commandMethod, final String key) {
             return values.get(key);
         }
     }

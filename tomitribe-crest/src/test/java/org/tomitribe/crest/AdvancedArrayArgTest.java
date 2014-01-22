@@ -159,7 +159,7 @@ public class AdvancedArrayArgTest extends TestCase {
     }
 
     public void testRequired() throws Exception {
-        final Map<String,Cmd> commands = Commands.get(RequiredList.class);
+        final Map<String, Cmd> commands = Commands.get(RequiredList.class);
         final Cmd copy = commands.get("copy");
         copy.exec("one", "two");
 

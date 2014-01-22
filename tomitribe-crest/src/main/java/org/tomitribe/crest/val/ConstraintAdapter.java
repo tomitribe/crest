@@ -21,8 +21,8 @@ import javax.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 
 /**
-* @version $Revision$ $Date$
-*/
+ * @version $Revision$ $Date$
+ */
 public class ConstraintAdapter<A extends Annotation, T> implements ConstraintValidator<A, T> {
     @Override
     public void initialize(A constraintAnnotation) {

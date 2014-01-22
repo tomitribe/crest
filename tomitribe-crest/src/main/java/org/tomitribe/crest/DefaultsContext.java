@@ -21,8 +21,7 @@ import java.lang.reflect.Method;
 /**
  * Used to provide substitution values for @Default("hello ${value}") type expressions.
  */
-public interface DefaultsContext
-{
+public interface DefaultsContext {
     /**
      * Implementations of DefaultsContext need to implement this method to convert
      * an expression inside ${...} type substitutions to String values which will

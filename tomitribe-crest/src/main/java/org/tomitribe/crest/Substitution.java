@@ -23,8 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* @version $Revision$ $Date$
-*/
+ * @version $Revision$ $Date$
+ */
 public class Substitution {
 
     private static final Pattern PATTERN = Pattern.compile("(\\$\\{)([\\w.]+)(})");
@@ -33,7 +33,7 @@ public class Substitution {
         return format(target, method, input, df, new HashSet<String>());
     }
 
-    private static String format(Target target, Method method,  String input, DefaultsContext df, Set<String> seen) {
+    private static String format(Target target, Method method, String input, DefaultsContext df, Set<String> seen) {
         if (!seen.add(input)) throw new IllegalStateException("Circular reference in " + input);
 
         Matcher matcher = PATTERN.matcher(input);

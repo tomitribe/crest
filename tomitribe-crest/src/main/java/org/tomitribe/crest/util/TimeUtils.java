@@ -69,7 +69,7 @@ public class TimeUtils {
 
     private static TimeUnit max() {
         final TimeUnit[] values = TimeUnit.values();
-        return values[values.length-1];
+        return values[values.length - 1];
     }
 
     private static TimeUnit min() {

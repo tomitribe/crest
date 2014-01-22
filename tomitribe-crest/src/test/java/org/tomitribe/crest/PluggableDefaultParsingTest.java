@@ -10,11 +10,9 @@ import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
 
-public class PluggableDefaultParsingTest
-{
+public class PluggableDefaultParsingTest {
     @Test
-    public void testPlugInNewDefaultsContext() throws Exception
-    {
+    public void testPlugInNewDefaultsContext() throws Exception {
         final String user = System.getProperty("user.name");
         final String new_user = String.format("NOT%s", user);
 
@@ -25,24 +23,20 @@ public class PluggableDefaultParsingTest
         assertEquals(out, String.format("Hello %s", new_user));
     }
 
-    public static class Orange
-    {
+    public static class Orange {
 
         @Command
-        public String property(String name)
-        {
+        public String property(String name) {
             return System.getProperty(name);
         }
 
         @Command
-        public String defaults(@Option("user") @Default("${user.name}") String user)
-        {
+        public String defaults(@Option("user") @Default("${user.name}") String user) {
             return String.format("Hello %s", user);
         }
     }
 
-    public static class FixedValueDefaultsContext implements DefaultsContext
-    {
+    public static class FixedValueDefaultsContext implements DefaultsContext {
         private final String value;
 
         FixedValueDefaultsContext(String value) {
@@ -50,8 +44,7 @@ public class PluggableDefaultParsingTest
         }
 
         @Override
-        public String find(final Target cmd, final Method commandMethod, final String key)
-        {
+        public String find(final Target cmd, final Method commandMethod, final String key) {
             return value;
         }
     }

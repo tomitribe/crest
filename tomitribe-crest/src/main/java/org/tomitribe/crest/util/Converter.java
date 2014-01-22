@@ -21,7 +21,6 @@ import org.tomitribe.crest.util.editor.Editors;
 
 import java.beans.PropertyEditor;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -79,7 +78,7 @@ public class Converter {
         final PropertyEditor editor = Editors.get(targetType);
 
         if (editor == null) {
-            final Object result  = create(targetType, stringValue);
+            final Object result = create(targetType, stringValue);
             if (result != null) return result;
         }
 

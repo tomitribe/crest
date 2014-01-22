@@ -65,12 +65,10 @@ public class Commands {
             final Cmd existing = map.get(cmd.getName());
             if (existing == null) {
                 map.put(cmd.getName(), cmd);
-            }
-            else if (existing instanceof CmdGroup) {
+            } else if (existing instanceof CmdGroup) {
                 final CmdGroup group = (CmdGroup) existing;
                 group.add(cmd);
-            }
-            else {
+            } else {
                 final CmdGroup group = new CmdGroup(cmd.getName());
                 group.add((CmdMethod) existing);
                 group.add(cmd);

@@ -19,8 +19,6 @@ package org.tomitribe.crest;
 import junit.framework.TestCase;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.tomitribe.crest.api.Command;
-import org.tomitribe.crest.api.Option;
-import org.tomitribe.util.Join;
 
 /**
  * @version $Revision$ $Date$

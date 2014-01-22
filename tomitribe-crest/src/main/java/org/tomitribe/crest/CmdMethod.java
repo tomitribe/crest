@@ -106,8 +106,7 @@ public class CmdMethod implements Cmd {
         validate();
     }
 
-    public CmdMethod(final Method method, final Target target)
-    {
+    public CmdMethod(final Method method, final Target target) {
         this(method, target, new SystemPropertiesDefaultsContext());
 
     }
@@ -325,7 +324,7 @@ public class CmdMethod implements Cmd {
     private static Object convert(final Param parameter, final List<String> values, final String name) {
         final Class<?> type = parameter.getListableType();
 
-        if (parameter.isAnnotationPresent(Required.class) && values.size()==0) {
+        if (parameter.isAnnotationPresent(Required.class) && values.size() == 0) {
             if (parameter instanceof OptionParam) {
                 final OptionParam optionParam = (OptionParam) parameter;
                 throw new IllegalArgumentException(String.format("--%s must be specified at least once", optionParam.getName()));

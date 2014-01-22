@@ -28,5 +28,6 @@ import java.lang.annotation.Target;
 @Target(value = ElementType.METHOD)
 public @interface Command {
     String value() default "";
+
     String usage() default "";
 }

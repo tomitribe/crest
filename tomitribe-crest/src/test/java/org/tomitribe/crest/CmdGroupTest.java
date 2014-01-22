@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.util.Join;
-import org.tomitribe.util.PrintString;
 
 import java.util.Map;
 

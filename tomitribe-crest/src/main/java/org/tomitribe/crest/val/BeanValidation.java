@@ -22,12 +22,14 @@ import org.apache.bval.jsr303.extensions.MethodValidator;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
-import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 /**
  * A simple interceptor to validate parameters and returned value using
@@ -35,18 +37,48 @@ import java.util.Set;
  *
  */
 public class BeanValidation {
+    public static boolean isActive() {
+        try {
+            Class.forName("javax.validation.Validator", false, BeanValidation.class.getClassLoader());
+            return true;
+        } catch (final ClassNotFoundException e) {
+            return false;
+        }
+    }
 
-    public static void validateParameters(final Class clazz, final Method method, final Object[] parameters) throws ConstraintViolationException {
+    public static void validateParameters(final Class clazz, final Method method, final Object[] parameters) throws Exception {
+        if (!isActive()) {
+            return;
+        }
 
-        final ApacheValidatorConfiguration configure = Validation.byProvider(ApacheValidationProvider.class).configure();
+        Helper.validateParameters(clazz, method, parameters);
+    }
 
-        final ValidatorFactory validatorFactory = configure.buildValidatorFactory();
-        final MethodValidator validatorObject = validatorFactory.getValidator().unwrap(org.apache.bval.jsr303.extensions.MethodValidator.class);
+    public static Iterable<? extends String> messages(final Exception e) {
+        if (!ConstraintViolationException.class.isInstance(e)) {
+            return asList(e.getMessage());
+        }
+        final Collection<String> msg = new LinkedList<String>();
+        final ConstraintViolationException cve = (ConstraintViolationException) e;
+        for (ConstraintViolation<?> violation : cve.getConstraintViolations()) {
+            msg.add(violation.getMessage());
+        }
+        return msg;
+    }
 
-        final Set<ConstraintViolation<?>> violations = validatorObject.validateParameters(clazz, method, parameters);
+    // Note: using bval 1.1 will just make it portable
+    private static class Helper { // use for laziness of loading
+        public static void validateParameters(final Class clazz, final Method method, final Object[] parameters) {
+            final ApacheValidatorConfiguration configure = Validation.byProvider(ApacheValidationProvider.class).configure();
 
-        if (violations.size() > 0) {
-            throw new ConstraintViolationException((Set<ConstraintViolation<?>>) violations);
+            final ValidatorFactory validatorFactory = configure.buildValidatorFactory();
+            final MethodValidator validatorObject = validatorFactory.getValidator().unwrap(org.apache.bval.jsr303.extensions.MethodValidator.class);
+
+            final Set<ConstraintViolation<?>> violations = validatorObject.validateParameters(clazz, method, parameters);
+
+            if (violations.size() > 0) {
+                throw new ConstraintViolationException(violations);
+            }
         }
     }
 }

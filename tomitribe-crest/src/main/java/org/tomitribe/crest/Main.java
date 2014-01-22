@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class Main {
 
-    public Map<String, Cmd> commands = new HashMap<String, Cmd>();
+    Map<String, Cmd> commands = new HashMap<String, Cmd>();
 
     private static Archive defaultArchive() {
         try {
@@ -49,21 +49,25 @@ public class Main {
     }
 
     public Main(Archive archive) {
+        this(archive, new SystemPropertiesDefaultsContext());
+    }
+
+    public Main(Archive archive, DefaultsContext dc) {
         final AnnotationFinder finder = new AnnotationFinder(archive);
 
         for (Method method : finder.findAnnotatedMethods(Command.class)) {
-            add(new CmdMethod(method));
+            add(new CmdMethod(method, dc));
         }
 
-        installHelp();
+        installHelp(dc);
     }
 
     private void add(Cmd cmd) {
         commands.put(cmd.getName(), cmd);
     }
 
-    private void installHelp() {
-        final Map<String, Cmd> stringCmdMap = Commands.get(new Help(Main.this.commands));
+    private void installHelp(DefaultsContext dc) {
+        final Map<String, Cmd> stringCmdMap = Commands.get(new Help(Main.this.commands), dc);
         for (Cmd cmd : stringCmdMap.values()) {
             add(cmd);
         }

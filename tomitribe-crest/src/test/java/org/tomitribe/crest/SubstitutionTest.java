@@ -19,6 +19,7 @@ package org.tomitribe.crest;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,17 +51,34 @@ public class SubstitutionTest extends Assert {
         map.put("a", "${b}");
         map.put("b", "${a}");
 
-        assertEquals("uno", Substitution.format("${one}", map));
-        assertEquals("uunoo", Substitution.format("u${one}o", map));
-        assertEquals("uno dos tres", Substitution.format("${one} ${two} ${three}", map));
-        assertEquals("/tmp/foo", Substitution.format("${user.dir}", map));
-        assertEquals("azul", Substitution.format("${red}", map));
+        DefaultsContext df = new MapDefaultsContext(map);
+
+        assertEquals("uno", Substitution.format(null, null, "${one}", df));
+        assertEquals("uunoo", Substitution.format(null, null, "u${one}o", df));
+        assertEquals("uno dos tres", Substitution.format(null, null, "${one} ${two} ${three}", df));
+        assertEquals("/tmp/foo", Substitution.format(null, null, "${user.dir}", df));
+        assertEquals("azul", Substitution.format(null, null, "${red}", df));
 
         try {
-            Substitution.format("${a}", map);
+            Substitution.format(null, null, "${a}", df);
             fail();
         } catch (IllegalStateException e) {
             // pass
+        }
+    }
+
+    private static class MapDefaultsContext implements DefaultsContext
+    {
+        private final Map<String, String> values;
+
+        MapDefaultsContext(Map<String, String> values) {
+            this.values = values;
+        }
+
+        @Override
+        public String find(final Target cmd, final Method commandMethod, final String key)
+        {
+            return values.get(key);
         }
     }
 }

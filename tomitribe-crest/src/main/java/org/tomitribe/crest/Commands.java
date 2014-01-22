@@ -39,34 +39,42 @@ public class Commands {
     }
 
     public static Map<String, Cmd> get(Object bean) {
-        return get(bean.getClass(), new SimpleBean(bean));
+        return get(bean.getClass(), new SimpleBean(bean), new SystemPropertiesDefaultsContext());
+    }
+
+    public static Map<String, Cmd> get(Object bean, DefaultsContext dc) {
+        return get(bean.getClass(), new SimpleBean(bean), dc);
     }
 
     public static Map<String, Cmd> get(Class<?> clazz) {
-        return get(clazz, new SimpleBean(null));
+        return get(clazz, new SimpleBean(null), new SystemPropertiesDefaultsContext());
     }
 
-    public static Map<String, Cmd> get(Class<?> clazz, final Target target) {
+    public static Map<String, Cmd> get(Class<?> clazz, DefaultsContext dc) {
+        return get(clazz, new SimpleBean(null), dc);
+    }
+
+    public static Map<String, Cmd> get(Class<?> clazz, final Target target, DefaultsContext dc) {
         if (target == null) throw new IllegalArgumentException("Target cannot be null");
 
         final Map<String, Cmd> map = new HashMap<String, Cmd>();
 
-        for (Method method : clazz.getMethods()) {
-            if (method.isAnnotationPresent(Command.class)) {
-                final CmdMethod cmd = new CmdMethod(method, target);
+        for (Method method : commands(clazz)) {
+            final CmdMethod cmd = new CmdMethod(method, target, dc);
 
-                final Cmd existing = map.get(cmd.getName());
-                if (existing == null) {
-                    map.put(cmd.getName(), cmd);
-                } else if (existing instanceof CmdGroup) {
-                    final CmdGroup group = (CmdGroup) existing;
-                    group.add(cmd);
-                } else {
-                    final CmdGroup group = new CmdGroup(cmd.getName());
-                    group.add((CmdMethod) existing);
-                    group.add(cmd);
-                    map.put(group.getName(), group);
-                }
+            final Cmd existing = map.get(cmd.getName());
+            if (existing == null) {
+                map.put(cmd.getName(), cmd);
+            }
+            else if (existing instanceof CmdGroup) {
+                final CmdGroup group = (CmdGroup) existing;
+                group.add(cmd);
+            }
+            else {
+                final CmdGroup group = new CmdGroup(cmd.getName());
+                group.add((CmdMethod) existing);
+                group.add(cmd);
+                map.put(group.getName(), group);
             }
         }
         return map;

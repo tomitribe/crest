@@ -64,14 +64,16 @@ public class CmdMethod implements Cmd {
     private final Map<String, OptionParam> optionParameters;
     private final List<Param> argumentParameters;
     private final List<Param> parameters;
+    private final DefaultsContext defaultsFinder;
 
-    public CmdMethod(Method method) {
-        this(method, new SimpleBean(null));
+    public CmdMethod(Method method, DefaultsContext defaultsFinder) {
+        this(method, new SimpleBean(null), defaultsFinder);
     }
 
-    public CmdMethod(Method method, Target target) {
+    public CmdMethod(Method method, Target target, DefaultsContext defaultsFinder) {
         this.target = target;
         this.method = method;
+        this.defaultsFinder = defaultsFinder;
         this.name = name(method);
 
         final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
@@ -102,6 +104,12 @@ public class CmdMethod implements Cmd {
         this.parameters = Collections.unmodifiableList(parameters);
 
         validate();
+    }
+
+    public CmdMethod(final Method method, final Target target)
+    {
+        this(method, target, new SystemPropertiesDefaultsContext());
+
     }
 
     public Method getMethod() {
@@ -507,10 +515,9 @@ public class CmdMethod implements Cmd {
         }
 
         private void interpret(final Map<String, String> map) {
-            final Map<String, String> properties = Substitution.getSystemProperties();
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 if (entry.getValue() == null) continue;
-                final String value = Substitution.format(entry.getValue(), properties);
+                final String value = Substitution.format(target, method, entry.getValue(), defaultsFinder);
                 map.put(entry.getKey(), value);
             }
         }

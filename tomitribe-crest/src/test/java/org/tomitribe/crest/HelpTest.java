@@ -179,7 +179,7 @@ public class HelpTest extends Assert {
         final PrintString actual = new PrintString();
         cmd.help(actual);
 
-        assertEquals(expected, actual.toString());
+        assertEquals(expected.replace("\r\n", "\n"), actual.toString().replace("\r\n", "\n"));
 
     }
 

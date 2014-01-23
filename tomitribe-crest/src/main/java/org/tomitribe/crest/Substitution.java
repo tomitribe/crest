@@ -42,7 +42,7 @@ public class Substitution {
             String key = matcher.group(2);
             String value = df.find(target, method, key);
             if (value != null) {
-                value = format(target, method, value, df, seen);
+                value = format(target, method, value, df, seen).replace("\\", "\\\\");
                 matcher.appendReplacement(buf, value);
             }
         }

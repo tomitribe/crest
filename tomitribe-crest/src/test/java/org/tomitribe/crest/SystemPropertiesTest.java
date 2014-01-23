@@ -48,7 +48,7 @@ public class SystemPropertiesTest extends Assert {
         final String user = System.getProperty("user.name");
         final String home = System.getProperty("user.dir");
 
-        assertEquals(String.format("%s - %s", "joe", "/tmp/cool"), main.exec("defaults", "--user=joe", "--home=/tmp/cool"));
+        assertEquals(String.format("%s - %s", "joe", new File("/tmp/cool").getAbsolutePath()), main.exec("defaults", "--user=joe", "--home=/tmp/cool"));
         assertEquals(String.format("%s - %s", user, home), main.exec("defaults"));
     }
 

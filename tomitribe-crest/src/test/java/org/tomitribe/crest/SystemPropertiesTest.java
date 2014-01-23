@@ -33,7 +33,8 @@ public class SystemPropertiesTest extends Assert {
     @Test
     public void dashD() throws Exception {
 
-        final Main main = new Main(new ClassesArchive(Orange.class));
+        final ClassesArchive entries = new ClassesArchive(Orange.class);
+        final Main main = new Main(new Xbean(entries));
 
         assertEquals("round", main.exec("property", "-Dshape=round", "shape"));
     }
@@ -41,7 +42,8 @@ public class SystemPropertiesTest extends Assert {
     @Test
     public void systemPropertyDefaults() throws Exception {
 
-        final Main main = new Main(new ClassesArchive(Orange.class));
+        final ClassesArchive entries = new ClassesArchive(Orange.class);
+        final Main main = new Main(new Xbean(entries));
 
         final String user = System.getProperty("user.name");
         final String home = System.getProperty("user.dir");

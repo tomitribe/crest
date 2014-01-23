@@ -1,6 +1,5 @@
 package org.tomitribe.crest;
 
-import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
@@ -16,7 +15,7 @@ public class PluggableDefaultParsingTest {
         final String user = System.getProperty("user.name");
         final String new_user = String.format("NOT%s", user);
 
-        final Main main = new Main(new ClassesArchive(Orange.class), new FixedValueDefaultsContext(new_user));
+        final Main main = new Main(new FixedValueDefaultsContext(new_user), Orange.class);
 
         Object out = main.exec("defaults");
 

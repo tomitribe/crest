@@ -27,7 +27,8 @@ public class MainTest extends TestCase {
 
     public void test() throws Exception {
 
-        final Main main = new Main(new ClassesArchive(Foo.class));
+        final ClassesArchive entries = new ClassesArchive(Foo.class);
+        final Main main = new Main(new Xbean(entries));
 
         assertEquals("green", main.exec("green"));
 
@@ -48,7 +49,8 @@ public class MainTest extends TestCase {
 
     public void testHelp() throws Exception {
 
-        final Main main = new Main(new ClassesArchive(Foo.class));
+        final ClassesArchive entries = new ClassesArchive(Foo.class);
+        final Main main = new Main(new Xbean(entries));
         final Cmd help = main.commands.get("help");
 
         assertEquals(

@@ -16,50 +16,36 @@
  */
 package org.tomitribe.crest;
 
-import org.apache.xbean.finder.AnnotationFinder;
-import org.apache.xbean.finder.archive.Archive;
-import org.apache.xbean.finder.archive.ClasspathArchive;
-import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.StreamingOutput;
-import org.tomitribe.crest.util.JarLocation;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
 
-    Map<String, Cmd> commands = new HashMap<String, Cmd>();
-
-    private static Archive defaultArchive() {
-        try {
-            final File file = JarLocation.jarLocation(Main.class);
-            return ClasspathArchive.archive(Main.class.getClassLoader(), file.toURI().toURL());
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-    }
+    final Map<String, Cmd> commands = new HashMap<String, Cmd>();
 
     public Main() {
-        this(defaultArchive());
+        this(new SystemPropertiesDefaultsContext(), new Xbean());
     }
 
-    public Main(Archive archive) {
-        this(archive, new SystemPropertiesDefaultsContext());
+    public Main(DefaultsContext defaultsContext, Class<?>... classes) {
+        this(defaultsContext, Arrays.asList(classes));
     }
 
-    public Main(Archive archive, DefaultsContext dc) {
-        final AnnotationFinder finder = new AnnotationFinder(archive);
-
-        for (Method method : finder.findAnnotatedMethods(Command.class)) {
-            add(new CmdMethod(method, dc));
+    public Main(DefaultsContext defaultsContext, Iterable<Class<?>> classes) {
+        for (Class clazz : classes) {
+            this.commands.putAll(Commands.get(clazz, defaultsContext));
         }
 
-        installHelp(dc);
+        installHelp(defaultsContext);
+    }
+
+    public Main(final Iterable<Class<?>> classes) {
+        this(new SystemPropertiesDefaultsContext(), classes);
     }
 
     private void add(Cmd cmd) {

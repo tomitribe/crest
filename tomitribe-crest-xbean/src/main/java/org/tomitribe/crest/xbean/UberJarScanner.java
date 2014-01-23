@@ -14,24 +14,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.example.toolz;
+package org.tomitribe.crest.xbean;
 
+import org.apache.xbean.finder.archive.Archive;
+import org.apache.xbean.finder.archive.ClasspathArchive;
+import org.tomitribe.crest.util.JarLocation;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.tomitribe.crest.Main;
+import java.io.File;
+import java.net.MalformedURLException;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest extends Assert {
+public class UberJarScanner extends XbeanScanningLoader {
 
-    @Test
-    public void testApp() throws Exception {
-        final Main main = new Main(App.class);
-
-        assertEquals("Hello, World!", main.exec("hello"));
-        assertEquals("Hello, Wisconsin!", main.exec("hello", "--name=Wisconsin"));
-        assertEquals("Hola, Ecuador!", main.exec("hello", "--name=Ecuador", "--language=ES"));
+    public UberJarScanner() {
+        super(UberJarScanner.defaultArchive());
     }
+
+    private static Archive defaultArchive() {
+        try {
+            final Class<?> reference = UberJarScanner.class;
+
+            final File file = JarLocation.jarLocation(reference);
+            return ClasspathArchive.archive(reference.getClassLoader(), file.toURI().toURL());
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
 }

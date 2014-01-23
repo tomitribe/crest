@@ -23,7 +23,10 @@ import org.tomitribe.util.reflect.Reflection;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 public class Commands {
 
@@ -76,5 +79,40 @@ public class Commands {
             }
         }
         return map;
+    }
+
+    /**
+     * Interface whose only purpose is to be used in conjunction
+     * with the java.util.ServiceLoader API as one potential
+     * way to load the list of classes that have commands.
+     *
+     * This interface intentionally has zero methods and never will
+     * so that the simplest implementation is a plain java.util.ArrayList
+     * (or pick your favorite collection)
+     *
+     * This interface is intentionally not used in any method or constructor of crest.
+     */
+    public static interface Loader extends Iterable<Class<?>> {
+    }
+
+    /**
+     * A
+     * @return
+     */
+    public static Iterable<Class<?>> load() {
+
+        final Iterator<Loader> all = ServiceLoader.load(Loader.class).iterator();
+
+        // Let them tell is the list of classes to use
+        final LinkedHashSet<Class<?>> classes = new LinkedHashSet<Class<?>>();
+
+        while (all.hasNext()) {
+            final Iterable<Class<?>> c = all.next();
+            for (Class<?> clazz : c) {
+                classes.add(clazz);
+            }
+        }
+
+        return classes;
     }
 }

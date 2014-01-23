@@ -16,7 +16,6 @@
  */
 package org.tomitribe.crest;
 
-import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
@@ -33,8 +32,7 @@ public class SystemPropertiesTest extends Assert {
     @Test
     public void dashD() throws Exception {
 
-        final ClassesArchive entries = new ClassesArchive(Orange.class);
-        final Main main = new Main(new Xbean(entries));
+        final Main main = new Main(Orange.class);
 
         assertEquals("round", main.exec("property", "-Dshape=round", "shape"));
     }
@@ -42,8 +40,7 @@ public class SystemPropertiesTest extends Assert {
     @Test
     public void systemPropertyDefaults() throws Exception {
 
-        final ClassesArchive entries = new ClassesArchive(Orange.class);
-        final Main main = new Main(new Xbean(entries));
+        final Main main = new Main(Orange.class);
 
         final String user = System.getProperty("user.name");
         final String home = System.getProperty("user.dir");

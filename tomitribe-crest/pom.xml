@@ -49,11 +49,13 @@
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-asm-shaded</artifactId>
       <version>3.15</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-finder-shaded</artifactId>
       <version>3.15</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.bval</groupId>

@@ -14,48 +14,36 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.xbean;
 
-import org.apache.xbean.finder.AnnotationFinder;
+import org.apache.xbean.finder.UrlSet;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
-import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.util.JarLocation;
 
 import java.io.File;
-import java.lang.reflect.Method;
+import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
-public class Xbean implements Iterable<Class<?>> {
+public class ClasspathScanner extends XbeanScanningLoader {
 
-    final Set<Class<?>> classes = new HashSet<Class<?>>();
-
-    public Xbean() {
-        this(Xbean.defaultArchive());
-    }
-
-    public Xbean(Archive archive) {
-        final AnnotationFinder finder = new AnnotationFinder(archive);
-
-        for (Method method : finder.findAnnotatedMethods(Command.class)) {
-            classes.add(method.getDeclaringClass());
-        }
+    public ClasspathScanner() {
+        super(ClasspathScanner.defaultArchive());
     }
 
     private static Archive defaultArchive() {
         try {
-            final File file = JarLocation.jarLocation(Main.class);
-            return ClasspathArchive.archive(Main.class.getClassLoader(), file.toURI().toURL());
-        } catch (MalformedURLException e) {
+            final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+            UrlSet urls = new UrlSet(classLoader);
+            urls = urls.excludeJvm();
+            urls = urls.exclude(classLoader.getParent());
+
+            return new ClasspathArchive(classLoader, urls.getUrls());
+
+        } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    @Override
-    public Iterator<Class<?>> iterator() {
-        return classes.iterator();
-    }
 }

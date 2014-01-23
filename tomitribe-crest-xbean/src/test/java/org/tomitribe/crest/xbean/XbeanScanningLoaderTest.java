@@ -14,19 +14,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.xbean;
 
 import junit.framework.TestCase;
+import org.tomitribe.crest.Main;
 import org.tomitribe.crest.api.Command;
 
-/**
- * @version $Revision$ $Date$
- */
-public class MainTest extends TestCase {
+public class XbeanScanningLoaderTest extends TestCase {
 
     public void test() throws Exception {
 
-        final Main main = new Main(Foo.class);
+        final Main main = new Main();
 
         assertEquals("green", main.exec("green"));
 
@@ -47,8 +45,7 @@ public class MainTest extends TestCase {
 
     public void testHelp() throws Exception {
 
-        final Main main = new Main(Foo.class);
-        final Cmd help = main.commands.get("help");
+        final Main main = new Main();
 
         final String ln = System.getProperty("line.separator");
         assertEquals(
@@ -58,9 +55,10 @@ public class MainTest extends TestCase {
                         "   red                 " + ln +
                         "   blue                " + ln +
                         "   green               " + ln,
-                help.exec());
+                main.exec("help"));
 
     }
+
 
     public static class Foo {
 
@@ -78,5 +76,4 @@ public class MainTest extends TestCase {
         public static void blue() {
         }
     }
-
 }

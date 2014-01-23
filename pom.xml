@@ -34,6 +34,7 @@
 
   <modules>
     <module>tomitribe-crest</module>
+    <module>tomitribe-crest-xbean</module>
     <module>tomitribe-crest-archetype</module>
     <module>toolz</module>
   </modules>

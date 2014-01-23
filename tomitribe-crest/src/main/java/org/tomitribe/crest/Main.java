@@ -29,7 +29,11 @@ public class Main {
     final Map<String, Cmd> commands = new HashMap<String, Cmd>();
 
     public Main() {
-        this(new SystemPropertiesDefaultsContext(), new Xbean());
+        this(new SystemPropertiesDefaultsContext(), Commands.load());
+    }
+
+    public Main(Class<?>... classes) {
+        this(Arrays.asList(classes));
     }
 
     public Main(DefaultsContext defaultsContext, Class<?>... classes) {

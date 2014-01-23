@@ -14,24 +14,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.example.toolz;
+package org.tomitribe.crest.xbean;
+
+import org.apache.xbean.finder.AnnotationFinder;
+import org.apache.xbean.finder.archive.Archive;
+import org.tomitribe.crest.Commands;
+import org.tomitribe.crest.api.Command;
+
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+public abstract class XbeanScanningLoader implements Commands.Loader {
+    final Set<Class<?>> classes = new HashSet<Class<?>>();
+
+    public XbeanScanningLoader(Archive archive) {
+        final AnnotationFinder finder = new AnnotationFinder(archive);
+
+        for (Method method : finder.findAnnotatedMethods(Command.class)) {
+            classes.add(method.getDeclaringClass());
+        }
+    }
 
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.tomitribe.crest.Main;
-
-/**
- * Unit test for simple App.
- */
-public class AppTest extends Assert {
-
-    @Test
-    public void testApp() throws Exception {
-        final Main main = new Main(App.class);
-
-        assertEquals("Hello, World!", main.exec("hello"));
-        assertEquals("Hello, Wisconsin!", main.exec("hello", "--name=Wisconsin"));
-        assertEquals("Hola, Ecuador!", main.exec("hello", "--name=Ecuador", "--language=ES"));
+    @Override
+    public Iterator<Class<?>> iterator() {
+        return classes.iterator();
     }
 }

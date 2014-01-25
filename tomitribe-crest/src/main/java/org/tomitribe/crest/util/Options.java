@@ -199,7 +199,7 @@ public class Options {
     }
 
     public <T extends Enum<T>> Set<T> getAll(String property, Class<T> enumType) {
-        return getAll(property, Collections.EMPTY_SET, enumType);
+        return getAll(property, Collections.<T>emptySet(), enumType);
     }
 
     protected <T extends Enum<T>> Set<T> getAll(String property, Set<T> defaultValue, Class<T> enumType) {

@@ -22,10 +22,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * This annotation allows to consider the decorated bean fields as
+ * parameters (kind of meta parameter).
+ *
+ * Note: all parameters should be decorated with @Option
+ * since we can't distinguish between internal fields and param fields
+ *
  * @version $Revision$ $Date$
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.FIELD })
-public @interface Option {
-    String value();
+@Target(ElementType.TYPE)
+public @interface OptionBean {
 }

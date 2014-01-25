@@ -20,6 +20,7 @@ package org.tomitribe.crest;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.api.OptionBean;
 import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.util.Converter;
 import org.tomitribe.crest.val.BeanValidation;
@@ -30,6 +31,7 @@ import org.tomitribe.util.reflect.Reflection;
 import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -77,24 +79,9 @@ public class CmdMethod implements Cmd {
         final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
         final List<Param> arguments = new ArrayList<Param>();
         final List<Param> parameters = new ArrayList<Param>();
-        for (Parameter parameter : Reflection.params(method)) {
+        for (final Parameter parameter : Reflection.params(method)) {
 
-            if (parameter.isAnnotationPresent(Option.class)) {
-
-                final OptionParam optionParam = new OptionParam(parameter);
-
-                final OptionParam existing = options.put(optionParam.getName(), optionParam);
-
-                if (existing != null) throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
-
-                parameters.add(optionParam);
-
-            } else {
-
-                final Param e = new Param(parameter);
-                arguments.add(e);
-                parameters.add(e);
-            }
+            addParameter(options, arguments, parameters, parameter);
         }
 
         this.optionParameters = Collections.unmodifiableMap(options);
@@ -102,6 +89,47 @@ public class CmdMethod implements Cmd {
         this.parameters = Collections.unmodifiableList(parameters);
 
         validate();
+    }
+
+    private void addParameter(final Map<String, OptionParam> options,
+                              final List<Param> arguments,
+                              final List<Param> parameters,
+                              final Parameter parameter) {
+        if (parameter.isAnnotationPresent(Option.class)) {
+
+            newOptionParam(new OptionParam(parameter), options, parameters);
+        } else if (parameter.getType().isAnnotationPresent(OptionBean.class)) {
+
+            final Object instance;
+            try {
+                instance = parameter.getType().newInstance();
+            } catch (final InstantiationException e) {
+                throw toRuntimeException(e);
+            } catch (final IllegalAccessException e) {
+                throw toRuntimeException(e);
+            }
+
+            for (final Field field : parameter.getType().getDeclaredFields()) {
+                final Parameter fieldParameter = new Parameter(field.getDeclaredAnnotations(), field.getType(), field.getGenericType());
+                if (fieldParameter.isAnnotationPresent(Option.class)) {
+                    newOptionParam(new BeanFieldOptionParam(fieldParameter, field, instance), options, parameters);
+                }
+            }
+        } else {
+
+            final Param e = new Param(parameter);
+            arguments.add(e);
+            parameters.add(e);
+        }
+    }
+
+    private void newOptionParam(final OptionParam optionParam, final Map<String, OptionParam> options,
+                                final List<Param> parameters) {
+        final OptionParam existing = options.put(optionParam.getName(), optionParam);
+
+        if (existing != null) throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
+
+        parameters.add(optionParam);
     }
 
     public CmdMethod(final Method method, final Target target) {
@@ -261,24 +289,24 @@ public class CmdMethod implements Cmd {
          *
          * Thus, iteration order is very significant in this loop.
          */
-        for (Param parameter : parameters) {
+        Object lastBoundValue = null;
+        for (final Param parameter : parameters) {
+            if (parameter.getAnnotation(OptionBean.class) != null) {
+                final Option option = parameter.getAnnotation(Option.class);
+                parameter.bind(value(parameter, option, options.remove(option.value())));
+                if (lastBoundValue == null || parameter.getBoundValue() != lastBoundValue) {
+                    lastBoundValue = parameter.getBoundValue();
+                    converted.add(lastBoundValue);
+                }
+                continue;
+            }
+
             final Option option = parameter.getAnnotation(Option.class);
 
             if (option != null) {
-
                 final String value = options.remove(option.value());
-
-
-                if (parameter.isListable()) {
-
-                    converted.add(convert(parameter, OptionParam.getSeparatedValues(value), option.value()));
-
-                } else {
-
-                    converted.add(Converter.convert(value, parameter.getType(), option.value()));
-
-                }
-
+                parameter.bind(value(parameter, option, value));
+                converted.add(parameter.getBoundValue());
             } else if (available.size() > 0) {
                 needed--;
 
@@ -289,17 +317,20 @@ public class CmdMethod implements Cmd {
                         glob.add(available.remove(0));
                     }
 
-                    converted.add(convert(parameter, glob, null));
+                    parameter.bind(convert(parameter, glob, null));
+                    converted.add(parameter.getBoundValue());
                 } else {
 
                     final String value = available.remove(0);
-                    converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")));
+                    parameter.bind(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")));
+                    converted.add(parameter.getBoundValue());
                 }
 
             } else {
 
                 throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
             }
+            lastBoundValue = null; // this value is only relevant for @OptionBeans
         }
 
         if (available.size() > 0) {
@@ -307,7 +338,7 @@ public class CmdMethod implements Cmd {
         }
 
         if (options.size() > 0) {
-            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback() {
+            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback<Object>() {
                 @Override
                 public String getName(Object object) {
                     return "--" + object;
@@ -316,6 +347,13 @@ public class CmdMethod implements Cmd {
         }
 
         return converted;
+    }
+
+    private Object value(final Param parameter, final Option option, final String value) {
+        if (parameter.isListable()) {
+            return convert(parameter, OptionParam.getSeparatedValues(value), option.value());
+        }
+        return Converter.convert(value, parameter.getType(), option.value());
     }
 
     private static Object convert(final Param parameter, final List<String> values, final String name) {

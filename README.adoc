@@ -500,6 +500,13 @@ that will output a small uber jar with all the required dependencies.
       <version>4.10</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- Add tomitribe-crest-xbean if you want classpath scanning for @Command -->
+    <dependency>
+      <groupId>org.tomitribe</groupId>
+      <artifactId>tomitribe-crest-xbean</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -526,6 +533,21 @@ that will output a small uber jar with all the required dependencies.
       </plugin>
     </plugins>
   </build>
+
+  <repositories>
+    <repository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
 </project>
 ----
 
@@ -539,3 +561,4 @@ mvn archetype:generate \
  -DarchetypeGroupId=org.tomitribe \
  -DarchetypeArtifactId=tomitribe-crest-archetype \
  -DarchetypeVersion=1.0-SNAPSHOT
+

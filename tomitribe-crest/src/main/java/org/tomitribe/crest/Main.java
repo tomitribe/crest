@@ -92,6 +92,10 @@ public class Main {
                 ((StreamingOutput) result).write(env.getOutput());
             } else if (result instanceof String) {
                 env.getOutput().println(result);
+                final String string = (String) result;
+                if (!string.endsWith("\n")) {
+                    env.getOutput().println();
+                }
             }
         } finally {
             Environment.local.set(old);

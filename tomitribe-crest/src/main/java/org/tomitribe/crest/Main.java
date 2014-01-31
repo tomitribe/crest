@@ -18,15 +18,17 @@ package org.tomitribe.crest;
 
 import org.tomitribe.crest.api.StreamingOutput;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
 
-    final Map<String, Cmd> commands = new HashMap<String, Cmd>();
+    final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
 
     public Main() {
         this(new SystemPropertiesDefaultsContext(), Commands.load());
@@ -52,8 +54,12 @@ public class Main {
         this(new SystemPropertiesDefaultsContext(), classes);
     }
 
-    private void add(Cmd cmd) {
+    public void add(Cmd cmd) {
         commands.put(cmd.getName(), cmd);
+    }
+
+    public void remove(Cmd cmd) {
+        commands.remove(cmd.getName());
     }
 
     private void installHelp(DefaultsContext dc) {
@@ -64,14 +70,10 @@ public class Main {
     }
 
     public static void main(String... args) throws Exception {
-        final Main main = new Main();
         try {
-            final Object result = main.exec(args);
-            if (result instanceof StreamingOutput) {
-                ((StreamingOutput) result).write(System.out);
-            } else if (result instanceof String) {
-                System.out.println(result);
-            }
+            final Environment env = new SystemEnvironment();
+            final Main main = new Main();
+            main.main(env, args);
         } catch (CommandFailedException e) {
             e.getCause().printStackTrace();
             System.exit(-1);
@@ -79,6 +81,23 @@ public class Main {
             System.exit(-1);
         }
     }
+
+    public void main(Environment env, String[] args) throws Exception {
+        final Environment old = Environment.local.get();
+        Environment.local.set(env);
+
+        try {
+            final Object result = exec(args);
+            if (result instanceof StreamingOutput) {
+                ((StreamingOutput) result).write(env.getOutput());
+            } else if (result instanceof String) {
+                env.getOutput().println(result);
+            }
+        } finally {
+            Environment.local.set(old);
+        }
+    }
+
 
     public Object exec(String... args) throws Exception {
         final List<String> list = processSystemProperties(args);
@@ -89,8 +108,10 @@ public class Main {
         final Cmd cmd = commands.get(command);
 
         if (cmd == null) {
-            System.err.println("Unknown command: " + command);
-            System.err.println();
+
+            final PrintStream err = Environment.local.get().getError();
+            err.println("Unknown command: " + command);
+            err.println();
             commands.get("help").exec();
             throw new IllegalArgumentException();
         }
@@ -108,7 +129,8 @@ public class Main {
                 final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf("="));
                 final String value = arg.substring(arg.indexOf("=") + 1);
 
-                System.setProperty(name, value);
+                final Properties properties = Environment.local.get().getProperties();
+                properties.setProperty(name, value);
             } else {
                 list.add(arg);
             }

@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Help {
 
@@ -167,7 +169,8 @@ public class Help {
         string.printf("   %-20s", "");
         string.println();
 
-        for (String command : commands.keySet()) {
+        final Set<String> strings = new TreeSet<String>(commands.keySet());
+        for (String command : strings) {
             string.printf("   %-20s%n", command);
         }
 

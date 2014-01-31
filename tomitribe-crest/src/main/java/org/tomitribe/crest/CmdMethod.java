@@ -208,14 +208,16 @@ public class CmdMethod implements Cmd {
     }
 
     private void reportWithHelp(Exception e) {
+        final PrintStream err = Environment.local.get().getError();
+
         if (BeanValidation.isActive()) {
             for (final String message : BeanValidation.messages(e)) {
-                System.err.println(message);
+                err.println(message);
             }
         } else {
-            System.err.println(e.getMessage());
+            err.println(e.getMessage());
         }
-        help(System.err);
+        help(err);
     }
 
     public static RuntimeException toRuntimeException(Throwable e) {

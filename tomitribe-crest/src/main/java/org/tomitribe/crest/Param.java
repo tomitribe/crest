@@ -22,9 +22,18 @@ import org.tomitribe.util.reflect.Parameter;
 import java.util.Collection;
 
 public class Param extends Parameter {
+    private Object boundValue;
 
-    public Param(Parameter parameter) {
+    public Param(final Parameter parameter) {
         super(parameter.getAnnotations(), parameter.getType(), parameter.getGenericType());
+    }
+
+    public void bind(final Object value) {
+        this.boundValue = value;
+    }
+
+    public Object getBoundValue() {
+        return boundValue;
     }
 
     public String getDisplayType() {

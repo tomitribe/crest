@@ -36,7 +36,7 @@ public class Converter {
     public static Object convert(Object value, Class<?> targetType, final String name) {
         if (value == null) {
             if (targetType.equals(Boolean.TYPE)) return false;
-            return value;
+            return null;
         }
 
         final Class<? extends Object> actualType = value.getClass();

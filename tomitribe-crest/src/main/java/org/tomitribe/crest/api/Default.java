@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
 /**
  * @version $Revision$ $Date$
  */
-@Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.PARAMETER, ElementType.FIELD })
 public @interface Default {
     String value();
 }

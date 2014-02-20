@@ -27,21 +27,21 @@ import java.util.regex.Pattern;
 public class AnyName {
 
     @Command
-    public void rsync(@Option("recursive") boolean recursive,
-                      @Option("links") boolean links,
-                      @Option("perms") boolean perms,
-                      @Option("owner") boolean owner,
-                      @Option("group") boolean group,
-                      @Option("devices") boolean devices,
-                      @Option("specials") boolean specials,
-                      @Option("times") boolean times,
-                      @Option("exclude") Pattern exclude,
-                      @Option("exclude-from") File excludeFrom,
-                      @Option("include") Pattern include,
-                      @Option("include-from") File includeFrom,
-                      @Option("progress") @Default("true") boolean progress,
-                      URI[] sources,
-                      URI dest) {
+    public void rsync(@Option("recursive") final boolean recursive,
+                      @Option("links") final boolean links,
+                      @Option("perms") final boolean perms,
+                      @Option("owner") final boolean owner,
+                      @Option("group") final boolean group,
+                      @Option("devices") final boolean devices,
+                      @Option("specials") final boolean specials,
+                      @Option("times") final boolean times,
+                      @Option("exclude") final Pattern exclude,
+                      @Option("exclude-from") final File excludeFrom,
+                      @Option("include") final Pattern include,
+                      @Option("include-from") final File includeFrom,
+                      @Option("progress") @Default("true") final boolean progress,
+                      final URI[] sources,
+                      final URI dest) {
 
         // TODO write the implementation...
     }

@@ -19,11 +19,8 @@ package org.tomitribe.crest.xbean;
 import org.apache.xbean.finder.UrlSet;
 import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
-import org.tomitribe.crest.util.JarLocation;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 public class ClasspathScanner extends XbeanScanningLoader {
 
@@ -41,7 +38,7 @@ public class ClasspathScanner extends XbeanScanningLoader {
 
             return new ClasspathArchive(classLoader, urls.getUrls());
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
     }

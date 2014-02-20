@@ -45,16 +45,16 @@ public class ConverterTest extends Assert {
 
         private String value;
 
-        public Green(String value) {
+        public Green(final String value) {
             this.value = value;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) return true;
             if (!(o instanceof Green)) return false;
 
-            Green green = (Green) o;
+            final Green green = (Green) o;
 
             if (value != null ? !value.equals(green.value) : green.value != null) return false;
 
@@ -71,18 +71,18 @@ public class ConverterTest extends Assert {
 
         private String value;
 
-        public static Yellow makeOne(String value) {
+        public static Yellow makeOne(final String value) {
             final Yellow yellow = new Yellow();
             yellow.value = value;
             return yellow;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            Yellow yellow = (Yellow) o;
+            final Yellow yellow = (Yellow) o;
 
             if (value != null ? !value.equals(yellow.value) : yellow.value != null) return false;
 

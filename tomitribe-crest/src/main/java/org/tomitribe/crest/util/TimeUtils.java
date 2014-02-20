@@ -34,7 +34,7 @@ public class TimeUtils {
      * @param min      the lowest time unit of interest
      * @param max      the highest time unit of interest
      */
-    public static String formatMillis(long duration, TimeUnit min, TimeUnit max) {
+    public static String formatMillis(final long duration, final TimeUnit min, final TimeUnit max) {
         return format(duration, MILLISECONDS, min, max);
     }
 
@@ -45,7 +45,7 @@ public class TimeUtils {
      * @param min      the lowest time unit of interest
      * @param max      the highest time unit of interest
      */
-    public static String formatNanos(long duration, TimeUnit min, TimeUnit max) {
+    public static String formatNanos(final long duration, final TimeUnit min, final TimeUnit max) {
         return format(duration, NANOSECONDS, min, max);
     }
 
@@ -55,15 +55,15 @@ public class TimeUtils {
      * @param duration the time in milliseconds to be converted
      * @param min      the lowest time unit of interest
      */
-    public static String formatNanos(long duration, TimeUnit min) {
+    public static String formatNanos(final long duration, final TimeUnit min) {
         return format(duration, NANOSECONDS, min, max());
     }
 
-    public static String format(long duration, final TimeUnit sourceUnit, TimeUnit min) {
+    public static String format(final long duration, final TimeUnit sourceUnit, final TimeUnit min) {
         return format(duration, sourceUnit, min, max());
     }
 
-    public static String format(long duration, final TimeUnit sourceUnit) {
+    public static String format(final long duration, final TimeUnit sourceUnit) {
         return format(duration, sourceUnit, min(), max());
     }
 
@@ -79,18 +79,18 @@ public class TimeUtils {
     /**
      * Converts time to a human readable format within the specified range
      *
-     * @param duration the time to be converted
+     * @param duration   the time to be converted
      * @param sourceUnit the unit representing this time
-     * @param min      the lowest time unit of interest
-     * @param max      the highest time unit of interest
+     * @param min        the lowest time unit of interest
+     * @param max        the highest time unit of interest
      */
-    public static String format(long duration, final TimeUnit sourceUnit, TimeUnit min, TimeUnit max) {
-        StringBuilder res = new StringBuilder();
+    public static String format(long duration, final TimeUnit sourceUnit, final TimeUnit min, final TimeUnit max) {
+        final StringBuilder res = new StringBuilder();
 
         TimeUnit current = max;
 
         while (duration > 0) {
-            long temp = current.convert(duration, sourceUnit);
+            final long temp = current.convert(duration, sourceUnit);
 
             if (temp > 0) {
 
@@ -116,7 +116,7 @@ public class TimeUtils {
         res.deleteCharAt(res.length() - 1);
 
         //  convert last ", " to " and"
-        int i = res.lastIndexOf(", ");
+        final int i = res.lastIndexOf(", ");
         if (i > 0) {
             res.deleteCharAt(i);
             res.insert(i, " and");
@@ -131,15 +131,15 @@ public class TimeUtils {
      * @param duration the time in milliseconds to be converted
      * @param max      the highest time unit of interest
      */
-    public static String formatHighest(long duration, TimeUnit max) {
-        TimeUnit[] units = TimeUnit.values();
+    public static String formatHighest(long duration, final TimeUnit max) {
+        final TimeUnit[] units = TimeUnit.values();
 
-        StringBuilder res = new StringBuilder();
+        final StringBuilder res = new StringBuilder();
 
         TimeUnit current = max;
 
         while (duration > 0) {
-            long temp = current.convert(duration, MILLISECONDS);
+            final long temp = current.convert(duration, MILLISECONDS);
 
             if (temp > 0) {
 
@@ -175,15 +175,15 @@ public class TimeUtils {
         return time;
     }
 
-    public static String daysAndMinutes(long duration) {
+    public static String daysAndMinutes(final long duration) {
         return formatMillis(duration, MINUTES, DAYS);
     }
 
-    public static String hoursAndMinutes(long duration) {
+    public static String hoursAndMinutes(final long duration) {
         return formatMillis(duration, MINUTES, HOURS);
     }
 
-    public static String hoursAndSeconds(long duration) {
+    public static String hoursAndSeconds(final long duration) {
         return formatMillis(duration, SECONDS, HOURS);
     }
 }

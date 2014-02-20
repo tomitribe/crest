@@ -41,7 +41,7 @@ public @interface Writable {
 
     public static class Constraint extends ConstraintAdapter<Writable, File> {
         @Override
-        public boolean isValid(File value) {
+        public boolean isValid(final File value) {
             return value.canWrite();
         }
     }

@@ -29,10 +29,10 @@ import java.util.Set;
 public abstract class XbeanScanningLoader implements Commands.Loader {
     final Set<Class<?>> classes = new HashSet<Class<?>>();
 
-    public XbeanScanningLoader(Archive archive) {
+    public XbeanScanningLoader(final Archive archive) {
         final AnnotationFinder finder = new AnnotationFinder(archive);
 
-        for (Method method : finder.findAnnotatedMethods(Command.class)) {
+        for (final Method method : finder.findAnnotatedMethods(Command.class)) {
             classes.add(method.getDeclaringClass());
         }
     }

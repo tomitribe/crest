@@ -29,17 +29,17 @@ public class Substitution {
 
     private static final Pattern PATTERN = Pattern.compile("(\\$\\{)([\\w.]+)(})");
 
-    public static String format(Target target, Method method, String input, DefaultsContext df) {
+    public static String format(final Target target, final Method method, final String input, final DefaultsContext df) {
         return format(target, method, input, df, new HashSet<String>());
     }
 
-    private static String format(Target target, Method method, String input, DefaultsContext df, Set<String> seen) {
+    private static String format(final Target target, final Method method, final String input, final DefaultsContext df, final Set<String> seen) {
         if (!seen.add(input)) throw new IllegalStateException("Circular reference in " + input);
 
-        Matcher matcher = PATTERN.matcher(input);
-        StringBuffer buf = new StringBuffer();
+        final Matcher matcher = PATTERN.matcher(input);
+        final StringBuffer buf = new StringBuffer();
         while (matcher.find()) {
-            String key = matcher.group(2);
+            final String key = matcher.group(2);
             String value = df.find(target, method, key);
             if (value != null) {
                 value = format(target, method, value, df, seen).replace("\\", "\\\\");

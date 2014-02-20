@@ -41,7 +41,7 @@ public @interface Executable {
 
     public static class Constraint extends ConstraintAdapter<Executable, File> {
         @Override
-        public boolean isValid(File value) {
+        public boolean isValid(final File value) {
             return value.canExecute();
         }
     }

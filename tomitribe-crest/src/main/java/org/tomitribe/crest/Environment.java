@@ -30,7 +30,10 @@ public interface Environment {
     };
 
     public PrintStream getOutput();
+
     public PrintStream getError();
+
     public InputStream getInput();
+
     public Properties getProperties();
 }

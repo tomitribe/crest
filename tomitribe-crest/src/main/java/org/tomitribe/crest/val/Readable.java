@@ -41,7 +41,7 @@ public @interface Readable {
 
     public static class Constraint extends ConstraintAdapter<Readable, File> {
         @Override
-        public boolean isValid(File value) {
+        public boolean isValid(final File value) {
             return value.canRead();
         }
     }

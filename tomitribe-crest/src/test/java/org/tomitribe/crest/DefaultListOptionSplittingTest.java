@@ -25,18 +25,17 @@ import java.util.Map;
 
 /**
  * There is an order of precedence for splitting the list in an @Default value string
- *
+ * <p/>
  * Order is:
- *
- *  1. \u0000
- *  2. \t
- *  3. ,
- *
+ * <p/>
+ * 1. \u0000
+ * 2. \t
+ * 3. ,
+ * <p/>
  * The first one found is the one used.
- *
+ * <p/>
  * List creation happens before variable substitution to ensure
  * splitting rules are not affected.
- *
  */
 public class DefaultListOptionSplittingTest extends TestCase {
 
@@ -65,7 +64,7 @@ public class DefaultListOptionSplittingTest extends TestCase {
     public static class Commands {
 
         @Command
-        public void onComma(@Option("value") @Default("2,3,5") String[] values) {
+        public void onComma(@Option("value") @Default("2,3,5") final String[] values) {
             assertNotNull(values);
             assertEquals(3, values.length);
 
@@ -75,7 +74,7 @@ public class DefaultListOptionSplittingTest extends TestCase {
         }
 
         @Command
-        public void onTab(@Option("value") @Default("2,3\t5,7\t11,13") String[] values) {
+        public void onTab(@Option("value") @Default("2,3\t5,7\t11,13") final String[] values) {
             assertNotNull(values);
             assertEquals(3, values.length);
 
@@ -85,7 +84,7 @@ public class DefaultListOptionSplittingTest extends TestCase {
         }
 
         @Command
-        public void onUnicode(@Option("value") @Default("2,3\t5,7\t11,13\u000017\t19,23\u000029") String[] values) {
+        public void onUnicode(@Option("value") @Default("2,3\t5,7\t11,13\u000017\t19,23\u000029") final String[] values) {
             assertNotNull(values);
             assertEquals(3, values.length);
 
@@ -95,7 +94,7 @@ public class DefaultListOptionSplittingTest extends TestCase {
         }
 
         @Command
-        public void onlyBeforeSubstition(@Option("value") @Default("${value1},${value2}") String[] values) {
+        public void onlyBeforeSubstition(@Option("value") @Default("${value1},${value2}") final String[] values) {
             assertNotNull(values);
             assertEquals(2, values.length);
 

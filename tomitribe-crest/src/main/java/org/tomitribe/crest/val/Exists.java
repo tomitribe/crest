@@ -41,7 +41,7 @@ public @interface Exists {
 
     public static class Constraint extends ConstraintAdapter<Exists, File> {
         @Override
-        public boolean isValid(File value) {
+        public boolean isValid(final File value) {
             return value.exists();
         }
     }

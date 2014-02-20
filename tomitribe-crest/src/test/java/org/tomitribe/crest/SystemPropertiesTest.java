@@ -52,13 +52,13 @@ public class SystemPropertiesTest extends Assert {
     public static class Orange {
 
         @Command
-        public String property(String name) {
+        public String property(final String name) {
             return System.getProperty(name);
         }
 
         @Command
-        public String defaults(@Option("user") @Default("${user.name}") String user,
-                               @Option("home") @Default("${user.dir}") File home) {
+        public String defaults(@Option("user") @Default("${user.name}") final String user,
+                               @Option("home") @Default("${user.dir}") final File home) {
             return String.format("%s - %s", user, home.getAbsolutePath());
         }
     }

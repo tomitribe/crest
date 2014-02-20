@@ -30,11 +30,11 @@ public class JarLocation {
         return jarLocation(JarLocation.class);
     }
 
-    public static File jarLocation(Class clazz) {
+    public static File jarLocation(final Class clazz) {
         try {
-            String classFileName = clazz.getName().replace(".", "/") + ".class";
+            final String classFileName = clazz.getName().replace(".", "/") + ".class";
 
-            ClassLoader loader = clazz.getClassLoader();
+            final ClassLoader loader = clazz.getClassLoader();
             URL url;
             if (loader != null) {
                 url = loader.getResource(classFileName);
@@ -47,7 +47,7 @@ public class JarLocation {
             }
 
             if ("jar".equals(url.getProtocol())) {
-                String spec = url.getFile();
+                final String spec = url.getFile();
 
                 int separator = spec.indexOf('!');
                 /*
@@ -64,28 +64,28 @@ public class JarLocation {
             } else {
                 throw new IllegalArgumentException("Unsupported URL scheme: " + url.toExternalForm());
             }
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private static File toFile(String classFileName, URL url) {
+    private static File toFile(final String classFileName, final URL url) {
         String path = url.getFile();
         path = path.substring(0, path.length() - classFileName.length());
         return new File(decode(path));
     }
 
 
-    public static String decode(String fileName) {
+    public static String decode(final String fileName) {
         if (fileName.indexOf('%') == -1) return fileName;
 
-        StringBuilder result = new StringBuilder(fileName.length());
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final StringBuilder result = new StringBuilder(fileName.length());
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         for (int i = 0; i < fileName.length(); ) {
-            char c = fileName.charAt(i);
+            final char c = fileName.charAt(i);
 
             if (c == '%') {
                 out.reset();
@@ -94,8 +94,8 @@ public class JarLocation {
                         throw new IllegalArgumentException("Incomplete % sequence at: " + i);
                     }
 
-                    int d1 = Character.digit(fileName.charAt(i + 1), 16);
-                    int d2 = Character.digit(fileName.charAt(i + 2), 16);
+                    final int d1 = Character.digit(fileName.charAt(i + 1), 16);
+                    final int d2 = Character.digit(fileName.charAt(i + 2), 16);
 
                     if (d1 == -1 || d2 == -1) {
                         throw new IllegalArgumentException("Invalid % sequence (" + fileName.substring(i, i + 3) + ") at: " + String.valueOf(i));

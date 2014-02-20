@@ -37,15 +37,15 @@ public class App {
 
         return new StreamingOutput() {
             @Override
-            public void write(OutputStream os) throws IOException {
+            public void write(final OutputStream os) throws IOException {
                 IO.copy(file, os);
             }
         };
     }
 
     @Command
-    public String hello(@Option("name") @Default("World") String name,
-                        @Option("language") @Default("EN") Language language) {
+    public String hello(@Option("name") @Default("World") final String name,
+                        @Option("language") @Default("EN") final Language language) {
         return String.format("%s, %s!", language.getSalutation(), name);
     }
 
@@ -56,7 +56,7 @@ public class App {
 
         private final String salutation;
 
-        private Language(String salutation) {
+        private Language(final String salutation) {
             this.salutation = salutation;
         }
 

@@ -72,7 +72,7 @@ public class OptionListsTest extends TestCase {
     public static class Commands {
 
         @Command
-        public void doByte(@Option("foo") List<Byte> list) {
+        public void doByte(@Option("foo") final List<Byte> list) {
             assertNotNull(list);
 
             final Iterator<Byte> it = list.iterator();
@@ -83,7 +83,7 @@ public class OptionListsTest extends TestCase {
         }
 
         @Command
-        public void doBoolean(@Option("foo") List<Boolean> list) {
+        public void doBoolean(@Option("foo") final List<Boolean> list) {
             assertNotNull(list);
 
             final Iterator<Boolean> it = list.iterator();
@@ -94,7 +94,7 @@ public class OptionListsTest extends TestCase {
         }
 
         @Command
-        public void doCharacter(@Option("foo") List<Character> list) {
+        public void doCharacter(@Option("foo") final List<Character> list) {
             assertNotNull(list);
 
             final Iterator<Character> it = list.iterator();
@@ -105,7 +105,7 @@ public class OptionListsTest extends TestCase {
         }
 
         @Command
-        public void doShort(@Option("foo") List<Short> list) {
+        public void doShort(@Option("foo") final List<Short> list) {
             assertNotNull(list);
 
             final Iterator<Short> it = list.iterator();
@@ -116,7 +116,7 @@ public class OptionListsTest extends TestCase {
         }
 
         @Command
-        public void doInt(@Option("foo") List<Integer> list) {
+        public void doInt(@Option("foo") final List<Integer> list) {
             assertNotNull(list);
 
             final Iterator<Integer> it = list.iterator();
@@ -127,7 +127,7 @@ public class OptionListsTest extends TestCase {
         }
 
         @Command
-        public void doLong(@Option("foo") List<Long> list) {
+        public void doLong(@Option("foo") final List<Long> list) {
             assertNotNull(list);
 
             final Iterator<Long> it = list.iterator();
@@ -138,7 +138,7 @@ public class OptionListsTest extends TestCase {
         }
 
         @Command
-        public void doFloat(@Option("foo") List<Float> list) {
+        public void doFloat(@Option("foo") final List<Float> list) {
             assertNotNull(list);
 
             final Iterator<Float> it = list.iterator();
@@ -149,7 +149,7 @@ public class OptionListsTest extends TestCase {
         }
 
         @Command
-        public void doDouble(@Option("foo") List<Double> list) {
+        public void doDouble(@Option("foo") final List<Double> list) {
             assertNotNull(list);
 
             final Iterator<Double> it = list.iterator();
@@ -160,7 +160,7 @@ public class OptionListsTest extends TestCase {
         }
 
         @Command
-        public void doString(@Option("foo") List<String> list) {
+        public void doString(@Option("foo") final List<String> list) {
             assertNotNull(list);
 
             final Iterator<String> it = list.iterator();
@@ -171,7 +171,7 @@ public class OptionListsTest extends TestCase {
         }
 
         @Command
-        public void doURI(@Option("foo") List<URI> list) {
+        public void doURI(@Option("foo") final List<URI> list) {
             assertNotNull(list);
 
             final Iterator<URI> it = list.iterator();

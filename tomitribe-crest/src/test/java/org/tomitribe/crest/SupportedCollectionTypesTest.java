@@ -55,13 +55,13 @@ public class SupportedCollectionTypesTest extends TestCase {
         try {
             CmdMethod.instantiate(AbstractList.class).getClass();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (final IllegalStateException e) {
         }
 
         try {
             CmdMethod.instantiate(AbstractSet.class).getClass();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (final IllegalStateException e) {
         }
 
     }

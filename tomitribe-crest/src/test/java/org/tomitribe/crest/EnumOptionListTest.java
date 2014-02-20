@@ -30,7 +30,7 @@ public class EnumOptionListTest extends TestCase {
 
     public void testEnumTrue() throws Exception {
 
-        for (Cmd test : commands.values()) {
+        for (final Cmd test : commands.values()) {
             final Action[] actual = (Action[]) test.exec("--action");
             assertNotNull(actual);
             assertEquals(3, actual.length);
@@ -43,7 +43,7 @@ public class EnumOptionListTest extends TestCase {
 
     public void testEnumFalse() throws Exception {
 
-        for (Cmd test : commands.values()) {
+        for (final Cmd test : commands.values()) {
             final Action[] actual = (Action[]) test.exec("--no-action");
             assertNotNull(actual);
             assertEquals(0, actual.length);
@@ -54,12 +54,12 @@ public class EnumOptionListTest extends TestCase {
     public static class Commands {
 
         @Command
-        public Action[] array(@Option("action") @Default("WALK") Action[] action) {
+        public Action[] array(@Option("action") @Default("WALK") final Action[] action) {
             return action;
         }
 
         @Command
-        public Action[] list(@Option("action") @Default("WALK") List<Action> action) {
+        public Action[] list(@Option("action") @Default("WALK") final List<Action> action) {
             return action.toArray(new Action[action.size()]);
         }
 

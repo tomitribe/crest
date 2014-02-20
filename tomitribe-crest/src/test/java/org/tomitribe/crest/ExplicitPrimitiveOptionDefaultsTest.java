@@ -76,55 +76,55 @@ public class ExplicitPrimitiveOptionDefaultsTest extends TestCase {
 
 
         @Command
-        public void doByte(@Option("value") @Default("42") byte value) {
+        public void doByte(@Option("value") @Default("42") final byte value) {
             assertEquals(defaultByte, value);
         }
 
         @Command
-        public void doChar(@Option("value") @Default("D") char value) {
+        public void doChar(@Option("value") @Default("D") final char value) {
             assertEquals(defaultChar, value);
         }
 
         @Command
-        public void doBoolean(@Option("value") @Default("true") boolean value) {
+        public void doBoolean(@Option("value") @Default("true") final boolean value) {
             assertEquals(defaultBoolean, value);
         }
 
         @Command
-        public void doShort(@Option("value") @Default("1024") short value) {
+        public void doShort(@Option("value") @Default("1024") final short value) {
             assertEquals(defaultShort, value);
         }
 
         @Command
-        public void doInt(@Option("value") @Default("3301976") int value) {
+        public void doInt(@Option("value") @Default("3301976") final int value) {
             assertEquals(defaultInt, value);
         }
 
         @Command
-        public void doLong(@Option("value") @Default("10000000000") long value) {
+        public void doLong(@Option("value") @Default("10000000000") final long value) {
             assertEquals(defaultLong, value);
         }
 
         @Command
-        public void doFloat(@Option("value") @Default("10.0") float value) {
+        public void doFloat(@Option("value") @Default("10.0") final float value) {
             assertEquals(defaultFloat, value);
         }
 
         @Command
-        public void doDouble(@Option("value") @Default("20.0") double value) {
+        public void doDouble(@Option("value") @Default("20.0") final double value) {
             assertEquals(defaultDouble, value);
         }
 
         @Command
         public void doAll(
-                @Option("byte") @Default("42") byte byteValue,
-                @Option("char") @Default("D") char charValue,
-                @Option("boolean") @Default("true") boolean booleanValue,
-                @Option("short") @Default("1024") short shortValue,
-                @Option("int") @Default("3301976") int intValue,
-                @Option("long") @Default("10000000000") long longValue,
-                @Option("float") @Default("10.0") float floatValue,
-                @Option("double") @Default("20.0") double doubleValue
+                @Option("byte") @Default("42") final byte byteValue,
+                @Option("char") @Default("D") final char charValue,
+                @Option("boolean") @Default("true") final boolean booleanValue,
+                @Option("short") @Default("1024") final short shortValue,
+                @Option("int") @Default("3301976") final int intValue,
+                @Option("long") @Default("10000000000") final long longValue,
+                @Option("float") @Default("10.0") final float floatValue,
+                @Option("double") @Default("20.0") final double doubleValue
         ) {
             assertEquals(defaultByte, byteValue);
             assertEquals(defaultChar, charValue);

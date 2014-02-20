@@ -25,7 +25,7 @@ public class Bytes implements Comparable<Bytes> {
     private long mb;
     private long gb;
 
-    public void add(long bytes) {
+    public void add(final long bytes) {
         compact();
 
         b += bytes;
@@ -52,7 +52,7 @@ public class Bytes implements Comparable<Bytes> {
     }
 
     @Override
-    public int compareTo(Bytes o) {
+    public int compareTo(final Bytes o) {
         compact();
         o.compact();
 
@@ -68,15 +68,15 @@ public class Bytes implements Comparable<Bytes> {
     public String toString() {
         compact();
         if (gb > 0) {
-            double n = gb + (mb * 0.000976562);
+            final double n = gb + (mb * 0.000976562);
             return String.format("%,.2fgb", n);
         }
         if (mb > 0) {
-            double n = mb + (kb * 0.000976562);
+            final double n = mb + (kb * 0.000976562);
             return String.format("%,.2fmb", n);
         }
         if (kb > 0) {
-            double n = kb + (b * 0.000976562);
+            final double n = kb + (b * 0.000976562);
             return String.format("%,.2fkb", n);
         }
         return b + "";

@@ -32,32 +32,32 @@ public class Duration {
     public Duration() {
     }
 
-    public Duration(long time, TimeUnit unit) {
+    public Duration(final long time, final TimeUnit unit) {
         this.time = time;
         this.unit = unit;
     }
 
-    public Duration(String string) {
+    public Duration(final String string) {
         this(string, null);
     }
 
-    public Duration(String string, final TimeUnit defaultUnit) {
-        String[] strings = string.split(",| and ");
+    public Duration(final String string, final TimeUnit defaultUnit) {
+        final String[] strings = string.split(",| and ");
 
         Duration total = new Duration();
 
         for (String s : strings) {
-            Duration part = new Duration();
+            final Duration part = new Duration();
             s = s.trim();
 
-            StringBuilder t = new StringBuilder();
-            StringBuilder u = new StringBuilder();
+            final StringBuilder t = new StringBuilder();
+            final StringBuilder u = new StringBuilder();
 
             int i = 0;
 
             // get the number
             for (; i < s.length(); i++) {
-                char c = s.charAt(i);
+                final char c = s.charAt(i);
                 if (Character.isDigit(c) || i == 0 && c == '-') {
                     t.append(c);
                 } else {
@@ -71,7 +71,7 @@ public class Duration {
 
             // skip whitespace
             for (; i < s.length(); i++) {
-                char c = s.charAt(i);
+                final char c = s.charAt(i);
                 if (Character.isWhitespace(c)) {
                 } else {
                     break;
@@ -80,7 +80,7 @@ public class Duration {
 
             // get time unit text part
             for (; i < s.length(); i++) {
-                char c = s.charAt(i);
+                final char c = s.charAt(i);
                 if (Character.isLetter(c)) {
                     u.append(c);
                 } else {
@@ -107,11 +107,11 @@ public class Duration {
         return time;
     }
 
-    public long getTime(TimeUnit unit) {
+    public long getTime(final TimeUnit unit) {
         return unit.convert(this.time, this.unit);
     }
 
-    public void setTime(long time) {
+    public void setTime(final long time) {
         this.time = time;
     }
 
@@ -119,7 +119,7 @@ public class Duration {
         return unit;
     }
 
-    public void setUnit(TimeUnit unit) {
+    public void setUnit(final TimeUnit unit) {
         this.unit = unit;
     }
 
@@ -141,13 +141,13 @@ public class Duration {
         private long b;
         private TimeUnit base;
 
-        private Normalize(Duration a, Duration b) {
+        private Normalize(final Duration a, final Duration b) {
             this.base = lowest(a, b);
             this.a = a.unit == null ? a.time : base.convert(a.time, a.unit);
             this.b = b.unit == null ? b.time : base.convert(b.time, b.unit);
         }
 
-        private static TimeUnit lowest(Duration a, Duration b) {
+        private static TimeUnit lowest(final Duration a, final Duration b) {
             if (a.unit == null) return b.unit;
             if (b.unit == null) return a.unit;
             if (a.time == 0) return b.unit;
@@ -156,37 +156,37 @@ public class Duration {
         }
     }
 
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         final Duration that = (Duration) o;
 
-        Normalize n = new Normalize(this, that);
+        final Normalize n = new Normalize(this, that);
         return n.a == n.b;
     }
 
-    public Duration add(Duration that) {
-        Normalize n = new Normalize(this, that);
+    public Duration add(final Duration that) {
+        final Normalize n = new Normalize(this, that);
         return new Duration(n.a + n.b, n.base);
     }
 
-    public Duration subtract(Duration that) {
-        Normalize n = new Normalize(this, that);
+    public Duration subtract(final Duration that) {
+        final Normalize n = new Normalize(this, that);
         return new Duration(n.a - n.b, n.base);
     }
 
-    public static Duration parse(String text) {
+    public static Duration parse(final String text) {
         return new Duration(text);
     }
 
-    private static void invalidFormat(String text) {
+    private static void invalidFormat(final String text) {
         throw new IllegalArgumentException("Illegal duration format: '" + text + "'.  Valid examples are '10s' or '10 seconds'.");
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(time);
         if (unit != null) {
             sb.append(" ");
@@ -195,7 +195,7 @@ public class Duration {
         return sb.toString();
     }
 
-    private static TimeUnit parseUnit(String u) {
+    private static TimeUnit parseUnit(final String u) {
         if (u.length() == 0) return null;
 
         if (u.equalsIgnoreCase("NANOSECONDS")) return TimeUnit.NANOSECONDS;
@@ -238,9 +238,9 @@ public class Duration {
         throw new IllegalArgumentException("Unknown time unit '" + u + "'.  Supported units " + Join.join(", ", lowercase(TimeUnit.values())));
     }
 
-    private static List<String> lowercase(Enum... units) {
-        List<String> list = new ArrayList<String>();
-        for (Enum unit : units) {
+    private static List<String> lowercase(final Enum... units) {
+        final List<String> list = new ArrayList<String>();
+        for (final Enum unit : units) {
             list.add(unit.name().toLowerCase());
         }
         return list;
@@ -248,8 +248,8 @@ public class Duration {
 
 
     public static class DurationEditor extends java.beans.PropertyEditorSupport {
-        public void setAsText(String text) {
-            Duration d = Duration.parse(text);
+        public void setAsText(final String text) {
+            final Duration d = Duration.parse(text);
             setValue(d);
         }
     }

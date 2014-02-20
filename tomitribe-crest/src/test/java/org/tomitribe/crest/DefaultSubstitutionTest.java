@@ -55,12 +55,12 @@ public class DefaultSubstitutionTest extends TestCase {
 
         @Command
         public void doRelyOnDefaults(
-                @Option("user-home") @Default("${user.home}") Value defaultParameter,
-                @Option("directory") @Default("${user.home}\u0000${user.dir}") Value[] defaultParameters,
-                @Option("format") Value explicitParameter,
-                @Option("pattern") Value[] explicitParameters,
-                Value explicitArgument,
-                Value[] explicitArguments
+                @Option("user-home") @Default("${user.home}") final Value defaultParameter,
+                @Option("directory") @Default("${user.home}\u0000${user.dir}") final Value[] defaultParameters,
+                @Option("format") final Value explicitParameter,
+                @Option("pattern") final Value[] explicitParameters,
+                final Value explicitArgument,
+                final Value[] explicitArguments
         ) {
 
             { // @Default values are interpreted
@@ -90,12 +90,12 @@ public class DefaultSubstitutionTest extends TestCase {
 
         @Command
         public void doAllExplicit(
-                @Option("user-home") @Default("${user.home}") Value defaultParameter,
-                @Option("directory") @Default("${user.home}\u0000${user.dir}") Value[] defaultParameters,
-                @Option("format") Value explicitParameter,
-                @Option("pattern") Value[] explicitParameters,
-                Value explicitArgument,
-                Value[] explicitArguments
+                @Option("user-home") @Default("${user.home}") final Value defaultParameter,
+                @Option("directory") @Default("${user.home}\u0000${user.dir}") final Value[] defaultParameters,
+                @Option("format") final Value explicitParameter,
+                @Option("pattern") final Value[] explicitParameters,
+                final Value explicitArgument,
+                final Value[] explicitArguments
         ) {
 
             // Explicit values are NOT interpreted
@@ -120,16 +120,16 @@ public class DefaultSubstitutionTest extends TestCase {
     public static class Value {
         private final String string;
 
-        public Value(String string) {
+        public Value(final String string) {
             this.string = string;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            Value value = (Value) o;
+            final Value value = (Value) o;
 
             return string.equals(value.string);
         }

@@ -30,39 +30,39 @@ import java.util.ServiceLoader;
 
 public class Commands {
 
-    public static Iterable<Method> commands(Class<?> clazz) {
+    public static Iterable<Method> commands(final Class<?> clazz) {
         return new FilteredIterable<Method>(Reflection.methods(clazz),
                 new FilteredIterator.Filter<Method>() {
                     @Override
-                    public boolean accept(Method method) {
+                    public boolean accept(final Method method) {
                         return method.isAnnotationPresent(Command.class);
                     }
                 }
         );
     }
 
-    public static Map<String, Cmd> get(Object bean) {
+    public static Map<String, Cmd> get(final Object bean) {
         return get(bean.getClass(), new SimpleBean(bean), new SystemPropertiesDefaultsContext());
     }
 
-    public static Map<String, Cmd> get(Object bean, DefaultsContext dc) {
+    public static Map<String, Cmd> get(final Object bean, final DefaultsContext dc) {
         return get(bean.getClass(), new SimpleBean(bean), dc);
     }
 
-    public static Map<String, Cmd> get(Class<?> clazz) {
+    public static Map<String, Cmd> get(final Class<?> clazz) {
         return get(clazz, new SimpleBean(null), new SystemPropertiesDefaultsContext());
     }
 
-    public static Map<String, Cmd> get(Class<?> clazz, DefaultsContext dc) {
+    public static Map<String, Cmd> get(final Class<?> clazz, final DefaultsContext dc) {
         return get(clazz, new SimpleBean(null), dc);
     }
 
-    public static Map<String, Cmd> get(Class<?> clazz, final Target target, DefaultsContext dc) {
+    public static Map<String, Cmd> get(final Class<?> clazz, final Target target, final DefaultsContext dc) {
         if (target == null) throw new IllegalArgumentException("Target cannot be null");
 
         final Map<String, Cmd> map = new HashMap<String, Cmd>();
 
-        for (Method method : commands(clazz)) {
+        for (final Method method : commands(clazz)) {
             final CmdMethod cmd = new CmdMethod(method, target, dc);
 
             final Cmd existing = map.get(cmd.getName());
@@ -85,11 +85,11 @@ public class Commands {
      * Interface whose only purpose is to be used in conjunction
      * with the java.util.ServiceLoader API as one potential
      * way to load the list of classes that have commands.
-     *
+     * <p/>
      * This interface intentionally has zero methods and never will
      * so that the simplest implementation is a plain java.util.ArrayList
      * (or pick your favorite collection)
-     *
+     * <p/>
      * This interface is intentionally not used in any method or constructor of crest.
      */
     public static interface Loader extends Iterable<Class<?>> {
@@ -97,6 +97,7 @@ public class Commands {
 
     /**
      * A
+     *
      * @return
      */
     public static Iterable<Class<?>> load() {
@@ -108,7 +109,7 @@ public class Commands {
 
         while (all.hasNext()) {
             final Iterable<Class<?>> c = all.next();
-            for (Class<?> clazz : c) {
+            for (final Class<?> clazz : c) {
                 classes.add(clazz);
             }
         }

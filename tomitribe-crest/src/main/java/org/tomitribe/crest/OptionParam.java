@@ -33,14 +33,14 @@ public class OptionParam extends Param {
     private final String name;
     private final String defaultValue;
 
-    public OptionParam(Parameter parameter) {
+    public OptionParam(final Parameter parameter) {
         super(parameter);
 
         this.name = getAnnotation(Option.class).value();
         this.defaultValue = initDefault();
     }
 
-    public static List<String> getSeparatedValues(String value) {
+    public static List<String> getSeparatedValues(final String value) {
         if (value == null) return Collections.EMPTY_LIST;
         final List<String> split = new ArrayList<String>(Arrays.asList(value.split(LIST_TYPE + "|" + LIST_SEPARATOR)));
         if (split.size() > 0) split.remove(0);
@@ -85,7 +85,7 @@ public class OptionParam extends Param {
         }
     }
 
-    public String normalize(Default def) {
+    public String normalize(final Default def) {
         final String value = def.value();
 
         if (value.contains(LIST_SEPARATOR)) {

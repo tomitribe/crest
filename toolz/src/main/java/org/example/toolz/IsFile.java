@@ -47,11 +47,11 @@ public @interface IsFile {
     public static class Constraint implements ConstraintValidator<IsFile, File> {
 
         @Override
-        public void initialize(IsFile constraintAnnotation) {
+        public void initialize(final IsFile constraintAnnotation) {
         }
 
         @Override
-        public boolean isValid(File file, ConstraintValidatorContext context) {
+        public boolean isValid(final File file, final ConstraintValidatorContext context) {
             return file.isDirectory();
         }
     }

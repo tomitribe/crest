@@ -30,7 +30,7 @@ public class AdvancedArrayArgTest extends TestCase {
     public static class OneExtra {
 
         @Command
-        public Value copy(URI sources[], @Option("foo") URI uri, URI dest) {
+        public Value copy(final URI[] sources, @Option("foo") final URI uri, final URI dest) {
             return new Value(sources, dest);
         }
 
@@ -38,7 +38,7 @@ public class AdvancedArrayArgTest extends TestCase {
             private final URI[] sources;
             private final URI dest;
 
-            public Value(URI[] sources, URI dest) {
+            public Value(final URI[] sources, final URI dest) {
                 this.sources = sources;
                 this.dest = dest;
             }
@@ -89,7 +89,7 @@ public class AdvancedArrayArgTest extends TestCase {
     public static class TwoExtra {
 
         @Command
-        public Value copy(URI sources[], @Option("foo") URI uri, URI dest1, URI dest2) {
+        public Value copy(final URI[] sources, @Option("foo") final URI uri, final URI dest1, final URI dest2) {
             return new Value(sources, dest1, dest2);
         }
 
@@ -98,7 +98,7 @@ public class AdvancedArrayArgTest extends TestCase {
             private final URI dest1;
             private final URI dest2;
 
-            public Value(URI[] sources, URI dest1, URI dest2) {
+            public Value(final URI[] sources, final URI dest1, final URI dest2) {
                 this.sources = sources;
                 this.dest1 = dest1;
                 this.dest2 = dest2;
@@ -154,7 +154,7 @@ public class AdvancedArrayArgTest extends TestCase {
     public static class RequiredList {
 
         @Command
-        public void copy(@Required URI sources[], URI dest) {
+        public void copy(@Required final URI[] sources, final URI dest) {
         }
     }
 
@@ -166,7 +166,7 @@ public class AdvancedArrayArgTest extends TestCase {
         try {
             copy.exec("one");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
         }
     }
 

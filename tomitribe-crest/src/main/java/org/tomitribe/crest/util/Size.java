@@ -33,32 +33,32 @@ public class Size {
     public Size() {
     }
 
-    public Size(long size, SizeUnit unit) {
+    public Size(final long size, final SizeUnit unit) {
         this.size = size;
         this.unit = unit;
     }
 
-    public Size(String string) {
+    public Size(final String string) {
         this(string, null);
     }
 
-    public Size(String string, final SizeUnit defaultUnit) {
-        String[] strings = string.split(",| and ");
+    public Size(final String string, final SizeUnit defaultUnit) {
+        final String[] strings = string.split(",| and ");
 
         Size total = new Size();
 
         for (String s : strings) {
-            Size part = new Size();
+            final Size part = new Size();
             s = s.trim();
 
-            StringBuilder t = new StringBuilder();
-            StringBuilder u = new StringBuilder();
+            final StringBuilder t = new StringBuilder();
+            final StringBuilder u = new StringBuilder();
 
             int i = 0;
 
             // get the number
             for (; i < s.length(); i++) {
-                char c = s.charAt(i);
+                final char c = s.charAt(i);
                 if (Character.isDigit(c) || i == 0 && c == '-' || i > 0 && c == '.') {
                     t.append(c);
                 } else {
@@ -72,7 +72,7 @@ public class Size {
 
             // skip whitespace
             for (; i < s.length(); i++) {
-                char c = s.charAt(i);
+                final char c = s.charAt(i);
                 if (Character.isWhitespace(c)) {
                 } else {
                     break;
@@ -81,7 +81,7 @@ public class Size {
 
             // get time unit text part
             for (; i < s.length(); i++) {
-                char c = s.charAt(i);
+                final char c = s.charAt(i);
                 if (Character.isLetter(c)) {
                     u.append(c);
                 } else {
@@ -98,7 +98,8 @@ public class Size {
 
             final String size = t.toString();
             if (size.contains(".")) {
-                if (part.unit == null) throw new IllegalArgumentException("unit must be specified with floating point numbers");
+                if (part.unit == null)
+                    throw new IllegalArgumentException("unit must be specified with floating point numbers");
                 final double d = Double.parseDouble(size);
                 final long bytes = part.unit.toBytes(1);
                 part.size = (long) (bytes * d);
@@ -118,11 +119,11 @@ public class Size {
         return size;
     }
 
-    public long getSize(SizeUnit unit) {
+    public long getSize(final SizeUnit unit) {
         return unit.convert(this.size, this.unit);
     }
 
-    public void setSize(long size) {
+    public void setSize(final long size) {
         this.size = size;
     }
 
@@ -130,7 +131,7 @@ public class Size {
         return unit;
     }
 
-    public void setUnit(SizeUnit unit) {
+    public void setUnit(final SizeUnit unit) {
         this.unit = unit;
     }
 
@@ -139,13 +140,13 @@ public class Size {
         private long b;
         private SizeUnit base;
 
-        private Normalize(Size a, Size b) {
+        private Normalize(final Size a, final Size b) {
             this.base = lowest(a, b);
             this.a = a.unit == null ? a.size : base.convert(a.size, a.unit);
             this.b = b.unit == null ? b.size : base.convert(b.size, b.unit);
         }
 
-        private static SizeUnit lowest(Size a, Size b) {
+        private static SizeUnit lowest(final Size a, final Size b) {
             if (a.unit == null) return b.unit;
             if (b.unit == null) return a.unit;
             if (a.size == 0) return b.unit;
@@ -154,37 +155,37 @@ public class Size {
         }
     }
 
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         final Size that = (Size) o;
 
-        Normalize n = new Normalize(this, that);
+        final Normalize n = new Normalize(this, that);
         return n.a == n.b;
     }
 
-    public Size add(Size that) {
-        Normalize n = new Normalize(this, that);
+    public Size add(final Size that) {
+        final Normalize n = new Normalize(this, that);
         return new Size(n.a + n.b, n.base);
     }
 
-    public Size subtract(Size that) {
-        Normalize n = new Normalize(this, that);
+    public Size subtract(final Size that) {
+        final Normalize n = new Normalize(this, that);
         return new Size(n.a - n.b, n.base);
     }
 
-    public static Size parse(String text) {
+    public static Size parse(final String text) {
         return new Size(text);
     }
 
-    private static void invalidFormat(String text) {
+    private static void invalidFormat(final String text) {
         throw new IllegalArgumentException("Illegal size format: '" + text + "'.  Valid examples are '10kb' or '10 kilobytes'.");
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(size);
         if (unit != null) {
             sb.append(" ");
@@ -193,7 +194,7 @@ public class Size {
         return sb.toString();
     }
 
-    private static SizeUnit parseUnit(String u) {
+    private static SizeUnit parseUnit(final String u) {
         if (u.length() == 0) return null;
 
         if (u.equalsIgnoreCase("BYTES")) return SizeUnit.BYTES;
@@ -224,17 +225,17 @@ public class Size {
         throw new IllegalArgumentException("Unknown size unit '" + u + "'.  Supported units " + Join.join(", ", lowercase(SizeUnit.values())));
     }
 
-    private static List<String> lowercase(Enum... units) {
-        List<String> list = new ArrayList<String>();
-        for (Enum unit : units) {
+    private static List<String> lowercase(final Enum... units) {
+        final List<String> list = new ArrayList<String>();
+        for (final Enum unit : units) {
             list.add(unit.name().toLowerCase());
         }
         return list;
     }
 
     public static class SizeEditor extends java.beans.PropertyEditorSupport {
-        public void setAsText(String text) {
-            Size d = Size.parse(text);
+        public void setAsText(final String text) {
+            final Size d = Size.parse(text);
             setValue(d);
         }
     }

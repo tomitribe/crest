@@ -20,131 +20,131 @@ import static java.lang.Long.MAX_VALUE;
 
 public enum SizeUnit {
     BYTES {
-        public long toBytes(long s) {
+        public long toBytes(final long s) {
             return s;
         }
 
-        public long toKilobytes(long s) {
+        public long toKilobytes(final long s) {
             return s / (B1 / B0);
         }
 
-        public long toMegabytes(long s) {
+        public long toMegabytes(final long s) {
             return s / (B2 / B0);
         }
 
-        public long toGigabytes(long s) {
+        public long toGigabytes(final long s) {
             return s / (B3 / B0);
         }
 
-        public long toTerabytes(long s) {
+        public long toTerabytes(final long s) {
             return s / (B4 / B0);
         }
 
-        public long convert(long s, SizeUnit u) {
+        public long convert(final long s, final SizeUnit u) {
             return u.toBytes(s);
         }
     },
 
     KILOBYTES {
-        public long toBytes(long s) {
+        public long toBytes(final long s) {
             return x(s, B1 / B0, MAX_VALUE / (B1 / B0));
         }
 
-        public long toKilobytes(long s) {
+        public long toKilobytes(final long s) {
             return s;
         }
 
-        public long toMegabytes(long s) {
+        public long toMegabytes(final long s) {
             return s / (B2 / B1);
         }
 
-        public long toGigabytes(long s) {
+        public long toGigabytes(final long s) {
             return s / (B3 / B1);
         }
 
-        public long toTerabytes(long s) {
+        public long toTerabytes(final long s) {
             return s / (B4 / B1);
         }
 
-        public long convert(long s, SizeUnit u) {
+        public long convert(final long s, final SizeUnit u) {
             return u.toKilobytes(s);
         }
     },
 
     MEGABYTES {
-        public long toBytes(long s) {
+        public long toBytes(final long s) {
             return x(s, B2 / B0, MAX_VALUE / (B2 / B0));
         }
 
-        public long toKilobytes(long s) {
+        public long toKilobytes(final long s) {
             return x(s, B2 / B1, MAX_VALUE / (B2 / B1));
         }
 
-        public long toMegabytes(long s) {
+        public long toMegabytes(final long s) {
             return s;
         }
 
-        public long toGigabytes(long s) {
+        public long toGigabytes(final long s) {
             return s / (B3 / B2);
         }
 
-        public long toTerabytes(long s) {
+        public long toTerabytes(final long s) {
             return s / (B4 / B2);
         }
 
-        public long convert(long s, SizeUnit u) {
+        public long convert(final long s, final SizeUnit u) {
             return u.toMegabytes(s);
         }
     },
 
     GIGABYTES {
-        public long toBytes(long s) {
+        public long toBytes(final long s) {
             return x(s, B3 / B0, MAX_VALUE / (B3 / B0));
         }
 
-        public long toKilobytes(long s) {
+        public long toKilobytes(final long s) {
             return x(s, B3 / B1, MAX_VALUE / (B3 / B1));
         }
 
-        public long toMegabytes(long s) {
+        public long toMegabytes(final long s) {
             return x(s, B3 / B2, MAX_VALUE / (B3 / B2));
         }
 
-        public long toGigabytes(long s) {
+        public long toGigabytes(final long s) {
             return s;
         }
 
-        public long toTerabytes(long s) {
+        public long toTerabytes(final long s) {
             return s / (B4 / B3);
         }
 
-        public long convert(long s, SizeUnit u) {
+        public long convert(final long s, final SizeUnit u) {
             return u.toGigabytes(s);
         }
     },
 
     TERABYTES {
-        public long toBytes(long s) {
+        public long toBytes(final long s) {
             return x(s, B4 / B0, MAX_VALUE / (B4 / B0));
         }
 
-        public long toKilobytes(long s) {
+        public long toKilobytes(final long s) {
             return x(s, B4 / B1, MAX_VALUE / (B4 / B1));
         }
 
-        public long toMegabytes(long s) {
+        public long toMegabytes(final long s) {
             return x(s, B4 / B2, MAX_VALUE / (B4 / B2));
         }
 
-        public long toGigabytes(long s) {
+        public long toGigabytes(final long s) {
             return x(s, B4 / B3, MAX_VALUE / (B4 / B3));
         }
 
-        public long toTerabytes(long s) {
+        public long toTerabytes(final long s) {
             return s;
         }
 
-        public long convert(long s, SizeUnit u) {
+        public long convert(final long s, final SizeUnit u) {
             return u.toTerabytes(s);
         }
     };
@@ -156,33 +156,33 @@ public enum SizeUnit {
     static final long B4 = B3 * 1024L;
 
 
-    static long x(long d, long m, long over) {
+    static long x(final long d, final long m, final long over) {
         if (d > over) return MAX_VALUE;
         if (d < -over) return Long.MIN_VALUE;
         return d * m;
     }
 
-    public long toBytes(long size) {
+    public long toBytes(final long size) {
         throw new AbstractMethodError();
     }
 
-    public long toKilobytes(long size) {
+    public long toKilobytes(final long size) {
         throw new AbstractMethodError();
     }
 
-    public long toMegabytes(long size) {
+    public long toMegabytes(final long size) {
         throw new AbstractMethodError();
     }
 
-    public long toGigabytes(long size) {
+    public long toGigabytes(final long size) {
         throw new AbstractMethodError();
     }
 
-    public long toTerabytes(long size) {
+    public long toTerabytes(final long size) {
         throw new AbstractMethodError();
     }
 
-    public long convert(long sourceSize, SizeUnit sourceUnit) {
+    public long convert(final long sourceSize, final SizeUnit sourceUnit) {
         throw new AbstractMethodError();
     }
 

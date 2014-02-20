@@ -35,7 +35,7 @@ public class UberJarScanner extends XbeanScanningLoader {
 
             final File file = JarLocation.jarLocation(reference);
             return ClasspathArchive.archive(reference.getClassLoader(), file.toURI().toURL());
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             throw new IllegalStateException(e);
         }
     }

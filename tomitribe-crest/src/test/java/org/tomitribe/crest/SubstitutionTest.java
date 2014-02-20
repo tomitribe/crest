@@ -38,7 +38,7 @@ public class SubstitutionTest extends Assert {
 
     @Test
     public void test() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        final Map<String, String> map = new HashMap<String, String>();
         map.put("one", "uno");
         map.put("two", "dos");
         map.put("three", "tres");
@@ -51,7 +51,7 @@ public class SubstitutionTest extends Assert {
         map.put("a", "${b}");
         map.put("b", "${a}");
 
-        DefaultsContext df = new MapDefaultsContext(map);
+        final DefaultsContext df = new MapDefaultsContext(map);
 
         assertEquals("uno", Substitution.format(null, null, "${one}", df));
         assertEquals("uunoo", Substitution.format(null, null, "u${one}o", df));
@@ -62,7 +62,7 @@ public class SubstitutionTest extends Assert {
         try {
             Substitution.format(null, null, "${a}", df);
             fail();
-        } catch (IllegalStateException e) {
+        } catch (final IllegalStateException e) {
             // pass
         }
     }
@@ -70,7 +70,7 @@ public class SubstitutionTest extends Assert {
     private static class MapDefaultsContext implements DefaultsContext {
         private final Map<String, String> values;
 
-        MapDefaultsContext(Map<String, String> values) {
+        MapDefaultsContext(final Map<String, String> values) {
             this.values = values;
         }
 

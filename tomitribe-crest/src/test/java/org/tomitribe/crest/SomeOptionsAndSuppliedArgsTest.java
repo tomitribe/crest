@@ -89,7 +89,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         private double uninitializedDouble;
 
         @Command
-        public void doByte(@Option("p1") byte parameter1, byte arg1, @Option("p2") byte parameter2, byte arg2) {
+        public void doByte(@Option("p1") final byte parameter1, final byte arg1, @Option("p2") final byte parameter2, final byte arg2) {
             assertEquals(uninitializedByte, parameter1);
             assertEquals(9, parameter2);
             assertEquals(3, arg1);
@@ -97,7 +97,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doChar(@Option("p1") char parameter1, char arg1, @Option("p2") char parameter2, char arg2) {
+        public void doChar(@Option("p1") final char parameter1, final char arg1, @Option("p2") final char parameter2, final char arg2) {
             assertEquals(uninitializedChar, parameter1);
             assertEquals('9', parameter2);
             assertEquals('3', arg1);
@@ -105,7 +105,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doBoolean(@Option("p1") boolean parameter1, boolean arg1, @Option("p2") boolean parameter2, boolean arg2) {
+        public void doBoolean(@Option("p1") final boolean parameter1, final boolean arg1, @Option("p2") final boolean parameter2, final boolean arg2) {
             assertEquals(uninitializedBoolean, parameter1);
             assertEquals(true, parameter2);
             assertEquals(false, arg1);
@@ -113,7 +113,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doShort(@Option("p1") short parameter1, short arg1, @Option("p2") short parameter2, short arg2) {
+        public void doShort(@Option("p1") final short parameter1, final short arg1, @Option("p2") final short parameter2, final short arg2) {
             assertEquals(uninitializedShort, parameter1);
             assertEquals(9, parameter2);
             assertEquals(3, arg1);
@@ -121,7 +121,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doInt(@Option("p1") int parameter1, int arg1, @Option("p2") int parameter2, int arg2) {
+        public void doInt(@Option("p1") final int parameter1, final int arg1, @Option("p2") final int parameter2, final int arg2) {
             assertEquals(uninitializedInt, parameter1);
             assertEquals(9, parameter2);
             assertEquals(3, arg1);
@@ -129,7 +129,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doLong(@Option("p1") long parameter1, long arg1, @Option("p2") long parameter2, long arg2) {
+        public void doLong(@Option("p1") final long parameter1, final long arg1, @Option("p2") final long parameter2, final long arg2) {
             assertEquals(uninitializedLong, parameter1);
             assertEquals(9, parameter2);
             assertEquals(3, arg1);
@@ -137,7 +137,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doFloat(@Option("p1") float parameter1, float arg1, @Option("p2") float parameter2, float arg2) {
+        public void doFloat(@Option("p1") final float parameter1, final float arg1, @Option("p2") final float parameter2, final float arg2) {
             assertEquals(uninitializedFloat, parameter1);
             assertEquals(9f, parameter2);
             assertEquals(3f, arg1);
@@ -145,7 +145,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doDouble(@Option("p1") double parameter1, double arg1, @Option("p2") double parameter2, double arg2) {
+        public void doDouble(@Option("p1") final double parameter1, final double arg1, @Option("p2") final double parameter2, final double arg2) {
             assertEquals(uninitializedDouble, parameter1);
             assertEquals(9d, parameter2);
             assertEquals(3d, arg1);
@@ -153,7 +153,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doString(@Option("p1") String parameter1, String arg1, @Option("p2") String parameter2, String arg2) {
+        public void doString(@Option("p1") final String parameter1, final String arg1, @Option("p2") final String parameter2, final String arg2) {
             assertEquals(null, parameter1);
             assertEquals("9", parameter2);
             assertEquals("3", arg1);
@@ -161,7 +161,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doURI(@Option("p1") URI parameter1, URI arg1, @Option("p2") URI parameter2, URI arg2) {
+        public void doURI(@Option("p1") final URI parameter1, final URI arg1, @Option("p2") final URI parameter2, final URI arg2) {
             assertEquals(null, parameter1);
             assertEquals(URI.create("9"), parameter2);
             assertEquals(URI.create("3"), arg1);
@@ -169,7 +169,7 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
         }
 
         @Command
-        public void doMixed(@Option("p1") String parameter1, URI arg1, @Option("p2") URI parameter2, String arg2) {
+        public void doMixed(@Option("p1") final String parameter1, final URI arg1, @Option("p2") final URI parameter2, final String arg2) {
             assertEquals(null, parameter1);
             assertEquals(URI.create("9"), parameter2);
             assertEquals(URI.create("3"), arg1);

@@ -52,21 +52,21 @@ public class HelpTest extends Assert {
     public static class Rsync {
 
         @Command
-        public void rsync(@Option("recursive") boolean recursive,
-                          @Option("links") boolean links,
-                          @Option("perms") boolean perms,
-                          @Option("owner") boolean owner,
-                          @Option("group") boolean group,
-                          @Option("devices") boolean devices,
-                          @Option("specials") boolean specials,
-                          @Option("times") boolean times,
-                          @Option("exclude") Pattern exclude,
-                          @Option("exclude-from") File excludeFrom,
-                          @Option("include") Pattern include,
-                          @Option("include-from") File includeFrom,
-                          @Option("progress") @Default("true") boolean progress,
-                          URI[] sources,
-                          URI dest
+        public void rsync(@Option("recursive") final boolean recursive,
+                          @Option("links") final boolean links,
+                          @Option("perms") final boolean perms,
+                          @Option("owner") final boolean owner,
+                          @Option("group") final boolean group,
+                          @Option("devices") final boolean devices,
+                          @Option("specials") final boolean specials,
+                          @Option("times") final boolean times,
+                          @Option("exclude") final Pattern exclude,
+                          @Option("exclude-from") final File excludeFrom,
+                          @Option("include") final Pattern include,
+                          @Option("include-from") final File includeFrom,
+                          @Option("progress") @Default("true") final boolean progress,
+                          final URI[] sources,
+                          final URI dest
         ) {
 
         }
@@ -81,23 +81,23 @@ public class HelpTest extends Assert {
     public static class DefaultsAndEnums {
 
         @Command
-        public void test(@Option("recursive") boolean recursive,
-                         @Option("links") boolean links,
-                         @Option("perms") boolean perms,
-                         @Option("owner") @Default("${user.name}") String owner,
-                         @Option("group") boolean group,
-                         @Option("devices") boolean devices,
-                         @Option("specials") boolean specials,
-                         @Option("times") boolean times,
-                         @Option("exclude") Pattern exclude,
-                         @Option("exclude-from") File excludeFrom,
-                         @Option("include") @Default(".*") Pattern include,
-                         @Option("include-from") File includeFrom,
-                         @Option("highlight") @Default("orange") Color highlight,
-                         @Option("foreground") @Default("orange") Color foreground,
-                         @Option("background") Color background,
-                         URI source,
-                         URI dest
+        public void test(@Option("recursive") final boolean recursive,
+                         @Option("links") final boolean links,
+                         @Option("perms") final boolean perms,
+                         @Option("owner") @Default("${user.name}") final String owner,
+                         @Option("group") final boolean group,
+                         @Option("devices") final boolean devices,
+                         @Option("specials") final boolean specials,
+                         @Option("times") final boolean times,
+                         @Option("exclude") final Pattern exclude,
+                         @Option("exclude-from") final File excludeFrom,
+                         @Option("include") @Default(".*") final Pattern include,
+                         @Option("include-from") final File includeFrom,
+                         @Option("highlight") @Default("orange") final Color highlight,
+                         @Option("foreground") @Default("orange") final Color foreground,
+                         @Option("background") final Color background,
+                         final URI source,
+                         final URI dest
         ) {
 
         }
@@ -115,23 +115,23 @@ public class HelpTest extends Assert {
     public static class OptionLists {
 
         @Command
-        public void test(@Option("recursive") List<Boolean> recursive,
-                         @Option("links") boolean[] links,
-                         @Option("perms") boolean perms,
-                         @Option("owner") @Default("${user.name}") String owner,
-                         @Option("group") boolean group,
-                         @Option("devices") boolean devices,
-                         @Option("specials") boolean specials,
-                         @Option("times") boolean times,
-                         @Option("exclude") Pattern[] exclude,
-                         @Option("exclude-from") File excludeFrom,
-                         @Option("include") @Default(".*") Pattern include,
-                         @Option("include-from") File[] includeFrom,
-                         @Option("highlight") @Default("orange,red") Color[] highlight,
-                         @Option("foreground") @Default("orange") List<Color> foreground,
-                         @Option("background") Color[] background,
-                         URI source,
-                         URI dest
+        public void test(@Option("recursive") final List<Boolean> recursive,
+                         @Option("links") final boolean[] links,
+                         @Option("perms") final boolean perms,
+                         @Option("owner") @Default("${user.name}") final String owner,
+                         @Option("group") final boolean group,
+                         @Option("devices") final boolean devices,
+                         @Option("specials") final boolean specials,
+                         @Option("times") final boolean times,
+                         @Option("exclude") final Pattern[] exclude,
+                         @Option("exclude-from") final File excludeFrom,
+                         @Option("include") @Default(".*") final Pattern include,
+                         @Option("include-from") final File[] includeFrom,
+                         @Option("highlight") @Default("orange,red") final Color[] highlight,
+                         @Option("foreground") @Default("orange") final List<Color> foreground,
+                         @Option("background") final Color[] background,
+                         final URI source,
+                         final URI dest
         ) {
 
         }
@@ -149,7 +149,7 @@ public class HelpTest extends Assert {
 
         final File base = getHelpBase();
 
-        for (File file : base.listFiles()) {
+        for (final File file : base.listFiles()) {
             final String[] split = file.getName().replace(".txt", "").split("_");
             final String className = split[0];
             final String commandName = split[1];
@@ -164,12 +164,12 @@ public class HelpTest extends Assert {
         }
     }
 
-    private void assertCommandHelp(Class clazz, String name) throws IOException {
+    private void assertCommandHelp(final Class clazz, final String name) throws IOException {
         final Map<String, Cmd> commands = Commands.get(clazz);
         assertCommandHelp(clazz, commands.get(name));
     }
 
-    private void assertCommandHelp(Class clazz, Cmd cmd) throws IOException {
+    private void assertCommandHelp(final Class clazz, final Cmd cmd) throws IOException {
         assertNotNull(cmd);
         final URL resource = clazz.getResource("/help/" + helpFileName(clazz, cmd.getName()));
         assertNotNull(resource);
@@ -190,21 +190,21 @@ public class HelpTest extends Assert {
 
         final Set<Class> classes = getCommandClasses();
 
-        for (Class clazz : classes) {
+        for (final Class clazz : classes) {
 
             generateHelp(helpBase, clazz);
         }
     }
 
-    public void generateHelp(File helpBase, Class clazz) throws FileNotFoundException {
+    public void generateHelp(final File helpBase, final Class clazz) throws FileNotFoundException {
         final Map<String, Cmd> commands;
         try {
             commands = Commands.get(clazz);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return;
         }
 
-        for (Cmd cmd : commands.values()) {
+        for (final Cmd cmd : commands.values()) {
             final String name = cmd.getName();
             final File file = new File(helpBase, helpFileName(clazz, name));
 
@@ -212,7 +212,7 @@ public class HelpTest extends Assert {
 
             try {
                 cmd.help(print);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 continue;
             } finally {
                 print.close();
@@ -220,11 +220,11 @@ public class HelpTest extends Assert {
         }
     }
 
-    public Class<?> load(String className) throws ClassNotFoundException {
+    public Class<?> load(final String className) throws ClassNotFoundException {
         return this.getClass().getClassLoader().loadClass(className);
     }
 
-    public Map<String, Cmd> getCommands(Map<Class, Map<String, Cmd>> parsed, final Class<?> aClass) throws ClassNotFoundException {
+    public Map<String, Cmd> getCommands(final Map<Class, Map<String, Cmd>> parsed, final Class<?> aClass) throws ClassNotFoundException {
         final Map<String, Cmd> commands = parsed.get(aClass);
         if (commands != null) return commands;
 
@@ -239,7 +239,7 @@ public class HelpTest extends Assert {
         return Files.file(module, "src", "test", "resources", "help");
     }
 
-    public String helpFileName(Class clazz, String name) {
+    public String helpFileName(final Class clazz, final String name) {
         return String.format("%s_%s.txt", clazz.getName(), name);
     }
 
@@ -252,12 +252,12 @@ public class HelpTest extends Assert {
 
         final Set<Class> classes = new TreeSet<Class>(new Comparator<Class>() {
             @Override
-            public int compare(Class o1, Class o2) {
+            public int compare(final Class o1, final Class o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
 
-        for (Method method : finder.findAnnotatedMethods(Command.class)) {
+        for (final Method method : finder.findAnnotatedMethods(Command.class)) {
             classes.add(method.getDeclaringClass());
         }
         return classes;

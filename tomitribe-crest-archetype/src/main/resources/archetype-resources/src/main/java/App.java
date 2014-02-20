@@ -6,7 +6,6 @@ import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.util.Files;
 import org.tomitribe.crest.util.IO;
-import org.tomitribe.crest.val.Exists;
 
 import java.io.File;
 import java.io.IOException;

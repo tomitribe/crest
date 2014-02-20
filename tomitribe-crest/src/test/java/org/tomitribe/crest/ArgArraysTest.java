@@ -73,7 +73,7 @@ public class ArgArraysTest extends TestCase {
 
 
         @Command
-        public void doByte(byte... array) {
+        public void doByte(final byte... array) {
             assertNotNull(array);
 
             assertEquals(22, array[0]);
@@ -83,7 +83,7 @@ public class ArgArraysTest extends TestCase {
         }
 
         @Command
-        public void doBoolean(boolean... array) {
+        public void doBoolean(final boolean... array) {
             assertNotNull(array);
 
             assertEquals(false, array[0]);
@@ -93,7 +93,7 @@ public class ArgArraysTest extends TestCase {
         }
 
         @Command
-        public void doChar(char... array) {
+        public void doChar(final char... array) {
             assertNotNull(array);
 
             assertEquals('D', array[0]);
@@ -103,7 +103,7 @@ public class ArgArraysTest extends TestCase {
         }
 
         @Command
-        public void doShort(short... array) {
+        public void doShort(final short... array) {
             assertNotNull(array);
 
             assertEquals(22, array[0]);
@@ -113,7 +113,7 @@ public class ArgArraysTest extends TestCase {
         }
 
         @Command
-        public void doInt(int... array) {
+        public void doInt(final int... array) {
             assertNotNull(array);
 
             assertEquals(22, array[0]);
@@ -123,7 +123,7 @@ public class ArgArraysTest extends TestCase {
         }
 
         @Command
-        public void doLong(long... array) {
+        public void doLong(final long... array) {
             assertNotNull(array);
 
             assertEquals(22, array[0]);
@@ -133,7 +133,7 @@ public class ArgArraysTest extends TestCase {
         }
 
         @Command
-        public void doFloat(float... array) {
+        public void doFloat(final float... array) {
             assertNotNull(array);
 
             assertEquals(22f, array[0]);
@@ -143,7 +143,7 @@ public class ArgArraysTest extends TestCase {
         }
 
         @Command
-        public void doDouble(double... array) {
+        public void doDouble(final double... array) {
             assertNotNull(array);
 
             assertEquals(22d, array[0]);
@@ -153,7 +153,7 @@ public class ArgArraysTest extends TestCase {
         }
 
         @Command
-        public void doString(String... array) {
+        public void doString(final String... array) {
             assertNotNull(array);
 
             assertEquals("22", array[0]);
@@ -163,7 +163,7 @@ public class ArgArraysTest extends TestCase {
         }
 
         @Command
-        public void doURI(URI... array) {
+        public void doURI(final URI... array) {
             assertNotNull(array);
 
             assertEquals(URI.create("22"), array[0]);

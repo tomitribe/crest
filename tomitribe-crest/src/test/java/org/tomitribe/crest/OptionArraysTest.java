@@ -71,7 +71,7 @@ public class OptionArraysTest extends TestCase {
 
 
         @Command
-        public void doByte(@Option("foo") byte[] array) {
+        public void doByte(@Option("foo") final byte[] array) {
             assertNotNull(array);
 
             assertEquals(22, array[0]);
@@ -81,7 +81,7 @@ public class OptionArraysTest extends TestCase {
         }
 
         @Command
-        public void doBoolean(@Option("foo") boolean[] array) {
+        public void doBoolean(@Option("foo") final boolean[] array) {
             assertNotNull(array);
 
             assertEquals(false, array[0]);
@@ -91,7 +91,7 @@ public class OptionArraysTest extends TestCase {
         }
 
         @Command
-        public void doChar(@Option("foo") char[] array) {
+        public void doChar(@Option("foo") final char[] array) {
             assertNotNull(array);
 
             assertEquals('D', array[0]);
@@ -101,7 +101,7 @@ public class OptionArraysTest extends TestCase {
         }
 
         @Command
-        public void doShort(@Option("foo") short[] array) {
+        public void doShort(@Option("foo") final short[] array) {
             assertNotNull(array);
 
             assertEquals(22, array[0]);
@@ -111,7 +111,7 @@ public class OptionArraysTest extends TestCase {
         }
 
         @Command
-        public void doInt(@Option("foo") int[] array) {
+        public void doInt(@Option("foo") final int[] array) {
             assertNotNull(array);
 
             assertEquals(22, array[0]);
@@ -121,7 +121,7 @@ public class OptionArraysTest extends TestCase {
         }
 
         @Command
-        public void doLong(@Option("foo") long[] array) {
+        public void doLong(@Option("foo") final long[] array) {
             assertNotNull(array);
 
             assertEquals(22, array[0]);
@@ -131,7 +131,7 @@ public class OptionArraysTest extends TestCase {
         }
 
         @Command
-        public void doFloat(@Option("foo") float[] array) {
+        public void doFloat(@Option("foo") final float[] array) {
             assertNotNull(array);
 
             assertEquals(22f, array[0]);
@@ -141,7 +141,7 @@ public class OptionArraysTest extends TestCase {
         }
 
         @Command
-        public void doDouble(@Option("foo") double[] array) {
+        public void doDouble(@Option("foo") final double[] array) {
             assertNotNull(array);
 
             assertEquals(22d, array[0]);
@@ -151,7 +151,7 @@ public class OptionArraysTest extends TestCase {
         }
 
         @Command
-        public void doString(@Option("foo") String[] array) {
+        public void doString(@Option("foo") final String[] array) {
             assertNotNull(array);
 
             assertEquals("22", array[0]);
@@ -161,7 +161,7 @@ public class OptionArraysTest extends TestCase {
         }
 
         @Command
-        public void doURI(@Option("foo") URI[] array) {
+        public void doURI(@Option("foo") final URI[] array) {
             assertNotNull(array);
 
             assertEquals(URI.create("22"), array[0]);

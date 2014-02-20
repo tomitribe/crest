@@ -71,7 +71,7 @@ public class ArgListsTest extends TestCase {
     public static class Commands {
 
         @Command
-        public void doByte(List<Byte> list) {
+        public void doByte(final List<Byte> list) {
             assertNotNull(list);
 
             final Iterator<Byte> it = list.iterator();
@@ -82,7 +82,7 @@ public class ArgListsTest extends TestCase {
         }
 
         @Command
-        public void doBoolean(List<Boolean> list) {
+        public void doBoolean(final List<Boolean> list) {
             assertNotNull(list);
 
             final Iterator<Boolean> it = list.iterator();
@@ -93,7 +93,7 @@ public class ArgListsTest extends TestCase {
         }
 
         @Command
-        public void doCharacter(List<Character> list) {
+        public void doCharacter(final List<Character> list) {
             assertNotNull(list);
 
             final Iterator<Character> it = list.iterator();
@@ -104,7 +104,7 @@ public class ArgListsTest extends TestCase {
         }
 
         @Command
-        public void doShort(List<Short> list) {
+        public void doShort(final List<Short> list) {
             assertNotNull(list);
 
             final Iterator<Short> it = list.iterator();
@@ -115,7 +115,7 @@ public class ArgListsTest extends TestCase {
         }
 
         @Command
-        public void doInt(List<Integer> list) {
+        public void doInt(final List<Integer> list) {
             assertNotNull(list);
 
             final Iterator<Integer> it = list.iterator();
@@ -126,7 +126,7 @@ public class ArgListsTest extends TestCase {
         }
 
         @Command
-        public void doLong(List<Long> list) {
+        public void doLong(final List<Long> list) {
             assertNotNull(list);
 
             final Iterator<Long> it = list.iterator();
@@ -137,7 +137,7 @@ public class ArgListsTest extends TestCase {
         }
 
         @Command
-        public void doFloat(List<Float> list) {
+        public void doFloat(final List<Float> list) {
             assertNotNull(list);
 
             final Iterator<Float> it = list.iterator();
@@ -148,7 +148,7 @@ public class ArgListsTest extends TestCase {
         }
 
         @Command
-        public void doDouble(List<Double> list) {
+        public void doDouble(final List<Double> list) {
             assertNotNull(list);
 
             final Iterator<Double> it = list.iterator();
@@ -159,7 +159,7 @@ public class ArgListsTest extends TestCase {
         }
 
         @Command
-        public void doString(List<String> list) {
+        public void doString(final List<String> list) {
             assertNotNull(list);
 
             final Iterator<String> it = list.iterator();
@@ -170,7 +170,7 @@ public class ArgListsTest extends TestCase {
         }
 
         @Command
-        public void doURI(List<URI> list) {
+        public void doURI(final List<URI> list) {
             assertNotNull(list);
 
             final Iterator<URI> it = list.iterator();

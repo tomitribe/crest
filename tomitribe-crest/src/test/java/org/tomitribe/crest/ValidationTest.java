@@ -34,7 +34,7 @@ public class ValidationTest extends Assert {
         try {
             final Map<String, Cmd> map = Commands.get(Duplicates.class);
             fail();
-        } catch (Exception e) {
+        } catch (final Exception e) {
         }
     }
 
@@ -44,7 +44,7 @@ public class ValidationTest extends Assert {
         try {
             final Map<String, Cmd> map = Commands.get(DefaultUse.class);
             fail();
-        } catch (Exception e) {
+        } catch (final Exception e) {
         }
     }
 
@@ -52,7 +52,7 @@ public class ValidationTest extends Assert {
     public static class Duplicates {
 
         @Command
-        public void color(@Option("red") String s, @Option("red") String s1) {
+        public void color(@Option("red") final String s, @Option("red") final String s1) {
 
         }
     }
@@ -60,7 +60,7 @@ public class ValidationTest extends Assert {
     public static class DefaultUse {
 
         @Command
-        public void color(@Default("red") String s1) {
+        public void color(@Default("red") final String s1) {
 
         }
     }

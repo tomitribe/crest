@@ -17,7 +17,7 @@ public class PluggableDefaultParsingTest {
 
         final Main main = new Main(new FixedValueDefaultsContext(new_user), Orange.class);
 
-        Object out = main.exec("defaults");
+        final Object out = main.exec("defaults");
 
         assertEquals(out, String.format("Hello %s", new_user));
     }
@@ -25,12 +25,12 @@ public class PluggableDefaultParsingTest {
     public static class Orange {
 
         @Command
-        public String property(String name) {
+        public String property(final String name) {
             return System.getProperty(name);
         }
 
         @Command
-        public String defaults(@Option("user") @Default("${user.name}") String user) {
+        public String defaults(@Option("user") @Default("${user.name}") final String user) {
             return String.format("Hello %s", user);
         }
     }
@@ -38,7 +38,7 @@ public class PluggableDefaultParsingTest {
     public static class FixedValueDefaultsContext implements DefaultsContext {
         private final String value;
 
-        FixedValueDefaultsContext(String value) {
+        FixedValueDefaultsContext(final String value) {
             this.value = value;
         }
 

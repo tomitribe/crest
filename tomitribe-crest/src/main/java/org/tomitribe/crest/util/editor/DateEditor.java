@@ -43,20 +43,19 @@ public class DateEditor extends AbstractConverter {
      * Convert the text value of the property into a Date object instance.
      *
      * @return a Date object constructed from the property text value.
-     * @throws org.tommytribe.cmd.util.editor.PropertyEditorException
-     *          Unable to parse the string value into a Date.
+     * @throws org.tommytribe.cmd.util.editor.PropertyEditorException Unable to parse the string value into a Date.
      */
-    protected Object toObjectImpl(String text) {
-        for (DateFormat format : formats) {
+    protected Object toObjectImpl(final String text) {
+        for (final DateFormat format : formats) {
             try {
                 return format.parse(text);
-            } catch (ParseException e) {
+            } catch (final ParseException e) {
             }
         }
 
         try {
             return complexParse(text);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // any format errors show up as a ParseException, which we turn into
             // a PropertyEditorException.
             throw new PropertyEditorException(e);
@@ -69,23 +68,23 @@ public class DateEditor extends AbstractConverter {
         // if there's locale, style is mandatory
         Locale locale = Locale.getDefault();
         int style = DateFormat.MEDIUM;
-        int firstSpaceIndex = text.indexOf(' ');
+        final int firstSpaceIndex = text.indexOf(' ');
         if (firstSpaceIndex != -1) {
             String token = text.substring(0, firstSpaceIndex).intern();
             if (token.startsWith("locale")) {
-                String localeStr = token.substring(token.indexOf('=') + 1);
-                int underscoreIndex = localeStr.indexOf('_');
+                final String localeStr = token.substring(token.indexOf('=') + 1);
+                final int underscoreIndex = localeStr.indexOf('_');
                 if (underscoreIndex != -1) {
-                    String language = localeStr.substring(0, underscoreIndex);
-                    String country = localeStr.substring(underscoreIndex + 1);
+                    final String language = localeStr.substring(0, underscoreIndex);
+                    final String country = localeStr.substring(underscoreIndex + 1);
                     locale = new Locale(language, country);
                 } else {
                     locale = new Locale(localeStr);
                 }
                 // locale is followed by mandatory style
-                int nextSpaceIndex = text.indexOf(' ', firstSpaceIndex + 1);
+                final int nextSpaceIndex = text.indexOf(' ', firstSpaceIndex + 1);
                 token = text.substring(firstSpaceIndex + 1, nextSpaceIndex);
-                String styleStr = token.substring(token.indexOf('=') + 1);
+                final String styleStr = token.substring(token.indexOf('=') + 1);
                 if (styleStr.equalsIgnoreCase("SHORT")) {
                     style = DateFormat.SHORT;
                 } else if (styleStr.equalsIgnoreCase("MEDIUM")) {
@@ -102,13 +101,13 @@ public class DateEditor extends AbstractConverter {
                 text = text.substring(nextSpaceIndex + 1);
             }
         }
-        DateFormat formats = DateFormat.getDateInstance(style, locale);
+        final DateFormat formats = DateFormat.getDateInstance(style, locale);
         return formats.parse(text);
     }
 
-    protected String toStringImpl(Object value) {
-        Date date = (Date) value;
-        String text = formats.get(0).format(date);
+    protected String toStringImpl(final Object value) {
+        final Date date = (Date) value;
+        final String text = formats.get(0).format(date);
         return text;
     }
 }

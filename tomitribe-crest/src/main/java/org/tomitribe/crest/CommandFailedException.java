@@ -17,7 +17,7 @@
 package org.tomitribe.crest;
 
 public class CommandFailedException extends RuntimeException {
-    public CommandFailedException(Throwable cause) {
+    public CommandFailedException(final Throwable cause) {
         super(cause);
     }
 }

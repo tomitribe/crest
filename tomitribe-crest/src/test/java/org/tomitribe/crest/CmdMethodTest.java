@@ -57,7 +57,7 @@ public class CmdMethodTest extends TestCase {
             final Cmd tail = commands.get("tail");
             tail.exec();
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
 
         }
 
@@ -66,7 +66,7 @@ public class CmdMethodTest extends TestCase {
             final Cmd tail = commands.get("tail");
             tail.exec(SOME_FILE, "100", "--color");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
         }
     }
 
@@ -86,7 +86,7 @@ public class CmdMethodTest extends TestCase {
             final Cmd tail = commands.get("required");
             tail.exec();
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
         }
     }
 
@@ -97,7 +97,7 @@ public class CmdMethodTest extends TestCase {
             final Cmd tail = commands.get("tail");
             tail.exec("name", "value");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
 
         }
     }
@@ -117,18 +117,18 @@ public class CmdMethodTest extends TestCase {
     public static class Commands {
 
         @Command
-        public static void touch(File file) {
+        public static void touch(final File file) {
             assertEquals(SOME_FILE, file.getAbsolutePath());
         }
 
         @Command("set")
-        public static void setProperty(@Option("key") String key, @Option("value") String value) {
+        public static void setProperty(@Option("key") final String key, @Option("value") final String value) {
             assertEquals("name", key);
             assertEquals("thx1138", value);
         }
 
         @Command
-        public static void ls(@Option("long") Boolean longform, File file) {
+        public static void ls(@Option("long") final Boolean longform, final File file) {
             assertNotNull(longform);
             assertTrue(longform);
 
@@ -136,22 +136,22 @@ public class CmdMethodTest extends TestCase {
         }
 
         @Command
-        public static boolean booleanOption(@Option("long") boolean longform) {
+        public static boolean booleanOption(@Option("long") final boolean longform) {
             return longform;
         }
 
         @Command
-        public static void tail(@Option("number") @Default("100") int number, File file, int expected) {
+        public static void tail(@Option("number") @Default("100") final int number, final File file, final int expected) {
             assertEquals(expected, number);
             assertEquals(SOME_FILE, file.getAbsolutePath());
         }
 
         @Command
-        public static void tar(@Option("x") File file) {
+        public static void tar(@Option("x") final File file) {
         }
 
         @Command
-        public static void required(@Option("pass") @Required String pass) {
+        public static void required(@Option("pass") @Required final String pass) {
         }
 
         @Command
@@ -162,7 +162,7 @@ public class CmdMethodTest extends TestCase {
 
             return new StreamingOutput() {
                 @Override
-                public void write(OutputStream os) throws IOException {
+                public void write(final OutputStream os) throws IOException {
                     IO.copy(file, os);
                 }
             };

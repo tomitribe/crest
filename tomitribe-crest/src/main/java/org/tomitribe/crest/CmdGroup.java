@@ -32,12 +32,12 @@ public class CmdGroup implements Cmd {
     private final String name;
     private final Set<CmdMethod> methods;
 
-    public CmdGroup(String name) {
+    public CmdGroup(final String name) {
         this.name = name;
 
         this.methods = new TreeSet<CmdMethod>(new Comparator<CmdMethod>() {
             @Override
-            public int compare(CmdMethod a, CmdMethod b) {
+            public int compare(final CmdMethod a, final CmdMethod b) {
                 return a.getArgumentParameters().size() - b.getArgumentParameters().size();
             }
         });
@@ -46,7 +46,7 @@ public class CmdGroup implements Cmd {
     @Override
     public String getUsage() {
         final StringBuilder sb = new StringBuilder();
-        for (CmdMethod method : methods) {
+        for (final CmdMethod method : methods) {
             sb.append(method.getUsage()).append('\n');
         }
         return sb.toString().trim();
@@ -58,7 +58,7 @@ public class CmdGroup implements Cmd {
     }
 
     @Override
-    public Object exec(String... rawArgs) {
+    public Object exec(final String... rawArgs) {
 
         final Iterator<CmdMethod> iterator = methods.iterator();
 
@@ -70,7 +70,7 @@ public class CmdGroup implements Cmd {
 
                 args = method.parse(rawArgs);
 
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 if (iterator.hasNext()) {
 
                     continue;
@@ -90,7 +90,7 @@ public class CmdGroup implements Cmd {
     }
 
     @Override
-    public void help(PrintStream out) {
+    public void help(final PrintStream out) {
         if (methods.size() == 0) throw new IllegalStateException("No method in group: " + name);
 
         out.println();
@@ -105,7 +105,7 @@ public class CmdGroup implements Cmd {
         out.println();
 
         final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
-        for (CmdMethod method : methods) {
+        for (final CmdMethod method : methods) {
             options.putAll(method.getOptionParameters());
         }
 
@@ -113,7 +113,7 @@ public class CmdGroup implements Cmd {
         Help.optionHelp(first.getMethod().getDeclaringClass(), getName(), options.values(), out);
     }
 
-    public void add(CmdMethod cmd) {
+    public void add(final CmdMethod cmd) {
         methods.add(cmd);
     }
 }

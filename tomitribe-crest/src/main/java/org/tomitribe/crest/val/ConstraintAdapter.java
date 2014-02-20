@@ -25,15 +25,15 @@ import java.lang.annotation.Annotation;
  */
 public class ConstraintAdapter<A extends Annotation, T> implements ConstraintValidator<A, T> {
     @Override
-    public void initialize(A constraintAnnotation) {
+    public void initialize(final A constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(T value, ConstraintValidatorContext context) {
+    public boolean isValid(final T value, final ConstraintValidatorContext context) {
         return isValid(value);
     }
 
-    public boolean isValid(T value) {
+    public boolean isValid(final T value) {
         return false;
     }
 }

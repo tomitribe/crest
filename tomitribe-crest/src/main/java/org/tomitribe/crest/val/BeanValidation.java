@@ -34,7 +34,6 @@ import static java.util.Arrays.asList;
 /**
  * A simple interceptor to validate parameters and returned value using
  * bean validation spec. It doesn't use group for now.
- *
  */
 public class BeanValidation {
     public static boolean isActive() {
@@ -60,7 +59,7 @@ public class BeanValidation {
         }
         final Collection<String> msg = new LinkedList<String>();
         final ConstraintViolationException cve = (ConstraintViolationException) e;
-        for (ConstraintViolation<?> violation : cve.getConstraintViolations()) {
+        for (final ConstraintViolation<?> violation : cve.getConstraintViolations()) {
             msg.add(violation.getMessage());
         }
         return msg;
@@ -68,6 +67,7 @@ public class BeanValidation {
 
     // Note: using bval 1.1 will just make it portable
     private static class Helper { // use for laziness of loading
+
         public static void validateParameters(final Class clazz, final Method method, final Object[] parameters) {
             final ApacheValidatorConfiguration configure = Validation.byProvider(ApacheValidationProvider.class).configure();
 

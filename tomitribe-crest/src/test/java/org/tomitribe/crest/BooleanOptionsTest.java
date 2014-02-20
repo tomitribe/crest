@@ -51,32 +51,32 @@ public class BooleanOptionsTest extends TestCase {
     public static class Commands {
 
         @Command
-        public boolean primitive(@Option("action") @Default("true") boolean action) {
+        public boolean primitive(@Option("action") @Default("true") final boolean action) {
             return action;
         }
 
         @Command
-        public boolean primitive2(@Option("action") @Default("false") boolean action) {
+        public boolean primitive2(@Option("action") @Default("false") final boolean action) {
             return action;
         }
 
         @Command
-        public boolean primitive3(@Option("action") boolean action) {
+        public boolean primitive3(@Option("action") final boolean action) {
             return action;
         }
 
         @Command
-        public Boolean object(@Option("action") @Default("true") Boolean action) {
+        public Boolean object(@Option("action") @Default("true") final Boolean action) {
             return action;
         }
 
         @Command
-        public Boolean object2(@Option("action") @Default("false") Boolean action) {
+        public Boolean object2(@Option("action") @Default("false") final Boolean action) {
             return action;
         }
 
         @Command
-        public Boolean object3(@Option("action") Boolean action) {
+        public Boolean object3(@Option("action") final Boolean action) {
             return action;
         }
 

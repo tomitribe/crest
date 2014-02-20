@@ -27,9 +27,9 @@ public interface DefaultsContext {
      * an expression inside ${...} type substitutions to String values which will
      * replace the substitution expression.
      *
-     * @param target The command class
+     * @param target        The command class
      * @param commandMethod the command method
-     * @param key the ... in the ${...} expression
+     * @param key           the ... in the ${...} expression
      * @return the value to replace key with. Null is equivalent to the empty string.
      */
     public String find(Target target, Method commandMethod, String key);

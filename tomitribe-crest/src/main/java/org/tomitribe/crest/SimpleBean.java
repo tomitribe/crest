@@ -24,17 +24,17 @@ import java.lang.reflect.Modifier;
 public class SimpleBean implements Target {
     private final Object bean;
 
-    public SimpleBean(Object bean) {
+    public SimpleBean(final Object bean) {
         this.bean = bean;
     }
 
     @Override
-    public Object invoke(Method method, Object... args) throws InvocationTargetException, IllegalAccessException {
+    public Object invoke(final Method method, final Object... args) throws InvocationTargetException, IllegalAccessException {
         final Object bean = getBean(method);
         return method.invoke(bean, args);
     }
 
-    private Object getBean(Method method) {
+    private Object getBean(final Method method) {
         if (bean != null) return bean;
         if (Modifier.isStatic(method.getModifiers())) return bean;
 
@@ -42,11 +42,11 @@ public class SimpleBean implements Target {
             final Class<?> declaringClass = method.getDeclaringClass();
             final Constructor<?> constructor = declaringClass.getConstructor();
             return constructor.newInstance();
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
             return null;
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw new IllegalStateException(e.getCause());
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             throw new IllegalStateException(e);
         }
     }

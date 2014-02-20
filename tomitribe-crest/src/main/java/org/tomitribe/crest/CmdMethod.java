@@ -64,11 +64,11 @@ public class CmdMethod implements Cmd {
     private final List<Param> parameters;
     private final DefaultsContext defaultsFinder;
 
-    public CmdMethod(Method method, DefaultsContext defaultsFinder) {
+    public CmdMethod(final Method method, final DefaultsContext defaultsFinder) {
         this(method, new SimpleBean(null), defaultsFinder);
     }
 
-    public CmdMethod(Method method, Target target, DefaultsContext defaultsFinder) {
+    public CmdMethod(final Method method, final Target target, final DefaultsContext defaultsFinder) {
         this.target = target;
         this.method = method;
         this.defaultsFinder = defaultsFinder;
@@ -77,7 +77,7 @@ public class CmdMethod implements Cmd {
         final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
         final List<Param> arguments = new ArrayList<Param>();
         final List<Param> parameters = new ArrayList<Param>();
-        for (Parameter parameter : Reflection.params(method)) {
+        for (final Parameter parameter : Reflection.params(method)) {
 
             if (parameter.isAnnotationPresent(Option.class)) {
 
@@ -118,7 +118,7 @@ public class CmdMethod implements Cmd {
     }
 
     private void validate() {
-        for (Param param : argumentParameters) {
+        for (final Param param : argumentParameters) {
             if (param.isAnnotationPresent(Default.class)) {
                 throw new IllegalArgumentException("@Default only usable with @Option parameters.");
             }
@@ -128,7 +128,7 @@ public class CmdMethod implements Cmd {
         }
     }
 
-    private static String name(Method method) {
+    private static String name(final Method method) {
         final Command command = method.getAnnotation(Command.class);
         if (command == null) return method.getName();
         return value(command.value(), method.getName());
@@ -136,6 +136,7 @@ public class CmdMethod implements Cmd {
 
     /**
      * Returns a single line description of the command
+     *
      * @return
      */
     @Override
@@ -152,7 +153,7 @@ public class CmdMethod implements Cmd {
 
         final List<Object> args = new ArrayList<Object>();
 
-        for (Param parameter : argumentParameters) {
+        for (final Param parameter : argumentParameters) {
             args.add(parameter.getDisplayType().replace("[]", "..."));
         }
 
@@ -172,11 +173,11 @@ public class CmdMethod implements Cmd {
     }
 
     @Override
-    public Object exec(String... rawArgs) {
+    public Object exec(final String... rawArgs) {
         final List<Object> list;
         try {
             list = parse(rawArgs);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             reportWithHelp(e);
             throw toRuntimeException(e);
         }
@@ -184,30 +185,30 @@ public class CmdMethod implements Cmd {
         return exec(list);
     }
 
-    public Object exec(List<Object> list) {
+    public Object exec(final List<Object> list) {
         final Object[] args;
         try {
             args = list.toArray();
             BeanValidation.validateParameters(method.getDeclaringClass(), method, args);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             reportWithHelp(e);
             throw toRuntimeException(e);
         }
 
         try {
             return target.invoke(method, args);
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             final Throwable cause = e.getCause();
             if (cause instanceof IllegalArgumentException) {
                 reportWithHelp(e);
             }
             throw new CommandFailedException(cause);
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             throw toRuntimeException(e);
         }
     }
 
-    private void reportWithHelp(Exception e) {
+    private void reportWithHelp(final Exception e) {
         final PrintStream err = Environment.local.get().getError();
 
         if (BeanValidation.isActive()) {
@@ -220,7 +221,7 @@ public class CmdMethod implements Cmd {
         help(err);
     }
 
-    public static RuntimeException toRuntimeException(Throwable e) {
+    public static RuntimeException toRuntimeException(final Throwable e) {
         if (e instanceof RuntimeException) {
             return (RuntimeException) e;
         }
@@ -232,7 +233,7 @@ public class CmdMethod implements Cmd {
     }
 
     @Override
-    public void help(PrintStream out) {
+    public void help(final PrintStream out) {
         out.println();
         out.print("Usage: ");
         out.println(getUsage());
@@ -241,11 +242,11 @@ public class CmdMethod implements Cmd {
         Help.optionHelp(method.getDeclaringClass(), getName(), optionParameters.values(), out);
     }
 
-    public List<Object> parse(String... rawArgs) {
+    public List<Object> parse(final String... rawArgs) {
         return convert(new Arguments(rawArgs));
     }
 
-    private <T> List<Object> convert(Arguments args) {
+    private <T> List<Object> convert(final Arguments args) {
 
         final Map<String, String> options = args.options;
         final List<String> available = args.list;
@@ -263,7 +264,7 @@ public class CmdMethod implements Cmd {
          *
          * Thus, iteration order is very significant in this loop.
          */
-        for (Param parameter : parameters) {
+        for (final Param parameter : parameters) {
             final Option option = parameter.getAnnotation(Option.class);
 
             if (option != null) {
@@ -311,7 +312,7 @@ public class CmdMethod implements Cmd {
         if (options.size() > 0) {
             throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback() {
                 @Override
-                public String getName(Object object) {
+                public String getName(final Object object) {
                     return "--" + object;
                 }
             }, options.keySet()));
@@ -342,7 +343,7 @@ public class CmdMethod implements Cmd {
             if (all) {
                 final Class<? extends Enum> elementType = (Class<? extends Enum>) type;
                 final EnumSet<? extends Enum> enums = EnumSet.allOf(elementType);
-                for (Enum e : enums) {
+                for (final Enum e : enums) {
                     values.add(e.name());
                 }
             }
@@ -352,7 +353,7 @@ public class CmdMethod implements Cmd {
 
             final Object array = Array.newInstance(type, values.size());
             int i = 0;
-            for (String string : values) {
+            for (final String string : values) {
                 Array.set(array, i++, Converter.convert(string, type, description));
             }
 
@@ -362,7 +363,7 @@ public class CmdMethod implements Cmd {
 
             final Collection<Object> collection = instantiate((Class<? extends Collection>) parameter.getType());
 
-            for (String string : values) {
+            for (final String string : values) {
 
                 collection.add(Converter.convert(string, type, description));
 
@@ -372,14 +373,14 @@ public class CmdMethod implements Cmd {
         }
     }
 
-    private static boolean isBoolean(List<String> values) {
+    private static boolean isBoolean(final List<String> values) {
         if (values.size() != 1) return false;
         if ("true".equals(values.get(0))) return true;
         if ("false".equals(values.get(0))) return true;
         return false;
     }
 
-    public static Collection<Object> instantiate(Class<? extends Collection> aClass) {
+    public static Collection<Object> instantiate(final Class<? extends Collection> aClass) {
         if (aClass.isInterface()) {
             // Sub iterfaces listed first
 
@@ -415,11 +416,11 @@ public class CmdMethod implements Cmd {
 
             return constructor.newInstance();
 
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
 
             throw new IllegalStateException("Unsupported Collection type: " + aClass.getName() + " - No default constructor");
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
 
             throw new IllegalStateException("Cannot construct java.util.Collection type: " + aClass.getName(), e);
         }
@@ -428,14 +429,14 @@ public class CmdMethod implements Cmd {
     public Map<String, String> getDefaults() {
         final Map<String, String> options = new HashMap<String, String>();
 
-        for (OptionParam parameter : optionParameters.values()) {
+        for (final OptionParam parameter : optionParameters.values()) {
             options.put(parameter.getName(), parameter.getDefaultValue());
         }
 
         return options;
     }
 
-    public static String value(String value, String defaultValue) {
+    public static String value(final String value, final String defaultValue) {
         return value == null || value.length() == 0 ? defaultValue : value;
     }
 
@@ -452,7 +453,7 @@ public class CmdMethod implements Cmd {
             final Set<String> repeated = new HashSet<String>();
 
             // Read in and apply the options specified on the command line
-            for (String arg : rawArgs) {
+            for (final String arg : rawArgs) {
                 if (arg.startsWith("--")) {
 
                     final String name;
@@ -513,27 +514,27 @@ public class CmdMethod implements Cmd {
         }
 
         private void interpret(final Map<String, String> map) {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
+            for (final Map.Entry<String, String> entry : map.entrySet()) {
                 if (entry.getValue() == null) continue;
                 final String value = Substitution.format(target, method, entry.getValue(), defaultsFinder);
                 map.put(entry.getKey(), value);
             }
         }
 
-        private void checkInvalid(List<String> invalid) {
+        private void checkInvalid(final List<String> invalid) {
             if (invalid.size() > 0) {
                 throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback() {
                     @Override
-                    public String getName(Object object) {
+                    public String getName(final Object object) {
                         return "--" + object;
                     }
                 }, invalid));
             }
         }
 
-        private void checkRequired(Map<String, String> supplied) {
+        private void checkRequired(final Map<String, String> supplied) {
             final List<String> required = new ArrayList<String>();
-            for (Param parameter : optionParameters.values()) {
+            for (final Param parameter : optionParameters.values()) {
                 if (!parameter.isAnnotationPresent(Required.class)) continue;
 
                 final Option option = parameter.getAnnotation(Option.class);
@@ -546,14 +547,14 @@ public class CmdMethod implements Cmd {
             if (required.size() > 0) {
                 throw new IllegalArgumentException("Required: " + Join.join(", ", new Join.NameCallback() {
                     @Override
-                    public String getName(Object object) {
+                    public String getName(final Object object) {
                         return "--" + object;
                     }
                 }, required));
             }
         }
 
-        private void checkRepeated(Set<String> repeated) {
+        private void checkRepeated(final Set<String> repeated) {
             if (repeated.size() > 0) {
                 throw new IllegalArgumentException("Cannot be specified more than once: " + Join.join(", ", repeated));
             }

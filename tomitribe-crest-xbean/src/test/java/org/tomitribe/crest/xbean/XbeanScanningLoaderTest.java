@@ -32,14 +32,14 @@ public class XbeanScanningLoaderTest extends TestCase {
             // does not exist
             main.exec("foo");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
         }
 
         try {
             // arg does not exist
             main.exec("blue", "foo");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
         }
     }
 

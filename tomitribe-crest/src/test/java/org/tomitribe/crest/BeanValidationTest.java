@@ -42,7 +42,7 @@ public class BeanValidationTest extends Assert {
         try {
             check.exec(new File("/this/does/not/exist/we/hope").getAbsolutePath());
             fail();
-        } catch (ConstraintViolationException e) {
+        } catch (final ConstraintViolationException e) {
         }
     }
 
@@ -50,12 +50,12 @@ public class BeanValidationTest extends Assert {
     public static class Duplicates {
 
         @Command
-        public void check(@Directory File dir) {
+        public void check(@Directory final File dir) {
 
         }
 
         @Command
-        public void empty(@NotEmpty String path) {
+        public void empty(@NotEmpty final String path) {
 
         }
     }

@@ -23,7 +23,7 @@ import java.util.Collection;
 
 public class Param extends Parameter {
 
-    public Param(Parameter parameter) {
+    public Param(final Parameter parameter) {
         super(parameter.getAnnotations(), parameter.getType(), parameter.getGenericType());
     }
 

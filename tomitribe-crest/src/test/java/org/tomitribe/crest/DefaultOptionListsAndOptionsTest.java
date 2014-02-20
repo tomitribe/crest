@@ -73,7 +73,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
     public static class Commands {
 
         @Command
-        public void doByte(@Option("foo") @Default("2,3,5") List<Byte> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doByte(@Option("foo") @Default("2,3,5") final List<Byte> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<Byte> it = list.iterator();
@@ -87,7 +87,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
         }
 
         @Command
-        public void doBoolean(@Option("foo") @Default("false,true,false") List<Boolean> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doBoolean(@Option("foo") @Default("false,true,false") final List<Boolean> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<Boolean> it = list.iterator();
@@ -101,7 +101,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
         }
 
         @Command
-        public void doCharacter(@Option("foo") @Default("2,3,5") List<Character> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doCharacter(@Option("foo") @Default("2,3,5") final List<Character> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<Character> it = list.iterator();
@@ -115,7 +115,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
         }
 
         @Command
-        public void doShort(@Option("foo") @Default("2,3,5") List<Short> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doShort(@Option("foo") @Default("2,3,5") final List<Short> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<Short> it = list.iterator();
@@ -129,7 +129,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
         }
 
         @Command
-        public void doInt(@Option("foo") @Default("2,3,5") List<Integer> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doInt(@Option("foo") @Default("2,3,5") final List<Integer> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<Integer> it = list.iterator();
@@ -143,7 +143,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
         }
 
         @Command
-        public void doLong(@Option("foo") @Default("2,3,5") List<Long> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doLong(@Option("foo") @Default("2,3,5") final List<Long> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<Long> it = list.iterator();
@@ -157,7 +157,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
         }
 
         @Command
-        public void doFloat(@Option("foo") @Default("2,3,5") List<Float> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doFloat(@Option("foo") @Default("2,3,5") final List<Float> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<Float> it = list.iterator();
@@ -171,7 +171,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
         }
 
         @Command
-        public void doDouble(@Option("foo") @Default("2,3,5") List<Double> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doDouble(@Option("foo") @Default("2,3,5") final List<Double> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<Double> it = list.iterator();
@@ -185,7 +185,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
         }
 
         @Command
-        public void doString(@Option("foo") @Default("2,3,5") List<String> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doString(@Option("foo") @Default("2,3,5") final List<String> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<String> it = list.iterator();
@@ -199,7 +199,7 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
         }
 
         @Command
-        public void doURI(@Option("foo") @Default("2,3,5") List<URI> list, @Option("color") Color colorParam, Color colorArg) {
+        public void doURI(@Option("foo") @Default("2,3,5") final List<URI> list, @Option("color") final Color colorParam, final Color colorArg) {
             assertNotNull(list);
 
             final Iterator<URI> it = list.iterator();

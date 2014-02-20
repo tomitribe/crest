@@ -75,55 +75,55 @@ public class ImplicitPrimitiveOptionDefaultsTest extends TestCase {
 
 
         @Command
-        public void doByte(@Option("value") byte value) {
+        public void doByte(@Option("value") final byte value) {
             assertEquals(uninitializedByte, value);
         }
 
         @Command
-        public void doChar(@Option("value") char value) {
+        public void doChar(@Option("value") final char value) {
             assertEquals(uninitializedChar, value);
         }
 
         @Command
-        public void doBoolean(@Option("value") boolean value) {
+        public void doBoolean(@Option("value") final boolean value) {
             assertEquals(uninitializedBoolean, value);
         }
 
         @Command
-        public void doShort(@Option("value") short value) {
+        public void doShort(@Option("value") final short value) {
             assertEquals(uninitializedShort, value);
         }
 
         @Command
-        public void doInt(@Option("value") int value) {
+        public void doInt(@Option("value") final int value) {
             assertEquals(uninitializedInt, value);
         }
 
         @Command
-        public void doLong(@Option("value") long value) {
+        public void doLong(@Option("value") final long value) {
             assertEquals(uninitializedLong, value);
         }
 
         @Command
-        public void doFloat(@Option("value") float value) {
+        public void doFloat(@Option("value") final float value) {
             assertEquals(uninitializedFloat, value);
         }
 
         @Command
-        public void doDouble(@Option("value") double value) {
+        public void doDouble(@Option("value") final double value) {
             assertEquals(uninitializedDouble, value);
         }
 
         @Command
         public void doAll(
-                @Option("byte") byte byteValue,
-                @Option("char") char charValue,
-                @Option("boolean") boolean booleanValue,
-                @Option("short") short shortValue,
-                @Option("int") int intValue,
-                @Option("long") long longValue,
-                @Option("float") float floatValue,
-                @Option("double") double doubleValue
+                @Option("byte") final byte byteValue,
+                @Option("char") final char charValue,
+                @Option("boolean") final boolean booleanValue,
+                @Option("short") final short shortValue,
+                @Option("int") final int intValue,
+                @Option("long") final long longValue,
+                @Option("float") final float floatValue,
+                @Option("double") final double doubleValue
         ) {
             assertEquals(uninitializedByte, byteValue);
             assertEquals(uninitializedChar, charValue);

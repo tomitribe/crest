@@ -103,7 +103,7 @@ public class IO {
         }
     }
 
-    public static byte[] readBytes(File file) throws IOException {
+    public static byte[] readBytes(final File file) throws IOException {
         final InputStream in = read(file);
         try {
             return readBytes(in);
@@ -112,7 +112,7 @@ public class IO {
         }
     }
 
-    public static byte[] readBytes(URL url) throws IOException {
+    public static byte[] readBytes(final URL url) throws IOException {
         final InputStream in = read(url);
         try {
             return readBytes(in);
@@ -121,7 +121,7 @@ public class IO {
         }
     }
 
-    public static byte[] readBytes(InputStream in) throws IOException {
+    public static byte[] readBytes(final InputStream in) throws IOException {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         copy(in, out);
         return out.toByteArray();
@@ -298,12 +298,12 @@ public class IO {
             if (Flushable.class.isInstance(closeable)) {
                 ((Flushable) closeable).flush();
             }
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             //Ignore
         }
         try {
             closeable.close();
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             //Ignore
         }
     }
@@ -376,7 +376,7 @@ public class IO {
     private static class BufferedReaderIterable implements Iterable<String> {
         private final BufferedReader reader;
 
-        private BufferedReaderIterable(BufferedReader reader) {
+        private BufferedReaderIterable(final BufferedReader reader) {
             this.reader = reader;
         }
 
@@ -395,7 +395,7 @@ public class IO {
                     final boolean hasNext = (line = reader.readLine()) != null;
                     if (!hasNext) close(reader);
                     return hasNext;
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new IllegalStateException(e);
                 }
             }

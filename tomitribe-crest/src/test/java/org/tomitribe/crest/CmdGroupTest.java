@@ -64,17 +64,17 @@ public class CmdGroupTest extends Assert {
     public static class TestCommands {
 
         @Command
-        public String help(@Option("level") int i) {
+        public String help(@Option("level") final int i) {
             return "help1 " + Join.join(" ", i);
         }
 
         @Command
-        public String help(@Option("lang") String language, String s) {
+        public String help(@Option("lang") final String language, final String s) {
             return "help2 " + Join.join(" ", language, s);
         }
 
         @Command
-        public String help(@Option("lang") String language, @Option("colors") boolean b, String s, String s2) {
+        public String help(@Option("lang") final String language, @Option("colors") final boolean b, final String s, final String s2) {
             return "help3 " + Join.join(" ", language, b, s, s2);
         }
     }

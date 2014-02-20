@@ -16,14 +16,15 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonatype.oss</groupId>
+    <groupId>com.tomitribe</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>7</version>
+    <version>1</version>
   </parent>
 
   <groupId>org.tomitribe</groupId>
@@ -38,6 +39,7 @@
     <module>tomitribe-crest-archetype</module>
     <module>toolz</module>
   </modules>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -47,11 +49,11 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.4</version>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.11</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <failOnViolation>false</failOnViolation>
+          <logViolationsToConsole>true</logViolationsToConsole>
         </configuration>
       </plugin>
     </plugins>

@@ -1,4 +1,4 @@
-target
+# Java #
 *.class
 
 # Package Files #
@@ -6,13 +6,21 @@ target
 *.war
 *.ear
 
-# Emacs
-*~
-
-# Intellij
+# IDEA #
 *.iml
 .idea
-Maven__*
+*~
 
-# Maven plugins
-dependency-reduced-pom.xml
+# eclipse specific git ignore
+.project
+.metadata
+.classpath
+.settings/
+
+
+# Maven files #
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+release.properties

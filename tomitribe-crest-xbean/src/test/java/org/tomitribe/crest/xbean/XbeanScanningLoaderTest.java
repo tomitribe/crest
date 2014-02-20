@@ -51,10 +51,10 @@ public class XbeanScanningLoaderTest extends TestCase {
         assertEquals(
                 "Commands: " + ln +
                         "                       " + ln +
-                        "   help                " + ln +
-                        "   red                 " + ln +
                         "   blue                " + ln +
-                        "   green               " + ln,
+                        "   green               " + ln +
+                        "   help                " + ln +
+                        "   red                 " + ln,
                 main.exec("help"));
 
     }

@@ -24,13 +24,14 @@ import org.tomitribe.util.reflect.Classes;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class Help {
@@ -41,7 +42,7 @@ public class Help {
         commands = commands1;
     }
 
-    public static void optionHelp(final Class<?> clazz, final String commandName, final Collection<OptionParam> optionParams, PrintStream out) {
+    public static void optionHelp(final Class<?> clazz, final String commandName, final Collection<OptionParam> optionParams, final PrintStream out) {
         if (optionParams.size() == 0) return;
 
         final ResourceBundle general = getResourceBundle(clazz);
@@ -49,7 +50,7 @@ public class Help {
         final List<Item> items = new ArrayList<Item>(optionParams.size());
 
         int width = 20;
-        for (OptionParam optionParam : optionParams) {
+        for (final OptionParam optionParam : optionParams) {
             final String description = getDescription(general, commandName, optionParam.getName());
             final Item item = new Item(optionParam, description);
             items.add(item);
@@ -61,7 +62,7 @@ public class Help {
 
         out.println("Options: ");
 
-        for (Item item : items) {
+        for (final Item item : items) {
             final List<String> lines = new ArrayList<String>();
 
             if (item.description != null) {
@@ -72,7 +73,7 @@ public class Help {
             if (lines.size() == 0) lines.add("");
 
             out.printf(format, item.flag, lines.remove(0));
-            for (String line : lines) {
+            for (final String line : lines) {
                 out.printf(format, "", String.format("(%s)", line));
             }
 
@@ -80,28 +81,28 @@ public class Help {
         }
     }
 
-    public static ResourceBundle getResourceBundle(Class<?> clazz) {
+    public static ResourceBundle getResourceBundle(final Class<?> clazz) {
         try {
             return ResourceBundle.getBundle(Classes.packageName(clazz) + ".OptionDescriptions");
-        } catch (java.util.MissingResourceException ok) {
+        } catch (final java.util.MissingResourceException ok) {
             return null;
         }
     }
 
-    public static String getDescription(ResourceBundle general, String commandName, String name) {
+    public static String getDescription(final ResourceBundle general, final String commandName, final String name) {
         if (general == null) return null;
 
         try {
 
             return general.getString(commandName + "." + name);
 
-        } catch (MissingResourceException e) {
+        } catch (final MissingResourceException e) {
 
             try {
 
                 return general.getString(name);
 
-            } catch (MissingResourceException e1) {
+            } catch (final MissingResourceException e1) {
 
                 return null;
             }
@@ -115,7 +116,7 @@ public class Help {
         private final List<String> note = new LinkedList<String>();
         private final String description;
 
-        private Item(OptionParam p, String description) {
+        private Item(final OptionParam p, final String description) {
             this.description = description;
 
             final Class<?> type = p.getType();
@@ -169,8 +170,18 @@ public class Help {
         string.printf("   %-20s", "");
         string.println();
 
-        final Set<String> strings = new TreeSet<String>(commands.keySet());
-        for (String command : strings) {
+        final SortedSet<String> strings = new TreeSet<String>(new Comparator<String>() {
+            @Override
+            public int compare(final String s1, final String s2) {
+                assert null != s1;
+                assert null != s2;
+                return s1.compareTo(s2);
+            }
+        });
+
+        strings.addAll(commands.keySet());
+
+        for (final String command : strings) {
             string.printf("   %-20s%n", command);
         }
 
@@ -178,7 +189,7 @@ public class Help {
     }
 
     @Command
-    public String help(String name) {
+    public String help(final String name) {
         final Cmd cmd = commands.get(name);
 
         if (cmd == null) {

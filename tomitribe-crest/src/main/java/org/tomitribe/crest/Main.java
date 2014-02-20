@@ -34,16 +34,16 @@ public class Main {
         this(new SystemPropertiesDefaultsContext(), Commands.load());
     }
 
-    public Main(Class<?>... classes) {
+    public Main(final Class<?>... classes) {
         this(Arrays.asList(classes));
     }
 
-    public Main(DefaultsContext defaultsContext, Class<?>... classes) {
+    public Main(final DefaultsContext defaultsContext, final Class<?>... classes) {
         this(defaultsContext, Arrays.asList(classes));
     }
 
-    public Main(DefaultsContext defaultsContext, Iterable<Class<?>> classes) {
-        for (Class clazz : classes) {
+    public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes) {
+        for (final Class clazz : classes) {
             this.commands.putAll(Commands.get(clazz, defaultsContext));
         }
 
@@ -54,35 +54,35 @@ public class Main {
         this(new SystemPropertiesDefaultsContext(), classes);
     }
 
-    public void add(Cmd cmd) {
+    public void add(final Cmd cmd) {
         commands.put(cmd.getName(), cmd);
     }
 
-    public void remove(Cmd cmd) {
+    public void remove(final Cmd cmd) {
         commands.remove(cmd.getName());
     }
 
-    private void installHelp(DefaultsContext dc) {
+    private void installHelp(final DefaultsContext dc) {
         final Map<String, Cmd> stringCmdMap = Commands.get(new Help(Main.this.commands), dc);
-        for (Cmd cmd : stringCmdMap.values()) {
+        for (final Cmd cmd : stringCmdMap.values()) {
             add(cmd);
         }
     }
 
-    public static void main(String... args) throws Exception {
+    public static void main(final String... args) throws Exception {
         try {
             final Environment env = new SystemEnvironment();
             final Main main = new Main();
             main.main(env, args);
-        } catch (CommandFailedException e) {
+        } catch (final CommandFailedException e) {
             e.getCause().printStackTrace();
             System.exit(-1);
-        } catch (Exception alreadyHandled) {
+        } catch (final Exception alreadyHandled) {
             System.exit(-1);
         }
     }
 
-    public void main(Environment env, String[] args) throws Exception {
+    public void main(final Environment env, final String[] args) throws Exception {
         final Environment old = Environment.local.get();
         Environment.local.set(env);
 
@@ -123,11 +123,11 @@ public class Main {
         return cmd.exec(args);
     }
 
-    public static List<String> processSystemProperties(String[] args) {
+    public static List<String> processSystemProperties(final String[] args) {
         final List<String> list = new ArrayList<String>();
 
         // Read in and apply the properties specified on the command line
-        for (String arg : args) {
+        for (final String arg : args) {
             if (arg.startsWith("-D")) {
 
                 final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf("="));

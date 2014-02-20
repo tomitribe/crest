@@ -41,7 +41,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.tomitribe</groupId>
+      <groupId>com.tomitribe</groupId>
       <artifactId>tomitribe-crest</artifactId>
       <version>${pom.version}</version>
     </dependency>

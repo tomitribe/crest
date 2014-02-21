@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.tomitribe</groupId>
+    <groupId>org.tomitribe</groupId>
     <artifactId>tomitribe-crest-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>tomitribe-crest-xbean</artifactId>
@@ -13,7 +13,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.tomitribe</groupId>
+      <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest</artifactId>
       <version>${project.version}</version>
     </dependency>

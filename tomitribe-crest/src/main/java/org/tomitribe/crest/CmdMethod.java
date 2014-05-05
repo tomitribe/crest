@@ -79,8 +79,16 @@ public class CmdMethod implements Cmd {
         this.defaultsFinder = defaultsFinder;
         this.name = name(method);
 
+        final List<Param> parameters = buildParams(Reflection.params(method));
+
+        this.parameters = Collections.unmodifiableList(parameters);
+
+        validate();
+    }
+
+    private List<Param> buildParams(final Iterable<Parameter> params) {
         final List<Param> parameters = new ArrayList<Param>();
-        for (final Parameter parameter : Reflection.params(method)) {
+        for (final Parameter parameter : params) {
 
             if (parameter.isAnnotationPresent(Option.class)) {
 
@@ -105,10 +113,7 @@ public class CmdMethod implements Cmd {
                 parameters.add(e);
             }
         }
-
-        this.parameters = Collections.unmodifiableList(parameters);
-
-        validate();
+        return parameters;
     }
 
     private class ComplexParam extends Param {
@@ -119,39 +124,10 @@ public class CmdMethod implements Cmd {
         private ComplexParam(Parameter parent) {
             super(parent);
 
-            final List<Param> parameters = new ArrayList<Param>();
+            this.constructor = parent.getType().getConstructors()[0];
 
-            constructor = parent.getType().getConstructors()[0];
-
-            for (final Parameter parameter : Reflection.params(constructor)) {
-
-                if (parameter.isAnnotationPresent(Option.class)) {
-
-                    final OptionParam optionParam = new OptionParam(parameter);
-
-                    final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
-
-                    if (existing != null) throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
-
-                    parameters.add(optionParam);
-
-                } else if (parameter.getType().isAnnotationPresent(Options.class)) {
-
-                    final ComplexParam complexParam = new ComplexParam(parameter);
-
-                    parameters.add(complexParam);
-
-                } else {
-
-                    final Param e = new Param(parameter);
-                    spec.arguments.add(e);
-                    parameters.add(e);
-                }
-            }
-
-            this.parameters = Collections.unmodifiableList(parameters);
+            this.parameters = Collections.unmodifiableList(buildParams(Reflection.params(constructor)));
         }
-
 
         public Object convert(final Arguments arguments, final Needed needed) {
 
@@ -177,7 +153,6 @@ public class CmdMethod implements Cmd {
 
     public CmdMethod(final Method method, final Target target) {
         this(method, target, new SystemPropertiesDefaultsContext());
-
     }
 
     public Method getMethod() {

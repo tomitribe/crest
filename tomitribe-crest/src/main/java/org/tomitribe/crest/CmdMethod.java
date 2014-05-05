@@ -60,10 +60,14 @@ public class CmdMethod implements Cmd {
     private final Target target;
     private final Method method;
     private final String name;
-    private final Map<String, OptionParam> optionParameters;
-    private final List<Param> argumentParameters;
     private final List<Param> parameters;
     private final DefaultsContext defaultsFinder;
+    private final Spec spec = new Spec();
+
+    public class Spec {
+        private final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
+        private final List<Param> arguments = new LinkedList<Param>();
+    }
 
     public CmdMethod(final Method method, final DefaultsContext defaultsFinder) {
         this(method, new SimpleBean(null), defaultsFinder);
@@ -75,8 +79,6 @@ public class CmdMethod implements Cmd {
         this.defaultsFinder = defaultsFinder;
         this.name = name(method);
 
-        final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
-        final List<Param> arguments = new ArrayList<Param>();
         final List<Param> parameters = new ArrayList<Param>();
         for (final Parameter parameter : Reflection.params(method)) {
 
@@ -84,7 +86,7 @@ public class CmdMethod implements Cmd {
 
                 final OptionParam optionParam = new OptionParam(parameter);
 
-                final OptionParam existing = options.put(optionParam.getName(), optionParam);
+                final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
 
                 if (existing != null) throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
 
@@ -92,39 +94,31 @@ public class CmdMethod implements Cmd {
 
             } else if (parameter.getType().isAnnotationPresent(Options.class)) {
 
-                final ComplexObject complexObject = new ComplexObject(parameter);
-                options.putAll(complexObject.optionParameters);
-                arguments.addAll(complexObject.argumentParameters);
+                final ComplexParam complexParam = new ComplexParam(parameter);
 
-                parameters.add(complexObject);
+                parameters.add(complexParam);
 
             } else {
 
                 final Param e = new Param(parameter);
-                arguments.add(e);
+                spec.arguments.add(e);
                 parameters.add(e);
             }
         }
 
-        this.optionParameters = Collections.unmodifiableMap(options);
-        this.argumentParameters = Collections.unmodifiableList(arguments);
         this.parameters = Collections.unmodifiableList(parameters);
 
         validate();
     }
 
-    private class ComplexObject extends Param {
+    private class ComplexParam extends Param {
 
-        private final Map<String, OptionParam> optionParameters;
-        private final List<Param> argumentParameters;
         private final List<Param> parameters;
         private final Constructor<?> constructor;
 
-        private ComplexObject(Parameter parent) {
+        private ComplexParam(Parameter parent) {
             super(parent);
 
-            final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
-            final List<Param> arguments = new ArrayList<Param>();
             final List<Param> parameters = new ArrayList<Param>();
 
             constructor = parent.getType().getConstructors()[0];
@@ -135,29 +129,32 @@ public class CmdMethod implements Cmd {
 
                     final OptionParam optionParam = new OptionParam(parameter);
 
-                    final OptionParam existing = options.put(optionParam.getName(), optionParam);
+                    final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
 
                     if (existing != null) throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
 
                     parameters.add(optionParam);
 
+                } else if (parameter.getType().isAnnotationPresent(Options.class)) {
+
+                    final ComplexParam complexParam = new ComplexParam(parameter);
+
+                    parameters.add(complexParam);
+
                 } else {
 
                     final Param e = new Param(parameter);
-                    arguments.add(e);
+                    spec.arguments.add(e);
                     parameters.add(e);
                 }
             }
 
-            this.optionParameters = Collections.unmodifiableMap(options);
-            this.argumentParameters = Collections.unmodifiableList(arguments);
             this.parameters = Collections.unmodifiableList(parameters);
         }
 
 
-        public Object convert(final Map<String, String> options, final List<String> available) {
+        public Object convert(final Map<String, String> options, final List<String> available, int[] needed) {
             final List<Object> converted = new ArrayList<Object>();
-            int[] needed = {argumentParameters.size()};
 
             /**
              * Here we iterate over the method's parameters and convert
@@ -187,10 +184,10 @@ public class CmdMethod implements Cmd {
 
                     }
 
-                } else if (parameter instanceof ComplexObject) {
+                } else if (parameter instanceof ComplexParam) {
 
-                    final ComplexObject complexParameter = (ComplexObject) parameter;
-                    final Object result = complexParameter.convert(options, available);
+                    final ComplexParam complexParameter = (ComplexParam) parameter;
+                    final Object result = complexParameter.convert(options, available, needed);
 
                     converted.add(result);
 
@@ -246,11 +243,11 @@ public class CmdMethod implements Cmd {
     }
 
     public List<Param> getArgumentParameters() {
-        return argumentParameters;
+        return Collections.unmodifiableList(spec.arguments);
     }
 
     private void validate() {
-        for (final Param param : argumentParameters) {
+        for (final Param param : spec.arguments) {
             if (param.isAnnotationPresent(Default.class)) {
                 throw new IllegalArgumentException("@Default only usable with @Option parameters.");
             }
@@ -285,7 +282,7 @@ public class CmdMethod implements Cmd {
 
         final List<Object> args = new ArrayList<Object>();
 
-        for (final Param parameter : argumentParameters) {
+        for (final Param parameter : spec.arguments) {
             args.add(parameter.getDisplayType().replace("[]", "..."));
         }
 
@@ -361,7 +358,7 @@ public class CmdMethod implements Cmd {
     }
 
     public Map<String, OptionParam> getOptionParameters() {
-        return optionParameters;
+        return Collections.unmodifiableMap(spec.options);
     }
 
     @Override
@@ -371,7 +368,7 @@ public class CmdMethod implements Cmd {
         out.println(getUsage());
         out.println();
 
-        Help.optionHelp(method.getDeclaringClass(), getName(), optionParameters.values(), out);
+        Help.optionHelp(method.getDeclaringClass(), getName(), spec.options.values(), out);
     }
 
     public List<Object> parse(final String... rawArgs) {
@@ -384,7 +381,7 @@ public class CmdMethod implements Cmd {
         final List<String> available = args.list;
 
         final List<Object> converted = new ArrayList<Object>();
-        int[] needed = {argumentParameters.size()};
+        int[] needed = {spec.arguments.size()};
 
         /**
          * Here we iterate over the method's parameters and convert
@@ -414,12 +411,11 @@ public class CmdMethod implements Cmd {
 
                 }
 
-            } else if (parameter instanceof ComplexObject) {
+            } else if (parameter instanceof ComplexParam) {
 
-                final ComplexObject complexParameter = (ComplexObject) parameter;
-                final Object result = complexParameter.convert(options, available);
+                final ComplexParam complexParam = (ComplexParam) parameter;
 
-                converted.add(result);
+                converted.add(complexParam.convert(options, available, needed));
 
             } else if (available.size() > 0) {
                 needed[0]--;
@@ -568,7 +564,7 @@ public class CmdMethod implements Cmd {
     public Map<String, String> getDefaults() {
         final Map<String, String> options = new HashMap<String, String>();
 
-        for (final OptionParam parameter : optionParameters.values()) {
+        for (final OptionParam parameter : spec.options.values()) {
             options.put(parameter.getName(), parameter.getDefaultValue());
         }
 
@@ -673,7 +669,7 @@ public class CmdMethod implements Cmd {
 
         private void checkRequired(final Map<String, String> supplied) {
             final List<String> required = new ArrayList<String>();
-            for (final Param parameter : optionParameters.values()) {
+            for (final Param parameter : spec.options.values()) {
                 if (!parameter.isAnnotationPresent(Required.class)) continue;
 
                 final Option option = parameter.getAnnotation(Option.class);

@@ -153,67 +153,9 @@ public class CmdMethod implements Cmd {
         }
 
 
-        public Object convert(final Map<String, String> options, final List<String> available, int[] needed) {
-            final List<Object> converted = new ArrayList<Object>();
+        public Object convert(final Arguments arguments, final Needed needed) {
 
-            /**
-             * Here we iterate over the method's parameters and convert
-             * strings into their equivalent Option or Arg value.
-             *
-             * The result is a List of objects that matches perfectly
-             * the available of arguments required to pass into the
-             * java.lang.reflect.Method.invoke() method.
-             *
-             * Thus, iteration order is very significant in this loop.
-             */
-            for (final Param parameter : parameters) {
-                final Option option = parameter.getAnnotation(Option.class);
-
-                if (option != null) {
-
-                    final String value = options.remove(option.value());
-
-
-                    if (parameter.isListable()) {
-
-                        converted.add(CmdMethod.convert(parameter, OptionParam.getSeparatedValues(value), option.value()));
-
-                    } else {
-
-                        converted.add(Converter.convert(value, parameter.getType(), option.value()));
-
-                    }
-
-                } else if (parameter instanceof ComplexParam) {
-
-                    final ComplexParam complexParameter = (ComplexParam) parameter;
-                    final Object result = complexParameter.convert(options, available, needed);
-
-                    converted.add(result);
-
-                } else if (available.size() > 0) {
-                    needed[0]--;
-
-                    if (parameter.isListable()) {
-                        final List<String> glob = new ArrayList<String>(available.size());
-
-                        for (int i = available.size(); i > needed[0]; i--) {
-                            glob.add(available.remove(0));
-                        }
-
-                        converted.add(CmdMethod.convert(parameter, glob, null));
-                    } else {
-
-                        final String value = available.remove(0);
-                        converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")));
-                    }
-
-                } else {
-
-                    throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
-                }
-            }
-
+            final List<Object> converted = CmdMethod.this.convert(arguments, needed, parameters);
 
             try {
                 final Object[] args = converted.toArray();
@@ -375,14 +317,37 @@ public class CmdMethod implements Cmd {
         return convert(new Arguments(rawArgs));
     }
 
+    public class Needed {
+        private int count;
+
+        public Needed(int count) {
+            this.count = count;
+        }
+    }
+
     private <T> List<Object> convert(final Arguments args) {
 
-        final Map<String, String> options = args.options;
-        final List<String> available = args.list;
+        final Needed needed = new Needed(spec.arguments.size());
 
-        final List<Object> converted = new ArrayList<Object>();
-        int[] needed = {spec.arguments.size()};
+        final List<Object> converted = convert(args, needed, parameters);
 
+        if (args.list.size() > 0) {
+            throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", args.list));
+        }
+
+        if (args.options.size() > 0) {
+            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback() {
+                @Override
+                public String getName(final Object object) {
+                    return "--" + object;
+                }
+            }, args.options.keySet()));
+        }
+
+        return converted;
+    }
+
+    private List<Object> convert(Arguments args, Needed needed, List<Param> parameters1) {
         /**
          * Here we iterate over the method's parameters and convert
          * strings into their equivalent Option or Arg value.
@@ -393,12 +358,14 @@ public class CmdMethod implements Cmd {
          *
          * Thus, iteration order is very significant in this loop.
          */
-        for (final Param parameter : parameters) {
+        final List<Object> converted = new ArrayList<Object>();
+
+        for (final Param parameter : parameters1) {
             final Option option = parameter.getAnnotation(Option.class);
 
             if (option != null) {
 
-                final String value = options.remove(option.value());
+                final String value = args.options.remove(option.value());
 
 
                 if (parameter.isListable()) {
@@ -415,22 +382,22 @@ public class CmdMethod implements Cmd {
 
                 final ComplexParam complexParam = (ComplexParam) parameter;
 
-                converted.add(complexParam.convert(options, available, needed));
+                converted.add(complexParam.convert(args, needed));
 
-            } else if (available.size() > 0) {
-                needed[0]--;
+            } else if (args.list.size() > 0) {
+                needed.count--;
 
                 if (parameter.isListable()) {
-                    final List<String> glob = new ArrayList<String>(available.size());
+                    final List<String> glob = new ArrayList<String>(args.list.size());
 
-                    for (int i = available.size(); i > needed[0]; i--) {
-                        glob.add(available.remove(0));
+                    for (int i = args.list.size(); i > needed.count; i--) {
+                        glob.add(args.list.remove(0));
                     }
 
                     converted.add(convert(parameter, glob, null));
                 } else {
 
-                    final String value = available.remove(0);
+                    final String value = args.list.remove(0);
                     converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")));
                 }
 
@@ -439,20 +406,6 @@ public class CmdMethod implements Cmd {
                 throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
             }
         }
-
-        if (available.size() > 0) {
-            throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", available));
-        }
-
-        if (options.size() > 0) {
-            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback() {
-                @Override
-                public String getName(final Object object) {
-                    return "--" + object;
-                }
-            }, options.keySet()));
-        }
-
         return converted;
     }
 

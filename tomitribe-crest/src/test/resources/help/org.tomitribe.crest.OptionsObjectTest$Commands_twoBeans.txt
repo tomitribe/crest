@@ -1,0 +1,6 @@
+
+Usage: twoBeans  String URI
+
+Options: 
+  --key=<String>           
+  --value=<String>         

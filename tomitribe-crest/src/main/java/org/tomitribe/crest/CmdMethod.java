@@ -20,6 +20,7 @@ package org.tomitribe.crest;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.util.Converter;
 import org.tomitribe.crest.val.BeanValidation;
@@ -89,6 +90,14 @@ public class CmdMethod implements Cmd {
 
                 parameters.add(optionParam);
 
+            } else if (parameter.getType().isAnnotationPresent(Options.class)) {
+
+                final ComplexObject complexObject = new ComplexObject(parameter);
+                options.putAll(complexObject.optionParameters);
+                arguments.addAll(complexObject.argumentParameters);
+
+                parameters.add(complexObject);
+
             } else {
 
                 final Param e = new Param(parameter);
@@ -102,6 +111,129 @@ public class CmdMethod implements Cmd {
         this.parameters = Collections.unmodifiableList(parameters);
 
         validate();
+    }
+
+    private class ComplexObject extends Param {
+
+        private final Map<String, OptionParam> optionParameters;
+        private final List<Param> argumentParameters;
+        private final List<Param> parameters;
+        private final Constructor<?> constructor;
+
+        private ComplexObject(Parameter parent) {
+            super(parent);
+
+            final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
+            final List<Param> arguments = new ArrayList<Param>();
+            final List<Param> parameters = new ArrayList<Param>();
+
+            constructor = parent.getType().getConstructors()[0];
+
+            for (final Parameter parameter : Reflection.params(constructor)) {
+
+                if (parameter.isAnnotationPresent(Option.class)) {
+
+                    final OptionParam optionParam = new OptionParam(parameter);
+
+                    final OptionParam existing = options.put(optionParam.getName(), optionParam);
+
+                    if (existing != null) throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
+
+                    parameters.add(optionParam);
+
+                } else {
+
+                    final Param e = new Param(parameter);
+                    arguments.add(e);
+                    parameters.add(e);
+                }
+            }
+
+            this.optionParameters = Collections.unmodifiableMap(options);
+            this.argumentParameters = Collections.unmodifiableList(arguments);
+            this.parameters = Collections.unmodifiableList(parameters);
+        }
+
+
+        public Object convert(final Map<String, String> options, final List<String> available) {
+            final List<Object> converted = new ArrayList<Object>();
+            int[] needed = {argumentParameters.size()};
+
+            /**
+             * Here we iterate over the method's parameters and convert
+             * strings into their equivalent Option or Arg value.
+             *
+             * The result is a List of objects that matches perfectly
+             * the available of arguments required to pass into the
+             * java.lang.reflect.Method.invoke() method.
+             *
+             * Thus, iteration order is very significant in this loop.
+             */
+            for (final Param parameter : parameters) {
+                final Option option = parameter.getAnnotation(Option.class);
+
+                if (option != null) {
+
+                    final String value = options.remove(option.value());
+
+
+                    if (parameter.isListable()) {
+
+                        converted.add(CmdMethod.convert(parameter, OptionParam.getSeparatedValues(value), option.value()));
+
+                    } else {
+
+                        converted.add(Converter.convert(value, parameter.getType(), option.value()));
+
+                    }
+
+                } else if (parameter instanceof ComplexObject) {
+
+                    final ComplexObject complexParameter = (ComplexObject) parameter;
+                    final Object result = complexParameter.convert(options, available);
+
+                    converted.add(result);
+
+                } else if (available.size() > 0) {
+                    needed[0]--;
+
+                    if (parameter.isListable()) {
+                        final List<String> glob = new ArrayList<String>(available.size());
+
+                        for (int i = available.size(); i > needed[0]; i--) {
+                            glob.add(available.remove(0));
+                        }
+
+                        converted.add(CmdMethod.convert(parameter, glob, null));
+                    } else {
+
+                        final String value = available.remove(0);
+                        converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")));
+                    }
+
+                } else {
+
+                    throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
+                }
+            }
+
+
+            try {
+                final Object[] args = converted.toArray();
+
+                BeanValidation.validateParameters(constructor.getDeclaringClass(), constructor, args);
+
+                return constructor.newInstance(args);
+
+            } catch (InvocationTargetException e) {
+
+                throw toRuntimeException(e.getCause());
+
+            } catch (Exception e) {
+
+                throw toRuntimeException(e);
+            }
+        }
     }
 
     public CmdMethod(final Method method, final Target target) {
@@ -252,7 +384,7 @@ public class CmdMethod implements Cmd {
         final List<String> available = args.list;
 
         final List<Object> converted = new ArrayList<Object>();
-        int needed = argumentParameters.size();
+        int[] needed = {argumentParameters.size()};
 
         /**
          * Here we iterate over the method's parameters and convert
@@ -282,13 +414,20 @@ public class CmdMethod implements Cmd {
 
                 }
 
+            } else if (parameter instanceof ComplexObject) {
+
+                final ComplexObject complexParameter = (ComplexObject) parameter;
+                final Object result = complexParameter.convert(options, available);
+
+                converted.add(result);
+
             } else if (available.size() > 0) {
-                needed--;
+                needed[0]--;
 
                 if (parameter.isListable()) {
                     final List<String> glob = new ArrayList<String>(available.size());
 
-                    for (int i = available.size(); i > needed; i--) {
+                    for (int i = available.size(); i > needed[0]; i--) {
                         glob.add(available.remove(0));
                     }
 

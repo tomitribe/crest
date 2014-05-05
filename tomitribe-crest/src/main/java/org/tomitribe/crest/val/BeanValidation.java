@@ -24,6 +24,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -53,6 +54,14 @@ public class BeanValidation {
         Helper.validateParameters(clazz, method, parameters);
     }
 
+    public static void validateParameters(final Class clazz, final Constructor constructor, final Object[] parameters) throws Exception {
+        if (!isActive()) {
+            return;
+        }
+
+        Helper.validateParameters(clazz, constructor, parameters);
+    }
+
     public static Iterable<? extends String> messages(final Exception e) {
         if (!ConstraintViolationException.class.isInstance(e)) {
             return asList(e.getMessage());
@@ -75,6 +84,19 @@ public class BeanValidation {
             final MethodValidator validatorObject = validatorFactory.getValidator().unwrap(org.apache.bval.jsr303.extensions.MethodValidator.class);
 
             final Set<ConstraintViolation<?>> violations = validatorObject.validateParameters(clazz, method, parameters);
+
+            if (violations.size() > 0) {
+                throw new ConstraintViolationException(violations);
+            }
+        }
+
+        public static void validateParameters(final Class clazz, final Constructor constructor, final Object[] parameters) {
+            final ApacheValidatorConfiguration configure = Validation.byProvider(ApacheValidationProvider.class).configure();
+
+            final ValidatorFactory validatorFactory = configure.buildValidatorFactory();
+            final MethodValidator validatorObject = validatorFactory.getValidator().unwrap(org.apache.bval.jsr303.extensions.MethodValidator.class);
+
+            final Set<ConstraintViolation<?>> violations = validatorObject.validateParameters(clazz, constructor, parameters);
 
             if (violations.size() > 0) {
                 throw new ConstraintViolationException(violations);

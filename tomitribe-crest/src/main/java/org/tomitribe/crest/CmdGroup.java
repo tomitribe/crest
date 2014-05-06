@@ -16,37 +16,44 @@
  */
 package org.tomitribe.crest;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.tomitribe.crest.api.Command;
-import org.tomitribe.crest.api.Option;
-
+import java.io.PrintStream;
 import java.util.Map;
+import java.util.TreeMap;
 
-public class SubCommandsTest extends Assert {
+public class CmdGroup implements Cmd {
 
-    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Git.class);
+    final String name;
+    final Map<String, Cmd> commands = new TreeMap<String, Cmd>();
 
-    @Test
-    public void test() throws Exception {
-        final Cmd git = commands.get("git");
-
-        assertEquals("cmd:push repo:foo", git.exec("push", "foo"));
-        assertEquals("cmd:pull repo:foo", git.exec("pull", "foo"));
+    public CmdGroup(final Class<?> owner, final Map<String, Cmd> commands) {
+        this.name = Commands.name(owner);
+        this.commands.putAll(commands);
     }
 
+    @Override
+    public String getUsage() {
+        return "";
+    }
 
-    @Command
-    public static class Git {
+    @Override
+    public String getName() {
+        return name;
+    }
 
-        @Command
-        public String push(@Option("verbose") boolean verbose, String repo) {
-            return "cmd:push repo:" + repo;
-        }
+    @Override
+    public Object exec(String... rawArgs) {
 
-        @Command
-        public String pull(@Option("verbose") boolean verbose, String repo) {
-            return "cmd:pull repo:" + repo;
-        }
+        final String name = rawArgs[0];
+        final Cmd cmd = commands.get(name);
+
+        String[] newArgs = new String[rawArgs.length - 1];
+        System.arraycopy(rawArgs, 1, newArgs, 0, newArgs.length);
+
+        return cmd.exec(newArgs);
+    }
+
+    @Override
+    public void help(PrintStream out) {
+
     }
 }

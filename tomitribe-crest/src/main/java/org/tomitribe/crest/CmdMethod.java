@@ -77,7 +77,7 @@ public class CmdMethod implements Cmd {
         this.target = target;
         this.method = method;
         this.defaultsFinder = defaultsFinder;
-        this.name = name(method);
+        this.name = Commands.name(method);
 
         final List<Param> parameters = buildParams(Reflection.params(method));
 
@@ -172,12 +172,6 @@ public class CmdMethod implements Cmd {
                 throw new IllegalArgumentException("@Required only usable with @Option parameters and lists.");
             }
         }
-    }
-
-    private static String name(final Method method) {
-        final Command command = method.getAnnotation(Command.class);
-        if (command == null) return method.getName();
-        return value(command.value(), method.getName());
     }
 
     /**
@@ -497,10 +491,6 @@ public class CmdMethod implements Cmd {
         }
 
         return options;
-    }
-
-    public static String value(final String value, final String defaultValue) {
-        return value == null || value.length() == 0 ? defaultValue : value;
     }
 
     private class Arguments {

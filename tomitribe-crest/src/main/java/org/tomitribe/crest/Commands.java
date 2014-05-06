@@ -17,6 +17,7 @@
 package org.tomitribe.crest;
 
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.util.Strings;
 import org.tomitribe.util.collect.FilteredIterable;
 import org.tomitribe.util.collect.FilteredIterator;
 import org.tomitribe.util.reflect.Reflection;
@@ -85,7 +86,37 @@ public class Commands {
                 map.put(overloaded.getName(), overloaded);
             }
         }
-        return map;
+
+        if (clazz.isAnnotationPresent(Command.class)) {
+
+            final CmdGroup cmdGroup = new CmdGroup(clazz, map);
+
+            final HashMap<String, Cmd> group = new HashMap<String, Cmd>();
+            group.put(cmdGroup.getName(), cmdGroup);
+
+            return group;
+
+        } else {
+
+            return map;
+        }
+    }
+
+    public static String name(final Method method) {
+        final Command command = method.getAnnotation(Command.class);
+        if (command == null) return method.getName();
+        return value(command.value(), method.getName());
+    }
+
+    public static String name(final Class<?> clazz) {
+        final Command command = clazz.getAnnotation(Command.class);
+        final String defaultName = Strings.lcfirst(clazz.getSimpleName());
+        if (command == null) return defaultName;
+        return value(command.value(), defaultName);
+    }
+
+    public static String value(final String value, final String defaultValue) {
+        return value == null || value.length() == 0 ? defaultValue : value;
     }
 
     /**

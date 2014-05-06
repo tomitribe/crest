@@ -27,12 +27,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class CmdGroup implements Cmd {
+public class OverloadedCmdMethod implements Cmd {
 
     private final String name;
     private final Set<CmdMethod> methods;
 
-    public CmdGroup(final String name) {
+    public OverloadedCmdMethod(final String name) {
         this.name = name;
 
         this.methods = new TreeSet<CmdMethod>(new Comparator<CmdMethod>() {

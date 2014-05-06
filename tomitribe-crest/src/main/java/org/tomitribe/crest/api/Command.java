@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * @version $Revision$ $Date$
  */
 @Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Command {
     String value() default "";
 

@@ -68,11 +68,11 @@ public class Commands {
             final Cmd existing = map.get(cmd.getName());
             if (existing == null) {
                 map.put(cmd.getName(), cmd);
-            } else if (existing instanceof CmdGroup) {
-                final CmdGroup group = (CmdGroup) existing;
+            } else if (existing instanceof OverloadedCmdMethod) {
+                final OverloadedCmdMethod group = (OverloadedCmdMethod) existing;
                 group.add(cmd);
             } else {
-                final CmdGroup group = new CmdGroup(cmd.getName());
+                final OverloadedCmdMethod group = new OverloadedCmdMethod(cmd.getName());
                 group.add((CmdMethod) existing);
                 group.add(cmd);
                 map.put(group.getName(), group);

@@ -24,7 +24,7 @@ import org.tomitribe.util.Join;
 
 import java.util.Map;
 
-public class CmdGroupTest extends Assert {
+public class OverloadedCmdMethodTest extends Assert {
 
 
     private final Map<String, Cmd> commands = Commands.get(TestCommands.class);

@@ -63,19 +63,26 @@ public class Commands {
         final Map<String, Cmd> map = new HashMap<String, Cmd>();
 
         for (final Method method : commands(clazz)) {
+
             final CmdMethod cmd = new CmdMethod(method, target, dc);
 
             final Cmd existing = map.get(cmd.getName());
+
             if (existing == null) {
+
                 map.put(cmd.getName(), cmd);
+
             } else if (existing instanceof OverloadedCmdMethod) {
-                final OverloadedCmdMethod group = (OverloadedCmdMethod) existing;
-                group.add(cmd);
+
+                final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) existing;
+                overloaded.add(cmd);
+
             } else {
-                final OverloadedCmdMethod group = new OverloadedCmdMethod(cmd.getName());
-                group.add((CmdMethod) existing);
-                group.add(cmd);
-                map.put(group.getName(), group);
+
+                final OverloadedCmdMethod overloaded = new OverloadedCmdMethod(cmd.getName());
+                overloaded.add((CmdMethod) existing);
+                overloaded.add(cmd);
+                map.put(overloaded.getName(), overloaded);
             }
         }
         return map;

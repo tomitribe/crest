@@ -36,6 +36,29 @@ public class SubCommandsTest extends Assert {
     }
 
 
+    @Test
+    public void testNoSuchCommand() throws Exception {
+        final Cmd git = commands.get("git");
+
+        try {
+            git.exec("update", "foo");
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    @Test
+    public void testMissingCommand() throws Exception {
+        final Cmd git = commands.get("git");
+
+        try {
+            git.exec();
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+
     @Command
     public static class Git {
 

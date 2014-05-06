@@ -43,13 +43,28 @@ public class CmdGroup implements Cmd {
     @Override
     public Object exec(String... rawArgs) {
 
+        if (rawArgs.length == 0) {
+            throw report(new IllegalArgumentException("Missing sub-command"));
+        }
+
         final String name = rawArgs[0];
         final Cmd cmd = commands.get(name);
+
+        if (cmd == null) {
+            throw report(new IllegalArgumentException("No such sub-command: " + name));
+        }
 
         String[] newArgs = new String[rawArgs.length - 1];
         System.arraycopy(rawArgs, 1, newArgs, 0, newArgs.length);
 
         return cmd.exec(newArgs);
+    }
+
+    private <E extends RuntimeException> E report(E e) {
+        final PrintStream err = Environment.local.get().getError();
+        err.println(e.getMessage());
+        help(err);
+        return e;
     }
 
     @Override

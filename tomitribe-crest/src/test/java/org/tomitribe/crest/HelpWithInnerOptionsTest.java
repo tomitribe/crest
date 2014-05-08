@@ -22,7 +22,7 @@ import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
-import org.tomitribe.crest.util.IO;
+import org.tomitribe.util.IO;
 import org.tomitribe.util.PrintString;
 
 import java.io.File;

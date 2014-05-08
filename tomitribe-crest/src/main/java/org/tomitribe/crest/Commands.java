@@ -6,13 +6,13 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.tomitribe.crest;
 
@@ -30,6 +30,10 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 public class Commands {
+
+    private Commands() {
+        // no-op
+    }
 
     public static Iterable<Method> commands(final Class<?> clazz) {
         return new FilteredIterable<Method>(Reflection.methods(clazz),
@@ -59,7 +63,9 @@ public class Commands {
     }
 
     public static Map<String, Cmd> get(final Class<?> clazz, final Target target, final DefaultsContext dc) {
-        if (target == null) throw new IllegalArgumentException("Target cannot be null");
+        if (target == null) {
+            throw new IllegalArgumentException("Target cannot be null");
+        }
 
         final Map<String, Cmd> map = new HashMap<String, Cmd>();
 
@@ -104,14 +110,18 @@ public class Commands {
 
     public static String name(final Method method) {
         final Command command = method.getAnnotation(Command.class);
-        if (command == null) return method.getName();
+        if (command == null) {
+            return method.getName();
+        }
         return value(command.value(), method.getName());
     }
 
     public static String name(final Class<?> clazz) {
         final Command command = clazz.getAnnotation(Command.class);
         final String defaultName = Strings.lcfirst(clazz.getSimpleName());
-        if (command == null) return defaultName;
+        if (command == null) {
+            return defaultName;
+        }
         return value(command.value(), defaultName);
     }
 

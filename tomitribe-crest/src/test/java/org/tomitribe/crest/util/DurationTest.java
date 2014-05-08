@@ -6,27 +6,22 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.tomitribe.crest.util;
 
 import junit.framework.TestCase;
+import org.tomitribe.util.Duration;
 
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.HOURS;
-import static java.util.concurrent.TimeUnit.MICROSECONDS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.*;
 
 /**
  * @version $Rev: 930927 $ $Date: 2010-04-05 20:44:27 +0200 (Mon, 05 Apr 2010) $
@@ -107,7 +102,8 @@ public class DurationTest extends TestCase {
                     defaultUnit.toNanos(12) +
                     NANOSECONDS.toNanos(13)
                     , NANOSECONDS);
-            final Duration actual = new Duration("1d and 2 and 3hr and 4 and 5min and 6 and 7s and 8 and 9ms and 10 and 11micros and 12 and 13ns", defaultUnit);
+            final Duration actual = new Duration("1d and 2 and 3hr and 4 and 5min and 6 and 7s and 8 and 9ms and 10 " +
+                    "and 11micros and 12 and 13ns", defaultUnit);
 
             assertEquals(expected, actual);
         }

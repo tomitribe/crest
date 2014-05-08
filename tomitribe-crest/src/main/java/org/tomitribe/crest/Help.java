@@ -6,18 +6,18 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.tomitribe.crest;
 
 import org.tomitribe.crest.api.Command;
-import org.tomitribe.crest.util.Join;
+import org.tomitribe.util.Join;
 import org.tomitribe.util.PrintString;
 import org.tomitribe.util.reflect.Classes;
 
@@ -42,8 +42,12 @@ public class Help {
         commands = commands1;
     }
 
-    public static void optionHelp(final Class<?> clazz, final String commandName, final Collection<OptionParam> optionParams, final PrintStream out) {
-        if (optionParams.size() == 0) return;
+    public static void optionHelp(final Class<?> clazz, final String commandName,
+                                  final Collection<OptionParam> optionParams, final PrintStream out)
+    {
+        if (optionParams.size() == 0) {
+            return;
+        }
 
         final ResourceBundle general = getResourceBundle(clazz);
 
@@ -70,7 +74,9 @@ public class Help {
             }
 
             lines.addAll(item.note);
-            if (lines.size() == 0) lines.add("");
+            if (lines.size() == 0) {
+                lines.add("");
+            }
 
             out.printf(format, item.flag, lines.remove(0));
             for (final String line : lines) {
@@ -90,7 +96,9 @@ public class Help {
     }
 
     public static String getDescription(final ResourceBundle general, final String commandName, final String name) {
-        if (general == null) return null;
+        if (general == null) {
+            return null;
+        }
 
         try {
 

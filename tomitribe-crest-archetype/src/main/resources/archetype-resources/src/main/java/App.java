@@ -4,8 +4,8 @@ import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.StreamingOutput;
-import org.tomitribe.crest.util.Files;
-import org.tomitribe.crest.util.IO;
+import org.tomitribe.util.Files;
+import org.tomitribe.util.IO;
 
 import java.io.File;
 import java.io.IOException;

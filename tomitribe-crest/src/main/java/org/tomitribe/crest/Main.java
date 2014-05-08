@@ -6,13 +6,13 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.tomitribe.crest;
 
@@ -83,8 +83,8 @@ public class Main {
     }
 
     public void main(final Environment env, final String[] args) throws Exception {
-        final Environment old = Environment.local.get();
-        Environment.local.set(env);
+        final Environment old = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+        Environment.ENVIRONMENT_THREAD_LOCAL.set(env);
 
         try {
             final Object result = exec(args);
@@ -98,7 +98,7 @@ public class Main {
                 }
             }
         } finally {
-            Environment.local.set(old);
+            Environment.ENVIRONMENT_THREAD_LOCAL.set(old);
         }
     }
 
@@ -113,7 +113,7 @@ public class Main {
 
         if (cmd == null) {
 
-            final PrintStream err = Environment.local.get().getError();
+            final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
             err.println("Unknown command: " + command);
             err.println();
             commands.get("help").exec();
@@ -133,7 +133,7 @@ public class Main {
                 final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf("="));
                 final String value = arg.substring(arg.indexOf("=") + 1);
 
-                final Properties properties = Environment.local.get().getProperties();
+                final Properties properties = Environment.ENVIRONMENT_THREAD_LOCAL.get().getProperties();
                 properties.setProperty(name, value);
             } else {
                 list.add(arg);

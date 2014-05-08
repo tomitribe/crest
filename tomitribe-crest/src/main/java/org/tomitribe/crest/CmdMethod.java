@@ -6,13 +6,13 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.tomitribe.crest;
 
@@ -22,9 +22,9 @@ import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Required;
-import org.tomitribe.crest.util.Converter;
 import org.tomitribe.crest.val.BeanValidation;
 import org.tomitribe.util.Join;
+import org.tomitribe.util.editor.Converter;
 import org.tomitribe.util.reflect.Parameter;
 import org.tomitribe.util.reflect.Reflection;
 
@@ -96,7 +96,9 @@ public class CmdMethod implements Cmd {
 
                 final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
 
-                if (existing != null) throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
+                if (existing != null) {
+                    throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
+                }
 
                 parameters.add(optionParam);
 
@@ -197,13 +199,18 @@ public class CmdMethod implements Cmd {
             args.add(parameter.getDisplayType().replace("[]", "..."));
         }
 
-        return String.format("%s %s %s", name, args.size() == method.getParameterTypes().length ? "" : "[options]", Join.join(" ", args)).trim();
+        return String.format("%s %s %s", name, args.size() == method.getParameterTypes().length ? "" : "[options]",
+                Join.join(" ", args)).trim();
     }
 
     private String usage() {
         final Command command = method.getAnnotation(Command.class);
-        if (command == null) return null;
-        if ("".equals(command.usage())) return null;
+        if (command == null) {
+            return null;
+        }
+        if ("".equals(command.usage())) {
+            return null;
+        }
         return command.usage();
     }
 
@@ -249,7 +256,7 @@ public class CmdMethod implements Cmd {
     }
 
     private void reportWithHelp(final Exception e) {
-        final PrintStream err = Environment.local.get().getError();
+        final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
 
         if (BeanValidation.isActive()) {
             for (final String message : BeanValidation.messages(e)) {
@@ -367,12 +374,14 @@ public class CmdMethod implements Cmd {
                 } else {
 
                     final String value = args.list.remove(0);
-                    converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")));
+                    converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace
+                            ("[]", "...")));
                 }
 
             } else {
 
-                throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
+                throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]",
+                        "...") + "");
             }
         }
         return converted;
@@ -384,9 +393,11 @@ public class CmdMethod implements Cmd {
         if (parameter.isAnnotationPresent(Required.class) && values.size() == 0) {
             if (parameter instanceof OptionParam) {
                 final OptionParam optionParam = (OptionParam) parameter;
-                throw new IllegalArgumentException(String.format("--%s must be specified at least once", optionParam.getName()));
+                throw new IllegalArgumentException(String.format("--%s must be specified at least once",
+                        optionParam.getName()));
             } else {
-                throw new IllegalArgumentException(String.format("Argument for %s requires at least one value", parameter.getDisplayType().replace("[]", "...")));
+                throw new IllegalArgumentException(String.format("Argument for %s requires at least one value",
+                        parameter.getDisplayType().replace("[]", "...")));
             }
         }
 
@@ -431,9 +442,15 @@ public class CmdMethod implements Cmd {
     }
 
     private static boolean isBoolean(final List<String> values) {
-        if (values.size() != 1) return false;
-        if ("true".equals(values.get(0))) return true;
-        if ("false".equals(values.get(0))) return true;
+        if (values.size() != 1) {
+            return false;
+        }
+        if ("true".equals(values.get(0))) {
+            return true;
+        }
+        if ("false".equals(values.get(0))) {
+            return true;
+        }
         return false;
     }
 
@@ -442,22 +459,38 @@ public class CmdMethod implements Cmd {
             // Sub iterfaces listed first
 
             // Sets
-            if (NavigableSet.class.isAssignableFrom(aClass)) return new TreeSet<Object>();
-            if (SortedSet.class.isAssignableFrom(aClass)) return new TreeSet<Object>();
-            if (Set.class.isAssignableFrom(aClass)) return new LinkedHashSet<Object>();
+            if (NavigableSet.class.isAssignableFrom(aClass)) {
+                return new TreeSet<Object>();
+            }
+            if (SortedSet.class.isAssignableFrom(aClass)) {
+                return new TreeSet<Object>();
+            }
+            if (Set.class.isAssignableFrom(aClass)) {
+                return new LinkedHashSet<Object>();
+            }
 
             // Queues
-            if (Deque.class.isAssignableFrom(aClass)) return new LinkedList<Object>();
-            if (Queue.class.isAssignableFrom(aClass)) return new LinkedList<Object>();
+            if (Deque.class.isAssignableFrom(aClass)) {
+                return new LinkedList<Object>();
+            }
+            if (Queue.class.isAssignableFrom(aClass)) {
+                return new LinkedList<Object>();
+            }
 
             // Lists
-            if (List.class.isAssignableFrom(aClass)) return new ArrayList<Object>();
+            if (List.class.isAssignableFrom(aClass)) {
+                return new ArrayList<Object>();
+            }
 
             // Collection
-            if (Collection.class.isAssignableFrom(aClass)) return new LinkedList<Object>();
+            if (Collection.class.isAssignableFrom(aClass)) {
+                return new LinkedList<Object>();
+            }
 
             // Iterable
-            if (Iterable.class.isAssignableFrom(aClass)) return new LinkedList<Object>();
+            if (Iterable.class.isAssignableFrom(aClass)) {
+                return new LinkedList<Object>();
+            }
 
             throw new IllegalStateException("Unsupported Collection type: " + aClass.getName());
         }
@@ -475,7 +508,8 @@ public class CmdMethod implements Cmd {
 
         } catch (final NoSuchMethodException e) {
 
-            throw new IllegalStateException("Unsupported Collection type: " + aClass.getName() + " - No default constructor");
+            throw new IllegalStateException("Unsupported Collection type: " + aClass.getName() + " - No default " +
+                    "constructor");
 
         } catch (final Exception e) {
 
@@ -526,7 +560,8 @@ public class CmdMethod implements Cmd {
                     }
 
                     if (defaults.containsKey(name)) {
-                        final boolean isList = defaults.get(name) != null && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
+                        final boolean isList = defaults.get(name) != null && defaults.get(name).startsWith
+                                (OptionParam.LIST_TYPE);
                         final String existing = supplied.get(name);
 
                         if (isList) {
@@ -568,7 +603,9 @@ public class CmdMethod implements Cmd {
 
         private void interpret(final Map<String, String> map) {
             for (final Map.Entry<String, String> entry : map.entrySet()) {
-                if (entry.getValue() == null) continue;
+                if (entry.getValue() == null) {
+                    continue;
+                }
                 final String value = Substitution.format(target, method, entry.getValue(), defaultsFinder);
                 map.put(entry.getKey(), value);
             }
@@ -588,7 +625,9 @@ public class CmdMethod implements Cmd {
         private void checkRequired(final Map<String, String> supplied) {
             final List<String> required = new ArrayList<String>();
             for (final Param parameter : spec.options.values()) {
-                if (!parameter.isAnnotationPresent(Required.class)) continue;
+                if (!parameter.isAnnotationPresent(Required.class)) {
+                    continue;
+                }
 
                 final Option option = parameter.getAnnotation(Option.class);
 

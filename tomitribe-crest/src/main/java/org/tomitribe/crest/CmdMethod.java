@@ -178,8 +178,6 @@ public class CmdMethod implements Cmd {
 
     /**
      * Returns a single line description of the command
-     *
-     * @return
      */
     @Override
     public String getUsage() {

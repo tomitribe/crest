@@ -133,21 +133,16 @@ public class Commands {
      * Interface whose only purpose is to be used in conjunction
      * with the java.util.ServiceLoader API as one potential
      * way to load the list of classes that have commands.
-     * <p/>
+     *
      * This interface intentionally has zero methods and never will
      * so that the simplest implementation is a plain java.util.ArrayList
      * (or pick your favorite collection)
-     * <p/>
+     *
      * This interface is intentionally not used in any method or constructor of crest.
      */
     public static interface Loader extends Iterable<Class<?>> {
     }
 
-    /**
-     * A
-     *
-     * @return
-     */
     public static Iterable<Class<?>> load() {
 
         final Iterator<Loader> all = ServiceLoader.load(Loader.class).iterator();

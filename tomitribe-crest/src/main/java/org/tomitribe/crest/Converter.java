@@ -44,10 +44,6 @@ public class Converter {
      * The 'public static Foo create(String)' method would take precedence over
      * all other "editor" logic.
      *
-     * @param value
-     * @param targetType
-     * @param name
-     * @return
      */
     public static Object convert(final Object value, Class<?> targetType, final String name) {
         if (value == null) {

@@ -27,14 +27,14 @@
 
   <artifactId>tomitribe-crest-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.0.1</version>
+  <version>0.0.2-SNAPSHOT</version>
   <name>Tomitribe :: CREST</name>
 
   <scm>
     <connection>scm:git:git@github.com:tomitribe/crest.git</connection>
     <url>scm:git:git@github.com:tomitribe/crest.git</url>
     <developerConnection>scm:git:git@github.com:tomitribe/crest.git</developerConnection>
-    <tag>crest-0.0.1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <modules>

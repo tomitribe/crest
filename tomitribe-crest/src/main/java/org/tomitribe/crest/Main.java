@@ -21,12 +21,15 @@ import org.tomitribe.crest.api.StreamingOutput;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Main {
+public class Main implements Completer {
 
     final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
 
@@ -143,4 +146,24 @@ public class Main {
         return list;
     }
 
+	@Override
+	public Collection<String> complete(final String buffer, final int cursorPosition) {
+		final List<String> cmds = new ArrayList<String>();
+		
+		if (buffer == null || buffer.length() == 0) {
+			cmds.addAll(commands.keySet());
+		} else {
+			final String prefix = buffer.substring(0, cursorPosition);
+			Iterator<String> iterator = commands.keySet().iterator();
+			while (iterator.hasNext()) {
+				final String command = (String) iterator.next();
+				if (command.startsWith(prefix)) {
+					cmds.add(command);
+				}
+			}
+		}
+		
+		Collections.sort(cmds);
+		return cmds;
+	}
 }

@@ -16,7 +16,10 @@
  */
 package org.tomitribe.crest;
 
+import java.util.Collection;
+
 import junit.framework.TestCase;
+
 import org.tomitribe.crest.api.Command;
 
 /**
@@ -61,7 +64,37 @@ public class MainTest extends TestCase {
                 help.exec());
 
     }
+    
+    public void testCompletetionEmptyTab() throws Exception {
+    	final Main main = new Main(Foo.class);
+    	final Collection<String> candidates = main.complete("", 0);
+    	
+    	assertEquals(4, candidates.size());
+    	assertTrue(candidates.contains("red"));
+    	assertTrue(candidates.contains("green"));
+    	assertTrue(candidates.contains("blue"));
+    	assertTrue(candidates.contains("help"));
+    }
 
+    public void testCompletetionPartialWord() throws Exception {
+    	final Main main = new Main(Foo.class);
+    	final Collection<String> candidates = main.complete("r", 1);
+    	
+    	assertEquals(1, candidates.size());
+    	assertTrue(candidates.contains("red"));
+    }
+
+    public void testCompletetionPartialWordCursorAtTheStart() throws Exception {
+    	final Main main = new Main(Foo.class);
+    	final Collection<String> candidates = main.complete("re", 0);
+    	
+    	assertEquals(4, candidates.size());
+    	assertTrue(candidates.contains("red"));
+    	assertTrue(candidates.contains("green"));
+    	assertTrue(candidates.contains("blue"));
+    	assertTrue(candidates.contains("help"));
+    }
+    
     public static class Foo {
 
         @Command

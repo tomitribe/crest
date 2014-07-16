@@ -16,6 +16,8 @@
  */
 package org.tomitribe.crest;
 
+import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Collection;
 
 import junit.framework.TestCase;
@@ -54,47 +56,89 @@ public class MainTest extends TestCase {
         final Cmd help = main.commands.get("help");
 
         final String ln = System.getProperty("line.separator");
-        assertEquals(
-                "Commands: " + ln +
-                        "                       " + ln +
-                        "   blue                " + ln +
-                        "   green               " + ln +
-                        "   help                " + ln +
-                        "   red                 " + ln,
+        assertEquals("Commands: " + ln + "                       " + ln + "   blue                " + ln
+                + "   green               " + ln + "   help                " + ln + "   red                 " + ln,
                 help.exec());
 
     }
-    
-    public void testCompletetionEmptyTab() throws Exception {
-    	final Main main = new Main(Foo.class);
-    	final Collection<String> candidates = main.complete("", 0);
-    	
-    	assertEquals(4, candidates.size());
-    	assertTrue(candidates.contains("red"));
-    	assertTrue(candidates.contains("green"));
-    	assertTrue(candidates.contains("blue"));
-    	assertTrue(candidates.contains("help"));
+
+    public void testCompletionEmptyTab() throws Exception {
+        final Main main = new Main(Foo.class);
+        final Collection<String> candidates = main.complete("", 0);
+
+        assertEquals(4, candidates.size());
+        assertTrue(candidates.contains("red"));
+        assertTrue(candidates.contains("green"));
+        assertTrue(candidates.contains("blue"));
+        assertTrue(candidates.contains("help"));
     }
 
-    public void testCompletetionPartialWord() throws Exception {
-    	final Main main = new Main(Foo.class);
-    	final Collection<String> candidates = main.complete("r", 1);
-    	
-    	assertEquals(1, candidates.size());
-    	assertTrue(candidates.contains("red"));
+    public void testCompletionPartialWord() throws Exception {
+        final Main main = new Main(Foo.class);
+        final Collection<String> candidates = main.complete("r", 1);
+
+        assertEquals(1, candidates.size());
+        assertTrue(candidates.contains("red"));
     }
 
-    public void testCompletetionPartialWordCursorAtTheStart() throws Exception {
-    	final Main main = new Main(Foo.class);
-    	final Collection<String> candidates = main.complete("re", 0);
-    	
-    	assertEquals(4, candidates.size());
-    	assertTrue(candidates.contains("red"));
-    	assertTrue(candidates.contains("green"));
-    	assertTrue(candidates.contains("blue"));
-    	assertTrue(candidates.contains("help"));
+    public void testCompletionPartialWordCursorAtTheStart() throws Exception {
+        final Main main = new Main(Foo.class);
+        final Collection<String> candidates = main.complete("re", 0);
+
+        assertEquals(4, candidates.size());
+        assertTrue(candidates.contains("red"));
+        assertTrue(candidates.contains("green"));
+        assertTrue(candidates.contains("blue"));
+        assertTrue(candidates.contains("help"));
     }
-    
+
+    public void testCompletionDelegatesToIndividualCmds() throws Exception {
+        final Main main = new Main();
+        final TestCmd cmd = new TestCmd();
+        main.add(cmd);
+
+        final Collection<String> candidates = main.complete("color ", 6);
+        assertEquals(3, candidates.size());
+        assertTrue(candidates.contains("red"));
+        assertTrue(candidates.contains("green"));
+        assertTrue(candidates.contains("blue"));
+
+        assertEquals("", cmd.buffer);
+        assertEquals(0, cmd.cursorPosition);
+    }
+
+    public static class TestCmd implements Cmd {
+        public String buffer;
+        public int cursorPosition;
+
+        @Override
+        public String getUsage() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getName() {
+            return "color";
+        }
+
+        @Override
+        public Object exec(String... rawArgs) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void help(PrintStream out) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Collection<String> complete(String buffer, int cursorPosition) {
+            this.buffer = buffer;
+            this.cursorPosition = cursorPosition;
+            return Arrays.asList(new String[] { "red", "green", "blue" });
+        }
+    }
+
     public static class Foo {
 
         @Command

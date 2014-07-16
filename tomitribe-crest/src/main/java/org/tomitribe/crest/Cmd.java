@@ -18,7 +18,7 @@ package org.tomitribe.crest;
 
 import java.io.PrintStream;
 
-public interface Cmd {
+public interface Cmd extends Completer {
     String getUsage();
 
     String getName();

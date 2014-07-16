@@ -19,5 +19,5 @@ package org.tomitribe.crest;
 import java.util.Collection;
 
 public interface Completer {
-	public abstract Collection<String> complete(String buffer, int cursorPosition);
+    public abstract Collection<String> complete(String buffer, int cursorPosition);
 }

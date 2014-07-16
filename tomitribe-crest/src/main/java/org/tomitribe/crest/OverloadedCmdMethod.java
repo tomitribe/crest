@@ -19,6 +19,7 @@ package org.tomitribe.crest;
 import org.tomitribe.util.Join;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -86,8 +87,8 @@ public class OverloadedCmdMethod implements Cmd {
 
         }
 
-        throw new IllegalStateException(String.format("Unable to find matching method for command: %s", Join.join(" " +
-                "", rawArgs)));
+        throw new IllegalStateException(String.format("Unable to find matching method for command: %s", Join.join(" "
+                + "", rawArgs)));
     }
 
     @Override
@@ -118,5 +119,10 @@ public class OverloadedCmdMethod implements Cmd {
 
     public void add(final CmdMethod cmd) {
         methods.add(cmd);
+    }
+
+    @Override
+    public Collection<String> complete(String buffer, int cursorPosition) {
+        throw new UnsupportedOperationException();
     }
 }

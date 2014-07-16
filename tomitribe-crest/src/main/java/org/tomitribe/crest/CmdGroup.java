@@ -17,6 +17,7 @@
 package org.tomitribe.crest;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -70,5 +71,10 @@ public class CmdGroup implements Cmd {
     @Override
     public void help(PrintStream out) {
 
+    }
+
+    @Override
+    public Collection<String> complete(String buffer, int cursorPosition) {
+        throw new UnsupportedOperationException();
     }
 }

@@ -16,7 +16,6 @@
  */
 package org.tomitribe.crest;
 
-
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
@@ -323,11 +322,9 @@ public class CmdMethod implements Cmd {
 
     private List<Object> convert(Arguments args, Needed needed, List<Param> parameters1) {
         /**
-         * Here we iterate over the method's parameters and convert
-         * strings into their equivalent Option or Arg value.
+         * Here we iterate over the method's parameters and convert strings into their equivalent Option or Arg value.
          *
-         * The result is a List of objects that matches perfectly
-         * the available of arguments required to pass into the
+         * The result is a List of objects that matches perfectly the available of arguments required to pass into the
          * java.lang.reflect.Method.invoke() method.
          *
          * Thus, iteration order is very significant in this loop.
@@ -340,7 +337,6 @@ public class CmdMethod implements Cmd {
             if (option != null) {
 
                 final String value = args.options.remove(option.value());
-
 
                 if (parameter.isListable()) {
 
@@ -372,14 +368,14 @@ public class CmdMethod implements Cmd {
                 } else {
 
                     final String value = args.list.remove(0);
-                    converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace
-                            ("[]", "...")));
+                    converted.add(Converter.convert(value, parameter.getType(),
+                            parameter.getDisplayType().replace("[]", "...")));
                 }
 
             } else {
 
-                throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]",
-                        "...") + "");
+                throw new IllegalArgumentException("Missing argument: "
+                        + parameter.getDisplayType().replace("[]", "...") + "");
             }
         }
         return converted;
@@ -506,8 +502,8 @@ public class CmdMethod implements Cmd {
 
         } catch (final NoSuchMethodException e) {
 
-            throw new IllegalStateException("Unsupported Collection type: " + aClass.getName() + " - No default " +
-                    "constructor");
+            throw new IllegalStateException("Unsupported Collection type: " + aClass.getName() + " - No default "
+                    + "constructor");
 
         } catch (final Exception e) {
 
@@ -558,8 +554,8 @@ public class CmdMethod implements Cmd {
                     }
 
                     if (defaults.containsKey(name)) {
-                        final boolean isList = defaults.get(name) != null && defaults.get(name).startsWith
-                                (OptionParam.LIST_TYPE);
+                        final boolean isList = defaults.get(name) != null
+                                && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
                         final String existing = supplied.get(name);
 
                         if (isList) {
@@ -653,8 +649,11 @@ public class CmdMethod implements Cmd {
 
     @Override
     public String toString() {
-        return "Command{" +
-                "name='" + name + '\'' +
-                '}';
+        return "Command{" + "name='" + name + '\'' + '}';
+    }
+
+    @Override
+    public Collection<String> complete(String buffer, int cursorPosition) {
+        throw new UnsupportedOperationException();
     }
 }

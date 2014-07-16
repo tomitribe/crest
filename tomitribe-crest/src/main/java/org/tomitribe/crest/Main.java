@@ -105,7 +105,6 @@ public class Main implements Completer {
         }
     }
 
-
     public Object exec(String... args) throws Exception {
         final List<String> list = processSystemProperties(args);
 
@@ -146,24 +145,49 @@ public class Main implements Completer {
         return list;
     }
 
-	@Override
-	public Collection<String> complete(final String buffer, final int cursorPosition) {
-		final List<String> cmds = new ArrayList<String>();
-		
-		if (buffer == null || buffer.length() == 0) {
-			cmds.addAll(commands.keySet());
-		} else {
-			final String prefix = buffer.substring(0, cursorPosition);
-			Iterator<String> iterator = commands.keySet().iterator();
-			while (iterator.hasNext()) {
-				final String command = (String) iterator.next();
-				if (command.startsWith(prefix)) {
-					cmds.add(command);
-				}
-			}
-		}
-		
-		Collections.sort(cmds);
-		return cmds;
-	}
+    @Override
+    public Collection<String> complete(final String buffer, final int cursorPosition) {
+        final List<String> cmds = new ArrayList<String>();
+
+        if (buffer == null || buffer.length() == 0) {
+            cmds.addAll(commands.keySet());
+        } else {
+
+            if (buffer.substring(0, cursorPosition).contains(" ")) {
+                final Cmd cmd = getCmd(buffer);
+
+                if (cmd != null) {
+                    final String cmdName = cmd.getName();
+                    final int cmdNameLength = cmdName.length();
+                    return cmd.complete(buffer.substring(cmdNameLength + 1), cursorPosition - (cmdNameLength + 1));
+                }
+            }
+
+            final String prefix = buffer.substring(0, cursorPosition);
+            Iterator<String> iterator = commands.keySet().iterator();
+            while (iterator.hasNext()) {
+                final String command = (String) iterator.next();
+                if (command.startsWith(prefix)) {
+                    cmds.add(command);
+                }
+            }
+        }
+
+        Collections.sort(cmds);
+        return cmds;
+    }
+
+    private Cmd getCmd(String buffer) {
+        final String commandName = buffer.replaceAll("^(\\w*).*?$", "$1");
+        final Iterator<String> iterator = this.commands.keySet().iterator();
+
+        while (iterator.hasNext()) {
+            String cmd = (String) iterator.next();
+            if (cmd.equals(commandName)) {
+                return this.commands.get(cmd);
+            }
+        }
+
+        return null;
+    }
 }

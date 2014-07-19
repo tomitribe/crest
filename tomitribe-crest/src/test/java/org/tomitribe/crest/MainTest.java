@@ -103,8 +103,8 @@ public class MainTest extends TestCase {
         assertTrue(candidates.contains("green"));
         assertTrue(candidates.contains("blue"));
 
-        assertEquals("", cmd.buffer);
-        assertEquals(0, cmd.cursorPosition);
+        assertEquals("color ", cmd.buffer);
+        assertEquals(6, cmd.cursorPosition);
     }
 
     public static class TestCmd implements Cmd {

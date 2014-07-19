@@ -157,9 +157,7 @@ public class Main implements Completer {
                 final Cmd cmd = getCmd(buffer);
 
                 if (cmd != null) {
-                    final String cmdName = cmd.getName();
-                    final int cmdNameLength = cmdName.length();
-                    return cmd.complete(buffer.substring(cmdNameLength + 1), cursorPosition - (cmdNameLength + 1));
+                    return cmd.complete(buffer, cursorPosition);
                 }
             }
 

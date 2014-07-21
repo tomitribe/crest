@@ -16,13 +16,7 @@
  */
 package org.tomitribe.crest;
 
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collection;
-
 import junit.framework.TestCase;
-
-import org.tomitribe.crest.api.Command;
 
 /**
  * @version $Revision$ $Date$
@@ -61,99 +55,4 @@ public class MainTest extends TestCase {
                 help.exec());
 
     }
-
-    public void testCompletionEmptyTab() throws Exception {
-        final Main main = new Main(Foo.class);
-        final Collection<String> candidates = main.complete("", 0);
-
-        assertEquals(4, candidates.size());
-        assertTrue(candidates.contains("red"));
-        assertTrue(candidates.contains("green"));
-        assertTrue(candidates.contains("blue"));
-        assertTrue(candidates.contains("help"));
-    }
-
-    public void testCompletionPartialWord() throws Exception {
-        final Main main = new Main(Foo.class);
-        final Collection<String> candidates = main.complete("r", 1);
-
-        assertEquals(1, candidates.size());
-        assertTrue(candidates.contains("red"));
-    }
-
-    public void testCompletionPartialWordCursorAtTheStart() throws Exception {
-        final Main main = new Main(Foo.class);
-        final Collection<String> candidates = main.complete("re", 0);
-
-        assertEquals(4, candidates.size());
-        assertTrue(candidates.contains("red"));
-        assertTrue(candidates.contains("green"));
-        assertTrue(candidates.contains("blue"));
-        assertTrue(candidates.contains("help"));
-    }
-
-    public void testCompletionDelegatesToIndividualCmds() throws Exception {
-        final Main main = new Main();
-        final TestCmd cmd = new TestCmd();
-        main.add(cmd);
-
-        final Collection<String> candidates = main.complete("color ", 6);
-        assertEquals(3, candidates.size());
-        assertTrue(candidates.contains("red"));
-        assertTrue(candidates.contains("green"));
-        assertTrue(candidates.contains("blue"));
-
-        assertEquals("color ", cmd.buffer);
-        assertEquals(6, cmd.cursorPosition);
-    }
-
-    public static class TestCmd implements Cmd {
-        public String buffer;
-        public int cursorPosition;
-
-        @Override
-        public String getUsage() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String getName() {
-            return "color";
-        }
-
-        @Override
-        public Object exec(String... rawArgs) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void help(PrintStream out) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Collection<String> complete(String buffer, int cursorPosition) {
-            this.buffer = buffer;
-            this.cursorPosition = cursorPosition;
-            return Arrays.asList(new String[] { "red", "green", "blue" });
-        }
-    }
-
-    public static class Foo {
-
-        @Command
-        public String red() {
-            return "red";
-        }
-
-        @Command
-        public static String green() {
-            return "green";
-        }
-
-        @Command
-        public static void blue() {
-        }
-    }
-
 }

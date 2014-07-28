@@ -653,7 +653,7 @@ public class CmdMethod implements Cmd {
     }
 
     @Override
-    public Collection<String> complete(String buffer, int cursorPosition) {
+    public Collection<String> complete(final String buffer, final int cursorPosition) {
         final List<String> result = new ArrayList<String>(); 
         
         

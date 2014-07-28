@@ -1,0 +1,6 @@
+
+Usage: validation [options] String URI
+
+Options: 
+  --key=<String>           
+  --value=<String>         

@@ -94,7 +94,10 @@ public class CmdGroup implements Cmd {
                     // find the subcommand and delegate completion to it
                     final Cmd cmd = commands.get(args[1]);
                     if (cmd != null) {
-                        return cmd.complete(buffer, cursorPosition);
+                        // need to remove the first command
+                        final String subcommand = buffer.replaceAll(getName() + "\\s+(.*)$", "$1");
+                        final int diff = buffer.length() - subcommand.length();
+                        return cmd.complete(subcommand, cursorPosition - diff);
                     }
                 } else {
                     final String prefix;
@@ -116,6 +119,7 @@ public class CmdGroup implements Cmd {
             }
         } catch (Exception e) {
             // quietly fail and return nothing.
+            e.printStackTrace();
         }
         
         return results;

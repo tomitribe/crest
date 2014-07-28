@@ -1,0 +1,5 @@
+
+Usage: complex [options] URI... URI URI
+
+Options: 
+  --foo=<URI>              

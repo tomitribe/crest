@@ -17,6 +17,7 @@
 package org.tomitribe.crest;
 
 import junit.framework.TestCase;
+import org.tomitribe.crest.api.Command;
 
 /**
  * @version $Revision$ $Date$
@@ -50,9 +51,32 @@ public class MainTest extends TestCase {
         final Cmd help = main.commands.get("help");
 
         final String ln = System.getProperty("line.separator");
-        assertEquals("Commands: " + ln + "                       " + ln + "   blue                " + ln
-                + "   green               " + ln + "   help                " + ln + "   red                 " + ln,
+        assertEquals(
+                "Commands: " + ln +
+                        "                       " + ln +
+                        "   blue                " + ln +
+                        "   green               " + ln +
+                        "   help                " + ln +
+                        "   red                 " + ln,
                 help.exec());
 
     }
+
+    public static class Foo {
+
+        @Command
+        public String red() {
+            return "red";
+        }
+
+        @Command
+        public static String green() {
+            return "green";
+        }
+
+        @Command
+        public static void blue() {
+        }
+    }
+
 }

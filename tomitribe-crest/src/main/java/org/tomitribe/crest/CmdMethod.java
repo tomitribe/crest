@@ -654,6 +654,35 @@ public class CmdMethod implements Cmd {
 
     @Override
     public Collection<String> complete(String buffer, int cursorPosition) {
-        throw new UnsupportedOperationException();
+        final List<String> result = new ArrayList<String>(); 
+        
+        
+        final String commandLine = buffer.substring(0, cursorPosition);
+        final String[] args = CommandLine.translateCommandline(commandLine);
+
+        if (args != null && args.length > 0) {
+            final String lastArg = args[args.length - 1];
+            if (lastArg.startsWith("--")) {
+                result.addAll(findMatchingOptions(lastArg.substring(2)));
+            }
+        }
+        
+        return result;
+    }
+
+    private Collection<String> findMatchingOptions(String prefix) {
+        final List<String> result = new ArrayList<String>();
+        
+        for (Param param : parameters) {
+            if (param instanceof OptionParam) {
+                final OptionParam optionParam = (OptionParam) param;
+                
+                if (optionParam.getName().startsWith(prefix)) {
+                    result.add("--" + optionParam.getName());
+                }
+            }
+        }
+        
+        return result;
     }
 }

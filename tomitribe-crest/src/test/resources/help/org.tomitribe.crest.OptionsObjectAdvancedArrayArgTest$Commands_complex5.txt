@@ -1,0 +1,5 @@
+
+Usage: complex5 [options] URI... URI URI
+
+Options: 
+  --foo=<URI>              

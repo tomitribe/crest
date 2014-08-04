@@ -21,12 +21,15 @@ import org.tomitribe.crest.api.StreamingOutput;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Main {
+public class Main implements Completer {
 
     final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
 
@@ -102,7 +105,6 @@ public class Main {
         }
     }
 
-
     public Object exec(String... args) throws Exception {
         final List<String> list = processSystemProperties(args);
 
@@ -143,4 +145,47 @@ public class Main {
         return list;
     }
 
+    @Override
+    public Collection<String> complete(final String buffer, final int cursorPosition) {
+        final List<String> cmds = new ArrayList<String>();
+
+        if (buffer == null || buffer.length() == 0) {
+            cmds.addAll(commands.keySet());
+        } else {
+
+            if (buffer.substring(0, cursorPosition).contains(" ")) {
+                final Cmd cmd = getCmd(buffer);
+
+                if (cmd != null) {
+                    return cmd.complete(buffer, cursorPosition);
+                }
+            }
+
+            final String prefix = buffer.substring(0, cursorPosition);
+            Iterator<String> iterator = commands.keySet().iterator();
+            while (iterator.hasNext()) {
+                final String command = (String) iterator.next();
+                if (command.startsWith(prefix)) {
+                    cmds.add(command);
+                }
+            }
+        }
+
+        Collections.sort(cmds);
+        return cmds;
+    }
+
+    private Cmd getCmd(String buffer) {
+        final String commandName = buffer.replaceAll("^(\\w*).*?$", "$1");
+        final Iterator<String> iterator = this.commands.keySet().iterator();
+
+        while (iterator.hasNext()) {
+            String cmd = (String) iterator.next();
+            if (cmd.equals(commandName)) {
+                return this.commands.get(cmd);
+            }
+        }
+
+        return null;
+    }
 }

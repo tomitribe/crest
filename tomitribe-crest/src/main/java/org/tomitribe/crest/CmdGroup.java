@@ -17,6 +17,10 @@
 package org.tomitribe.crest;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -70,5 +74,54 @@ public class CmdGroup implements Cmd {
     @Override
     public void help(PrintStream out) {
 
+    }
+
+    @Override
+    public Collection<String> complete(final String buffer, final int cursorPosition) {
+        
+        final List<String> results = new ArrayList<String>();
+        
+        try {
+        
+            final String commandLine = buffer.substring(0, cursorPosition);
+            final String[] args = CommandLine.translateCommandline(commandLine);
+            
+            // first arg should be the same name as this command
+            if (args.length >= 1 && args[0].equals(getName())) {
+                
+                // 
+                if (args.length > 2 || (args.length == 2 && commandLine.endsWith(" "))) {
+                    // find the subcommand and delegate completion to it
+                    final Cmd cmd = commands.get(args[1]);
+                    if (cmd != null) {
+                        // need to remove the first command
+                        final String subcommand = buffer.replaceAll(getName() + "\\s+(.*)$", "$1");
+                        final int diff = buffer.length() - subcommand.length();
+                        return cmd.complete(subcommand, cursorPosition - diff);
+                    }
+                } else {
+                    final String prefix;
+                    if (args.length == 1 && commandLine.endsWith(" ")) {
+                        prefix = "";
+                    } else {
+                        prefix = args[1];
+                    }
+                    
+                    // look at all the possible commands and return those that match
+                    final Iterator<String> iterator = commands.keySet().iterator();
+                    while (iterator.hasNext()) {
+                        final String commandName = (String) iterator.next();
+                        if (commandName.startsWith(prefix)) {
+                            results.add(commandName);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // quietly fail and return nothing.
+            e.printStackTrace();
+        }
+        
+        return results;
     }
 }

@@ -16,14 +16,8 @@
  */
 package org.tomitribe.crest;
 
-import java.io.PrintStream;
+import java.util.Collection;
 
-public interface Cmd extends Completer {
-    String getUsage();
-
-    String getName();
-
-    Object exec(String... rawArgs);
-
-    void help(PrintStream out);
+public interface Completer {
+    public abstract Collection<String> complete(String buffer, int cursorPosition);
 }

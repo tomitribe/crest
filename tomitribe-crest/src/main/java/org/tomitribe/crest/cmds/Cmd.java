@@ -14,10 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.cmds;
 
-public class CommandFailedException extends RuntimeException {
-    public CommandFailedException(final Throwable cause) {
-        super(cause);
-    }
+import java.io.PrintStream;
+
+public interface Cmd extends Completer {
+    String getUsage();
+
+    String getName();
+
+    Object exec(String... rawArgs);
+
+    void help(PrintStream out);
 }

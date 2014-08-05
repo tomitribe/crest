@@ -21,6 +21,8 @@ import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.cmds.targets.Target;
+import org.tomitribe.crest.contexts.DefaultsContext;
 
 import java.lang.reflect.Method;
 

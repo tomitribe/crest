@@ -20,6 +20,8 @@ import junit.framework.TestCase;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Required;
+import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.processors.Commands;
 
 import java.net.URI;
 import java.util.Map;

@@ -17,6 +17,15 @@
 package org.tomitribe.crest;
 
 import org.tomitribe.crest.api.StreamingOutput;
+import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.Completer;
+import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.cmds.processors.Help;
+import org.tomitribe.crest.contexts.DefaultsContext;
+import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
+import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.environments.SystemEnvironment;
+import org.tomitribe.crest.cmds.CommandFailedException;
 
 import java.io.PrintStream;
 import java.util.ArrayList;

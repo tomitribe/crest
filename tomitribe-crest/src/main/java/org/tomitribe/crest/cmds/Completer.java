@@ -14,14 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.tomitribe.crest.cmds;
 
-package org.tomitribe.crest;
+import java.util.Collection;
 
-import java.lang.reflect.Method;
-
-public class SystemPropertiesDefaultsContext implements DefaultsContext {
-    @Override
-    public String find(final Target cmd, final Method commandMethod, final String key) {
-        return System.getProperty(key);
-    }
+public interface Completer {
+    public abstract Collection<String> complete(String buffer, int cursorPosition);
 }

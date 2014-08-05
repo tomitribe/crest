@@ -14,8 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.cmds;
 
+import org.tomitribe.crest.cmds.utils.CommandLine;
+import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.contexts.DefaultsContext;
+import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.cmds.processors.Help;
+import org.tomitribe.crest.cmds.processors.OptionParam;
+import org.tomitribe.crest.cmds.processors.Param;
+import org.tomitribe.crest.cmds.targets.SimpleBean;
+import org.tomitribe.crest.cmds.targets.Substitution;
+import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
+import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;

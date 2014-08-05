@@ -21,15 +21,15 @@ import org.apache.bval.constraints.NotEmpty;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
+import org.tomitribe.crest.cmds.Cmd;
 
 import javax.validation.ConstraintViolationException;
-import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
 public class OptionsObjectValidationTest extends TestCase {
 
-    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
+    private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testOptionsAndArgs() throws Exception {
         final Cmd validation = commands.get("validation");

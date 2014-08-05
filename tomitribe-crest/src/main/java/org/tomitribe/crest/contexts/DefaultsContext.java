@@ -14,26 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.contexts;
 
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.Properties;
+import org.tomitribe.crest.cmds.targets.Target;
 
-public interface Environment {
+import java.lang.reflect.Method;
 
-    public static ThreadLocal<Environment> ENVIRONMENT_THREAD_LOCAL = new ThreadLocal<Environment>() {
-        @Override
-        protected Environment initialValue() {
-            return new SystemEnvironment();
-        }
-    };
-
-    public PrintStream getOutput();
-
-    public PrintStream getError();
-
-    public InputStream getInput();
-
-    public Properties getProperties();
+/**
+ * Used to provide substitution values for @Default("hello ${value}") type expressions.
+ */
+public interface DefaultsContext {
+    /**
+     * Implementations of DefaultsContext need to implement this method to convert
+     * an expression inside ${...} type substitutions to String values which will
+     * replace the substitution expression.
+     *
+     * @param target        The command class
+     * @param commandMethod the command method
+     * @param key           the ... in the ${...} expression
+     * @return the value to replace key with. Null is equivalent to the empty string.
+     */
+    public String find(Target target, Method commandMethod, String key);
 }

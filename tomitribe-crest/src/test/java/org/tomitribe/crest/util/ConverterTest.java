@@ -18,7 +18,7 @@ package org.tomitribe.crest.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.tomitribe.crest.Converter;
+import org.tomitribe.crest.converters.Converter;
 
 import java.net.URI;
 

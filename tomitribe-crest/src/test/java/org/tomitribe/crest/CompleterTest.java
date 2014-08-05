@@ -25,6 +25,7 @@ import java.util.Collection;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.StreamingOutput;
+import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.val.Exists;
 
 import junit.framework.TestCase;

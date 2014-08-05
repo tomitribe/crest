@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.cmds;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-public interface Target {
-    public Object invoke(Method method, Object... args) throws InvocationTargetException, IllegalAccessException;
+public class CommandFailedException extends RuntimeException {
+    public CommandFailedException(final Throwable cause) {
+        super(cause);
+    }
 }

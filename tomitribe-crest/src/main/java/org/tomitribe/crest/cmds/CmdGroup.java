@@ -14,7 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.cmds;
+
+import org.tomitribe.crest.cmds.utils.CommandLine;
+import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.environments.Environment;
 
 import java.io.PrintStream;
 import java.util.ArrayList;

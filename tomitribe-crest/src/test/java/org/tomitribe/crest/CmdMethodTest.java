@@ -22,6 +22,7 @@ import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.api.StreamingOutput;
+import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.util.Files;
 import org.tomitribe.util.IO;
 
@@ -36,7 +37,7 @@ import java.util.Map;
 public class CmdMethodTest extends TestCase {
     private static final String SOME_FILE = new File("/tmp/file.txt").getAbsolutePath();
 
-    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
+    private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testGetUsage() {
         assertEquals("ls [options] File", commands.get("ls").getUsage());

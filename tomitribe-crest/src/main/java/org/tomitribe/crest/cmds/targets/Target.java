@@ -14,30 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.cmds.targets;
 
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.Properties;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-public class SystemEnvironment implements Environment {
-
-    @Override
-    public PrintStream getOutput() {
-        return System.out;
-    }
-
-    @Override
-    public PrintStream getError() {
-        return System.err;
-    }
-
-    @Override
-    public InputStream getInput() {
-        return System.in;
-    }
-
-    public Properties getProperties() {
-        return System.getProperties();
-    }
+public interface Target {
+    public Object invoke(Method method, Object... args) throws InvocationTargetException, IllegalAccessException;
 }

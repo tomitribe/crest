@@ -18,6 +18,7 @@ package org.tomitribe.crest;
 
 import junit.framework.TestCase;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.cmds.Cmd;
 
 import java.net.URI;
 import java.util.Iterator;
@@ -26,7 +27,7 @@ import java.util.Map;
 
 public class ArgListsTest extends TestCase {
 
-    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
+    private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
         commands.get("doByte").exec("2", "3", "5");

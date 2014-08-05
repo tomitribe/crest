@@ -52,7 +52,7 @@ public @interface IsFile {
 
         @Override
         public boolean isValid(final File file, final ConstraintValidatorContext context) {
-            return file.isDirectory();
+            return file.isFile();
         }
     }
 }

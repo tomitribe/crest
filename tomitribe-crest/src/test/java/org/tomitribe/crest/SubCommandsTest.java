@@ -20,12 +20,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.processors.Commands;
 
 import java.util.Map;
 
 public class SubCommandsTest extends Assert {
 
-    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Git.class);
+    private final Map<String, Cmd> commands = Commands.get(Git.class);
 
     @Test
     public void test() throws Exception {

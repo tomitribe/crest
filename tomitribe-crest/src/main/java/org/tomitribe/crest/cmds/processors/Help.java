@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.cmds.processors;
 
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.PrintString;
 import org.tomitribe.util.reflect.Classes;

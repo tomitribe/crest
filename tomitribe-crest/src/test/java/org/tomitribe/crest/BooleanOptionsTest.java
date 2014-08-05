@@ -20,12 +20,13 @@ import junit.framework.TestCase;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.cmds.Cmd;
 
 import java.util.Map;
 
 public class BooleanOptionsTest extends TestCase {
 
-    private final Map<String, Cmd> commands = org.tomitribe.crest.Commands.get(Commands.class);
+    private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void test() throws Exception {
 

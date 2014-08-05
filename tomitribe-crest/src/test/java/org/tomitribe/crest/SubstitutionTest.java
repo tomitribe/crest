@@ -18,6 +18,9 @@ package org.tomitribe.crest;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.tomitribe.crest.cmds.targets.Substitution;
+import org.tomitribe.crest.cmds.targets.Target;
+import org.tomitribe.crest.contexts.DefaultsContext;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

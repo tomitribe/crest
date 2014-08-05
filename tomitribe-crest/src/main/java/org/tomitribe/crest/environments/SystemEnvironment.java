@@ -14,23 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.environments;
 
-import java.lang.reflect.Method;
 
-/**
- * Used to provide substitution values for @Default("hello ${value}") type expressions.
- */
-public interface DefaultsContext {
-    /**
-     * Implementations of DefaultsContext need to implement this method to convert
-     * an expression inside ${...} type substitutions to String values which will
-     * replace the substitution expression.
-     *
-     * @param target        The command class
-     * @param commandMethod the command method
-     * @param key           the ... in the ${...} expression
-     * @return the value to replace key with. Null is equivalent to the empty string.
-     */
-    public String find(Target target, Method commandMethod, String key);
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.Properties;
+
+public class SystemEnvironment implements Environment {
+
+    @Override
+    public PrintStream getOutput() {
+        return System.out;
+    }
+
+    @Override
+    public PrintStream getError() {
+        return System.err;
+    }
+
+    @Override
+    public InputStream getInput() {
+        return System.in;
+    }
+
+    public Properties getProperties() {
+        return System.getProperties();
+    }
 }

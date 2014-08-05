@@ -17,6 +17,7 @@
 package org.tomitribe.crest;
 
 import junit.framework.TestCase;
+import org.tomitribe.crest.cmds.CmdMethod;
 
 import java.util.AbstractList;
 import java.util.AbstractSet;

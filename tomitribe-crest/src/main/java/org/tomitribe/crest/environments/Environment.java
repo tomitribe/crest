@@ -14,10 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.environments;
 
-import java.util.Collection;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.Properties;
 
-public interface Completer {
-    public abstract Collection<String> complete(String buffer, int cursorPosition);
+public interface Environment {
+
+    public static ThreadLocal<Environment> ENVIRONMENT_THREAD_LOCAL = new ThreadLocal<Environment>() {
+        @Override
+        protected Environment initialValue() {
+            return new SystemEnvironment();
+        }
+    };
+
+    public PrintStream getOutput();
+
+    public PrintStream getError();
+
+    public InputStream getInput();
+
+    public Properties getProperties();
 }

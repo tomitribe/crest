@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
+package org.tomitribe.crest.cmds.utils;
 
 import java.util.StringTokenizer;
 import java.util.Vector;

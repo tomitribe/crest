@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest;
 
-import java.io.PrintStream;
+package org.tomitribe.crest.contexts;
 
-public interface Cmd extends Completer {
-    String getUsage();
+import org.tomitribe.crest.cmds.targets.Target;
 
-    String getName();
+import java.lang.reflect.Method;
 
-    Object exec(String... rawArgs);
-
-    void help(PrintStream out);
+public class SystemPropertiesDefaultsContext implements DefaultsContext {
+    @Override
+    public String find(final Target cmd, final Method commandMethod, final String key) {
+        return System.getProperty(key);
+    }
 }

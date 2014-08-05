@@ -18,7 +18,7 @@ package org.tomitribe.crest.xbean;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.Archive;
-import org.tomitribe.crest.Commands;
+import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.api.Command;
 
 import java.lang.reflect.Method;

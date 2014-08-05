@@ -18,6 +18,7 @@ package org.tomitribe.crest;
 
 import junit.framework.TestCase;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.cmds.Cmd;
 
 /**
  * @version $Revision$ $Date$

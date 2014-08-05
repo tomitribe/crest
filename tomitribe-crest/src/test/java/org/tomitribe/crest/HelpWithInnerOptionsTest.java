@@ -22,6 +22,8 @@ import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
+import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.util.IO;
 import org.tomitribe.util.PrintString;
 

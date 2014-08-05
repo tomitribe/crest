@@ -20,6 +20,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.util.Join;
 
 import java.util.Map;

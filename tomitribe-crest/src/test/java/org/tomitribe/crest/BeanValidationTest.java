@@ -20,6 +20,8 @@ import org.apache.bval.constraints.NotEmpty;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.val.Directory;
 
 import javax.validation.ConstraintViolationException;

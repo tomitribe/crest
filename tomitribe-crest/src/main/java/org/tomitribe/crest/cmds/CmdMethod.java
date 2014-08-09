@@ -102,16 +102,17 @@ public class CmdMethod implements Cmd {
 
             if (parameter.isAnnotationPresent(Option.class)) {
 
-                final OptionParam optionParam = new OptionParam(parameter);
+                for (String name : parameter.getAnnotation(Option.class).value()) {
+                    final OptionParam optionParam = new OptionParam(parameter, name);
 
-                final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
+                    final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
 
-                if (existing != null) {
-                    throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
+                    if (existing != null) {
+                        throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
+                    }
+
+                    parameters.add(optionParam);
                 }
-
-                parameters.add(optionParam);
-
             } else if (parameter.getType().isAnnotationPresent(Options.class)) {
 
                 final ComplexParam complexParam = new ComplexParam(parameter);
@@ -346,19 +347,21 @@ public class CmdMethod implements Cmd {
             final Option option = parameter.getAnnotation(Option.class);
 
             if (option != null) {
+                for (String optionValue : option.value()) {
+                    final String value = args.options.remove(optionValue);
 
-                final String value = args.options.remove(option.value());
+                    if (parameter.isListable()) {
+                        for (String optValue : option.value()) {
+                            converted.add(convert(parameter, OptionParam.getSeparatedValues(value), optValue));
+                        }
 
-                if (parameter.isListable()) {
+                    } else {
+                        for (String optValue : option.value()) {
+                            converted.add(Converter.convert(value, parameter.getType(), optionValue));
+                        }
 
-                    converted.add(convert(parameter, OptionParam.getSeparatedValues(value), option.value()));
-
-                } else {
-
-                    converted.add(Converter.convert(value, parameter.getType(), option.value()));
-
+                    }
                 }
-
             } else if (parameter instanceof ComplexParam) {
 
                 final ComplexParam complexParam = (ComplexParam) parameter;
@@ -636,8 +639,10 @@ public class CmdMethod implements Cmd {
 
                 final Option option = parameter.getAnnotation(Option.class);
 
-                if (!supplied.containsKey(option.value())) {
-                    required.add(option.value());
+                for (String optionValue : option.value()) {
+                    if (!supplied.containsKey(optionValue)) {
+                        required.add(optionValue);
+                    }
                 }
             }
 

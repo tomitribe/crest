@@ -17,7 +17,6 @@
 package org.tomitribe.crest.cmds.processors;
 
 import org.tomitribe.crest.api.Default;
-import org.tomitribe.crest.api.Option;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.reflect.Parameter;
 
@@ -33,10 +32,10 @@ public class OptionParam extends Param {
     private final String name;
     private final String defaultValue;
 
-    public OptionParam(final Parameter parameter) {
+    public OptionParam(final Parameter parameter, final String name) {
         super(parameter);
 
-        this.name = getAnnotation(Option.class).value();
+        this.name = name;
         this.defaultValue = initDefault();
     }
 

@@ -351,15 +351,9 @@ public class CmdMethod implements Cmd {
                     final String value = args.options.remove(optionValue);
 
                     if (parameter.isListable()) {
-                        for (String optValue : option.value()) {
-                            converted.add(convert(parameter, OptionParam.getSeparatedValues(value), optValue));
-                        }
-
+                        converted.add(convert(parameter, OptionParam.getSeparatedValues(value), optionValue));
                     } else {
-                        for (String optValue : option.value()) {
-                            converted.add(Converter.convert(value, parameter.getType(), optionValue));
-                        }
-
+                        converted.add(Converter.convert(value, parameter.getType(), optionValue));
                     }
                 }
             } else if (parameter instanceof ComplexParam) {

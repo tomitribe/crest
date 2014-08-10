@@ -76,6 +76,7 @@ public class CmdMethod implements Cmd {
 
     public class Spec {
         private final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
+        private final Map<String, OptionParam> aliases = new TreeMap<String, OptionParam>();
         private final List<Param> arguments = new LinkedList<Param>();
     }
 
@@ -102,17 +103,26 @@ public class CmdMethod implements Cmd {
 
             if (parameter.isAnnotationPresent(Option.class)) {
 
-                for (String name : parameter.getAnnotation(Option.class).value()) {
-                    final OptionParam optionParam = new OptionParam(parameter, name);
+                final Option option = parameter.getAnnotation(Option.class);
+                final String name = option.value()[0];
+                final OptionParam optionParam = new OptionParam(parameter, name);
 
-                    final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
+                final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
 
-                    if (existing != null) {
-                        throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
-                    }
-
-                    parameters.add(optionParam);
+                if (existing != null) {
+                    throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
                 }
+                
+                for (int i = 1; i < option.value().length; i++) {
+                    final String alias = option.value()[i];
+                    final OptionParam existingAlias = spec.aliases.put(alias, optionParam);
+                    
+                    if (existingAlias != null) {
+                        throw new IllegalArgumentException("Duplicate alias: " + alias);
+                    }
+                }
+
+                parameters.add(optionParam);
             } else if (parameter.getType().isAnnotationPresent(Options.class)) {
 
                 final ComplexParam complexParam = new ComplexParam(parameter);
@@ -347,14 +357,14 @@ public class CmdMethod implements Cmd {
             final Option option = parameter.getAnnotation(Option.class);
 
             if (option != null) {
-                for (String optionValue : option.value()) {
-                    final String value = args.options.remove(optionValue);
+                
+                final String optionValue = option.value()[0];
+                final String value = args.options.remove(optionValue);
 
-                    if (parameter.isListable()) {
-                        converted.add(convert(parameter, OptionParam.getSeparatedValues(value), optionValue));
-                    } else {
-                        converted.add(Converter.convert(value, parameter.getType(), optionValue));
-                    }
+                if (parameter.isListable()) {
+                    converted.add(convert(parameter, OptionParam.getSeparatedValues(value), optionValue));
+                } else { 
+                    converted.add(Converter.convert(value, parameter.getType(), optionValue));
                 }
             } else if (parameter instanceof ComplexParam) {
 
@@ -545,7 +555,7 @@ public class CmdMethod implements Cmd {
             for (final String arg : rawArgs) {
                 if (arg.startsWith("--")) {
 
-                    final String name;
+                    String name;
                     String value;
 
                     if (arg.indexOf("=") > 0) {
@@ -559,6 +569,12 @@ public class CmdMethod implements Cmd {
                             name = arg.substring(2);
                             value = "true";
                         }
+                    }
+                    
+                    if (! defaults.containsKey(name) && spec.aliases.containsKey(name)) {
+                        // check the options to find see if name is an alias for an option
+                        // if it is, get the actual optionparam name
+                        name = spec.aliases.get(name).getName();
                     }
 
                     if (defaults.containsKey(name)) {

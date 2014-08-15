@@ -29,13 +29,13 @@ public class ManyOptionTest extends TestCase{
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testString() throws Exception {
-        commands.get("doString").exec("--foo=2", "--foox=3", "--foo=5");
+        commands.get("doString").exec("--foo=2", "--foox=3", "-f=5");
     }
 
     public static class Commands {
 
         @Command
-        public void doString(@Option({"foo", "foox"}) final List<String> list) {
+        public void doString(@Option({"foo", "foox", "f"}) final List<String> list) {
             assertNotNull(list);
 
             final Iterator<String> it = list.iterator();

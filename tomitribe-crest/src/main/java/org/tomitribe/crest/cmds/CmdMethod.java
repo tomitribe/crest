@@ -331,10 +331,13 @@ public class CmdMethod implements Cmd {
         }
 
         if (args.options.size() > 0) {
-            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback() {
+            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback<String>() {
                 @Override
-                public String getName(final Object object) {
-                    return "--" + object;
+                public String getName(final String object) {
+                    if (object.length() > 1) {
+                        return "--" + object;
+                    }
+                    return "-" + object;
                 }
             }, args.options.keySet()));
         }
@@ -603,6 +606,56 @@ public class CmdMethod implements Cmd {
                     } else {
                         invalid.add(name);
                     }
+                } else  if (arg.startsWith("-")) {
+
+                    String name;
+                    String value;
+
+                    if (arg.indexOf("=") > 0) {
+                        name = arg.substring(arg.indexOf("-") + 1, arg.indexOf("="));
+                        value = arg.substring(arg.indexOf("=") + 1);
+                    } else {
+                        if (arg.startsWith("--no-")) {
+                            name = arg.substring(5);
+                            value = "false";
+                        } else {
+                            name = arg.substring(1);
+                            value = "true";
+                        }
+                    }
+
+                    if (! defaults.containsKey(name) && spec.aliases.containsKey(name)) {
+                        // check the options to find see if name is an alias for an option
+                        // if it is, get the actual optionparam name
+                        name = spec.aliases.get(name).getName();
+                    }
+
+                    if (defaults.containsKey(name)) {
+                        final boolean isList = defaults.get(name) != null
+                                && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
+                        final String existing = supplied.get(name);
+
+                        if (isList) {
+
+                            if (existing == null) {
+
+                                value = OptionParam.LIST_TYPE + value;
+
+                            } else {
+
+                                value = existing + OptionParam.LIST_SEPARATOR + value;
+
+                            }
+
+                        } else if (existing != null) {
+
+                            repeated.add(name);
+                        }
+
+                        supplied.put(name, value);
+                    } else {
+                        invalid.add(name);
+                    }
                 } else {
                     this.list.add(arg);
                 }
@@ -690,6 +743,8 @@ public class CmdMethod implements Cmd {
             final String lastArg = args[args.length - 1];
             if (lastArg.startsWith("--")) {
                 result.addAll(findMatchingOptions(lastArg.substring(2)));
+            } else if (lastArg.startsWith("-")) {
+                result.addAll(findMatchingOptions(lastArg.substring(1)));
             }
         }
         

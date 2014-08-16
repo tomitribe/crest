@@ -16,22 +16,22 @@
  */
 package org.tomitribe.crest.cmds;
 
-import org.tomitribe.crest.cmds.utils.CommandLine;
-import org.tomitribe.crest.cmds.processors.Commands;
-import org.tomitribe.crest.contexts.DefaultsContext;
-import org.tomitribe.crest.environments.Environment;
-import org.tomitribe.crest.cmds.processors.Help;
-import org.tomitribe.crest.cmds.processors.OptionParam;
-import org.tomitribe.crest.cmds.processors.Param;
-import org.tomitribe.crest.cmds.targets.SimpleBean;
-import org.tomitribe.crest.cmds.targets.Substitution;
-import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
-import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Required;
+import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.cmds.processors.Help;
+import org.tomitribe.crest.cmds.processors.OptionParam;
+import org.tomitribe.crest.cmds.processors.Param;
+import org.tomitribe.crest.cmds.targets.SimpleBean;
+import org.tomitribe.crest.cmds.targets.Substitution;
+import org.tomitribe.crest.cmds.targets.Target;
+import org.tomitribe.crest.cmds.utils.CommandLine;
+import org.tomitribe.crest.contexts.DefaultsContext;
+import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
+import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.val.BeanValidation;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.editor.Converter;
@@ -557,105 +557,9 @@ public class CmdMethod implements Cmd {
             // Read in and apply the options specified on the command line
             for (final String arg : rawArgs) {
                 if (arg.startsWith("--")) {
-
-                    String name;
-                    String value;
-
-                    if (arg.indexOf("=") > 0) {
-                        name = arg.substring(arg.indexOf("--") + 2, arg.indexOf("="));
-                        value = arg.substring(arg.indexOf("=") + 1);
-                    } else {
-                        if (arg.startsWith("--no-")) {
-                            name = arg.substring(5);
-                            value = "false";
-                        } else {
-                            name = arg.substring(2);
-                            value = "true";
-                        }
-                    }
-                    
-                    if (! defaults.containsKey(name) && spec.aliases.containsKey(name)) {
-                        // check the options to find see if name is an alias for an option
-                        // if it is, get the actual optionparam name
-                        name = spec.aliases.get(name).getName();
-                    }
-
-                    if (defaults.containsKey(name)) {
-                        final boolean isList = defaults.get(name) != null
-                                && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
-                        final String existing = supplied.get(name);
-
-                        if (isList) {
-
-                            if (existing == null) {
-
-                                value = OptionParam.LIST_TYPE + value;
-
-                            } else {
-
-                                value = existing + OptionParam.LIST_SEPARATOR + value;
-
-                            }
-
-                        } else if (existing != null) {
-
-                            repeated.add(name);
-                        }
-
-                        supplied.put(name, value);
-                    } else {
-                        invalid.add(name);
-                    }
-                } else  if (arg.startsWith("-")) {
-
-                    String name;
-                    String value;
-
-                    if (arg.indexOf("=") > 0) {
-                        name = arg.substring(arg.indexOf("-") + 1, arg.indexOf("="));
-                        value = arg.substring(arg.indexOf("=") + 1);
-                    } else {
-                        if (arg.startsWith("--no-")) {
-                            name = arg.substring(5);
-                            value = "false";
-                        } else {
-                            name = arg.substring(1);
-                            value = "true";
-                        }
-                    }
-
-                    if (! defaults.containsKey(name) && spec.aliases.containsKey(name)) {
-                        // check the options to find see if name is an alias for an option
-                        // if it is, get the actual optionparam name
-                        name = spec.aliases.get(name).getName();
-                    }
-
-                    if (defaults.containsKey(name)) {
-                        final boolean isList = defaults.get(name) != null
-                                && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
-                        final String existing = supplied.get(name);
-
-                        if (isList) {
-
-                            if (existing == null) {
-
-                                value = OptionParam.LIST_TYPE + value;
-
-                            } else {
-
-                                value = existing + OptionParam.LIST_SEPARATOR + value;
-
-                            }
-
-                        } else if (existing != null) {
-
-                            repeated.add(name);
-                        }
-
-                        supplied.put(name, value);
-                    } else {
-                        invalid.add(name);
-                    }
+                    getCommand("--", arg, defaults, supplied, invalid, repeated);
+                } else if (arg.startsWith("-")) {
+                    getCommand("-", arg, defaults, supplied, invalid, repeated);
                 } else {
                     this.list.add(arg);
                 }
@@ -670,6 +574,63 @@ public class CmdMethod implements Cmd {
             this.options.putAll(defaults);
             this.options.putAll(supplied);
 
+        }
+
+        private void getCommand(final String prefix,
+                           final String arg,
+                           final Map<String, String> defaults,
+                           final Map<String, String> supplied,
+                           final List<String> invalid,
+                           final Set<String> repeated)
+        {
+            String name;
+            String value;
+
+            if (arg.indexOf("=") > 0) {
+                name = arg.substring(arg.indexOf(prefix) + prefix.length(), arg.indexOf("="));
+                value = arg.substring(arg.indexOf("=") + 1);
+            } else {
+                if (arg.startsWith("--no-")) {
+                    name = arg.substring(5);
+                    value = "false";
+                } else {
+                    name = arg.substring(prefix.length());
+                    value = "true";
+                }
+            }
+
+            if (!defaults.containsKey(name) && spec.aliases.containsKey(name)) {
+                // check the options to find see if name is an alias for an option
+                // if it is, get the actual optionparam name
+                name = spec.aliases.get(name).getName();
+            }
+
+            if (defaults.containsKey(name)) {
+                final boolean isList = defaults.get(name) != null
+                        && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
+                final String existing = supplied.get(name);
+
+                if (isList) {
+
+                    if (existing == null) {
+
+                        value = OptionParam.LIST_TYPE + value;
+
+                    } else {
+
+                        value = existing + OptionParam.LIST_SEPARATOR + value;
+
+                    }
+
+                } else if (existing != null) {
+
+                    repeated.add(name);
+                }
+
+                supplied.put(name, value);
+            } else {
+                invalid.add(name);
+            }
         }
 
         private void interpret(final Map<String, String> map) {

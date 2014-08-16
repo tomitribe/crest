@@ -645,10 +645,14 @@ public class CmdMethod implements Cmd {
 
         private void checkInvalid(final List<String> invalid) {
             if (invalid.size() > 0) {
-                throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback() {
+                throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback<String>() {
                     @Override
-                    public String getName(final Object object) {
-                        return "--" + object;
+                    public String getName(final String object) {
+                        if (object.length() > 1) {
+                            return "--" + object;
+                        } else {
+                            return "-" + object;
+                        }
                     }
                 }, invalid));
             }
@@ -671,10 +675,14 @@ public class CmdMethod implements Cmd {
             }
 
             if (required.size() > 0) {
-                throw new IllegalArgumentException("Required: " + Join.join(", ", new Join.NameCallback() {
+                throw new IllegalArgumentException("Required: " + Join.join(", ", new Join.NameCallback<String>() {
                     @Override
-                    public String getName(final Object object) {
-                        return "--" + object;
+                    public String getName(final String object) {
+                        if (object.length() > 1) {
+                            return "--" + object;
+                        } else {
+                            return "-" + object;
+                        }
                     }
                 }, required));
             }
@@ -703,16 +711,16 @@ public class CmdMethod implements Cmd {
         if (args != null && args.length > 0) {
             final String lastArg = args[args.length - 1];
             if (lastArg.startsWith("--")) {
-                result.addAll(findMatchingOptions(lastArg.substring(2)));
+                result.addAll(findMatchingOptions(lastArg.substring(2), false));
             } else if (lastArg.startsWith("-")) {
-                result.addAll(findMatchingOptions(lastArg.substring(1)));
+                result.addAll(findMatchingOptions(lastArg.substring(1), true));
             }
         }
         
         return result;
     }
 
-    private Collection<String> findMatchingOptions(String prefix) {
+    private Collection<String> findMatchingOptions(String prefix, boolean isIncludeAliasChar) {
         final List<String> result = new ArrayList<String>();
         
         for (Param param : parameters) {
@@ -724,7 +732,18 @@ public class CmdMethod implements Cmd {
                 }
             }
         }
-        
+
+        for (String alias : spec.aliases.keySet()) {
+            if (alias.startsWith(prefix)) {
+                if (alias.length() > 1) {
+                    result.add("--" + alias);
+                }
+
+                if (isIncludeAliasChar && alias.length() == 1) {
+                    result.add("-" + alias);
+                }
+            }
+        }
         return result;
     }
 }

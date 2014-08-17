@@ -11,7 +11,7 @@ Options:
   --links                   copy symlinks as symlinks
   --owner                   preserve owner (super-user only)
   --perms                   preserve permissions
-  --no-progress             don't show progress during transfer
+  --no-progress, --no-p     don't show progress during transfer
   --recursive               recurse into directories
   --specials                preserve special files
   --times                   preserve times

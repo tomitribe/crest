@@ -144,15 +144,15 @@ public class Help {
             if (boolean.class.equals(type) || (Boolean.class.equals(type) && defaultValue != null)) {
 
                 if ("true".equals(defaultValue)) {
-                    this.flag = hasAlias ? Join.join(",", "--no-" + p.getName(), getAlias(alias, false)) : "--no-" + p.getName();
+                    this.flag = hasAlias ? Join.join(", ", "--no-" + p.getName(), getAlias(alias, false, true)) : "--no-" + p.getName();
                 } else {
-                    this.flag = hasAlias ? Join.join(",", "--" + p.getName(), getAlias(alias, true)) : "--" + p.getName();
+                    this.flag = hasAlias ? Join.join(", ", "--" + p.getName(), getAlias(alias, true, false)) : "--" + p.getName();
                 }
 
                 defaultValue = null;
 
             } else {
-                this.flag = hasAlias ? String.format("--%s, %s=<%s>", p.getName(), getAlias(alias, true), p.getDisplayType())
+                this.flag = hasAlias ? String.format("--%s, %s=<%s>", p.getName(), getAlias(alias, true, false), p.getDisplayType())
                             : String.format("--%s=<%s>", p.getName(), p.getDisplayType());
             }
 
@@ -181,16 +181,20 @@ public class Help {
 
         }
 
-        private String getAlias(List<String> aliasList, boolean withDemiliter) {
+        private String getAlias(List<String> aliasList, boolean withDemiliter, boolean isBooleanValue) {
            StringBuilder sb = new StringBuilder();
            for (String alias : aliasList) {
-                if (alias.length() > 1) {
-                    sb.append(withDemiliter ? ", --" + alias : alias);
-                } else {
-                    sb.append(withDemiliter ? ", -" + alias : alias);
-                }
+               if (isBooleanValue) {
+                   sb.append(", --no-" + alias);
+               } else {
+                   if (alias.length() > 1) {
+                       sb.append(withDemiliter ? ", --" + alias : alias);
+                   } else {
+                       sb.append(withDemiliter ? ", -" + alias : alias);
+                   }
+               }
            }
-           return sb.length() > 1 ? sb.substring(1, sb.length()) : "";
+           return sb.length() > 0 ? sb.toString().replaceFirst(", ","") : "";
         }
     }
 

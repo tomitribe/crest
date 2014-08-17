@@ -125,15 +125,21 @@ public class CompleterTest extends TestCase {
         assertTrue(gitCandidates.contains("--verbose"));
 
         gitCandidates = main.complete("git push -", 10);
-        assertEquals(2, gitCandidates.size());
+        assertEquals(3, gitCandidates.size());
         assertTrue(gitCandidates.contains("-v"));
+        assertTrue(gitCandidates.contains("-u"));
         assertTrue(gitCandidates.contains("--verbose"));
 
         gitCandidates = main.complete("git push -v=test", 10);
+        assertEquals(3, gitCandidates.size());
+        assertTrue(gitCandidates.contains("-v"));
+        assertTrue(gitCandidates.contains("-u"));
+        assertTrue(gitCandidates.contains("--verbose"));
+
+        gitCandidates = main.complete("git push -v=test", 11);
         assertEquals(2, gitCandidates.size());
         assertTrue(gitCandidates.contains("-v"));
         assertTrue(gitCandidates.contains("--verbose"));
-
 
     }
     
@@ -233,8 +239,10 @@ public class CompleterTest extends TestCase {
     public static class Git {
 
         @Command
-        public StreamingOutput push(@Option({"verbose", "v"}) String verbose) {
+        public StreamingOutput push(@Option({"verbose", "v"}) String verbose, @Option("u") String upstream) {
             throw new UnsupportedOperationException();
         }
+
+
     }
 }

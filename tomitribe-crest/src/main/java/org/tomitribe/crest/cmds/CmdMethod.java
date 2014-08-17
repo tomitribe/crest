@@ -728,7 +728,14 @@ public class CmdMethod implements Cmd {
                 final OptionParam optionParam = (OptionParam) param;
                 
                 if (optionParam.getName().startsWith(prefix)) {
-                    result.add("--" + optionParam.getName());
+                    if (optionParam.getName().length() > 1) {
+                        result.add("--" + optionParam.getName());
+                        continue;
+                    }
+
+                    if (isIncludeAliasChar) {
+                        result.add("-" + optionParam.getName());
+                    }
                 }
             }
         }

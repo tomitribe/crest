@@ -96,7 +96,7 @@ public class CompleterTest extends TestCase {
     }
 
     public void testCompleteOptions() throws Exception {
-        final Main main = new Main(Svn.class, Copy.class);
+        final Main main = new Main(Svn.class, Copy.class, Git.class);
         
         Collection<String> candidates = main.complete("svn checkout --", 15);
         assertEquals(2, candidates.size());
@@ -114,6 +114,33 @@ public class CompleterTest extends TestCase {
         assertEquals(2, candidates.size());
         assertTrue(candidates.contains("--username"));
         assertTrue(candidates.contains("--password"));
+
+
+        Collection<String> gitCandidates = main.complete("git push --", 11);
+        assertEquals(1, gitCandidates.size());
+        assertTrue(gitCandidates.contains("--verbose"));
+
+        gitCandidates = main.complete("git push --verb=test", 15);
+        assertEquals(1, gitCandidates.size());
+        assertTrue(gitCandidates.contains("--verbose"));
+
+        gitCandidates = main.complete("git push -", 10);
+        assertEquals(3, gitCandidates.size());
+        assertTrue(gitCandidates.contains("-v"));
+        assertTrue(gitCandidates.contains("-u"));
+        assertTrue(gitCandidates.contains("--verbose"));
+
+        gitCandidates = main.complete("git push -v=test", 10);
+        assertEquals(3, gitCandidates.size());
+        assertTrue(gitCandidates.contains("-v"));
+        assertTrue(gitCandidates.contains("-u"));
+        assertTrue(gitCandidates.contains("--verbose"));
+
+        gitCandidates = main.complete("git push -v=test", 11);
+        assertEquals(2, gitCandidates.size());
+        assertTrue(gitCandidates.contains("-v"));
+        assertTrue(gitCandidates.contains("--verbose"));
+
     }
     
     public void testCompleteFile() throws Exception {
@@ -206,5 +233,16 @@ public class CompleterTest extends TestCase {
         public StreamingOutput commit(@Option("username") String username, @Option("password") String password, String[] paths) {
             throw new UnsupportedOperationException();
         }
+    }
+
+    @Command
+    public static class Git {
+
+        @Command
+        public StreamingOutput push(@Option({"verbose", "v"}) String verbose, @Option("u") String upstream) {
+            throw new UnsupportedOperationException();
+        }
+
+
     }
 }

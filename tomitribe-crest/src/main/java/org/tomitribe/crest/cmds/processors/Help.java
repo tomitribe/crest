@@ -17,6 +17,7 @@
 package org.tomitribe.crest.cmds.processors;
 
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.PrintString;
@@ -127,7 +128,15 @@ public class Help {
 
         private Item(final OptionParam p, final String description) {
             this.description = description;
+            final List<String> alias = new ArrayList<String>();
 
+            Option option = p.getAnnotation(Option.class);
+            for (int i = 1; i < option.value().length; i++) {
+                final String aliasName = option.value()[i];
+                alias.add(aliasName);
+            }
+
+            final boolean hasAlias = alias.size() > 0;
             final Class<?> type = p.getType();
 
             String defaultValue = p.getDefaultValue();
@@ -135,15 +144,16 @@ public class Help {
             if (boolean.class.equals(type) || (Boolean.class.equals(type) && defaultValue != null)) {
 
                 if ("true".equals(defaultValue)) {
-                    this.flag = "--no-" + p.getName();
+                    this.flag = hasAlias ? Join.join(", ", "--no-" + p.getName(), getAlias(alias, false, true)) : "--no-" + p.getName();
                 } else {
-                    this.flag = "--" + p.getName();
+                    this.flag = hasAlias ? Join.join(", ", "--" + p.getName(), getAlias(alias, true, false)) : "--" + p.getName();
                 }
 
                 defaultValue = null;
 
             } else {
-                this.flag = String.format("--%s=<%s>", p.getName(), p.getDisplayType());
+                this.flag = hasAlias ? String.format("--%s, %s=<%s>", p.getName(), getAlias(alias, true, false), p.getDisplayType())
+                            : String.format("--%s=<%s>", p.getName(), p.getDisplayType());
             }
 
             if (defaultValue != null) {
@@ -169,6 +179,22 @@ public class Help {
                 this.note.add(String.format("enum: %s", join));
             }
 
+        }
+
+        private String getAlias(List<String> aliasList, boolean withDemiliter, boolean isBooleanValue) {
+           StringBuilder sb = new StringBuilder();
+           for (String alias : aliasList) {
+               if (isBooleanValue) {
+                   sb.append(", --no-" + alias);
+               } else {
+                   if (alias.length() > 1) {
+                       sb.append(withDemiliter ? ", --" + alias : alias);
+                   } else {
+                       sb.append(withDemiliter ? ", -" + alias : alias);
+                   }
+               }
+           }
+           return sb.length() > 0 ? sb.toString().replaceFirst(", ","") : "";
         }
     }
 

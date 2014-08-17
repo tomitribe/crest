@@ -16,22 +16,22 @@
  */
 package org.tomitribe.crest.cmds;
 
-import org.tomitribe.crest.cmds.utils.CommandLine;
-import org.tomitribe.crest.cmds.processors.Commands;
-import org.tomitribe.crest.contexts.DefaultsContext;
-import org.tomitribe.crest.environments.Environment;
-import org.tomitribe.crest.cmds.processors.Help;
-import org.tomitribe.crest.cmds.processors.OptionParam;
-import org.tomitribe.crest.cmds.processors.Param;
-import org.tomitribe.crest.cmds.targets.SimpleBean;
-import org.tomitribe.crest.cmds.targets.Substitution;
-import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
-import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Required;
+import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.cmds.processors.Help;
+import org.tomitribe.crest.cmds.processors.OptionParam;
+import org.tomitribe.crest.cmds.processors.Param;
+import org.tomitribe.crest.cmds.targets.SimpleBean;
+import org.tomitribe.crest.cmds.targets.Substitution;
+import org.tomitribe.crest.cmds.targets.Target;
+import org.tomitribe.crest.cmds.utils.CommandLine;
+import org.tomitribe.crest.contexts.DefaultsContext;
+import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
+import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.val.BeanValidation;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.editor.Converter;
@@ -76,6 +76,7 @@ public class CmdMethod implements Cmd {
 
     public class Spec {
         private final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
+        private final Map<String, OptionParam> aliases = new TreeMap<String, OptionParam>();
         private final List<Param> arguments = new LinkedList<Param>();
     }
 
@@ -102,16 +103,26 @@ public class CmdMethod implements Cmd {
 
             if (parameter.isAnnotationPresent(Option.class)) {
 
-                final OptionParam optionParam = new OptionParam(parameter);
+                final Option option = parameter.getAnnotation(Option.class);
+                final String name = option.value()[0];
+                final OptionParam optionParam = new OptionParam(parameter, name);
 
                 final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
 
                 if (existing != null) {
                     throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
                 }
+                
+                for (int i = 1; i < option.value().length; i++) {
+                    final String alias = option.value()[i];
+                    final OptionParam existingAlias = spec.aliases.put(alias, optionParam);
+                    
+                    if (existingAlias != null) {
+                        throw new IllegalArgumentException("Duplicate alias: " + alias);
+                    }
+                }
 
                 parameters.add(optionParam);
-
             } else if (parameter.getType().isAnnotationPresent(Options.class)) {
 
                 final ComplexParam complexParam = new ComplexParam(parameter);
@@ -320,10 +331,13 @@ public class CmdMethod implements Cmd {
         }
 
         if (args.options.size() > 0) {
-            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback() {
+            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback<String>() {
                 @Override
-                public String getName(final Object object) {
-                    return "--" + object;
+                public String getName(final String object) {
+                    if (object.length() > 1) {
+                        return "--" + object;
+                    }
+                    return "-" + object;
                 }
             }, args.options.keySet()));
         }
@@ -346,19 +360,15 @@ public class CmdMethod implements Cmd {
             final Option option = parameter.getAnnotation(Option.class);
 
             if (option != null) {
-
-                final String value = args.options.remove(option.value());
+                
+                final String optionValue = option.value()[0];
+                final String value = args.options.remove(optionValue);
 
                 if (parameter.isListable()) {
-
-                    converted.add(convert(parameter, OptionParam.getSeparatedValues(value), option.value()));
-
-                } else {
-
-                    converted.add(Converter.convert(value, parameter.getType(), option.value()));
-
+                    converted.add(convert(parameter, OptionParam.getSeparatedValues(value), optionValue));
+                } else { 
+                    converted.add(Converter.convert(value, parameter.getType(), optionValue));
                 }
-
             } else if (parameter instanceof ComplexParam) {
 
                 final ComplexParam complexParam = (ComplexParam) parameter;
@@ -547,49 +557,9 @@ public class CmdMethod implements Cmd {
             // Read in and apply the options specified on the command line
             for (final String arg : rawArgs) {
                 if (arg.startsWith("--")) {
-
-                    final String name;
-                    String value;
-
-                    if (arg.indexOf("=") > 0) {
-                        name = arg.substring(arg.indexOf("--") + 2, arg.indexOf("="));
-                        value = arg.substring(arg.indexOf("=") + 1);
-                    } else {
-                        if (arg.startsWith("--no-")) {
-                            name = arg.substring(5);
-                            value = "false";
-                        } else {
-                            name = arg.substring(2);
-                            value = "true";
-                        }
-                    }
-
-                    if (defaults.containsKey(name)) {
-                        final boolean isList = defaults.get(name) != null
-                                && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
-                        final String existing = supplied.get(name);
-
-                        if (isList) {
-
-                            if (existing == null) {
-
-                                value = OptionParam.LIST_TYPE + value;
-
-                            } else {
-
-                                value = existing + OptionParam.LIST_SEPARATOR + value;
-
-                            }
-
-                        } else if (existing != null) {
-
-                            repeated.add(name);
-                        }
-
-                        supplied.put(name, value);
-                    } else {
-                        invalid.add(name);
-                    }
+                    getCommand("--", arg, defaults, supplied, invalid, repeated);
+                } else if (arg.startsWith("-")) {
+                    getCommand("-", arg, defaults, supplied, invalid, repeated);
                 } else {
                     this.list.add(arg);
                 }
@@ -606,6 +576,63 @@ public class CmdMethod implements Cmd {
 
         }
 
+        private void getCommand(final String prefix,
+                           final String arg,
+                           final Map<String, String> defaults,
+                           final Map<String, String> supplied,
+                           final List<String> invalid,
+                           final Set<String> repeated)
+        {
+            String name;
+            String value;
+
+            if (arg.indexOf("=") > 0) {
+                name = arg.substring(arg.indexOf(prefix) + prefix.length(), arg.indexOf("="));
+                value = arg.substring(arg.indexOf("=") + 1);
+            } else {
+                if (arg.startsWith("--no-")) {
+                    name = arg.substring(5);
+                    value = "false";
+                } else {
+                    name = arg.substring(prefix.length());
+                    value = "true";
+                }
+            }
+
+            if (!defaults.containsKey(name) && spec.aliases.containsKey(name)) {
+                // check the options to find see if name is an alias for an option
+                // if it is, get the actual optionparam name
+                name = spec.aliases.get(name).getName();
+            }
+
+            if (defaults.containsKey(name)) {
+                final boolean isList = defaults.get(name) != null
+                        && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
+                final String existing = supplied.get(name);
+
+                if (isList) {
+
+                    if (existing == null) {
+
+                        value = OptionParam.LIST_TYPE + value;
+
+                    } else {
+
+                        value = existing + OptionParam.LIST_SEPARATOR + value;
+
+                    }
+
+                } else if (existing != null) {
+
+                    repeated.add(name);
+                }
+
+                supplied.put(name, value);
+            } else {
+                invalid.add(name);
+            }
+        }
+
         private void interpret(final Map<String, String> map) {
             for (final Map.Entry<String, String> entry : map.entrySet()) {
                 if (entry.getValue() == null) {
@@ -618,10 +645,14 @@ public class CmdMethod implements Cmd {
 
         private void checkInvalid(final List<String> invalid) {
             if (invalid.size() > 0) {
-                throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback() {
+                throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback<String>() {
                     @Override
-                    public String getName(final Object object) {
-                        return "--" + object;
+                    public String getName(final String object) {
+                        if (object.length() > 1) {
+                            return "--" + object;
+                        } else {
+                            return "-" + object;
+                        }
                     }
                 }, invalid));
             }
@@ -636,16 +667,22 @@ public class CmdMethod implements Cmd {
 
                 final Option option = parameter.getAnnotation(Option.class);
 
-                if (!supplied.containsKey(option.value())) {
-                    required.add(option.value());
+                for (String optionValue : option.value()) {
+                    if (!supplied.containsKey(optionValue)) {
+                        required.add(optionValue);
+                    }
                 }
             }
 
             if (required.size() > 0) {
-                throw new IllegalArgumentException("Required: " + Join.join(", ", new Join.NameCallback() {
+                throw new IllegalArgumentException("Required: " + Join.join(", ", new Join.NameCallback<String>() {
                     @Override
-                    public String getName(final Object object) {
-                        return "--" + object;
+                    public String getName(final String object) {
+                        if (object.length() > 1) {
+                            return "--" + object;
+                        } else {
+                            return "-" + object;
+                        }
                     }
                 }, required));
             }
@@ -674,14 +711,16 @@ public class CmdMethod implements Cmd {
         if (args != null && args.length > 0) {
             final String lastArg = args[args.length - 1];
             if (lastArg.startsWith("--")) {
-                result.addAll(findMatchingOptions(lastArg.substring(2)));
+                result.addAll(findMatchingOptions(lastArg.substring(2), false));
+            } else if (lastArg.startsWith("-")) {
+                result.addAll(findMatchingOptions(lastArg.substring(1), true));
             }
         }
         
         return result;
     }
 
-    private Collection<String> findMatchingOptions(String prefix) {
+    private Collection<String> findMatchingOptions(String prefix, boolean isIncludeAliasChar) {
         final List<String> result = new ArrayList<String>();
         
         for (Param param : parameters) {
@@ -689,11 +728,29 @@ public class CmdMethod implements Cmd {
                 final OptionParam optionParam = (OptionParam) param;
                 
                 if (optionParam.getName().startsWith(prefix)) {
-                    result.add("--" + optionParam.getName());
+                    if (optionParam.getName().length() > 1) {
+                        result.add("--" + optionParam.getName());
+                        continue;
+                    }
+
+                    if (isIncludeAliasChar) {
+                        result.add("-" + optionParam.getName());
+                    }
                 }
             }
         }
-        
+
+        for (String alias : spec.aliases.keySet()) {
+            if (alias.startsWith(prefix)) {
+                if (alias.length() > 1) {
+                    result.add("--" + alias);
+                }
+
+                if (isIncludeAliasChar && alias.length() == 1) {
+                    result.add("-" + alias);
+                }
+            }
+        }
         return result;
     }
 }

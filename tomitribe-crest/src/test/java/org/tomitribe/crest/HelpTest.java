@@ -66,7 +66,7 @@ public class HelpTest extends Assert {
                           @Option("exclude-from") final File excludeFrom,
                           @Option("include") final Pattern include,
                           @Option("include-from") final File includeFrom,
-                          @Option("progress") @Default("true") final boolean progress,
+                          @Option({"progress", "p"}) @Default("true") final boolean progress,
                           final URI[] sources,
                           final URI dest
         ) {
@@ -91,13 +91,13 @@ public class HelpTest extends Assert {
                          @Option("devices") final boolean devices,
                          @Option("specials") final boolean specials,
                          @Option("times") final boolean times,
-                         @Option("exclude") final Pattern exclude,
+                         @Option({"exclude", "e"}) final Pattern exclude,
                          @Option("exclude-from") final File excludeFrom,
                          @Option("include") @Default(".*") final Pattern include,
                          @Option("include-from") final File includeFrom,
                          @Option("highlight") @Default("orange") final Color highlight,
                          @Option("foreground") @Default("orange") final Color foreground,
-                         @Option("background") final Color background,
+                         @Option({"background", "bg"}) final Color background,
                          final URI source,
                          final URI dest
         ) {

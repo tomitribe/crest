@@ -2,24 +2,24 @@
 Usage: test [options] URI URI
 
 Options: 
-  --background=<Color>      color to use in the background
-                            (enum: red, green, blue, orange)
-  --devices                 preserve device files (super-user only)
-  --exclude=<Pattern>       exclude files matching PATTERN
-  --exclude-from=<File>     read exclude patterns from FILE
-  --foreground=<Color>      color to use in the foreground
-                            (default: orange)
-                            (enum: red, green, blue, orange)
-  --group                   preserve group
-  --highlight=<Color>       default: orange
-                            (enum: red, green, blue, orange)
-  --include=<Pattern>       don't exclude files matching PATTERN
-                            (default: .*)
-  --include-from=<File>     read include patterns from FILE
-  --links                   copy symlinks as symlinks
-  --owner=<String>          preserve owner (super-user only)
-                            (default: ${user.name})
-  --perms                   preserve permissions
-  --recursive               recurse into directories
-  --specials                preserve special files
-  --times                   preserve times
+  --background, --bg=<Color>     color to use in the background
+                                 (enum: red, green, blue, orange)
+  --devices                      preserve device files (super-user only)
+  --exclude, -e=<Pattern>        exclude files matching PATTERN
+  --exclude-from=<File>          read exclude patterns from FILE
+  --foreground=<Color>           color to use in the foreground
+                                 (default: orange)
+                                 (enum: red, green, blue, orange)
+  --group                        preserve group
+  --highlight=<Color>            default: orange
+                                 (enum: red, green, blue, orange)
+  --include=<Pattern>            don't exclude files matching PATTERN
+                                 (default: .*)
+  --include-from=<File>          read include patterns from FILE
+  --links                        copy symlinks as symlinks
+  --owner=<String>               preserve owner (super-user only)
+                                 (default: ${user.name})
+  --perms                        preserve permissions
+  --recursive                    recurse into directories
+  --specials                     preserve special files
+  --times                        preserve times

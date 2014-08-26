@@ -56,7 +56,7 @@ public class BeanValidation {
             return;
         }
 
-        Helper.isValidParameters(clazz, method, parameters);
+        Helper.validateParameters(clazz, method, parameters);
     }
 
     public static void validateParameters(final Class clazz, final Constructor constructor, final Object[] parameters) throws Exception {
@@ -64,7 +64,7 @@ public class BeanValidation {
             return;
         }
 
-        Helper.isValidParameters(clazz, constructor, parameters);
+        Helper.validateParameters(clazz, constructor, parameters);
     }
 
     public static Iterable<? extends String> messages(final Exception e) {
@@ -82,7 +82,7 @@ public class BeanValidation {
     // Note: using bval 1.1 will just make it portable
     private static class Helper { // use for laziness of loading
 
-        public static void isValidParameters(final Class clazz, final Method method, final Object[] parameters) {
+        public static void validateParameters(final Class clazz, final Method method, final Object[] parameters) {
             final MethodValidator validatorObject = getValidatorObject();
             final Set<ConstraintViolation<?>> violations = validatorObject.validateParameters(clazz, method, parameters);
 
@@ -91,7 +91,7 @@ public class BeanValidation {
             }
         }
 
-        public static void isValidParameters(final Class clazz, final Constructor constructor, final Object[] parameters) {
+        public static void validateParameters(final Class clazz, final Constructor constructor, final Object[] parameters) {
             final MethodValidator validatorObject = getValidatorObject();
             final Set<ConstraintViolation<?>> violations = validatorObject.validateParameters(clazz, constructor, parameters);
 

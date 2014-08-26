@@ -56,7 +56,7 @@ public class BeanValidation {
             return;
         }
 
-        Helper.validateParameters(clazz, method, parameters);
+        Helper.isValidParameters(clazz, method, parameters);
     }
 
     public static void validateParameters(final Class clazz, final Constructor constructor, final Object[] parameters) throws Exception {
@@ -64,7 +64,7 @@ public class BeanValidation {
             return;
         }
 
-        Helper.validateParameters(clazz, constructor, parameters);
+        Helper.isValidParameters(clazz, constructor, parameters);
     }
 
     public static Iterable<? extends String> messages(final Exception e) {
@@ -82,12 +82,8 @@ public class BeanValidation {
     // Note: using bval 1.1 will just make it portable
     private static class Helper { // use for laziness of loading
 
-        public static void validateParameters(final Class clazz, final Method method, final Object[] parameters) {
-            final ApacheValidatorConfiguration configure = Validation.byProvider(ApacheValidationProvider.class).configure();
-
-            final ValidatorFactory validatorFactory = configure.buildValidatorFactory();
-            final MethodValidator validatorObject = validatorFactory.getValidator().unwrap(org.apache.bval.jsr303.extensions.MethodValidator.class);
-
+        public static void isValidParameters(final Class clazz, final Method method, final Object[] parameters) {
+            final MethodValidator validatorObject = getValidatorObject();
             final Set<ConstraintViolation<?>> violations = validatorObject.validateParameters(clazz, method, parameters);
 
             if (violations.size() > 0) {
@@ -95,17 +91,20 @@ public class BeanValidation {
             }
         }
 
-        public static void validateParameters(final Class clazz, final Constructor constructor, final Object[] parameters) {
-            final ApacheValidatorConfiguration configure = Validation.byProvider(ApacheValidationProvider.class).configure();
-
-            final ValidatorFactory validatorFactory = configure.buildValidatorFactory();
-            final MethodValidator validatorObject = validatorFactory.getValidator().unwrap(org.apache.bval.jsr303.extensions.MethodValidator.class);
-
+        public static void isValidParameters(final Class clazz, final Constructor constructor, final Object[] parameters) {
+            final MethodValidator validatorObject = getValidatorObject();
             final Set<ConstraintViolation<?>> violations = validatorObject.validateParameters(clazz, constructor, parameters);
 
             if (violations.size() > 0) {
                 throw new ConstraintViolationException(violations);
             }
+        }
+
+        private static MethodValidator getValidatorObject() {
+            final ApacheValidatorConfiguration configure = Validation.byProvider(ApacheValidationProvider.class).configure();
+            final ValidatorFactory validatorFactory = configure.buildValidatorFactory();
+            final MethodValidator validatorObject = validatorFactory.getValidator().unwrap(org.apache.bval.jsr303.extensions.MethodValidator.class);
+            return validatorObject;
         }
     }
 }

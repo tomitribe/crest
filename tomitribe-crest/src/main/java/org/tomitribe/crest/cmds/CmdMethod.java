@@ -112,11 +112,11 @@ public class CmdMethod implements Cmd {
                 if (existing != null) {
                     throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
                 }
-                
+
                 for (int i = 1; i < option.value().length; i++) {
                     final String alias = option.value()[i];
                     final OptionParam existingAlias = spec.aliases.put(alias, optionParam);
-                    
+
                     if (existingAlias != null) {
                         throw new IllegalArgumentException("Duplicate alias: " + alias);
                     }
@@ -360,13 +360,12 @@ public class CmdMethod implements Cmd {
             final Option option = parameter.getAnnotation(Option.class);
 
             if (option != null) {
-                
                 final String optionValue = option.value()[0];
                 final String value = args.options.remove(optionValue);
 
                 if (parameter.isListable()) {
                     converted.add(convert(parameter, OptionParam.getSeparatedValues(value), optionValue));
-                } else { 
+                } else {
                     converted.add(Converter.convert(value, parameter.getType(), optionValue));
                 }
             } else if (parameter instanceof ComplexParam) {
@@ -577,11 +576,11 @@ public class CmdMethod implements Cmd {
         }
 
         private void getCommand(final String prefix,
-                           final String arg,
-                           final Map<String, String> defaults,
-                           final Map<String, String> supplied,
-                           final List<String> invalid,
-                           final Set<String> repeated)
+                                final String arg,
+                                final Map<String, String> defaults,
+                                final Map<String, String> supplied,
+                                final List<String> invalid,
+                                final Set<String> repeated)
         {
             String name;
             String value;
@@ -702,9 +701,7 @@ public class CmdMethod implements Cmd {
 
     @Override
     public Collection<String> complete(final String buffer, final int cursorPosition) {
-        final List<String> result = new ArrayList<String>(); 
-        
-        
+        final List<String> result = new ArrayList<String>();
         final String commandLine = buffer.substring(0, cursorPosition);
         final String[] args = CommandLine.translateCommandline(commandLine);
 
@@ -716,17 +713,16 @@ public class CmdMethod implements Cmd {
                 result.addAll(findMatchingOptions(lastArg.substring(1), true));
             }
         }
-        
+
         return result;
     }
 
-    private Collection<String> findMatchingOptions(String prefix, boolean isIncludeAliasChar) {
+    private Collection<String> findMatcingParametersOptions(String prefix, boolean isIncludeAliasChar) {
         final List<String> result = new ArrayList<String>();
-        
         for (Param param : parameters) {
             if (param instanceof OptionParam) {
                 final OptionParam optionParam = (OptionParam) param;
-                
+
                 if (optionParam.getName().startsWith(prefix)) {
                     if (optionParam.getName().length() > 1) {
                         result.add("--" + optionParam.getName());
@@ -739,7 +735,11 @@ public class CmdMethod implements Cmd {
                 }
             }
         }
+        return result;
+    }
 
+    private Collection<String> findMatchingAliasOptions(String prefix, boolean isIncludeAliasChar) {
+        final List<String> result = new ArrayList<String>();
         for (String alias : spec.aliases.keySet()) {
             if (alias.startsWith(prefix)) {
                 if (alias.length() > 1) {
@@ -752,5 +752,12 @@ public class CmdMethod implements Cmd {
             }
         }
         return result;
+    }
+
+    private Collection<String> findMatchingOptions(String prefix, boolean isIncludeAliasChar) {
+        List<String> results = new ArrayList<String>();
+        results.addAll(findMatcingParametersOptions(prefix, isIncludeAliasChar));
+        results.addAll(findMatchingAliasOptions(prefix, isIncludeAliasChar));
+        return results;
     }
 }

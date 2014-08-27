@@ -83,14 +83,15 @@ public class HelpTest extends Assert {
     public static class DefaultsAndEnums {
 
         @Command
-        public void test(@Option("recursive") final boolean recursive,
-                         @Option("links") final boolean links,
-                         @Option("perms") final boolean perms,
+        public void test(@Option({"r", "recursive"}) final boolean recursive,
+                         @Option({"links", "l"}) final boolean links,
+                         @Option({"p", "perms"}) final boolean perms,
                          @Option("owner") @Default("${user.name}") final String owner,
                          @Option("group") final boolean group,
                          @Option("devices") final boolean devices,
                          @Option("specials") final boolean specials,
                          @Option("times") final boolean times,
+                         @Option("x") final boolean x,
                          @Option({"exclude", "e"}) final Pattern exclude,
                          @Option("exclude-from") final File excludeFrom,
                          @Option("include") @Default(".*") final Pattern include,

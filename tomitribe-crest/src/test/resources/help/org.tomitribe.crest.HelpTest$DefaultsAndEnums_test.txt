@@ -16,10 +16,11 @@ Options:
   --include=<Pattern>            don't exclude files matching PATTERN
                                  (default: .*)
   --include-from=<File>          read include patterns from FILE
-  --links                        copy symlinks as symlinks
+  --links, -l                    copy symlinks as symlinks
   --owner=<String>               preserve owner (super-user only)
                                  (default: ${user.name})
-  --perms                        preserve permissions
-  --recursive                    recurse into directories
+  -p, --perms                   
+  -r, --recursive               
   --specials                     preserve special files
   --times                        preserve times
+  -x                            

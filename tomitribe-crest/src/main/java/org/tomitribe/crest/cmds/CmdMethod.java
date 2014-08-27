@@ -602,7 +602,7 @@ public class CmdMethod implements Cmd {
 
                 // reject -del=true
                 if (arg.indexOf("=") > -1 && name.length() > 1) {
-                    invalid.add(name);
+                    invalid.add(prefix + name);
                     return;
                 }
 
@@ -612,22 +612,23 @@ public class CmdMethod implements Cmd {
                 }
 
                 for (final String opt : opts) {
-                    processOption(opt, value, defaults, supplied, invalid, repeated);
+                    processOption(prefix, opt, value, defaults, supplied, invalid, repeated);
                 }
             }
 
             // reject --d and --d=true
             if ("--".equals(prefix)) {
                 if (name.length() == 1) {
-                    invalid.add(name);
+                    invalid.add(prefix + name);
                     return;
                 }
 
-                processOption(name, value, defaults, supplied, invalid, repeated);
+                processOption(prefix, name, value, defaults, supplied, invalid, repeated);
             }
         }
 
-        private void processOption(final String optName, 
+        private void processOption(final String prefix,
+                                   final String optName, 
                                    final String optValue, 
                                    final Map<String, String> defaults, 
                                    final Map<String, String> supplied,
@@ -667,7 +668,7 @@ public class CmdMethod implements Cmd {
 
                 supplied.put(name, value);
             } else {
-                invalid.add(name);
+                invalid.add(prefix + name);
             }
         }
 
@@ -686,11 +687,7 @@ public class CmdMethod implements Cmd {
                 throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback<String>() {
                     @Override
                     public String getName(final String object) {
-                        if (object.length() > 1) {
-                            return "--" + object;
-                        } else {
-                            return "-" + object;
-                        }
+                        return object;
                     }
                 }, invalid));
             }

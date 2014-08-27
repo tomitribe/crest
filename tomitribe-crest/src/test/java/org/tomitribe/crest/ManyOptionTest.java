@@ -34,9 +34,6 @@ public class ManyOptionTest extends TestCase{
         commands.get("doString").exec("--foo=2", "--foox=3", "-f=5");
     }
 
-    /**
-     * We must get this test to pass
-     */
     public void testIllegal() throws Exception {
         final Cmd rsync = commands.get("rsync");
 
@@ -63,13 +60,8 @@ public class ManyOptionTest extends TestCase{
         }
 
         // Long options cannot be short options
-        try {
-            rsync.exec("-del");
-
-            fail();
-        } catch (IllegalArgumentException pass) {
-        }
-
+        // -del is the same as -d -e -l (covered in the test below).
+        
         try {
             rsync.exec("-delete-during");
 
@@ -97,18 +89,17 @@ public class ManyOptionTest extends TestCase{
             fail();
         } catch (IllegalArgumentException pass) {
         }
+        
+        try {
+            rsync.exec("-no-rsh");
+
+            fail();
+        } catch (IllegalArgumentException pass) {
+        }
+
 
     }
 
-    /**
-     * Optional.  We don't have to support stringing short options together
-     * as is allowed in posix.  Nice to have.  Could easily be done after 1.0.
-     *
-     * We do have to make the above Illegal, however or we'll never be able
-     * support it without potentially breaking someone.  If we make
-     * "-del" illegal we can add posix stringing support any time.
-     */
-    @Ignore
     public void testMixedLongAndShort() {
         final Cmd rsync = commands.get("rsync");
 

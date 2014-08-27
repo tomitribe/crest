@@ -598,6 +598,46 @@ public class CmdMethod implements Cmd {
                 }
             }
 
+            if ("-".equals(prefix)) {
+
+                // reject -del=true
+                if (arg.indexOf("=") > -1 && name.length() > 1) {
+                    invalid.add(name);
+                    return;
+                }
+
+                final Set<String> opts = new HashSet<String>();
+                for (final String opt : name.split("(?!^)")) {
+                    opts.add(opt);
+                }
+
+                for (final String opt : opts) {
+                    processOption(opt, value, defaults, supplied, invalid, repeated);
+                }
+            }
+
+            // reject --d and --d=true
+            if ("--".equals(prefix)) {
+                if (name.length() == 1) {
+                    invalid.add(name);
+                    return;
+                }
+
+                processOption(name, value, defaults, supplied, invalid, repeated);
+            }
+        }
+
+        private void processOption(final String optName, 
+                                   final String optValue, 
+                                   final Map<String, String> defaults, 
+                                   final Map<String, String> supplied,
+                                   final List<String> invalid, 
+                                   final Set<String> repeated) 
+        {
+            
+            String name = optName;
+            String value = optValue;
+            
             if (!defaults.containsKey(name) && spec.aliases.containsKey(name)) {
                 // check the options to find see if name is an alias for an option
                 // if it is, get the actual optionparam name
@@ -605,8 +645,7 @@ public class CmdMethod implements Cmd {
             }
 
             if (defaults.containsKey(name)) {
-                final boolean isList = defaults.get(name) != null
-                        && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
+                final boolean isList = defaults.get(name) != null && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
                 final String existing = supplied.get(name);
 
                 if (isList) {

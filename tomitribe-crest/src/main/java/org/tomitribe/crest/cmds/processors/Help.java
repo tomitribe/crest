@@ -128,6 +128,8 @@ public class Help {
 
         private Item(final OptionParam p, final String description) {
             this.description = description;
+            final String prefix = p.getName().length() > 1 ? "--" : "-";
+            
             final List<String> alias = new ArrayList<String>();
 
             Option option = p.getAnnotation(Option.class);
@@ -146,14 +148,14 @@ public class Help {
                 if ("true".equals(defaultValue)) {
                     this.flag = hasAlias ? Join.join(", ", "--no-" + p.getName(), getAlias(alias, false, true)) : "--no-" + p.getName();
                 } else {
-                    this.flag = hasAlias ? Join.join(", ", "--" + p.getName(), getAlias(alias, true, false)) : "--" + p.getName();
+                    this.flag = hasAlias ? Join.join(", ", prefix + p.getName(), getAlias(alias, true, false)) : prefix + p.getName();
                 }
 
                 defaultValue = null;
 
             } else {
-                this.flag = hasAlias ? String.format("--%s, %s=<%s>", p.getName(), getAlias(alias, true, false), p.getDisplayType())
-                            : String.format("--%s=<%s>", p.getName(), p.getDisplayType());
+                this.flag = hasAlias ? String.format("%s%s, %s=<%s>", prefix, p.getName(), getAlias(alias, true, false), p.getDisplayType())
+                            : String.format("%s%s=<%s>", prefix, p.getName(), p.getDisplayType());
             }
 
             if (defaultValue != null) {

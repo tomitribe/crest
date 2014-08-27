@@ -1,8 +1,0 @@
-
-Usage: rsync [options]
-
-Options: 
-  --d, --dirs=<Boolean>                
-  --del, --delete-during=<Boolean>     
-  --e, --rsh=<Boolean>                 
-  --l, --links=<Boolean>               

@@ -23,12 +23,15 @@ import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.util.Files;
 import org.tomitribe.util.IO;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Map;
 
 /**
@@ -43,6 +46,22 @@ public class CmdMethodTest extends TestCase {
         assertEquals("ls [options] File", commands.get("ls").getUsage());
         assertEquals("tail [options] File int", commands.get("tail").getUsage());
         assertEquals("set [options]", commands.get("set").getUsage());
+        assertEquals("prefixed [options]", commands.get("prefixed").getUsage());
+    }
+
+    public void testSupportUserDashPrefixing() {
+        Commands.prefixed = false;
+        final Cmd cmd = commands.get("prefixed");
+        cmd.exec("-value=1", "----value=4");
+        assertTrue(Commands.prefixed);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        cmd.help(new PrintStream(out));
+        assertEquals(
+                "Usage: prefixed [options]" +
+                "Options: " +
+                "  ----value=<String>    " +
+                "     -value=<String>",
+                new String(out.toByteArray()).replace(System.getProperty("line.separator"), "").trim());
     }
 
     public void test() throws Exception {
@@ -116,6 +135,14 @@ public class CmdMethodTest extends TestCase {
     }
 
     public static class Commands {
+        private static boolean prefixed;
+
+        @Command
+        public static void prefixed(@Option("-value") final String v, @Option("----value") final String four) {
+            assertEquals("1", v);
+            assertEquals("4", four);
+            prefixed = true;
+        }
 
         @Command
         public static void touch(final File file) {

@@ -143,19 +143,22 @@ public class Help {
 
             String defaultValue = p.getDefaultValue();
 
+            final String name = p.getName();
             if (boolean.class.equals(type) || (Boolean.class.equals(type) && defaultValue != null)) {
 
                 if ("true".equals(defaultValue)) {
-                    this.flag = hasAlias ? Join.join(", ", "--no-" + p.getName(), getAlias(alias, false, true)) : "--no-" + p.getName();
+                    this.flag = hasAlias ? Join.join(", ", "--no-" + name, getAlias(alias, false, true)) : "--no-" + name;
                 } else {
-                    this.flag = hasAlias ? Join.join(", ", prefix + p.getName(), getAlias(alias, true, false)) : prefix + p.getName();
+                    final String optName = name.startsWith("-")? name : prefix + name;
+                    this.flag = hasAlias ? Join.join(", ", optName, getAlias(alias, true, false)) : optName;
                 }
 
                 defaultValue = null;
 
             } else {
-                this.flag = hasAlias ? String.format("%s%s, %s=<%s>", prefix, p.getName(), getAlias(alias, true, false), p.getDisplayType())
-                            : String.format("%s%s=<%s>", prefix, p.getName(), p.getDisplayType());
+                final String optName = name.startsWith("-")? name : prefix + name;
+                this.flag = hasAlias ? String.format("%s, %s=<%s>", optName, getAlias(alias, true, false), p.getDisplayType())
+                            : String.format("%s=<%s>", optName, p.getDisplayType());
             }
 
             if (defaultValue != null) {

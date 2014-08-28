@@ -66,6 +66,18 @@ import java.util.TreeSet;
  * @version $Revision$ $Date$
  */
 public class CmdMethod implements Cmd {
+    private static final Join.NameCallback<String> STRING_NAME_CALLBACK = new Join.NameCallback<String>() {
+        @Override
+        public String getName(final String object) {
+            if (object.startsWith("-")) {
+                return object;
+            }
+            if (object.length() > 1) {
+                return "--" + object;
+            }
+            return "-" + object;
+        }
+    };
 
     private final Target target;
     private final Method method;
@@ -331,15 +343,7 @@ public class CmdMethod implements Cmd {
         }
 
         if (args.options.size() > 0) {
-            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", new Join.NameCallback<String>() {
-                @Override
-                public String getName(final String object) {
-                    if (object.length() > 1) {
-                        return "--" + object;
-                    }
-                    return "-" + object;
-                }
-            }, args.options.keySet()));
+            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", STRING_NAME_CALLBACK, args.options.keySet()));
         }
 
         return converted;
@@ -575,7 +579,7 @@ public class CmdMethod implements Cmd {
 
         }
 
-        private void getCommand(final String prefix,
+        private void getCommand(final String defaultPrefix,
                                 final String arg,
                                 final Map<String, String> defaults,
                                 final Map<String, String> supplied,
@@ -584,9 +588,14 @@ public class CmdMethod implements Cmd {
         {
             String name;
             String value;
+            String prefix = defaultPrefix;
 
             if (arg.indexOf("=") > 0) {
                 name = arg.substring(arg.indexOf(prefix) + prefix.length(), arg.indexOf("="));
+                if (!defaults.containsKey(name) && !spec.aliases.containsKey(name)) {
+                    name = arg.substring(0, arg.indexOf("="));
+                    prefix = "";
+                }
                 value = arg.substring(arg.indexOf("=") + 1);
             } else {
                 if (arg.startsWith("--no-")) {
@@ -623,6 +632,9 @@ public class CmdMethod implements Cmd {
                     return;
                 }
 
+                processOption(prefix, name, value, defaults, supplied, invalid, repeated);
+            }
+            if (prefix.isEmpty()) {
                 processOption(prefix, name, value, defaults, supplied, invalid, repeated);
             }
         }
@@ -684,12 +696,7 @@ public class CmdMethod implements Cmd {
 
         private void checkInvalid(final List<String> invalid) {
             if (invalid.size() > 0) {
-                throw new IllegalArgumentException("Unknown options: " + Join.join(", ", new Join.NameCallback<String>() {
-                    @Override
-                    public String getName(final String object) {
-                        return object;
-                    }
-                }, invalid));
+                throw new IllegalArgumentException("Unknown options: " + Join.join(", ", STRING_NAME_CALLBACK, invalid));
             }
         }
 
@@ -710,16 +717,7 @@ public class CmdMethod implements Cmd {
             }
 
             if (required.size() > 0) {
-                throw new IllegalArgumentException("Required: " + Join.join(", ", new Join.NameCallback<String>() {
-                    @Override
-                    public String getName(final String object) {
-                        if (object.length() > 1) {
-                            return "--" + object;
-                        } else {
-                            return "-" + object;
-                        }
-                    }
-                }, required));
+                throw new IllegalArgumentException("Required: " + Join.join(", ", STRING_NAME_CALLBACK, required));
             }
         }
 
@@ -759,14 +757,18 @@ public class CmdMethod implements Cmd {
             if (param instanceof OptionParam) {
                 final OptionParam optionParam = (OptionParam) param;
 
-                if (optionParam.getName().startsWith(prefix)) {
-                    if (optionParam.getName().length() > 1) {
-                        result.add("--" + optionParam.getName());
+                final String optionParamName = optionParam.getName();
+                if (optionParamName.startsWith(prefix)) {
+                    if (optionParamName.startsWith("-")) {
+                        result.add(optionParamName);
                         continue;
                     }
-
+                    if (optionParamName.length() > 1) {
+                        result.add("--" + optionParamName);
+                        continue;
+                    }
                     if (isIncludeAliasChar) {
-                        result.add("-" + optionParam.getName());
+                        result.add("-" + optionParamName);
                     }
                 }
             }
@@ -778,10 +780,11 @@ public class CmdMethod implements Cmd {
         final List<String> result = new ArrayList<String>();
         for (String alias : spec.aliases.keySet()) {
             if (alias.startsWith(prefix)) {
-                if (alias.length() > 1) {
+                if (alias.startsWith("-")) {
+                    result.add(alias);
+                } else if (alias.length() > 1) {
                     result.add("--" + alias);
                 }
-
                 if (isIncludeAliasChar && alias.length() == 1) {
                     result.add("-" + alias);
                 }

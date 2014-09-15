@@ -43,6 +43,11 @@
     </dependency>
     <dependency>
       <groupId>org.tomitribe</groupId>
+      <artifactId>tomitribe-crest-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest-xbean</artifactId>
       <version>${project.version}</version>
     </dependency>

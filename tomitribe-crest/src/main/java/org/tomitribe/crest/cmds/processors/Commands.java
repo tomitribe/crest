@@ -107,13 +107,9 @@ public class Commands {
 
             final HashMap<String, Cmd> group = new HashMap<String, Cmd>();
             group.put(cmdGroup.getName(), cmdGroup);
-
             return group;
-
-        } else {
-
-            return map;
         }
+        return map;
     }
 
     public static String name(final Method method) {
@@ -164,7 +160,6 @@ public class Commands {
                 classes.add(clazz);
             }
         }
-
         return classes;
     }
 }

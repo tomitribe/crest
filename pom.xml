@@ -87,14 +87,14 @@
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-asm-shaded</artifactId>
-        <version>3.16</version>
+        <artifactId>xbean-asm5-shaded</artifactId>
+        <version>4.0</version>
         <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-finder-shaded</artifactId>
-        <version>3.16</version>
+        <version>4.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.bval</groupId>

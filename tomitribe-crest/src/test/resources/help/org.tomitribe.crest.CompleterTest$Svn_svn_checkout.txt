@@ -1,0 +1,6 @@
+
+Usage: svn checkout [options] URI
+
+Options: 
+  --password=<String>      
+  --username=<String>      

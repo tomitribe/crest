@@ -214,11 +214,21 @@ public class CmdMethod implements Cmd {
      */
     @Override
     public String getUsage() {
+        String commandName = name;
+        
+        Class<?> declaringClass = method.getDeclaringClass();
+        Map<String, Cmd> commands = Commands.get(declaringClass);
+        if (commands.size() == 1 && commands.values().iterator().next() instanceof CmdGroup) {
+            final CmdGroup cmdGroup = (CmdGroup) commands.values().iterator().next();
+            commandName = cmdGroup.getName() + " " + name;
+        }
+        
+        
         final String usage = usage();
 
         if (usage != null) {
-            if (!usage.startsWith(name)) {
-                return name + " " + usage;
+            if (!usage.startsWith(commandName)) {
+                return commandName + " " + usage;
             } else {
                 return usage;
             }
@@ -230,7 +240,7 @@ public class CmdMethod implements Cmd {
             args.add(parameter.getDisplayType().replace("[]", "..."));
         }
 
-        return String.format("%s %s %s", name, args.size() == method.getParameterTypes().length ? "" : "[options]",
+        return String.format("%s %s %s", commandName, args.size() == method.getParameterTypes().length ? "" : "[options]",
                 Join.join(" ", args)).trim();
     }
 

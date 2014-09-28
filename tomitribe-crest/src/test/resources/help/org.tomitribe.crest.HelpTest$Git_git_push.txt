@@ -1,0 +1,5 @@
+
+Usage: git push [options] String
+
+Options: 
+  --verbose                

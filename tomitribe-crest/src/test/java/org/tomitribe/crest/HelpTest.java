@@ -22,12 +22,14 @@ import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.tomitribe.crest.SubCommandsTest.Git;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.CmdGroup;
+import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.cmds.targets.SimpleBean;
 import org.tomitribe.util.Files;
 import org.tomitribe.util.IO;
 import org.tomitribe.util.JarLocation;
@@ -37,12 +39,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +55,20 @@ import java.util.regex.Pattern;
 
 public class HelpTest extends Assert {
 
+    @Command
+    public static class Git {
 
+        @Command
+        public String push(@Option("verbose") boolean verbose, String repo) {
+            return "cmd:push repo:" + repo;
+        }
+
+        @Command
+        public String pull(@Option("verbose") boolean verbose, String repo) {
+            return "cmd:pull repo:" + repo;
+        }
+    }
+    
     public static class Rsync {
 
         @Command
@@ -147,11 +164,29 @@ public class HelpTest extends Assert {
         assertCommandHelp(OptionLists.class, "test");
     }
     
-//    @Test
-//    public void testSubCommandHelp() throws Exception {
-//        generateHelp(getHelpBase(), Git.class);
-//        assertCommandHelp(Git.class, "test");
-//    }
+    @Test
+    public void testSubCommandHelp() throws Exception {
+        generateHelp(getHelpBase(), Git.class);
+        assertCommandHelp(Git.class, "git");
+        assertSubCommandHelp(Git.class, "pull");
+        assertSubCommandHelp(Git.class, "push");
+    }
+
+    private void assertSubCommandHelp(final Class clazz, final String methodName) throws Exception {
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            if (! methodName.equals(method.getName())) {
+                continue;
+            }
+            
+            if (method.getAnnotation(Command.class) == null) {
+                continue;
+            }
+            
+            CmdMethod cmd = new CmdMethod(method, new SimpleBean(null));
+            assertCommandHelp(clazz, cmd, helpFileName(Git.class, "git", methodName));
+        }
+    }
 
     @Test
     public void test() throws Exception {
@@ -181,7 +216,12 @@ public class HelpTest extends Assert {
 
     private void assertCommandHelp(final Class clazz, final Cmd cmd) throws IOException {
         assertNotNull(cmd);
-        final URL resource = clazz.getResource("/help/" + helpFileName(clazz, cmd.getName()));
+        String helpFileName = helpFileName(clazz, cmd.getName());
+        assertCommandHelp(clazz, cmd, helpFileName);
+    }
+    
+    private void assertCommandHelp(final Class clazz, final Cmd cmd, String helpFileName) throws IOException {
+        final URL resource = clazz.getResource("/help/" + helpFileName);
         assertNotNull(resource);
 
         final String expected = IO.slurp(resource);
@@ -190,7 +230,6 @@ public class HelpTest extends Assert {
         cmd.help(actual);
 
         assertEquals(expected.replace("\r\n", "\n"), actual.toString().replace("\r\n", "\n"));
-
     }
 
     @Test
@@ -215,18 +254,45 @@ public class HelpTest extends Assert {
         }
 
         for (final Cmd cmd : commands.values()) {
-            final String name = cmd.getName();
-            final File file = new File(helpBase, helpFileName(clazz, name));
-
-            final PrintStream print = IO.print(file);
-
+            
             try {
-                cmd.help(print);
+                final String name = cmd.getName();
+                writeHelp(helpBase, cmd, helpFileName(clazz, name));
+
+                // write out help text for sub-commands of this command
+                if (cmd instanceof CmdGroup) {
+                    final CmdGroup cmdGrp = (CmdGroup) cmd;
+                    final Map<String, Cmd> subcommands = getSubCommands(cmdGrp);
+                    
+                    
+                    for (final Cmd subCmd : subcommands.values()) {
+                        final String subCmdName = subCmd.getName();
+                        writeHelp(helpBase, subCmd, helpFileName(clazz, name, subCmdName));
+                    }
+                }
+            
             } catch (final Exception e) {
                 continue;
-            } finally {
-                print.close();
             }
+        }
+    }
+
+    private Map<String, Cmd> getSubCommands(CmdGroup cmdGrp) throws Exception {
+        final Field field = CmdGroup.class.getDeclaredField("commands");
+        field.setAccessible(true);
+        final Map<String, Cmd> subCommands = (Map<String, Cmd>) field.get(cmdGrp);
+        return subCommands;
+    }
+
+    private void writeHelp(final File helpBase, final Cmd cmd, final String helpFileName) throws FileNotFoundException {
+        final File file = new File(helpBase, helpFileName);
+        final PrintStream print = IO.print(file);
+        
+        try {
+            cmd.help(print);
+            
+        } finally {
+            print.close();
         }
     }
 
@@ -255,6 +321,9 @@ public class HelpTest extends Assert {
         return String.format("%s_%s.txt", clazz.getName(), name);
     }
 
+    public String helpFileName(final Class clazz, final String name, final String subcommand) {
+        return String.format("%s_%s_%s.txt", clazz.getName(), name, subcommand);
+    }
 
     public static Set<Class> getCommandClasses() throws MalformedURLException {
         final File file = JarLocation.jarLocation(HelpTest.class);

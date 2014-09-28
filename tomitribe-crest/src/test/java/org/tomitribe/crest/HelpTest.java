@@ -22,6 +22,7 @@ import org.apache.xbean.finder.archive.ClasspathArchive;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.tomitribe.crest.SubCommandsTest.Git;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
@@ -145,6 +146,12 @@ public class HelpTest extends Assert {
         generateHelp(getHelpBase(), OptionLists.class);
         assertCommandHelp(OptionLists.class, "test");
     }
+    
+//    @Test
+//    public void testSubCommandHelp() throws Exception {
+//        generateHelp(getHelpBase(), Git.class);
+//        assertCommandHelp(Git.class, "test");
+//    }
 
     @Test
     public void test() throws Exception {

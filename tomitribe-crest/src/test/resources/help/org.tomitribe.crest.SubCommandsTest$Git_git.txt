@@ -1,0 +1,6 @@
+Usage: git [subcommand] [options]
+
+Sub commands: 
+                       
+   pull                
+   push                

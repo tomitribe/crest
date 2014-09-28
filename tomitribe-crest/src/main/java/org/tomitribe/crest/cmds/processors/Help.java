@@ -19,6 +19,7 @@ package org.tomitribe.crest.cmds.processors;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.PrintString;
 import org.tomitribe.util.reflect.Classes;
@@ -241,5 +242,24 @@ public class Help {
         return out.toString();
     }
 
+    @Command
+    public String help(final String name, final String subCommand) {
+        final Cmd cmd = commands.get(name);
+
+        if (cmd == null) {
+            return String.format("No such command: %s%n", name);
+        }
+
+        final PrintString out = new PrintString();
+        
+        if (cmd instanceof CmdGroup) {
+            CmdGroup cmdGroup = (CmdGroup) cmd;
+            cmdGroup.help(subCommand, out);
+        } else {
+            cmd.help(out);
+        }
+        
+        return out.toString();
+    }
 
 }

@@ -16,17 +16,20 @@
  */
 package org.tomitribe.crest.cmds;
 
-import org.tomitribe.crest.cmds.utils.CommandLine;
-import org.tomitribe.crest.cmds.processors.Commands;
-import org.tomitribe.crest.environments.Environment;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.cmds.utils.CommandLine;
+import org.tomitribe.crest.environments.Environment;
 
 public class CmdGroup implements Cmd {
 
@@ -40,7 +43,7 @@ public class CmdGroup implements Cmd {
 
     @Override
     public String getUsage() {
-        return "";
+        return name + " [subcommand] [options]";
     }
 
     @Override
@@ -77,7 +80,36 @@ public class CmdGroup implements Cmd {
 
     @Override
     public void help(PrintStream out) {
+        out.print("Usage: ");
+        out.println(getUsage());
+        out.println();
+        out.println("Sub commands: ");
+        out.printf("   %-20s", "");
+        out.println();
 
+        final SortedSet<String> strings = new TreeSet<String>(new Comparator<String>() {
+            @Override
+            public int compare(final String s1, final String s2) {
+                assert null != s1;
+                assert null != s2;
+                return s1.compareTo(s2);
+            }
+        });
+
+        strings.addAll(commands.keySet());
+
+        for (final String command : strings) {
+            out.printf("   %-20s%n", command);
+        }
+    }
+    
+    public void help(String subCommand, PrintStream out) {
+        final Cmd subCmd = commands.get(subCommand);
+        if (subCmd == null) {
+            help(out);
+        } else {
+            subCmd.help(out);
+        }
     }
 
     @Override

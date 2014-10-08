@@ -83,7 +83,7 @@
         <groupId>org.tomitribe</groupId>
         <artifactId>tomitribe-util</artifactId>
         <version>1.0.0</version>
-        <scope>compile</scope>
+        <!--<scope>compile</scope>-->
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>

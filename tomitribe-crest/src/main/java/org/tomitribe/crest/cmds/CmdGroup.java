@@ -118,14 +118,12 @@ public class CmdGroup implements Cmd {
         final List<String> results = new ArrayList<String>();
         
         try {
-        
+
             final String commandLine = buffer.substring(0, cursorPosition);
             final String[] args = CommandLine.translateCommandline(commandLine);
             
             // first arg should be the same name as this command
             if (args.length >= 1 && args[0].equals(getName())) {
-                
-                // 
                 if (args.length > 2 || (args.length == 2 && commandLine.endsWith(" "))) {
                     // find the subcommand and delegate completion to it
                     final Cmd cmd = commands.get(args[1]);
@@ -135,21 +133,21 @@ public class CmdGroup implements Cmd {
                         final int diff = buffer.length() - subcommand.length();
                         return cmd.complete(subcommand, cursorPosition - diff);
                     }
+                }
+
+                final String prefix;
+                if (args.length == 1 && commandLine.endsWith(" ")) {
+                    prefix = "";
                 } else {
-                    final String prefix;
-                    if (args.length == 1 && commandLine.endsWith(" ")) {
-                        prefix = "";
-                    } else {
-                        prefix = args[1];
-                    }
-                    
-                    // look at all the possible commands and return those that match
-                    final Iterator<String> iterator = commands.keySet().iterator();
-                    while (iterator.hasNext()) {
-                        final String commandName = (String) iterator.next();
-                        if (commandName.startsWith(prefix)) {
-                            results.add(commandName);
-                        }
+                    prefix = args[1];
+                }
+
+                // look at all the possible commands and return those that match
+                final Iterator<String> iterator = commands.keySet().iterator();
+                while (iterator.hasNext()) {
+                    final String commandName = (String) iterator.next();
+                    if (commandName.startsWith(prefix)) {
+                        results.add(commandName);
                     }
                 }
             }

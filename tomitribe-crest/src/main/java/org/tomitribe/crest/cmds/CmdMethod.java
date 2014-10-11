@@ -718,10 +718,16 @@ public class CmdMethod implements Cmd {
                 }
 
                 final Option option = parameter.getAnnotation(Option.class);
-
-                for (String optionValue : option.value()) {
-                    if (!supplied.containsKey(optionValue)) {
-                        required.add(optionValue);
+                if (option.value() != null && option.value().length > 0) {
+                    boolean valueSupplied = false;
+                    for (String optionValue : option.value()) {
+                        if (supplied.containsKey(optionValue)) {
+                            valueSupplied = true;
+                        }
+                    }
+                    
+                    if (!valueSupplied) {
+                        required.add(option.value()[0]);
                     }
                 }
             }

@@ -110,6 +110,28 @@ public class CmdMethodTest extends TestCase {
         }
     }
 
+    public void testRequiredMultiOption() {
+        // Required option
+        try {
+            final Cmd tail = commands.get("requiredMultiOption");
+            tail.exec();
+            fail();
+        } catch (final IllegalArgumentException e) {
+        }
+    }
+    
+    public void testRequiredMultiOptionWithFirstAliasProvided() throws Exception {
+        // Required option
+        final Cmd tail = commands.get("requiredMultiOption");
+        tail.exec("-p");
+    }
+    
+    public void testRequiredMultiOptionWithSecondAliasProvided() throws Exception {
+        // Required option
+        final Cmd tail = commands.get("requiredMultiOption");
+        tail.exec("--pass");
+    }
+
     public void testMissingOptionsWithExtraValues() {
         // Wrong arguments, should not be passed in as the two options
         // as they do not have "--key=name" and "--value=thx1138"
@@ -180,6 +202,10 @@ public class CmdMethodTest extends TestCase {
 
         @Command
         public static void required(@Option("pass") @Required final String pass) {
+        }
+
+        @Command
+        public static void requiredMultiOption(@Option({"pass", "p"}) @Required final String pass) {
         }
 
         @Command

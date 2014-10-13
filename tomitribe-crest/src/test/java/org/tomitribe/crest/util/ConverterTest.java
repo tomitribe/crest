@@ -33,8 +33,23 @@ public class ConverterTest extends Assert {
         assertEquals(1, Converter.convert("1", Integer.class, null));
         assertEquals(1l, Converter.convert("1", Long.class, null));
         assertEquals(true, Converter.convert("true", Boolean.class, null));
+        assertEquals((byte) 0, Converter.convert("0", Byte.class, null));
+        assertEquals('c', Converter.convert('c', Character.class, null));
         assertEquals(new URI("foo"), Converter.convert("foo", URI.class, null));
         assertEquals(new Green("foo"), Converter.convert("foo", Green.class, null));
+
+        //primitive converter
+        assertEquals(1, Converter.convert("1", int.class, null));
+        assertEquals(1l, Converter.convert("1", long.class, null));
+        assertEquals(1.0d, Converter.convert("1.0", double.class, null));
+        assertEquals(true, Converter.convert("true", boolean.class, null));
+        assertEquals((byte) 0, Converter.convert("0", byte.class, null));
+        assertEquals('c', Converter.convert('c', char.class, null));
+
+        //test null value
+        assertEquals(null, Converter.convert(null,Integer.class, null));
+        assertEquals(null, Converter.convert(null, Boolean.class, null));
+        assertEquals(false, Converter.convert(null, boolean.class, null));
 
         final Yellow expected = new Yellow();
         expected.value = "foo";

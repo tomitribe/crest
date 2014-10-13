@@ -110,10 +110,8 @@ public class Commands {
 
             return group;
 
-        } else {
-
-            return map;
         }
+        return map;
     }
 
     public static String name(final Method method) {

@@ -17,6 +17,7 @@
 package org.tomitribe.crest.converters;
 
 
+import org.tomitribe.crest.cmds.processors.types.PrimitiveTypes;
 import org.tomitribe.util.editor.Editors;
 
 import java.beans.PropertyEditor;
@@ -56,7 +57,7 @@ public class Converter {
         final Class<? extends Object> actualType = value.getClass();
 
         if (targetType.isPrimitive()) {
-            targetType = boxPrimitive(targetType);
+            targetType =  PrimitiveTypes.valueOf(targetType.toString().toUpperCase()).getWraper();
         }
 
         if (targetType.isAssignableFrom(actualType)) {
@@ -124,21 +125,7 @@ public class Converter {
         }
 
         for (final Method method : type.getMethods()) {
-            if (!Modifier.isStatic(method.getModifiers())) {
-                continue;
-            }
-            if (!Modifier.isPublic(method.getModifiers())) {
-                continue;
-            }
-            if (!method.getReturnType().equals(type)) {
-                continue;
-            }
-            if (method.getParameterTypes().length != 1) {
-                continue;
-            }
-            if (!method.getParameterTypes()[0].equals(String.class)) {
-                continue;
-            }
+            if (isInvalidMethod(type, method)) { continue; }
 
             try {
                 return method.invoke(null, value);
@@ -151,31 +138,15 @@ public class Converter {
         return null;
     }
 
-    private static Class<?> boxPrimitive(final Class<?> targetType) {
-        if (targetType == byte.class) {
-            return Byte.class;
+    private static boolean isInvalidMethod(Class<?> type, Method method) {
+        if (!Modifier.isStatic(method.getModifiers()) ||
+            !Modifier.isPublic(method.getModifiers()) ||
+            !method.getReturnType().equals(type) ||
+            !method.getParameterTypes()[0].equals(String.class) ||
+            method.getParameterTypes().length != 1)
+        {
+            return true;
         }
-        if (targetType == char.class) {
-            return Character.class;
-        }
-        if (targetType == short.class) {
-            return Short.class;
-        }
-        if (targetType == int.class) {
-            return Integer.class;
-        }
-        if (targetType == long.class) {
-            return Long.class;
-        }
-        if (targetType == float.class) {
-            return Float.class;
-        }
-        if (targetType == double.class) {
-            return Double.class;
-        }
-        if (targetType == boolean.class) {
-            return Boolean.class;
-        }
-        return targetType;
+        return false;
     }
 }

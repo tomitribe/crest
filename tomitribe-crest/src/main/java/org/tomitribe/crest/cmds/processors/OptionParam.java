@@ -17,6 +17,7 @@
 package org.tomitribe.crest.cmds.processors;
 
 import org.tomitribe.crest.api.Default;
+import org.tomitribe.crest.cmds.processors.types.PrimitiveTypes;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.reflect.Parameter;
 
@@ -72,25 +73,7 @@ public class OptionParam extends Param {
         } else if (getType().isPrimitive()) {
 
             final Class<?> type = getType();
-            if (boolean.class.equals(type)) {
-                return "false";
-            } else if (byte.class.equals(type)) {
-                return "0";
-            } else if (char.class.equals(type)) {
-                return "\u0000";
-            } else if (short.class.equals(type)) {
-                return "0";
-            } else if (int.class.equals(type)) {
-                return "0";
-            } else if (long.class.equals(type)) {
-                return "0";
-            } else if (float.class.equals(type)) {
-                return "0";
-            } else if (double.class.equals(type)) {
-                return "0";
-            } else {
-                return null;
-            }
+            return PrimitiveTypes.valueOf(type.toString().toUpperCase()).getDefaultValue();
 
         } else {
 

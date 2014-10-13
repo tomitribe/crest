@@ -103,8 +103,7 @@ public class BeanValidation {
         private static MethodValidator getValidatorObject() {
             final ApacheValidatorConfiguration configure = Validation.byProvider(ApacheValidationProvider.class).configure();
             final ValidatorFactory validatorFactory = configure.buildValidatorFactory();
-            final MethodValidator validatorObject = validatorFactory.getValidator().unwrap(org.apache.bval.jsr303.extensions.MethodValidator.class);
-            return validatorObject;
+            return validatorFactory.getValidator().unwrap(org.apache.bval.jsr303.extensions.MethodValidator.class);
         }
     }
 }

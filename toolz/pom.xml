@@ -84,6 +84,28 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- now make the jar chmod +x style executable -->
+      <plugin>
+        <groupId>org.skife.maven</groupId>
+        <artifactId>really-executable-jar-maven-plugin</artifactId>
+        <version>1.1.0</version>
+        <configuration>
+          <!-- value of flags will be interpolated into the java invocation -->
+          <!-- as "java $flags -jar ..." -->
+          <flags>-Xmx1G</flags>
+          <programFile>${project.artifactId}</programFile>
+        </configuration>
+
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>really-executable-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

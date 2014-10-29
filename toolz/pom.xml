@@ -23,12 +23,12 @@
   <parent>
     <groupId>org.tomitribe</groupId>
     <artifactId>tomitribe-crest-parent</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
   </parent>
 
   <groupId>org.example</groupId>
   <artifactId>toolz</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.3</version>
 
   <dependencies>
     <dependency>

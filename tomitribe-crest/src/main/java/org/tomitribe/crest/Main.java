@@ -99,7 +99,10 @@ public class Main implements Completer {
         Environment.ENVIRONMENT_THREAD_LOCAL.set(env);
 
         try {
-            final Object result = exec(args);
+            Object result = exec(args);
+            if (!(StreamingOutput.class.isInstance(result) && !String.class.isInstance(result))) {
+                result = String.valueOf(result);
+            }
             if (result instanceof StreamingOutput) {
                 ((StreamingOutput) result).write(env.getOutput());
             } else if (result instanceof String) {

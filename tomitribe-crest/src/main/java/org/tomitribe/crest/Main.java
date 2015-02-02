@@ -99,18 +99,33 @@ public class Main implements Completer {
         Environment.ENVIRONMENT_THREAD_LOCAL.set(env);
 
         try {
-            Object result = exec(args);
-            if (!(StreamingOutput.class.isInstance(result) && !String.class.isInstance(result))) {
-                result = String.valueOf(result);
-            }
+            final Object result = exec(args);
+
+            final PrintStream out = env.getOutput();
+
             if (result instanceof StreamingOutput) {
-                ((StreamingOutput) result).write(env.getOutput());
-            } else if (result instanceof String) {
-                env.getOutput().println(result);
-                final String string = (String) result;
-                if (!string.endsWith("\n")) {
-                    env.getOutput().println();
+
+                ((StreamingOutput) result).write(out);
+
+            } else if (result instanceof Iterable) {
+
+                final Iterable iterable = (Iterable) result;
+
+                for (final Object o : iterable) {
+                    if (o != null) out.println(o.toString());
                 }
+                out.println();
+
+            } else if (result instanceof String) {
+
+                final String string = (String) result;
+
+                out.println(string);
+
+                if (!string.endsWith("\n")) out.println();
+            } else {
+                out.println(result);
+                out.println();
             }
         } finally {
             Environment.ENVIRONMENT_THREAD_LOCAL.set(old);

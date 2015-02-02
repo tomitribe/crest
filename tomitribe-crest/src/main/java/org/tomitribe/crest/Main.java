@@ -101,6 +101,8 @@ public class Main implements Completer {
         try {
             final Object result = exec(args);
 
+            if (result == null) return;
+
             final PrintStream out = env.getOutput();
 
             if (result instanceof StreamingOutput) {
@@ -114,7 +116,6 @@ public class Main implements Completer {
                 for (final Object o : iterable) {
                     if (o != null) out.println(o.toString());
                 }
-                out.println();
 
             } else if (result instanceof String) {
 
@@ -124,8 +125,9 @@ public class Main implements Completer {
 
                 if (!string.endsWith("\n")) out.println();
             } else {
+
                 out.println(result);
-                out.println();
+
             }
         } finally {
             Environment.ENVIRONMENT_THREAD_LOCAL.set(old);

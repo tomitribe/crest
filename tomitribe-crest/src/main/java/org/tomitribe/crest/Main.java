@@ -16,6 +16,7 @@
  */
 package org.tomitribe.crest;
 
+import org.tomitribe.crest.api.Exit;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.Completer;
@@ -87,8 +88,21 @@ public class Main implements Completer {
             final Main main = new Main();
             main.main(env, args);
         } catch (final CommandFailedException e) {
-            e.getCause().printStackTrace();
-            System.exit(-1);
+
+            final Throwable cause = e.getCause();
+            final Exit exit = cause.getClass().getAnnotation(Exit.class);
+            if (exit != null) {
+
+                System.err.println(e.getMessage());
+                System.exit(exit.value());
+
+            } else {
+
+                cause.printStackTrace();
+                System.exit(-1);
+
+            }
+
         } catch (final Exception alreadyHandled) {
             System.exit(-1);
         }

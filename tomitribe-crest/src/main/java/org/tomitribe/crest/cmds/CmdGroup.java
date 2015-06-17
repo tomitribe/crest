@@ -149,7 +149,7 @@ public class CmdGroup implements Cmd {
                 while (iterator.hasNext()) {
                     final String commandName = (String) iterator.next();
                     if (commandName.startsWith(prefix)) {
-                        results.add(commandName);
+                        results.add(commandName + " ");
                     }
                 }
             }

@@ -290,7 +290,7 @@ public class CmdMethod implements Cmd {
             if (cause instanceof IllegalArgumentException) {
                 reportWithHelp(e);
             }
-            throw new CommandFailedException(cause);
+            throw new CommandFailedException(cause, getName());
         } catch (final Throwable e) {
             throw toRuntimeException(e);
         }
@@ -655,7 +655,7 @@ public class CmdMethod implements Cmd {
                                    final Map<String, String> defaults, 
                                    final Map<String, String> supplied,
                                    final List<String> invalid, 
-                                   final Set<String> repeated) 
+                                   final Set<String> repeated)
         {
             
             String name = optName;

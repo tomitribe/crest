@@ -29,6 +29,7 @@ import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.val.Exists;
 
 import junit.framework.TestCase;
+import org.tomitribe.util.PrintString;
 
 public class CompleterTest extends TestCase {
 
@@ -37,10 +38,10 @@ public class CompleterTest extends TestCase {
         final Collection<String> candidates = main.complete("", 0);
 
         assertEquals(4, candidates.size());
-        assertTrue(candidates.contains("red"));
-        assertTrue(candidates.contains("green"));
-        assertTrue(candidates.contains("blue"));
-        assertTrue(candidates.contains("help"));
+        assertTrue(candidates.contains("red "));
+        assertTrue(candidates.contains("green "));
+        assertTrue(candidates.contains("blue "));
+        assertTrue(candidates.contains("help "));
     }
 
     public void testCompletionPartialWord() throws Exception {
@@ -48,7 +49,7 @@ public class CompleterTest extends TestCase {
         final Collection<String> candidates = main.complete("r", 1);
 
         assertEquals(1, candidates.size());
-        assertTrue(candidates.contains("red"));
+        assertTrue(candidates.contains("red "));
     }
 
     public void testCompletionPartialWordCursorAtTheStart() throws Exception {
@@ -56,10 +57,10 @@ public class CompleterTest extends TestCase {
         final Collection<String> candidates = main.complete("re", 0);
 
         assertEquals(4, candidates.size());
-        assertTrue(candidates.contains("red"));
-        assertTrue(candidates.contains("green"));
-        assertTrue(candidates.contains("blue"));
-        assertTrue(candidates.contains("help"));
+        assertTrue(candidates.contains("red "));
+        assertTrue(candidates.contains("green "));
+        assertTrue(candidates.contains("blue "));
+        assertTrue(candidates.contains("help "));
     }
 
     public void testCompletionDelegatesToIndividualCmds() throws Exception {
@@ -82,17 +83,17 @@ public class CompleterTest extends TestCase {
         
         Collection<String> candidates = main.complete("svn ", 4);
         assertEquals(2, candidates.size());
-        assertTrue(candidates.contains("checkout"));
-        assertTrue(candidates.contains("commit"));
+        assertTrue(candidates.contains("checkout "));
+        assertTrue(candidates.contains("commit "));
         
         candidates = main.complete("svn c", 5);
         assertEquals(2, candidates.size());
-        assertTrue(candidates.contains("checkout"));
-        assertTrue(candidates.contains("commit"));
+        assertTrue(candidates.contains("checkout "));
+        assertTrue(candidates.contains("commit "));
 
         candidates = main.complete("svn co", 6);
         assertEquals(1, candidates.size());
-        assertTrue(candidates.contains("commit"));
+        assertTrue(candidates.contains("commit "));
     }
 
     public void testCompleteOptions() throws Exception {
@@ -142,7 +143,7 @@ public class CompleterTest extends TestCase {
         assertTrue(gitCandidates.contains("--verbose"));
 
     }
-    
+
     public void testCompleteFile() throws Exception {
         final Main main = new Main(Svn.class, Copy.class);
         

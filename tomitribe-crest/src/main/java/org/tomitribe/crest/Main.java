@@ -19,6 +19,7 @@ package org.tomitribe.crest;
 import org.tomitribe.crest.api.Exit;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.CommandFailedException;
 import org.tomitribe.crest.cmds.Completer;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
@@ -26,7 +27,6 @@ import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
-import org.tomitribe.crest.cmds.CommandFailedException;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Main implements Completer {
@@ -193,7 +194,10 @@ public class Main implements Completer {
         final List<String> cmds = new ArrayList<String>();
 
         if (buffer == null || buffer.length() == 0) {
-            cmds.addAll(commands.keySet());
+            final Set<String> cmd = commands.keySet();
+            for (final String s : cmd) {
+                cmds.add(s + " ");
+            }
         } else {
 
             if (buffer.substring(0, cursorPosition).contains(" ")) {
@@ -209,7 +213,7 @@ public class Main implements Completer {
             while (iterator.hasNext()) {
                 final String command = (String) iterator.next();
                 if (command.startsWith(prefix)) {
-                    cmds.add(command);
+                    cmds.add(command + " ");
                 }
             }
         }

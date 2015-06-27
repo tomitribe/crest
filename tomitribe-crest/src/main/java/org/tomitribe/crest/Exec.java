@@ -1,0 +1,55 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.tomitribe.crest;
+
+import org.tomitribe.crest.api.Exit;
+import org.tomitribe.crest.cmds.CommandFailedException;
+import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.environments.SystemEnvironment;
+
+/**
+ * Flavor of Main that does not call System.exit making it
+ * useful in server environments and exec-maven-plugin friendly
+ */
+public class Exec {
+
+    private Exec() {
+    }
+
+    public static void main(final String... args) throws Exception {
+        try {
+            final Environment env = new SystemEnvironment();
+            final Main main = new Main();
+            main.main(env, args);
+        } catch (final CommandFailedException e) {
+
+            final Throwable cause = e.getCause();
+            final Exit exit = cause.getClass().getAnnotation(Exit.class);
+            if (exit != null) {
+
+                System.err.println(e.getMessage());
+
+            } else {
+                cause.printStackTrace();
+            }
+
+        } catch (final Exception alreadyHandled) {
+            // Already Handled
+        }
+
+    }
+}

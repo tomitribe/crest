@@ -66,6 +66,7 @@ import java.util.TreeSet;
  * @version $Revision$ $Date$
  */
 public class CmdMethod implements Cmd {
+    private static final String[] NO_PREFIX = {""};
     private static final Join.NameCallback<String> STRING_NAME_CALLBACK = new Join.NameCallback<String>() {
         @Override
         public String getName(final String object) {
@@ -102,42 +103,64 @@ public class CmdMethod implements Cmd {
         this.defaultsFinder = defaultsFinder;
         this.name = Commands.name(method);
 
-        final List<Param> parameters = buildParams(Reflection.params(method));
+        final List<Param> parameters = buildParams(NO_PREFIX, Reflection.params(method));
 
         this.parameters = Collections.unmodifiableList(parameters);
 
         validate();
     }
 
-    private List<Param> buildParams(final Iterable<Parameter> params) {
+    private List<Param> buildParams(final String[] inPrefixes, final Iterable<Parameter> params) {
+        final String[] prefixes = inPrefixes == null ? NO_PREFIX : inPrefixes;
         final List<Param> parameters = new ArrayList<Param>();
         for (final Parameter parameter : params) {
 
             if (parameter.isAnnotationPresent(Option.class)) {
 
                 final Option option = parameter.getAnnotation(Option.class);
-                final String name = option.value()[0];
-                final OptionParam optionParam = new OptionParam(parameter, name);
 
-                final OptionParam existing = spec.options.put(optionParam.getName(), optionParam);
+                if (parameter.getType().isAnnotationPresent(Options.class)) {
 
-                if (existing != null) {
-                    throw new IllegalArgumentException("Duplicate option: " + optionParam.getName());
-                }
+                    final ComplexParam complexParam = new ComplexParam(option.value(), parameter);
 
-                for (int i = 1; i < option.value().length; i++) {
-                    final String alias = option.value()[i];
-                    final OptionParam existingAlias = spec.aliases.put(alias, optionParam);
+                    parameters.add(complexParam);
 
-                    if (existingAlias != null) {
-                        throw new IllegalArgumentException("Duplicate alias: " + alias);
+                } else {
+
+                    final String mainOption = prefixes[0] + option.value()[0];
+                    final OptionParam optionParam = new OptionParam(parameter, mainOption);
+
+                    final OptionParam existing = spec.options.put(mainOption, optionParam);
+                    if (existing != null) {
+                        throw new IllegalArgumentException("Duplicate option: " + mainOption);
                     }
-                }
 
-                parameters.add(optionParam);
+                    for (int i = 1; i < prefixes.length; i++) {
+                        final String key = prefixes[i] + optionParam.getName();
+                        final OptionParam existingAlias = spec.aliases.put(key, optionParam);
+
+                        if (existingAlias != null) {
+                            throw new IllegalArgumentException("Duplicate alias: " + key);
+                        }
+                    }
+
+                    for (int i = 1; i < option.value().length; i++) {
+                        final String alias = option.value()[i];
+                        for (final String prefix : prefixes) {
+                            final String fullAlias = prefix + alias;
+                            final OptionParam existingAlias = spec.aliases.put(fullAlias, optionParam);
+
+                            if (existingAlias != null) {
+                                throw new IllegalArgumentException("Duplicate alias: " + fullAlias);
+                            }
+                        }
+                    }
+
+                    parameters.add(optionParam);
+                }
             } else if (parameter.getType().isAnnotationPresent(Options.class)) {
 
-                final ComplexParam complexParam = new ComplexParam(parameter);
+                final ComplexParam complexParam = new ComplexParam(null, parameter);
 
                 parameters.add(complexParam);
 
@@ -155,13 +178,14 @@ public class CmdMethod implements Cmd {
 
         private final List<Param> parameters;
         private final Constructor<?> constructor;
+        private final String[] prefixes;
 
-        private ComplexParam(Parameter parent) {
+        private ComplexParam(final String[] prefixes, final Parameter parent) {
             super(parent);
 
+            this.prefixes = prefixes;
             this.constructor = parent.getType().getConstructors()[0];
-
-            this.parameters = Collections.unmodifiableList(buildParams(Reflection.params(constructor)));
+            this.parameters = Collections.unmodifiableList(buildParams(prefixes, Reflection.params(constructor)));
         }
 
         public Object convert(final Arguments arguments, final Needed needed) {
@@ -373,8 +397,15 @@ public class CmdMethod implements Cmd {
         for (final Param parameter : parameters1) {
             final Option option = parameter.getAnnotation(Option.class);
 
-            if (option != null) {
-                final String optionValue = option.value()[0];
+            if (parameter instanceof ComplexParam) {
+
+                final ComplexParam complexParam = (ComplexParam) parameter;
+
+                converted.add(complexParam.convert(args, needed));
+
+            } else if (option != null) {
+                final String optionValue = OptionParam.class.isInstance(parameter) ?
+                    OptionParam.class.cast(parameter).getName() : option.value()[0];
                 final String value = args.options.remove(optionValue);
 
                 if (parameter.isListable()) {
@@ -382,12 +413,6 @@ public class CmdMethod implements Cmd {
                 } else {
                     converted.add(Converter.convert(value, parameter.getType(), optionValue));
                 }
-            } else if (parameter instanceof ComplexParam) {
-
-                final ComplexParam complexParam = (ComplexParam) parameter;
-
-                converted.add(complexParam.convert(args, needed));
-
             } else if (args.list.size() > 0) {
                 needed.count--;
 

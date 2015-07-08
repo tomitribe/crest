@@ -33,11 +33,11 @@ public class OptionParam extends Param {
     private final String name;
     private final String defaultValue;
 
-    public OptionParam(final Parameter parameter, final String name) {
+    public OptionParam(final Parameter parameter, final String name, final String defaultVal) {
         super(parameter);
 
         this.name = name;
-        this.defaultValue = initDefault();
+        this.defaultValue = defaultVal == null ? initDefault() : defaultVal;
     }
 
     public static List<String> getSeparatedValues(final String value) {

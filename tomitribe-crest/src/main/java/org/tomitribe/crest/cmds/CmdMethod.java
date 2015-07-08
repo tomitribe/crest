@@ -18,6 +18,7 @@ package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
+import org.tomitribe.crest.api.Defaults;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Required;
@@ -103,14 +104,14 @@ public class CmdMethod implements Cmd {
         this.defaultsFinder = defaultsFinder;
         this.name = Commands.name(method);
 
-        final List<Param> parameters = buildParams(NO_PREFIX, Reflection.params(method));
+        final List<Param> parameters = buildParams(NO_PREFIX, null, Reflection.params(method));
 
         this.parameters = Collections.unmodifiableList(parameters);
 
         validate();
     }
 
-    private List<Param> buildParams(final String[] inPrefixes, final Iterable<Parameter> params) {
+    private List<Param> buildParams(final String[] inPrefixes, final Defaults defaults, final Iterable<Parameter> params) {
         final String[] prefixes = inPrefixes == null ? NO_PREFIX : inPrefixes;
         final List<Param> parameters = new ArrayList<Param>();
         for (final Parameter parameter : params) {
@@ -121,14 +122,25 @@ public class CmdMethod implements Cmd {
 
                 if (parameter.getType().isAnnotationPresent(Options.class)) {
 
-                    final ComplexParam complexParam = new ComplexParam(option.value(), parameter);
+                    final Defaults defaultMappings = parameter.getAnnotation(Defaults.class);
+                    final ComplexParam complexParam = new ComplexParam(option.value(), defaultMappings == null ? null : defaultMappings, parameter);
 
                     parameters.add(complexParam);
 
                 } else {
 
-                    final String mainOption = prefixes[0] + option.value()[0];
-                    final OptionParam optionParam = new OptionParam(parameter, mainOption);
+                    final String shortName = option.value()[0];
+                    final String mainOption = prefixes[0] + shortName;
+                    String def = null;
+                    if (defaults != null) {
+                        for (final Defaults.DefaultMapping mapping : defaults.value()) {
+                            if (mapping.name().equals(shortName)) {
+                                def = mapping.value();
+                                break;
+                            }
+                        }
+                    }
+                    final OptionParam optionParam = new OptionParam(parameter, mainOption, def);
 
                     final OptionParam existing = spec.options.put(mainOption, optionParam);
                     if (existing != null) {
@@ -160,7 +172,7 @@ public class CmdMethod implements Cmd {
                 }
             } else if (parameter.getType().isAnnotationPresent(Options.class)) {
 
-                final ComplexParam complexParam = new ComplexParam(null, parameter);
+                final ComplexParam complexParam = new ComplexParam(null, null, parameter);
 
                 parameters.add(complexParam);
 
@@ -180,12 +192,12 @@ public class CmdMethod implements Cmd {
         private final Constructor<?> constructor;
         private final String[] prefixes;
 
-        private ComplexParam(final String[] prefixes, final Parameter parent) {
+        private ComplexParam(final String[] prefixes, final Defaults defaults, final Parameter parent) {
             super(parent);
 
             this.prefixes = prefixes;
             this.constructor = parent.getType().getConstructors()[0];
-            this.parameters = Collections.unmodifiableList(buildParams(prefixes, Reflection.params(constructor)));
+            this.parameters = Collections.unmodifiableList(buildParams(prefixes, defaults, Reflection.params(constructor)));
         }
 
         public Object convert(final Arguments arguments, final Needed needed) {

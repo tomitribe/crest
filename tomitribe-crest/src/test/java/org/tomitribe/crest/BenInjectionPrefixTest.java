@@ -18,6 +18,7 @@ package org.tomitribe.crest;
 
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Defaults;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 public class BenInjectionPrefixTest {
     @Test
     public void execute() throws Exception {
-        assertEquals("12345", new Main(TheCmd.class).exec("exec", "--p1=1", "--p2=2", "--pref.p1=3", "--pref.p2=4", "--p3=5"));
+        assertEquals("12345", new Main(TheCmd.class).exec("exec", "--p1=1", "--p2=2", "--pref.p2=4", "--p3=5"));
     }
 
     @Options
@@ -42,7 +43,12 @@ public class BenInjectionPrefixTest {
 
     public static class TheCmd {
         @Command
-        public static String exec(final Params paramNoPrefix, @Option("pref.") final Params paramPrefixed,
+        public static String exec(final Params paramNoPrefix,
+
+                                  @Option("pref.")
+                                  @Defaults(@Defaults.DefaultMapping(name = "p1", value = "3"))
+                                  final Params paramPrefixed,
+
                                   @Option("p3") final int p3) {
             return paramNoPrefix.p1 + paramNoPrefix.p2 + paramPrefixed.p1 + paramPrefixed.p2 + p3;
         }

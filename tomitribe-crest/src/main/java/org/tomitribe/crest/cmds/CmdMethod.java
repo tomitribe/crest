@@ -128,6 +128,9 @@ public class CmdMethod implements Cmd {
                     parameters.add(complexParam);
 
                 } else {
+                    if (parameter.isAnnotationPresent(Defaults.class)) {
+                        throw new IllegalArgumentException("Simple option doesnt support @Defaults, use @Default please");
+                    }
 
                     final String shortName = option.value()[0];
                     final String mainOption = prefixes[0] + shortName;

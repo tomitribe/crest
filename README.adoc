@@ -551,6 +551,93 @@ that will output a small uber jar with all the required dependencies.
 </project>
 ----
 
+== Bean Parameter Binding
+
+If you don't want to inject in all your commands the same N parameters you can modelize them as an object.
+Just use standard parameters as constructor parameters of the bean:
+
+[source]
+----
+public class ColorfulCmd {
+    @Command
+    public static void exec(final Color color) {
+        // ...
+    }
+}
+----
+
+To identify `Params` as an "option aware" parameter just decorate it with `@Options`:
+
+[source]
+----
+@Options
+public class Params { // getters omitted for brevity
+    private final int r;
+    private final int g;
+    private final int b;
+    private final int a;
+
+    public Params(@Option("r") @Default("255") final int r,
+                  @Option("g") @Default("255") final int g,
+                  @Option("b") @Default("255") final int b,
+                  @Option("a") @Default("255") final int a) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+}
+----
+
+=== Prefixing options
+
+If you reuse the same parameter N times you'll probably want to prefix options. If we take previous example (`Params`)
+you can desire to use `--background.r` and `--foreground.r` (same for g, b, a).
+
+Just use `@Option` in the method parameter to do so:
+
+[source]
+----
+public class ColorfulCmd {
+    @Command
+    public static void exec(@Option("background.") final Color colorBg, @Option("foreground.") final Color colorFg) {
+        // ...
+    }
+}
+----
+
+NOTE: the '.' is not automatically added to allow you use to another convention like '-' or '_' ones for instance.
+
+=== Override defaults
+
+If you reuse the same parameter model accross command parameter you'll surely want to override some default in some cases.
+For that purpose just use `@Defaults` and define the mappings you want:
+
+[source]
+----
+public class ColorfulCmd {
+    @Command
+    public static void exec(@Defaults({
+                                @Defaults.DefaultMapping(name = "r", value = "0"),
+                                @Defaults.DefaultMapping(name = "g", value = "0"),
+                                @Defaults.DefaultMapping(name = "b", value = "0"),
+                                @Defaults.DefaultMapping(name = "a", value = "0")
+                            })
+                            @Option("background.")
+                            final Color colorBg,
+
+                            @Defaults({
+                                @Defaults.DefaultMapping(name = "r", value = "255"),
+                                @Defaults.DefaultMapping(name = "g", value = "255"),
+                                @Defaults.DefaultMapping(name = "b", value = "255"),
+                                @Defaults.DefaultMapping(name = "a", value = "255")
+                            })
+                            @Option("foreground.")
+                            final Color colorFg) {
+        // ...
+    }
+}
+----
 
 == Maven Archetype
 

@@ -326,6 +326,28 @@ public StreamingOutput cat(final File file) {
 
 Note a `null` check is not necessary for the `File file` parameter as Crest will not let the value of any plain argument be unspecified.  All parameters which do not use `@Option` are treated as required
 
+== Stream injections
+
+Command are often linked to console I/O. For that reason it is important to be able to interact
+with Crest in/out/error streams. They are provided by the contextual `Environment` instance and using its thread local
+you can retrieve them. However to make it easier to work with you can inject them as well.
+
+Out stream (out and error ones) needs to be `PrintStream` typed and input is typed as a `InputStream`.
+Just use these types as command parameters and decorate it with `@In`/`@Out`/`@Err`:
+
+[source]
+----
+public class IOMe {
+    @org.tomitribe.crest.api.Command
+    public static void asserts(@In final InputStream in,
+                               @Out final PrintStream out,
+                               @Err PrintStream err) {
+        // ...
+    }
+}
+----
+
+NOTE: using a parameter typed `Environment` you'll get it injected as well but this one is not in `crest-api`.
 
 == Custom Java Types
 

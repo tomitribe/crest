@@ -38,6 +38,8 @@ import org.tomitribe.util.editor.Converter;
 import org.tomitribe.util.reflect.Parameter;
 import org.tomitribe.util.reflect.Reflection;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -54,6 +56,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Queue;
@@ -62,10 +65,14 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import static java.util.Arrays.asList;
+
 /**
  * @version $Revision$ $Date$
  */
 public class CmdMethod implements Cmd {
+    public static final String CREST_INTERACTIVE_FLAG = "--crest-interactive";
+
     private static final Join.NameCallback<String> STRING_NAME_CALLBACK = new Join.NameCallback<String>() {
         @Override
         public String getName(final String object) {
@@ -264,7 +271,79 @@ public class CmdMethod implements Cmd {
     public Object exec(final String... rawArgs) {
         final List<Object> list;
         try {
-            list = parse(rawArgs);
+            String[] args = rawArgs;
+            final List<String> argListWrapper = asList(rawArgs);
+            if (argListWrapper.contains(CREST_INTERACTIVE_FLAG)) {
+                final Collection<String> newArgs = new ArrayList<String>(argListWrapper);
+                newArgs.remove(CREST_INTERACTIVE_FLAG);
+
+                final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+                final PrintStream output = environment.getOutput();
+                final InputStream input = environment.getInput();
+                final boolean isWin = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+                for (final Map.Entry<String, OptionParam> param : getOptionParameters().entrySet()) {
+                    final String prefix = (param.getKey().length() > 1 ? "--" : "-") + param.getKey() + "=";
+                    final OptionParam value = param.getValue();
+
+                    boolean redo = true;
+
+                    if (!value.isListable()) {
+                        for (final String provided : rawArgs) {
+                            if (provided.startsWith(prefix)) {
+                                redo = false;
+                                break;
+                            }
+                        }
+                        if (boolean.class == value.getType()) {
+                            final String noPrefix = "--no-" + param.getKey() + "=";
+                            for (final String provided : rawArgs) {
+                                if (provided.startsWith(noPrefix)) {
+                                    redo = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    while (redo) {
+                        // ask for a value
+                        final String defaultValue = value.getDefaultValue();
+                        output.print(
+                            param.getKey() +
+                            " (" +
+                            "type=" + value.getDisplayType() +
+                            (defaultValue != null && !OptionParam.LIST_TYPE.equals(defaultValue) ? ", default=" + defaultValue : "") +
+                            "): ");
+
+                        // read the value
+                        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        int r;
+                        while ((r = input.read()) != -1 && r != '\n') {
+                            byteArrayOutputStream.write(r);
+                        }
+
+                        // if windows trim remove \r
+                        byte[] bytes = byteArrayOutputStream.toByteArray();
+                        if (isWin && bytes.length > 0 && bytes[bytes.length] == '\r') {
+                            byte[] copy = new byte[bytes.length - 1];
+                            System.arraycopy(bytes, 0, copy, 0, copy.length);
+                            bytes = copy;
+                        }
+
+                        // add it to the list
+                        if (bytes.length > 0) {
+                            newArgs.add(prefix + new String(bytes)); // TODO: enc?
+                            redo = param.getValue().isListable();
+                        } else {
+                            redo = false;
+                        }
+                    }
+                }
+
+                args = newArgs.toArray(new String[newArgs.size()]);
+            }
+
+            list = parse(args);
         } catch (final Exception e) {
             reportWithHelp(e);
             throw toRuntimeException(e);

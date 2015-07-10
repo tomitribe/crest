@@ -17,10 +17,14 @@
 package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.CrestAnnotation;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Defaults;
+import org.tomitribe.crest.api.Err;
+import org.tomitribe.crest.api.In;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
+import org.tomitribe.crest.api.Out;
 import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
@@ -39,7 +43,9 @@ import org.tomitribe.util.editor.Converter;
 import org.tomitribe.util.reflect.Parameter;
 import org.tomitribe.util.reflect.Reflection;
 
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -276,6 +282,17 @@ public class CmdMethod implements Cmd {
         final List<Object> args = new ArrayList<Object>();
 
         for (final Param parameter : spec.arguments) {
+            boolean skip = parameter.getType() == Environment.class;
+            for (final Annotation a : parameter.getAnnotations()) {
+                final CrestAnnotation crestAnnotation = a.annotationType().getAnnotation(CrestAnnotation.class);
+                if (crestAnnotation != null) {
+                    skip = crestAnnotation.skipUsage();
+                    break;
+                }
+            }
+            if (skip) {
+                continue;
+            }
             args.add(parameter.getDisplayType().replace("[]", "..."));
         }
 
@@ -443,8 +460,29 @@ public class CmdMethod implements Cmd {
 
                     final String value = args.list.remove(0);
                     converted.add(Converter.convert(value, parameter.getType(),
-                            parameter.getDisplayType().replace("[]", "...")));
+                        parameter.getDisplayType().replace("[]", "...")));
                 }
+
+            } else if (Environment.class == parameter.getType()) {
+                converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get());
+
+            } else if (parameter.isAnnotationPresent(In.class)) {
+                if (InputStream.class != parameter.getType()) {
+                    throw new IllegalArgumentException("@In only supports InputStream injection");
+                }
+                converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get().getInput());
+
+            } else if (parameter.isAnnotationPresent(Out.class)) {
+                if (PrintStream.class != parameter.getType()) {
+                    throw new IllegalArgumentException("@Out only supports PrintStream injection");
+                }
+                converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get().getOutput());
+
+            } else if (parameter.isAnnotationPresent(Err.class)) {
+                if (PrintStream.class != parameter.getType()) {
+                    throw new IllegalArgumentException("@Err only supports PrintStream injection");
+                }
+                converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get().getError());
 
             } else {
 

@@ -14,15 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest.api;
+package org.tomitribe.crest.cmds.validator;
 
-import java.lang.annotation.Retention;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+public interface ParameterValidator {
+    void validate(Class clazz, Method method, Object[] parameters);
 
-// mark an annotation for a parameter as internal
-// ie will not get reported as missing (ex: {@see org.tomitribe.crest.api.Out})
-@Retention(RUNTIME)
-public @interface CrestAnnotation {
-    boolean skipUsage() default false;
+    void validate(Class<?> clazz, Constructor constructor, Object[] parameters);
 }

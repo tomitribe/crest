@@ -24,7 +24,7 @@ import org.tomitribe.crest.api.Options;
 
 import static org.junit.Assert.assertEquals;
 
-public class BenInjectionPrefixTest {
+public class BeanInjectionPrefixTest {
     @Test
     public void execute() throws Exception {
         assertEquals("12345", new Main(TheCmd.class).exec("exec", "--p1=1", "--p2=2", "--pref.p2=4", "--p3=5"));

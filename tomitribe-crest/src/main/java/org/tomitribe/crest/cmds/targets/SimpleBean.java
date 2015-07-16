@@ -39,7 +39,7 @@ public class SimpleBean implements Target {
             return bean;
         }
         if (Modifier.isStatic(method.getModifiers())) {
-            return bean;
+            return null;
         }
 
         try {

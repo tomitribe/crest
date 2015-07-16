@@ -18,6 +18,7 @@ package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.processors.OptionParam;
+import org.tomitribe.crest.exception.Exceptions;
 import org.tomitribe.util.Join;
 
 import java.io.PrintStream;
@@ -80,7 +81,7 @@ public class OverloadedCmdMethod implements Cmd {
 
                 } else {
 
-                    throw CmdMethod.toRuntimeException(e);
+                    throw Exceptions.toRuntimeException(e);
 
                 }
             }

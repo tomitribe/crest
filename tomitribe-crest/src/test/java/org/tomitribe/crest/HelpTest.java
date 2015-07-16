@@ -28,8 +28,11 @@ import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CmdMethod;
+import org.tomitribe.crest.cmds.builder.ParameterBuilders;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.targets.SimpleBean;
+import org.tomitribe.crest.cmds.validator.ParameterValidator;
+import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.util.Files;
 import org.tomitribe.util.IO;
 import org.tomitribe.util.JarLocation;
@@ -44,9 +47,9 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -183,7 +186,8 @@ public class HelpTest extends Assert {
                 continue;
             }
             
-            CmdMethod cmd = new CmdMethod(method, new SimpleBean(null));
+            CmdMethod cmd = new CmdMethod(method, new SimpleBean(null), new SystemPropertiesDefaultsContext(),
+                    ParameterBuilders.map(ParameterBuilders.DEFAULTS), Collections.<ParameterValidator>emptyList());
             assertCommandHelp(clazz, cmd, helpFileName(Git.class, "git", methodName));
         }
     }

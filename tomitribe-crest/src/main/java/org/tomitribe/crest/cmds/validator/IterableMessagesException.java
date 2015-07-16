@@ -14,15 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest.api;
+package org.tomitribe.crest.cmds.validator;
 
-import java.lang.annotation.Retention;
+import java.util.Collection;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+/**
+ * Used to automatically:
+ * - log several messages (multiple errors)
+ * - throw the cause instead of itself
+ *
+ * Example: for bean validation it will typically throw ConstraintViolationException.
+ *
+ */
+public class IterableMessagesException extends RuntimeException {
+    private final Collection<String> messages;
 
-// mark an annotation for a parameter as internal
-// ie will not get reported as missing (ex: {@see org.tomitribe.crest.api.Out})
-@Retention(RUNTIME)
-public @interface CrestAnnotation {
-    boolean skipUsage() default false;
+    public IterableMessagesException(final Collection<String> messages, final Exception cause) {
+        super(cause);
+        this.messages = messages;
+    }
+
+    public Collection<String> getMessages() {
+        return messages;
+    }
 }

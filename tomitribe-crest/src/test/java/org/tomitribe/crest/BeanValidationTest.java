@@ -45,6 +45,7 @@ public class BeanValidationTest extends Assert {
             check.exec(new File("/this/does/not/exist/we/hope").getAbsolutePath());
             fail();
         } catch (final ConstraintViolationException e) {
+            // no-op
         }
     }
 

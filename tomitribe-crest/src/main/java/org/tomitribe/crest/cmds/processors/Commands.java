@@ -16,13 +16,17 @@
  */
 package org.tomitribe.crest.cmds.processors;
 
-import org.tomitribe.crest.cmds.targets.SimpleBean;
-import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.OverloadedCmdMethod;
+import org.tomitribe.crest.cmds.builder.ParameterBuilder;
+import org.tomitribe.crest.cmds.builder.ParameterBuilders;
+import org.tomitribe.crest.cmds.targets.SimpleBean;
+import org.tomitribe.crest.cmds.targets.Target;
+import org.tomitribe.crest.cmds.validator.ParameterValidator;
+import org.tomitribe.crest.cmds.validator.ParameterValidators;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.util.Strings;
@@ -34,6 +38,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
@@ -54,23 +59,32 @@ public class Commands {
         );
     }
 
-    public static Map<String, Cmd> get(final Object bean) {
-        return get(bean.getClass(), new SimpleBean(bean), new SystemPropertiesDefaultsContext());
+    public static Map<String, Cmd> get(final Object bean, final Map<Class<?>, ParameterBuilder> injectors,
+                                       final List<ParameterValidator> validators) {
+        return get(bean.getClass(), new SimpleBean(bean), new SystemPropertiesDefaultsContext(), injectors, validators);
     }
 
-    public static Map<String, Cmd> get(final Object bean, final DefaultsContext dc) {
-        return get(bean.getClass(), new SimpleBean(bean), dc);
+    public static Map<String, Cmd> get(final Object bean, final DefaultsContext dc,
+                                       final Map<Class<?>, ParameterBuilder> injectors, final List<ParameterValidator> validators) {
+        return get(bean.getClass(), new SimpleBean(bean), dc, injectors, validators);
     }
 
     public static Map<String, Cmd> get(final Class<?> clazz) {
-        return get(clazz, new SimpleBean(null), new SystemPropertiesDefaultsContext());
+        return get(clazz, ParameterBuilders.map(ParameterBuilders.DEFAULTS), ParameterValidators.DEFAULTS);
     }
 
-    public static Map<String, Cmd> get(final Class<?> clazz, final DefaultsContext dc) {
-        return get(clazz, new SimpleBean(null), dc);
+    public static Map<String, Cmd> get(final Class<?> clazz,
+                                       final Map<Class<?>, ParameterBuilder> injectors, final List<ParameterValidator> validators) {
+        return get(clazz, new SimpleBean(null), new SystemPropertiesDefaultsContext(), injectors, validators);
     }
 
-    public static Map<String, Cmd> get(final Class<?> clazz, final Target target, final DefaultsContext dc) {
+    public static Map<String, Cmd> get(final Class<?> clazz, final DefaultsContext dc,
+                                       final Map<Class<?>, ParameterBuilder> injectors, final List<ParameterValidator> validators) {
+        return get(clazz, new SimpleBean(null), dc, injectors, validators);
+    }
+
+    public static Map<String, Cmd> get(final Class<?> clazz, final Target target, final DefaultsContext dc,
+                                       final Map<Class<?>, ParameterBuilder> injectors, final List<ParameterValidator> validators) {
         if (target == null) {
             throw new IllegalArgumentException("Target cannot be null");
         }
@@ -79,7 +93,7 @@ public class Commands {
 
         for (final Method method : commands(clazz)) {
 
-            final CmdMethod cmd = new CmdMethod(method, target, dc);
+            final CmdMethod cmd = new CmdMethod(method, target, dc, injectors, validators);
 
             final Cmd existing = map.get(cmd.getName());
 

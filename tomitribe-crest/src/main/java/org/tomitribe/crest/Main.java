@@ -21,8 +21,12 @@ import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CommandFailedException;
 import org.tomitribe.crest.cmds.Completer;
+import org.tomitribe.crest.cmds.builder.ParameterBuilder;
+import org.tomitribe.crest.cmds.builder.ParameterBuilders;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
+import org.tomitribe.crest.cmds.validator.ParameterValidator;
+import org.tomitribe.crest.cmds.validator.ParameterValidators;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
@@ -33,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -42,10 +45,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Main implements Completer {
 
-    final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
+    private final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
+
+    public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes,
+                final List<ParameterBuilder> injectors, final List<ParameterValidator> validators) {
+        final Map<Class<?>, ParameterBuilder> injectorMap = ParameterBuilders.map(injectors);
+
+        for (final Class clazz : classes) {
+            this.commands.putAll(Commands.get(clazz, defaultsContext, injectorMap, validators));
+        }
+
+        installHelp(defaultsContext);
+    }
 
     public Main() {
-        this(new SystemPropertiesDefaultsContext(), Commands.load());
+        this(new SystemPropertiesDefaultsContext(), Commands.load(), ParameterBuilders.DEFAULTS, ParameterValidators.DEFAULTS);
     }
 
     public Main(final Class<?>... classes) {
@@ -53,19 +67,11 @@ public class Main implements Completer {
     }
 
     public Main(final DefaultsContext defaultsContext, final Class<?>... classes) {
-        this(defaultsContext, Arrays.asList(classes));
-    }
-
-    public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes) {
-        for (final Class clazz : classes) {
-            this.commands.putAll(Commands.get(clazz, defaultsContext));
-        }
-
-        installHelp(defaultsContext);
+        this(defaultsContext, Arrays.asList(classes), ParameterBuilders.DEFAULTS, ParameterValidators.DEFAULTS);
     }
 
     public Main(final Iterable<Class<?>> classes) {
-        this(new SystemPropertiesDefaultsContext(), classes);
+        this(new SystemPropertiesDefaultsContext(), classes, ParameterBuilders.DEFAULTS, ParameterValidators.DEFAULTS);
     }
 
     public void add(final Cmd cmd) {
@@ -77,17 +83,20 @@ public class Main implements Completer {
     }
 
     private void installHelp(final DefaultsContext dc) {
-        final Map<String, Cmd> stringCmdMap = Commands.get(new Help(Main.this.commands), dc);
+        final Map<String, Cmd> stringCmdMap = Commands.get(
+                new Help(Main.this.commands), dc, Collections.<Class<?>, ParameterBuilder>emptyMap(), Collections.<ParameterValidator>emptyList());
         for (final Cmd cmd : stringCmdMap.values()) {
             add(cmd);
         }
     }
 
     public static void main(final String... args) throws Exception {
+        new Main().doMain(new SystemEnvironment(), args);
+    }
+
+    public void doMain(final Environment env, final String[] args) {
         try {
-            final Environment env = new SystemEnvironment();
-            final Main main = new Main();
-            main.main(env, args);
+            main(env, args);
         } catch (final CommandFailedException e) {
 
             final Throwable cause = e.getCause();
@@ -209,9 +218,7 @@ public class Main implements Completer {
             }
 
             final String prefix = buffer.substring(0, cursorPosition);
-            Iterator<String> iterator = commands.keySet().iterator();
-            while (iterator.hasNext()) {
-                final String command = (String) iterator.next();
+            for (final String command : commands.keySet()) {
                 if (command.startsWith(prefix)) {
                     cmds.add(command + " ");
                 }
@@ -224,15 +231,17 @@ public class Main implements Completer {
 
     private Cmd getCmd(String buffer) {
         final String commandName = buffer.replaceAll("^(\\w*).*?$", "$1");
-        final Iterator<String> iterator = this.commands.keySet().iterator();
 
-        while (iterator.hasNext()) {
-            String cmd = (String) iterator.next();
+        for (final String cmd : this.commands.keySet()) {
             if (cmd.equals(commandName)) {
                 return this.commands.get(cmd);
             }
         }
 
         return null;
+    }
+
+    public Map<String, Cmd> getCommands() {
+        return commands;
     }
 }

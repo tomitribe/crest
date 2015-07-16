@@ -16,20 +16,19 @@
  */
 package org.tomitribe.crest.cmds;
 
+import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.cmds.utils.CommandLine;
+import org.tomitribe.crest.environments.Environment;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import org.tomitribe.crest.cmds.processors.Commands;
-import org.tomitribe.crest.cmds.utils.CommandLine;
-import org.tomitribe.crest.environments.Environment;
 
 public class CmdGroup implements Cmd {
 
@@ -145,9 +144,7 @@ public class CmdGroup implements Cmd {
                 }
 
                 // look at all the possible commands and return those that match
-                final Iterator<String> iterator = commands.keySet().iterator();
-                while (iterator.hasNext()) {
-                    final String commandName = (String) iterator.next();
+                for (final String commandName : commands.keySet()) {
                     if (commandName.startsWith(prefix)) {
                         results.add(commandName + " ");
                     }

@@ -36,6 +36,7 @@ public class MainTest extends TestCase {
             main.exec("foo");
             fail();
         } catch (final IllegalArgumentException e) {
+            // no-op
         }
 
         try {
@@ -43,13 +44,14 @@ public class MainTest extends TestCase {
             main.exec("blue", "foo");
             fail();
         } catch (final IllegalArgumentException e) {
+            // no-op
         }
     }
 
     public void testHelp() throws Exception {
 
         final Main main = new Main(Foo.class);
-        final Cmd help = main.commands.get("help");
+        final Cmd help = main.getCommands().get("help");
 
         final String ln = System.getProperty("line.separator");
         assertEquals(

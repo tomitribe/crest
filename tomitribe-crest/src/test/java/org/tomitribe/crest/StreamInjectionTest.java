@@ -29,10 +29,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class StreamInjection {
+public class StreamInjectionTest {
     @Test
     public void run() throws Exception {
         assertEquals("123", new Main(Command.class).exec("asserts", "--p1=1", "--p2=2", "--p3=3"));
@@ -60,6 +61,28 @@ public class StreamInjection {
         assertFalse(errorOutput.contains("Environment"));
     }
 
+    @Test
+    public void array() throws Exception {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final PrintStream err = new PrintStream(out);
+        Environment.ENVIRONMENT_THREAD_LOCAL.set(new SystemEnvironment() {
+            @Override
+            public PrintStream getError() {
+                return err;
+            }
+        });
+        try {
+            assertEquals("1234", new Main(new SystemPropertiesDefaultsContext(), Command.class).exec("withArray", "--p=1", "--p2=2", "--p3=3", "--p3=4"));
+        } catch (final IllegalArgumentException iae) {
+            // we expect this one actually
+        }
+        Environment.ENVIRONMENT_THREAD_LOCAL.remove();
+
+        final String errorOutput = new String(out.toByteArray());
+        assertFalse(errorOutput.contains("InputStream"));
+        assertFalse(errorOutput.contains("Environment"));
+    }
+
     public static class Command {
         @org.tomitribe.crest.api.Command
         public static String asserts(@Option("p1") final String p1,
@@ -74,6 +97,21 @@ public class StreamInjection {
             assertEquals(out, environment.getOutput());
             assertEquals(err, environment.getError());
             return p1 + p2 + p3; // just to ensure we dont break param injection and that the method was actually called
+        }
+
+        @org.tomitribe.crest.api.Command
+        public static String withArray(@Option("p1") final String p1,
+                                     @In final InputStream in,
+                                     @Option("p2") final String p2,
+                                     @Out final PrintStream out,
+                                     @Option("p3") final String[] p3,
+                                     @Err PrintStream err,
+                                     Environment environment) {
+            assertEquals(environment, Environment.ENVIRONMENT_THREAD_LOCAL.get());
+            assertEquals(in, environment.getInput());
+            assertEquals(out, environment.getOutput());
+            assertEquals(err, environment.getError());
+            return p1 + p2 + asList(p3);
         }
     }
 }

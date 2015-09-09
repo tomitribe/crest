@@ -30,12 +30,20 @@ import org.tomitribe.util.collect.FilteredIterable;
 import org.tomitribe.util.collect.FilteredIterator;
 import org.tomitribe.util.reflect.Reflection;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.ServiceLoader;
+
+import static java.util.Arrays.asList;
 
 public class Commands {
 
@@ -150,8 +158,11 @@ public class Commands {
     }
 
     public static Iterable<Class<?>> load() {
-
-        final Iterator<Loader> all = ServiceLoader.load(Loader.class).iterator();
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (loader == null) {
+            loader = ClassLoader.getSystemClassLoader();
+        }
+        final Iterator<Loader> all = ServiceLoader.load(Loader.class, loader).iterator();
 
         // Let them tell is the list of classes to use
         final LinkedHashSet<Class<?>> classes = new LinkedHashSet<Class<?>>();
@@ -160,6 +171,48 @@ public class Commands {
             final Iterable<Class<?>> c = all.next();
             for (final Class<?> clazz : c) {
                 classes.add(clazz);
+            }
+        }
+
+        // if maven plugin has been used just let add the found classes
+        for (final String prefix : asList("", "/")) {
+            try {
+                final Enumeration<URL> urls = loader.getResources(prefix + "crest-commands.txt");
+                while (urls.hasMoreElements()) {
+                    final URL url = urls.nextElement();
+                    InputStream stream = null;
+                    try {
+                        stream = url.openStream();
+                        BufferedReader reader = null;
+                        try {
+                            reader = new BufferedReader(new InputStreamReader(stream));
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                try {
+                                    classes.add(loader.loadClass(line));
+                                } catch (final ClassNotFoundException e) {
+                                    // no-op: we can log it but don't fail cause one command didn't load
+                                }
+                            }
+                        } finally {
+                            if (reader != null) {
+                                reader.close();
+                            }
+                        }
+                    } catch (final IOException ioe) {
+                        // no-op
+                    } finally {
+                        if (stream != null) {
+                            try {
+                                stream.close();
+                            }catch (final IOException ioe) {
+                                // no-op
+                            }
+                        }
+                    }
+                }
+            } catch (final IOException e) {
+                // no-op
             }
         }
 

@@ -671,3 +671,25 @@ mvn archetype:generate \
  -DarchetypeArtifactId=tomitribe-crest-archetype \
  -DarchetypeVersion=1.0.0-SNAPSHOT
 
+== Maven Plugin
+
+If you don't want to rely on runtime scanning to find classes but still want to avoid to list command classes or just reuse crest Main
+you can use Maven Plugin to find it and generate a descriptor used to load classes.
+
+Here is how to define it in your pom:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.tomitribe</groupId>
+  <version>${crest.version}</version>
+  <artifactId>crest-maven-plugin</artifactId>
+    <executions>
+      <execution>
+        <goals>
+          <goal>descriptor</goal>
+        </goals>
+      </execution>
+    </executions>
+</plugin>
+----

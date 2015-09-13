@@ -101,12 +101,12 @@ public class StreamInjectionTest {
 
         @org.tomitribe.crest.api.Command
         public static String withArray(@Option("p1") final String p1,
-                                     @In final InputStream in,
-                                     @Option("p2") final String p2,
-                                     @Out final PrintStream out,
-                                     @Option("p3") final String[] p3,
-                                     @Err PrintStream err,
-                                     Environment environment) {
+                                       @In final InputStream in,
+                                       @Option("p2") final String p2,
+                                       @Out final PrintStream out,
+                                       @Option("p3") final String[] p3,
+                                       @Err PrintStream err,
+                                       Environment environment) {
             assertEquals(environment, Environment.ENVIRONMENT_THREAD_LOCAL.get());
             assertEquals(in, environment.getInput());
             assertEquals(out, environment.getOutput());

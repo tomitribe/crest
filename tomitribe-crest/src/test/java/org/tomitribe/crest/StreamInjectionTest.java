@@ -16,9 +16,7 @@
  */
 package org.tomitribe.crest;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Err;
 import org.tomitribe.crest.api.In;
@@ -44,19 +42,16 @@ public class StreamInjectionTest {
     }
 
     @Test
-    @Ignore
     public void withArgs() throws Exception {
         assertEquals("orange", new Main(Command.class).exec("withArgs", "orange"));
     }
 
     @Test
-    @Ignore
     public void withArgsWithInput() throws Exception {
         assertEquals("orange", new Main(Command.class).exec("withArgsWithInput", "orange"));
     }
 
     @Test
-    @Ignore
     public void withArgs1() throws Exception {
         assertEquals("orange", new Main(Command.class).exec("withArgs1", "orange"));
     }
@@ -120,7 +115,7 @@ public class StreamInjectionTest {
                 return err;
             }
         });
-        assertEquals("5 seconds1 HOURSjava.io.PrintStreamjava.io.PrintStreamsomeval6", new Main(new SystemPropertiesDefaultsContext(), Command.class).exec("issue44", "someval", "6"));
+        assertEquals("5 seconds1 HOURSok1ok2someval6", new Main(new SystemPropertiesDefaultsContext(), Command.class).exec("issue44", "someval", "6"));
         Environment.ENVIRONMENT_THREAD_LOCAL.remove();
 
         final String errorOutput = new String(out.toByteArray());
@@ -136,7 +131,7 @@ public class StreamInjectionTest {
             @Err PrintStream err,
             @Out PrintStream out,
             final String val1, final int val2) {
-            return o1 + duration.toString() + err.getClass().getName() + out.getClass().getName() + val1 + val2;
+            return o1 + duration.toString() + (err != null ? "ok1" : "ko") + (out != null ? "ok2" : "ko") + val1 + val2;
         }
 
         @org.tomitribe.crest.api.Command

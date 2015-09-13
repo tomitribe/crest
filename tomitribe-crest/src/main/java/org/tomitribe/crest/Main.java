@@ -18,21 +18,26 @@ package org.tomitribe.crest;
 
 import org.tomitribe.crest.api.Exit;
 import org.tomitribe.crest.api.StreamingOutput;
+import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CommandFailedException;
 import org.tomitribe.crest.cmds.Completer;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
+import org.tomitribe.crest.cmds.targets.SimpleBean;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
+import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Main implements Completer {
 
-    final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
+    protected final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
+    protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<Class<?>, InternalInterceptor>();
 
     public Main() {
         this(new SystemPropertiesDefaultsContext(), Commands.load());
@@ -58,7 +64,24 @@ public class Main implements Completer {
 
     public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes) {
         for (final Class clazz : classes) {
-            this.commands.putAll(Commands.get(clazz, defaultsContext));
+            final Map<String, Cmd> m = Commands.get(clazz, defaultsContext);
+            if (!m.isEmpty()) {
+                this.commands.putAll(m);
+            } else {
+                for (final Method method : clazz.getMethods()) {
+                    if (Object.class == method.getDeclaringClass()) {
+                        continue;
+                    }
+
+                    final CrestInterceptor interceptor = method.getAnnotation(CrestInterceptor.class);
+                    if (interceptor != null) {
+                        final Class<?> key = interceptor.value() == Object.class ? clazz : interceptor.value();
+                        if (interceptors.put(key, new InternalInterceptor(new SimpleBean(null), method)) != null) {
+                            throw new IllegalArgumentException(key + " interceptor is conflicting");
+                        }
+                    }
+                }
+            }
         }
 
         installHelp(defaultsContext);
@@ -162,11 +185,11 @@ public class Main implements Completer {
             final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
             err.println("Unknown command: " + command);
             err.println();
-            commands.get("help").exec();
+            commands.get("help").exec(interceptors);
             throw new IllegalArgumentException();
         }
 
-        return cmd.exec(args);
+        return cmd.exec(interceptors, args);
     }
 
     public static List<String> processSystemProperties(final String[] args) {

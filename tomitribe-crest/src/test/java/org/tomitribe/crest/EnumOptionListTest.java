@@ -32,7 +32,7 @@ public class EnumOptionListTest extends TestCase {
     public void testEnumTrue() throws Exception {
 
         for (final Cmd test : commands.values()) {
-            final Action[] actual = (Action[]) test.exec("--action");
+            final Action[] actual = (Action[]) test.exec(null, "--action");
             assertNotNull(actual);
             assertEquals(3, actual.length);
             assertEquals(Action.WALK, actual[0]);
@@ -45,7 +45,7 @@ public class EnumOptionListTest extends TestCase {
     public void testEnumFalse() throws Exception {
 
         for (final Cmd test : commands.values()) {
-            final Action[] actual = (Action[]) test.exec("--no-action");
+            final Action[] actual = (Action[]) test.exec(null, "--no-action");
             assertNotNull(actual);
             assertEquals(0, actual.length);
         }

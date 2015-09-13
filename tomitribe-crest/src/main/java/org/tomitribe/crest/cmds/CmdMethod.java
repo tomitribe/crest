@@ -22,6 +22,7 @@ import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Defaults;
 import org.tomitribe.crest.api.Err;
 import org.tomitribe.crest.api.In;
+import org.tomitribe.crest.api.NotAService;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Out;
@@ -37,6 +38,8 @@ import org.tomitribe.crest.cmds.utils.CommandLine;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
+import org.tomitribe.crest.interceptor.internal.InternalInterceptorInvocationContext;
 import org.tomitribe.crest.val.BeanValidation;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.editor.Converter;
@@ -91,6 +94,7 @@ public class CmdMethod implements Cmd {
     private final Method method;
     private final String name;
     private final List<Param> parameters;
+    private final Class<?>[] interceptors;
     private final DefaultsContext defaultsFinder;
     private final Spec spec = new Spec();
 
@@ -113,6 +117,9 @@ public class CmdMethod implements Cmd {
         final List<Param> parameters = buildParams(NO_PREFIX, null, Reflection.params(method));
 
         this.parameters = Collections.unmodifiableList(parameters);
+
+        final Command cmdAnnotation = method.getAnnotation(Command.class);
+        this.interceptors = cmdAnnotation == null ? null : cmdAnnotation.interceptedBy();
 
         validate();
     }
@@ -290,6 +297,10 @@ public class CmdMethod implements Cmd {
                     break;
                 }
             }
+            if (!skip) {
+                skip = parameter.getAnnotation(NotAService.class) == null &&
+                    Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(parameter.getType()) != null;
+            }
             if (skip) {
                 continue;
             }
@@ -317,7 +328,7 @@ public class CmdMethod implements Cmd {
     }
 
     @Override
-    public Object exec(final String... rawArgs) {
+    public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final String... rawArgs) {
         final List<Object> list;
         try {
             list = parse(rawArgs);
@@ -326,10 +337,21 @@ public class CmdMethod implements Cmd {
             throw toRuntimeException(e);
         }
 
-        return exec(list);
+        return exec(globalInterceptors, list);
     }
 
-    public Object exec(final List<Object> list) {
+    public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final List<Object> list) {
+        return interceptors == null || interceptors.length == 0 ?
+            doInvoke(list) :
+            new InternalInterceptorInvocationContext(globalInterceptors, interceptors, method, list) {
+                @Override
+                protected Object doInvoke(final List<Object> parameters) {
+                    return CmdMethod.this.doInvoke(parameters);
+                }
+            }.proceed();
+    }
+
+    protected Object doInvoke(final List<Object> list) {
         final Object[] args;
         try {
             args = list.toArray();
@@ -425,7 +447,8 @@ public class CmdMethod implements Cmd {
          * Thus, iteration order is very significant in this loop.
          */
         final List<Object> converted = new ArrayList<Object>();
-
+        final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+        Object service;
         for (final Param parameter : parameters1) {
             final Option option = parameter.getAnnotation(Option.class);
 
@@ -446,25 +469,28 @@ public class CmdMethod implements Cmd {
                     converted.add(Converter.convert(value, parameter.getType(), optionValue));
                 }
             } else if (Environment.class == parameter.getType()) {
-                converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get());
+                converted.add(environment);
 
             } else if (parameter.isAnnotationPresent(In.class)) {
                 if (InputStream.class != parameter.getType()) {
                     throw new IllegalArgumentException("@In only supports InputStream injection");
                 }
-                converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get().getInput());
+                converted.add(environment.getInput());
 
             } else if (parameter.isAnnotationPresent(Out.class)) {
                 if (PrintStream.class != parameter.getType()) {
                     throw new IllegalArgumentException("@Out only supports PrintStream injection");
                 }
-                converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get().getOutput());
+                converted.add(environment.getOutput());
 
             } else if (parameter.isAnnotationPresent(Err.class)) {
                 if (PrintStream.class != parameter.getType()) {
                     throw new IllegalArgumentException("@Err only supports PrintStream injection");
                 }
-                converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get().getError());
+                converted.add(environment.getError());
+
+            } else if (parameter.getAnnotation(NotAService.class) == null && (service = environment.findService(parameter.getType())) != null) {
+                converted.add(service);
 
             } else if (args.list.size() > 0) {
                 needed.count--;

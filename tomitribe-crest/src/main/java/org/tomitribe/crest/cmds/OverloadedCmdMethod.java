@@ -18,6 +18,7 @@ package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.processors.OptionParam;
+import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.util.Join;
 
 import java.io.PrintStream;
@@ -61,7 +62,7 @@ public class OverloadedCmdMethod implements Cmd {
     }
 
     @Override
-    public Object exec(final String... rawArgs) {
+    public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final String... rawArgs) {
 
         final Iterator<CmdMethod> iterator = methods.iterator();
 
@@ -85,7 +86,7 @@ public class OverloadedCmdMethod implements Cmd {
                 }
             }
 
-            return method.exec(args);
+            return method.exec(globalInterceptors, args);
 
         }
 

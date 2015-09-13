@@ -661,6 +661,69 @@ public class ColorfulCmd {
 }
 ----
 
+=== Interceptors
+
+Sometimes you need to modify the command invocation or "insert" code before/after the command execution. For that purpose crest has some light
+interceptor support.
+
+Defining an interceptor is as easy as defining a class with:
+
+[source,java]
+----
+public static class MyInterceptor {
+    @CrestInterceptor
+    public Object intercept(final CrestContext crestContext) {
+        return crestContext.proceed();
+    }
+}
+----
+
+The constraint for an interceptor are:
+
+- being decorated with `@CrestInterceptor`
+- the method needs to be public
+- the method needs to table a single parameter of type `CrestContext`
+
+NOTE: you can pass `@CrestInterceptor` a value changing the key used to mark the interceptor.
+
+To let a command use an interceptor or multiple ones just list them ordered in `interceptedBy` parameter:
+
+[source,java]
+----
+@Command(interceptedBy = { MySecurityInterceptor.class, MyLoggingInterceptor.class, MyParameterFillingInterceptor.class })
+public void test1(
+         @Option("o1") final String o1,
+         @Option("o2") final int o2,
+         @Err final PrintStream err,
+         @Out final PrintStream out,
+         @In final InputStream is,
+         @Option("o3") final String o3,
+         final URL url) {
+    // do something
+}
+----
+
+==== Example for security
+
+Crest provides a `org.tomitribe.crest.interceptor.security.SecurityInterceptor` which
+handles `@RolesAllowed` using the SPI `org.tomitribe.crest.interceptor.security.RoleProvider` to determine
+if you can call or not the command contextually.
+
+NOTE: `RoleProvider` is taken from `Environment` services. You can register it through `org.tomitribe.crest.environments.SystemEnvironment` constructor
+and just set it as environment on `org.tomitribe.crest.environments.Environment.ENVIRONMENT_THREAD_LOCAL`.
+
+
+Here a sample command using it:
+
+[source,java]
+----
+@RolesAllowed("test")
+@Command(interceptedBy = SecurityInterceptor.class)
+public static String val() {
+    return "ok";
+}
+----
+
 == Maven Archetype
 
 A maven archetype is available to quickly bootstrap small projects complete with the a pom like the above.  Save yourself some time on copy/paste then find/replace.

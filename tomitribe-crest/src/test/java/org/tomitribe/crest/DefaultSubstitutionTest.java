@@ -33,13 +33,13 @@ public class DefaultSubstitutionTest extends TestCase {
 
     public void testDefaultValues() throws Exception {
 
-        commands.get("doRelyOnDefaults").exec("--format=${user.home}", "--pattern=${user.home}", "--pattern=${user.dir}", "${user.home}", "${user.home}", "${user.dir}");
+        commands.get("doRelyOnDefaults").exec(null, "--format=${user.home}", "--pattern=${user.home}", "--pattern=${user.dir}", "${user.home}", "${user.home}", "${user.dir}");
 
     }
 
     public void testExplicitValues() throws Exception {
 
-        commands.get("doAllExplicit").exec(
+        commands.get("doAllExplicit").exec(null,
                 "--user-home=${user.home}",
                 "--directory=${user.home}",
                 "--directory=${user.dir}",

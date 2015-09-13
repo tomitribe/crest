@@ -14,19 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest.cmds;
+package org.tomitribe.crest.api.interceptor;
 
-import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import java.io.PrintStream;
-import java.util.Map;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-public interface Cmd extends Completer {
-    String getUsage();
-
-    String getName();
-
-    Object exec(Map<Class<?>, InternalInterceptor> globalInterceptors, String... rawArgs);
-
-    void help(PrintStream out);
+/**
+ * A crest interceptor is defined by this annotation at method level.
+ * The signature needs to be public Object &lt;name&gt;(CrestContext ctx);
+ */
+@Retention(RUNTIME)
+@Target(METHOD)
+public @interface CrestInterceptor {
+    /**
+     * @return the type used in @Command(interceptedBy) to require the interceptor.
+     */
+    Class<?> value() default Object.class;
 }

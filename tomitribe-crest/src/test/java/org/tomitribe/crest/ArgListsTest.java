@@ -30,43 +30,43 @@ public class ArgListsTest extends TestCase {
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
-        commands.get("doByte").exec("2", "3", "5");
+        commands.get("doByte").exec(null, "2", "3", "5");
     }
 
     public void testBoolean() throws Exception {
-        commands.get("doBoolean").exec("false", "true", "false");
+        commands.get("doBoolean").exec(null, "false", "true", "false");
     }
 
     public void testCharacter() throws Exception {
-        commands.get("doCharacter").exec("2", "3", "5");
+        commands.get("doCharacter").exec(null, "2", "3", "5");
     }
 
     public void testShort() throws Exception {
-        commands.get("doShort").exec("2", "3", "5");
+        commands.get("doShort").exec(null, "2", "3", "5");
     }
 
     public void testInt() throws Exception {
-        commands.get("doInt").exec("2", "3", "5");
+        commands.get("doInt").exec(null, "2", "3", "5");
     }
 
     public void testLong() throws Exception {
-        commands.get("doLong").exec("2", "3", "5");
+        commands.get("doLong").exec(null, "2", "3", "5");
     }
 
     public void testFloat() throws Exception {
-        commands.get("doFloat").exec("2", "3", "5");
+        commands.get("doFloat").exec(null, "2", "3", "5");
     }
 
     public void testDouble() throws Exception {
-        commands.get("doDouble").exec("2", "3", "5");
+        commands.get("doDouble").exec(null, "2", "3", "5");
     }
 
     public void testString() throws Exception {
-        commands.get("doString").exec("2", "3", "5");
+        commands.get("doString").exec(null, "2", "3", "5");
     }
 
     public void testURI() throws Exception {
-        commands.get("doURI").exec("2", "3", "5");
+        commands.get("doURI").exec(null, "2", "3", "5");
     }
 
     public static class Commands {

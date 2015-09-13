@@ -30,4 +30,6 @@ public @interface Command {
     String value() default "";
 
     String usage() default "";
+
+    Class<?>[] interceptedBy() default {};
 }

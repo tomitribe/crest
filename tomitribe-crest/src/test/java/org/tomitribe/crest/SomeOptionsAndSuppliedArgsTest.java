@@ -29,54 +29,54 @@ public class SomeOptionsAndSuppliedArgsTest extends TestCase {
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
-        commands.get("doByte").exec("--p2=9", "3", "7");
+        commands.get("doByte").exec(null, "--p2=9", "3", "7");
     }
 
 
     public void testChar() throws Exception {
-        commands.get("doChar").exec("--p2=9", "3", "7");
+        commands.get("doChar").exec(null, "--p2=9", "3", "7");
     }
 
 
     public void testBoolean() throws Exception {
-        commands.get("doBoolean").exec("--p2=true", "false", "true");
+        commands.get("doBoolean").exec(null, "--p2=true", "false", "true");
     }
 
 
     public void testShort() throws Exception {
-        commands.get("doShort").exec("--p2=9", "3", "7");
+        commands.get("doShort").exec(null, "--p2=9", "3", "7");
     }
 
 
     public void testInt() throws Exception {
-        commands.get("doInt").exec("--p2=9", "3", "7");
+        commands.get("doInt").exec(null, "--p2=9", "3", "7");
     }
 
 
     public void testLong() throws Exception {
-        commands.get("doLong").exec("--p2=9", "3", "7");
+        commands.get("doLong").exec(null, "--p2=9", "3", "7");
     }
 
 
     public void testFloat() throws Exception {
-        commands.get("doFloat").exec("--p2=9", "3", "7");
+        commands.get("doFloat").exec(null, "--p2=9", "3", "7");
     }
 
 
     public void testDouble() throws Exception {
-        commands.get("doDouble").exec("--p2=9", "3", "7");
+        commands.get("doDouble").exec(null, "--p2=9", "3", "7");
     }
 
     public void testString() throws Exception {
-        commands.get("doString").exec("--p2=9", "3", "7");
+        commands.get("doString").exec(null, "--p2=9", "3", "7");
     }
 
     public void testURI() throws Exception {
-        commands.get("doURI").exec("--p2=9", "3", "7");
+        commands.get("doURI").exec(null, "--p2=9", "3", "7");
     }
 
     public void testMixed() throws Exception {
-        commands.get("doMixed").exec("--p2=9", "3", "7");
+        commands.get("doMixed").exec(null, "--p2=9", "3", "7");
     }
 
     public static class Commands {

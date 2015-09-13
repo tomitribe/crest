@@ -30,23 +30,23 @@ public class BooleanOptionsTest extends TestCase {
 
     public void test() throws Exception {
 
-        assertEquals(true, commands.get("primitive").exec("--action"));
-        assertEquals(false, commands.get("primitive").exec("--no-action"));
+        assertEquals(true, commands.get("primitive").exec(null, "--action"));
+        assertEquals(false, commands.get("primitive").exec(null, "--no-action"));
 
-        assertEquals(true, commands.get("primitive2").exec("--action"));
-        assertEquals(false, commands.get("primitive2").exec("--no-action"));
+        assertEquals(true, commands.get("primitive2").exec(null, "--action"));
+        assertEquals(false, commands.get("primitive2").exec(null, "--no-action"));
 
-        assertEquals(true, commands.get("primitive3").exec("--action"));
-        assertEquals(false, commands.get("primitive3").exec("--no-action"));
+        assertEquals(true, commands.get("primitive3").exec(null, "--action"));
+        assertEquals(false, commands.get("primitive3").exec(null, "--no-action"));
 
-        assertEquals(true, commands.get("object").exec("--action"));
-        assertEquals(false, commands.get("object").exec("--no-action"));
+        assertEquals(true, commands.get("object").exec(null, "--action"));
+        assertEquals(false, commands.get("object").exec(null, "--no-action"));
 
-        assertEquals(true, commands.get("object2").exec("--action"));
-        assertEquals(false, commands.get("object2").exec("--no-action"));
+        assertEquals(true, commands.get("object2").exec(null, "--action"));
+        assertEquals(false, commands.get("object2").exec(null, "--no-action"));
 
-        assertEquals(true, commands.get("object3").exec("--action"));
-        assertEquals(false, commands.get("object3").exec("--no-action"));
+        assertEquals(true, commands.get("object3").exec(null, "--action"));
+        assertEquals(false, commands.get("object3").exec(null, "--no-action"));
     }
 
     public static class Commands {

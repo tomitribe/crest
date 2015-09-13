@@ -14,19 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest.cmds;
+package org.tomitribe.crest.api.interceptor;
 
-import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
+import java.lang.reflect.Method;
+import java.util.List;
 
-import java.io.PrintStream;
-import java.util.Map;
+public interface CrestContext {
+    /**
+     * @return continue the execution of the command.
+     */
+    Object proceed();
 
-public interface Cmd extends Completer {
-    String getUsage();
+    /**
+     * @return get the command method.
+     */
+    Method getMethod();
 
-    String getName();
-
-    Object exec(Map<Class<?>, InternalInterceptor> globalInterceptors, String... rawArgs);
-
-    void help(PrintStream out);
+    /**
+     * @return get the <b>mutable</b> list of command parameters.
+     */
+    List<Object> getParameters();
 }

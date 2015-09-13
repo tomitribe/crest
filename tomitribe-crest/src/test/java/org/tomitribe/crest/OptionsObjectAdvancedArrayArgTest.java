@@ -55,21 +55,21 @@ public class OptionsObjectAdvancedArrayArgTest extends TestCase {
 
     private void assertArguments(Cmd command) {
         {
-            final Value exec = (Value) command.exec("/tmp/dest1", "/tmp/dest2");
+            final Value exec = (Value) command.exec(null, "/tmp/dest1", "/tmp/dest2");
             assertEquals(0, exec.sources.length);
             assertEquals(URI.create("/tmp/dest1"), exec.dest1);
             assertEquals(URI.create("/tmp/dest2"), exec.dest2);
         }
 
         {
-            final Value exec = (Value) command.exec("/tmp/src", "/tmp/dest1", "/tmp/dest2");
+            final Value exec = (Value) command.exec(null, "/tmp/src", "/tmp/dest1", "/tmp/dest2");
             assertEquals(URI.create("/tmp/src"), exec.sources[0]);
             assertEquals(URI.create("/tmp/dest1"), exec.dest1);
             assertEquals(URI.create("/tmp/dest2"), exec.dest2);
         }
 
         {
-            final Value exec = (Value) command.exec("/tmp/src1", "/tmp/src2", "/tmp/dest1", "/tmp/dest2");
+            final Value exec = (Value) command.exec(null, "/tmp/src1", "/tmp/src2", "/tmp/dest1", "/tmp/dest2");
             assertEquals(URI.create("/tmp/src1"), exec.sources[0]);
             assertEquals(URI.create("/tmp/src2"), exec.sources[1]);
             assertEquals(URI.create("/tmp/dest1"), exec.dest1);
@@ -77,7 +77,7 @@ public class OptionsObjectAdvancedArrayArgTest extends TestCase {
         }
 
         {
-            final Value exec = (Value) command.exec("/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/dest1", "/tmp/dest2");
+            final Value exec = (Value) command.exec(null, "/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/dest1", "/tmp/dest2");
             assertEquals(URI.create("/tmp/src1"), exec.sources[0]);
             assertEquals(URI.create("/tmp/src2"), exec.sources[1]);
             assertEquals(URI.create("/tmp/src3"), exec.sources[2]);
@@ -85,7 +85,7 @@ public class OptionsObjectAdvancedArrayArgTest extends TestCase {
             assertEquals(URI.create("/tmp/dest2"), exec.dest2);
         }
         {
-            final Value exec = (Value) command.exec("/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/src4", "/tmp/dest1", "/tmp/dest2");
+            final Value exec = (Value) command.exec(null, "/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/src4", "/tmp/dest1", "/tmp/dest2");
             assertEquals(URI.create("/tmp/src1"), exec.sources[0]);
             assertEquals(URI.create("/tmp/src2"), exec.sources[1]);
             assertEquals(URI.create("/tmp/src3"), exec.sources[2]);

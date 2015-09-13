@@ -51,33 +51,33 @@ public class AdvancedArrayArgTest extends TestCase {
         final Cmd copy = Commands.get(OneExtra.class).get("copy");
 
         {
-            final OneExtra.Value exec = (OneExtra.Value) copy.exec("/tmp/dest");
+            final OneExtra.Value exec = (OneExtra.Value) copy.exec(null, "/tmp/dest");
             assertEquals(0, exec.sources.length);
             assertEquals(URI.create("/tmp/dest"), exec.dest);
         }
 
         {
-            final OneExtra.Value exec = (OneExtra.Value) copy.exec("/tmp/src", "/tmp/dest");
+            final OneExtra.Value exec = (OneExtra.Value) copy.exec(null, "/tmp/src", "/tmp/dest");
             assertEquals(URI.create("/tmp/src"), exec.sources[0]);
             assertEquals(URI.create("/tmp/dest"), exec.dest);
         }
 
         {
-            final OneExtra.Value exec = (OneExtra.Value) copy.exec("/tmp/src1", "/tmp/src2", "/tmp/dest");
+            final OneExtra.Value exec = (OneExtra.Value) copy.exec(null, "/tmp/src1", "/tmp/src2", "/tmp/dest");
             assertEquals(URI.create("/tmp/src1"), exec.sources[0]);
             assertEquals(URI.create("/tmp/src2"), exec.sources[1]);
             assertEquals(URI.create("/tmp/dest"), exec.dest);
         }
 
         {
-            final OneExtra.Value exec = (OneExtra.Value) copy.exec("/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/dest");
+            final OneExtra.Value exec = (OneExtra.Value) copy.exec(null, "/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/dest");
             assertEquals(URI.create("/tmp/src1"), exec.sources[0]);
             assertEquals(URI.create("/tmp/src2"), exec.sources[1]);
             assertEquals(URI.create("/tmp/src3"), exec.sources[2]);
             assertEquals(URI.create("/tmp/dest"), exec.dest);
         }
         {
-            final OneExtra.Value exec = (OneExtra.Value) copy.exec("/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/src4", "/tmp/dest");
+            final OneExtra.Value exec = (OneExtra.Value) copy.exec(null, "/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/src4", "/tmp/dest");
             assertEquals(URI.create("/tmp/src1"), exec.sources[0]);
             assertEquals(URI.create("/tmp/src2"), exec.sources[1]);
             assertEquals(URI.create("/tmp/src3"), exec.sources[2]);
@@ -85,7 +85,7 @@ public class AdvancedArrayArgTest extends TestCase {
             assertEquals(URI.create("/tmp/dest"), exec.dest);
         }
 
-        copy.exec("/tmp/src");
+        copy.exec(null, "/tmp/src");
     }
 
     public static class TwoExtra {
@@ -112,21 +112,21 @@ public class AdvancedArrayArgTest extends TestCase {
         final Cmd copy = Commands.get(TwoExtra.class).get("copy");
 
         {
-            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec("/tmp/dest1", "/tmp/dest2");
+            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec(null, "/tmp/dest1", "/tmp/dest2");
             assertEquals(0, exec.sources.length);
             assertEquals(URI.create("/tmp/dest1"), exec.dest1);
             assertEquals(URI.create("/tmp/dest2"), exec.dest2);
         }
 
         {
-            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec("/tmp/src", "/tmp/dest1", "/tmp/dest2");
+            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec(null, "/tmp/src", "/tmp/dest1", "/tmp/dest2");
             assertEquals(URI.create("/tmp/src"), exec.sources[0]);
             assertEquals(URI.create("/tmp/dest1"), exec.dest1);
             assertEquals(URI.create("/tmp/dest2"), exec.dest2);
         }
 
         {
-            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec("/tmp/src1", "/tmp/src2", "/tmp/dest1", "/tmp/dest2");
+            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec(null, "/tmp/src1", "/tmp/src2", "/tmp/dest1", "/tmp/dest2");
             assertEquals(URI.create("/tmp/src1"), exec.sources[0]);
             assertEquals(URI.create("/tmp/src2"), exec.sources[1]);
             assertEquals(URI.create("/tmp/dest1"), exec.dest1);
@@ -134,7 +134,7 @@ public class AdvancedArrayArgTest extends TestCase {
         }
 
         {
-            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec("/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/dest1", "/tmp/dest2");
+            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec(null, "/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/dest1", "/tmp/dest2");
             assertEquals(URI.create("/tmp/src1"), exec.sources[0]);
             assertEquals(URI.create("/tmp/src2"), exec.sources[1]);
             assertEquals(URI.create("/tmp/src3"), exec.sources[2]);
@@ -142,7 +142,7 @@ public class AdvancedArrayArgTest extends TestCase {
             assertEquals(URI.create("/tmp/dest2"), exec.dest2);
         }
         {
-            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec("/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/src4", "/tmp/dest1", "/tmp/dest2");
+            final TwoExtra.Value exec = (TwoExtra.Value) copy.exec(null, "/tmp/src1", "/tmp/src2", "/tmp/src3", "/tmp/src4", "/tmp/dest1", "/tmp/dest2");
             assertEquals(URI.create("/tmp/src1"), exec.sources[0]);
             assertEquals(URI.create("/tmp/src2"), exec.sources[1]);
             assertEquals(URI.create("/tmp/src3"), exec.sources[2]);
@@ -163,10 +163,10 @@ public class AdvancedArrayArgTest extends TestCase {
     public void testRequired() throws Exception {
         final Map<String, Cmd> commands = Commands.get(RequiredList.class);
         final Cmd copy = commands.get("copy");
-        copy.exec("one", "two");
+        copy.exec(null, "one", "two");
 
         try {
-            copy.exec("one");
+            copy.exec(null, "one");
             fail();
         } catch (final IllegalArgumentException e) {
         }

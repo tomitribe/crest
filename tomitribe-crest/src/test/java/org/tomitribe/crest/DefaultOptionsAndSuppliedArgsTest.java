@@ -29,54 +29,54 @@ public class DefaultOptionsAndSuppliedArgsTest extends TestCase {
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
-        commands.get("doByte").exec("3", "7");
+        commands.get("doByte").exec(null, "3", "7");
     }
 
 
     public void testChar() throws Exception {
-        commands.get("doChar").exec("3", "7");
+        commands.get("doChar").exec(null, "3", "7");
     }
 
 
     public void testBoolean() throws Exception {
-        commands.get("doBoolean").exec("false", "true");
+        commands.get("doBoolean").exec(null, "false", "true");
     }
 
 
     public void testShort() throws Exception {
-        commands.get("doShort").exec("3", "7");
+        commands.get("doShort").exec(null, "3", "7");
     }
 
 
     public void testInt() throws Exception {
-        commands.get("doInt").exec("3", "7");
+        commands.get("doInt").exec(null, "3", "7");
     }
 
 
     public void testLong() throws Exception {
-        commands.get("doLong").exec("3", "7");
+        commands.get("doLong").exec(null, "3", "7");
     }
 
 
     public void testFloat() throws Exception {
-        commands.get("doFloat").exec("3", "7");
+        commands.get("doFloat").exec(null, "3", "7");
     }
 
 
     public void testDouble() throws Exception {
-        commands.get("doDouble").exec("3", "7");
+        commands.get("doDouble").exec(null, "3", "7");
     }
 
     public void testString() throws Exception {
-        commands.get("doString").exec("3", "7");
+        commands.get("doString").exec(null, "3", "7");
     }
 
     public void testURI() throws Exception {
-        commands.get("doURI").exec("3", "7");
+        commands.get("doURI").exec(null, "3", "7");
     }
 
     public void testMixed() throws Exception {
-        commands.get("doMixed").exec("3", "7");
+        commands.get("doMixed").exec(null, "3", "7");
     }
 
     public static class Commands {

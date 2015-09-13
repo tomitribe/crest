@@ -59,7 +59,7 @@ public class MainTest extends TestCase {
                         "   green               " + ln +
                         "   help                " + ln +
                         "   red                 " + ln,
-                help.exec());
+                help.exec(null));
 
     }
 

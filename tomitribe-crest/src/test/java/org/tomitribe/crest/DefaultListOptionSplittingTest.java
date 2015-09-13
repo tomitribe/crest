@@ -43,15 +43,15 @@ public class DefaultListOptionSplittingTest extends TestCase {
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testComma() throws Exception {
-        commands.get("onComma").exec();
+        commands.get("onComma").exec(null);
     }
 
     public void testTab() throws Exception {
-        commands.get("onTab").exec();
+        commands.get("onTab").exec(null);
     }
 
     public void testUnicode() throws Exception {
-        commands.get("onUnicode").exec();
+        commands.get("onUnicode").exec(null);
     }
 
     public void testOnlyBeforeSubstition() throws Exception {
@@ -59,7 +59,7 @@ public class DefaultListOptionSplittingTest extends TestCase {
         System.setProperty("value1", "2,3");
         System.setProperty("value2", "5,7");
 
-        commands.get("onlyBeforeSubstition").exec();
+        commands.get("onlyBeforeSubstition").exec(null);
     }
 
     public static class Commands {

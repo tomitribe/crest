@@ -94,7 +94,7 @@ public class Main implements Completer {
             final Exit exit = cause.getClass().getAnnotation(Exit.class);
             if (exit != null) {
 
-                System.err.println(e.getMessage());
+                System.err.println(cause.getMessage());
                 System.exit(exit.value());
 
             } else {

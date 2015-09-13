@@ -3,6 +3,6 @@
 short_description: http://127.0.0.1:8080/tomitribe-io/docs/crest/short_description.txt
 long_description: http://127.0.0.1:8080/tomitribe-io/docs/crest/long_description.adoc
 documentation: http://127.0.0.1:8080/tomitribe-io/docs/crest/documentation.adoc
-snapshot: http://127.0.0.1:8080/tomitribe-io/docs/crest/snapshot.png
-icon: http://127.0.0.1:8080/tomitribe-io/docs/crest/icon.png
+snapshot: https://tests.veronezi.org/tomitribe-io/docs/crest/snapshot.png
+icon: https://tests.veronezi.org/tomitribe-io/docs/crest/icon.png
 

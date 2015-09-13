@@ -39,10 +39,10 @@ public class BeanValidationTest extends Assert {
 
         final Cmd check = cmds.get("check");
 
-        check.exec(new File("").getAbsolutePath());
+        check.exec(null, new File("").getAbsolutePath());
 
         try {
-            check.exec(new File("/this/does/not/exist/we/hope").getAbsolutePath());
+            check.exec(null, new File("/this/does/not/exist/we/hope").getAbsolutePath());
             fail();
         } catch (final ConstraintViolationException e) {
         }

@@ -34,16 +34,16 @@ public class OptionsObjectValidationTest extends TestCase {
     public void testOptionsAndArgs() throws Exception {
         final Cmd validation = commands.get("validation");
 
-        validation.exec("--key=color", "--value=orange", "red", "blue://foo");
+        validation.exec(null, "--key=color", "--value=orange", "red", "blue://foo");
 
         try {
-            validation.exec("--key=color", "--value=orange", "", "blue://foo");
+            validation.exec(null, "--key=color", "--value=orange", "", "blue://foo");
             fail();
         } catch (final ConstraintViolationException e) {
         }
 
         try {
-            validation.exec("--key=color", "--value=", "red", "blue://foo");
+            validation.exec(null, "--key=color", "--value=", "red", "blue://foo");
             fail();
         } catch (final ConstraintViolationException e) {
         }

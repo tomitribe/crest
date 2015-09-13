@@ -52,7 +52,7 @@ public class CmdMethodTest extends TestCase {
     public void testSupportUserDashPrefixing() {
         Commands.prefixed = false;
         final Cmd cmd = commands.get("prefixed");
-        cmd.exec("-value=1", "----value=4");
+        cmd.exec(null, "-value=1", "----value=4");
         assertTrue(Commands.prefixed);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         cmd.help(new PrintStream(out));
@@ -68,14 +68,14 @@ public class CmdMethodTest extends TestCase {
 
         {
             final Cmd tail = commands.get("tail");
-            tail.exec("--number=45", SOME_FILE, "45");
-            tail.exec(SOME_FILE, "100");
+            tail.exec(null, "--number=45", SOME_FILE, "45");
+            tail.exec(null, SOME_FILE, "100");
         }
 
         // Missing arguments
         try {
             final Cmd tail = commands.get("tail");
-            tail.exec();
+            tail.exec(null);
             fail();
         } catch (final IllegalArgumentException e) {
 
@@ -84,7 +84,7 @@ public class CmdMethodTest extends TestCase {
         // Invalid option
         try {
             final Cmd tail = commands.get("tail");
-            tail.exec(SOME_FILE, "100", "--color");
+            tail.exec(null, SOME_FILE, "100", "--color");
             fail();
         } catch (final IllegalArgumentException e) {
         }
@@ -95,8 +95,8 @@ public class CmdMethodTest extends TestCase {
         // boolean options default to false
         {
             final Cmd cmd = commands.get("booleanOption");
-            assertEquals(false, cmd.exec());
-            assertEquals(true, cmd.exec("--long"));
+            assertEquals(false, cmd.exec(null));
+            assertEquals(true, cmd.exec(null, "--long"));
         }
     }
 
@@ -104,7 +104,7 @@ public class CmdMethodTest extends TestCase {
         // Required option
         try {
             final Cmd tail = commands.get("required");
-            tail.exec();
+            tail.exec(null);
             fail();
         } catch (final IllegalArgumentException e) {
         }
@@ -115,7 +115,7 @@ public class CmdMethodTest extends TestCase {
         // as they do not have "--key=name" and "--value=thx1138"
         try {
             final Cmd tail = commands.get("tail");
-            tail.exec("name", "value");
+            tail.exec(null, "name", "value");
             fail();
         } catch (final IllegalArgumentException e) {
 
@@ -124,14 +124,14 @@ public class CmdMethodTest extends TestCase {
 
     public void testBooleanOptions() {
         final Cmd ls = commands.get("ls");
-        ls.exec("--long=true", SOME_FILE);
-        ls.exec("--long", SOME_FILE);
+        ls.exec(null, "--long=true", SOME_FILE);
+        ls.exec(null, "--long", SOME_FILE);
     }
 
     public void testFileParameter() {
         final Cmd touch = commands.get("touch");
         assertNotNull(touch);
-        touch.exec(SOME_FILE);
+        touch.exec(null, SOME_FILE);
     }
 
     public static class Commands {

@@ -661,6 +661,48 @@ public class ColorfulCmd {
 }
 ----
 
+=== Interceptors
+
+Sometimes you need to modify the command invocation or "insert" code before/after the command execution. For that purpose crest has some light
+interceptor support.
+
+Defining an interceptor is as easy as defining a class with:
+
+[source,java]
+----
+public static class MyInterceptor {
+    @CrestInterceptor
+    public Object intercept(final CrestContext crestContext) {
+        return crestContext.proceed();
+    }
+}
+----
+
+The constraint for an interceptor are:
+
+- being decorated with `@CrestInterceptor`
+- the method needs to be public
+- the method needs to table a single parameter of type `CrestContext`
+
+NOTE: you can pass `@CrestInterceptor` a value changing the key used to mark the interceptor.
+
+To let a command use an interceptor or multiple ones just list them ordered in `interceptedBy` parameter:
+
+[source,java]
+----
+@Command(interceptedBy = { MySecurityInterceptor.class, MyLoggingInterceptor.class, MyParameterFillingInterceptor.class })
+public void test1(
+         @Option("o1") final String o1,
+         @Option("o2") final int o2,
+         @Err final PrintStream err,
+         @Out final PrintStream out,
+         @In final InputStream is,
+         @Option("o3") final String o3,
+         final URL url) {
+    // do something
+}
+----
+
 == Maven Archetype
 
 A maven archetype is available to quickly bootstrap small projects complete with the a pom like the above.  Save yourself some time on copy/paste then find/replace.

@@ -32,43 +32,43 @@ public class DefaultOptionListsTest extends TestCase {
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
-        commands.get("doByte").exec();
+        commands.get("doByte").exec(null);
     }
 
     public void testBoolean() throws Exception {
-        commands.get("doBoolean").exec();
+        commands.get("doBoolean").exec(null);
     }
 
     public void testCharacter() throws Exception {
-        commands.get("doCharacter").exec();
+        commands.get("doCharacter").exec(null);
     }
 
     public void testShort() throws Exception {
-        commands.get("doShort").exec();
+        commands.get("doShort").exec(null);
     }
 
     public void testInt() throws Exception {
-        commands.get("doInt").exec();
+        commands.get("doInt").exec(null);
     }
 
     public void testLong() throws Exception {
-        commands.get("doLong").exec();
+        commands.get("doLong").exec(null);
     }
 
     public void testFloat() throws Exception {
-        commands.get("doFloat").exec();
+        commands.get("doFloat").exec(null);
     }
 
     public void testDouble() throws Exception {
-        commands.get("doDouble").exec();
+        commands.get("doDouble").exec(null);
     }
 
     public void testString() throws Exception {
-        commands.get("doString").exec();
+        commands.get("doString").exec(null);
     }
 
     public void testURI() throws Exception {
-        commands.get("doURI").exec();
+        commands.get("doURI").exec(null);
     }
 
     public static class Commands {

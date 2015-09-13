@@ -31,7 +31,7 @@ public class ManyOptionTest extends TestCase{
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testString() throws Exception {
-        commands.get("doString").exec("--foo=2", "--foox=3", "-f=5");
+        commands.get("doString").exec(null, "--foo=2", "--foox=3", "-f=5");
     }
 
     public void testIllegal() throws Exception {
@@ -39,21 +39,21 @@ public class ManyOptionTest extends TestCase{
 
         // Short options cannot be long options
         try {
-            rsync.exec("--d");
+            rsync.exec(null, "--d");
 
             fail();
         } catch (IllegalArgumentException pass) {
         }
 
         try {
-            rsync.exec("--e");
+            rsync.exec(null, "--e");
 
             fail();
         } catch (IllegalArgumentException pass) {
         }
 
         try {
-            rsync.exec("--l");
+            rsync.exec(null, "--l");
 
             fail();
         } catch (IllegalArgumentException pass) {
@@ -63,35 +63,35 @@ public class ManyOptionTest extends TestCase{
         // -del is the same as -d -e -l (covered in the test below).
         
         try {
-            rsync.exec("-delete-during");
+            rsync.exec(null, "-delete-during");
 
             fail();
         } catch (IllegalArgumentException pass) {
         }
 
         try {
-            rsync.exec("-dirs");
+            rsync.exec(null, "-dirs");
 
             fail();
         } catch (IllegalArgumentException pass) {
         }
 
         try {
-            rsync.exec("-links");
+            rsync.exec(null, "-links");
 
             fail();
         } catch (IllegalArgumentException pass) {
         }
 
         try {
-            rsync.exec("-rsh");
+            rsync.exec(null, "-rsh");
 
             fail();
         } catch (IllegalArgumentException pass) {
         }
         
         try {
-            rsync.exec("-no-rsh");
+            rsync.exec(null, "-no-rsh");
 
             fail();
         } catch (IllegalArgumentException pass) {
@@ -104,32 +104,32 @@ public class ManyOptionTest extends TestCase{
         final Cmd rsync = commands.get("rsync");
 
         assertCommand(
-                rsync.exec(),
+                rsync.exec(null),
                 "rsync{dirs=null, links=null, verbose=null, delete=null}");
 
         assertCommand(
-                rsync.exec("-d", "-e", "-l"),
+                rsync.exec(null, "-d", "-e", "-l"),
                 "rsync{dirs=true, links=true, verbose=true, delete=null}");
 
         assertCommand(
-                rsync.exec("-del"),
+                rsync.exec(null, "-del"),
                 "rsync{dirs=true, links=true, verbose=true, delete=null}");
 
         assertCommand(
-                rsync.exec("--del"),
+                rsync.exec(null, "--del"),
                 "rsync{dirs=null, links=null, verbose=null, delete=true}");
 
         assertCommand(
-                rsync.exec("--no-del"),
+                rsync.exec(null, "--no-del"),
                 "rsync{dirs=null, links=null, verbose=null, delete=false}");
 
         assertCommand(
-                rsync.exec("-d", "-e", "-l", "--no-del"),
+                rsync.exec(null, "-d", "-e", "-l", "--no-del"),
                 "rsync{dirs=true, links=true, verbose=true, delete=false}");
 
 
         assertCommand(
-                rsync.exec("-del", "--no-del"),
+                rsync.exec(null, "-del", "--no-del"),
                 "rsync{dirs=true, links=true, verbose=true, delete=false}");
 
     }

@@ -33,8 +33,8 @@ public class SubCommandsTest extends Assert {
     public void test() throws Exception {
         final Cmd git = commands.get("git");
 
-        assertEquals("cmd:push repo:foo", git.exec("push", "foo"));
-        assertEquals("cmd:pull repo:foo", git.exec("pull", "foo"));
+        assertEquals("cmd:push repo:foo", git.exec(null, "push", "foo"));
+        assertEquals("cmd:pull repo:foo", git.exec(null, "pull", "foo"));
     }
 
 
@@ -43,7 +43,7 @@ public class SubCommandsTest extends Assert {
         final Cmd git = commands.get("git");
 
         try {
-            git.exec("update", "foo");
+            git.exec(null, "update", "foo");
             fail();
         } catch (IllegalArgumentException e) {
         }
@@ -54,7 +54,7 @@ public class SubCommandsTest extends Assert {
         final Cmd git = commands.get("git");
 
         try {
-            git.exec();
+            git.exec(null);
             fail();
         } catch (IllegalArgumentException e) {
         }

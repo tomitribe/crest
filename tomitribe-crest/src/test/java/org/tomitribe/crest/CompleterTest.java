@@ -21,11 +21,13 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.interceptor.InternalInterceptor;
 import org.tomitribe.crest.val.Exists;
 
 import junit.framework.TestCase;
@@ -180,7 +182,7 @@ public class CompleterTest extends TestCase {
         }
 
         @Override
-        public Object exec(String... rawArgs) {
+        public Object exec(Map<Class<?>, InternalInterceptor> globalInterceptors, String... rawArgs) {
             throw new UnsupportedOperationException();
         }
 

@@ -29,43 +29,43 @@ public class OptionArraysTest extends TestCase {
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
-        commands.get("doByte").exec("--foo=22", "--foo=33", "--foo=55");
+        commands.get("doByte").exec(null, "--foo=22", "--foo=33", "--foo=55");
     }
 
     public void testBoolean() throws Exception {
-        commands.get("doBoolean").exec("--foo=false", "--foo=true", "--foo=false");
+        commands.get("doBoolean").exec(null, "--foo=false", "--foo=true", "--foo=false");
     }
 
     public void testCharacter() throws Exception {
-        commands.get("doChar").exec("--foo=D", "--foo=M", "--foo=B");
+        commands.get("doChar").exec(null, "--foo=D", "--foo=M", "--foo=B");
     }
 
     public void testShort() throws Exception {
-        commands.get("doShort").exec("--foo=22", "--foo=33", "--foo=55");
+        commands.get("doShort").exec(null, "--foo=22", "--foo=33", "--foo=55");
     }
 
     public void testInt() throws Exception {
-        commands.get("doInt").exec("--foo=22", "--foo=33", "--foo=55");
+        commands.get("doInt").exec(null, "--foo=22", "--foo=33", "--foo=55");
     }
 
     public void testLong() throws Exception {
-        commands.get("doLong").exec("--foo=22", "--foo=33", "--foo=55");
+        commands.get("doLong").exec(null, "--foo=22", "--foo=33", "--foo=55");
     }
 
     public void testFloat() throws Exception {
-        commands.get("doFloat").exec("--foo=22", "--foo=33", "--foo=55");
+        commands.get("doFloat").exec(null, "--foo=22", "--foo=33", "--foo=55");
     }
 
     public void testDouble() throws Exception {
-        commands.get("doDouble").exec("--foo=22", "--foo=33", "--foo=55");
+        commands.get("doDouble").exec(null, "--foo=22", "--foo=33", "--foo=55");
     }
 
     public void testString() throws Exception {
-        commands.get("doString").exec("--foo=22", "--foo=33", "--foo=55");
+        commands.get("doString").exec(null, "--foo=22", "--foo=33", "--foo=55");
     }
 
     public void testURI() throws Exception {
-        commands.get("doURI").exec("--foo=22", "--foo=33", "--foo=55");
+        commands.get("doURI").exec(null, "--foo=22", "--foo=33", "--foo=55");
     }
 
     public static class Commands {

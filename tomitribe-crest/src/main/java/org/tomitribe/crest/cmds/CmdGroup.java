@@ -30,6 +30,7 @@ import java.util.TreeSet;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.utils.CommandLine;
 import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.interceptor.InternalInterceptor;
 
 public class CmdGroup implements Cmd {
 
@@ -52,7 +53,7 @@ public class CmdGroup implements Cmd {
     }
 
     @Override
-    public Object exec(String... rawArgs) {
+    public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, String... rawArgs) {
 
         if (rawArgs.length == 0) {
             throw report(new IllegalArgumentException("Missing sub-command"));
@@ -68,7 +69,7 @@ public class CmdGroup implements Cmd {
         String[] newArgs = new String[rawArgs.length - 1];
         System.arraycopy(rawArgs, 1, newArgs, 0, newArgs.length);
 
-        return cmd.exec(newArgs);
+        return cmd.exec(globalInterceptors, newArgs);
     }
 
     private <E extends RuntimeException> E report(E e) {

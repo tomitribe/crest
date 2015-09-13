@@ -54,13 +54,13 @@ public class OverloadedCmdMethodTest extends Assert {
     public void testExec() throws Exception {
         final Cmd help = commands.get("help");
 
-        assertEquals("help1 42", help.exec("--level=42"));
+        assertEquals("help1 42", help.exec(null, "--level=42"));
 
-        assertEquals("help2 en foo", help.exec("--lang=en", "foo"));
-        assertEquals("help2 null foo", help.exec("foo"));
+        assertEquals("help2 en foo", help.exec(null, "--lang=en", "foo"));
+        assertEquals("help2 null foo", help.exec(null, "foo"));
 
-        assertEquals("help3 en false foo bar", help.exec("--lang=en", "foo", "bar"));
-        assertEquals("help3 en true foo bar", help.exec("--lang=en", "--colors", "foo", "bar"));
+        assertEquals("help3 en false foo bar", help.exec(null, "--lang=en", "foo", "bar"));
+        assertEquals("help3 en true foo bar", help.exec(null, "--lang=en", "--colors", "foo", "bar"));
     }
 
     public static class TestCommands {

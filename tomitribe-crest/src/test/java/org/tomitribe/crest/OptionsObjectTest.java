@@ -30,28 +30,28 @@ public class OptionsObjectTest extends TestCase {
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testBean() throws Exception {
-        commands.get("options").exec("--key=color", "--value=orange");
-        commands.get("options").exec("--value=orange", "--key=color");
+        commands.get("options").exec(null, "--key=color", "--value=orange");
+        commands.get("options").exec(null, "--value=orange", "--key=color");
     }
 
     public void testBeanWithArgs() throws Exception {
-        commands.get("args").exec("red", "blue://foo");
+        commands.get("args").exec(null, "red", "blue://foo");
     }
 
     public void testOptionsAndArgs() throws Exception {
-        commands.get("optionsAndArgs").exec("--key=color", "--value=orange", "red", "blue://foo");
-        commands.get("optionsAndArgs").exec("--value=orange", "red", "blue://foo", "--key=color");
+        commands.get("optionsAndArgs").exec(null, "--key=color", "--value=orange", "red", "blue://foo");
+        commands.get("optionsAndArgs").exec(null, "--value=orange", "red", "blue://foo", "--key=color");
     }
 
     public void testTwoBeans() throws Exception {
-        commands.get("twoBeans").exec("--key=color", "--value=orange", "red", "blue://foo");
-        commands.get("twoBeans").exec("--key=color", "red", "--value=orange", "blue://foo");
+        commands.get("twoBeans").exec(null, "--key=color", "--value=orange", "red", "blue://foo");
+        commands.get("twoBeans").exec(null, "--key=color", "red", "--value=orange", "blue://foo");
     }
 
     public void testMixed() throws Exception {
-        commands.get("mixed").exec("--size=4", "red", "blue://foo", "CIRCLE", "--key=color", "--value=orange", "orange://fruit");
-        commands.get("mixed").exec("red", "blue://foo", "CIRCLE", "orange://fruit", "--key=color", "--value=orange", "--size=4");
-        commands.get("mixed").exec("red", "--value=orange", "--size=4", "--key=color", "blue://foo", "CIRCLE", "orange://fruit");
+        commands.get("mixed").exec(null, "--size=4", "red", "blue://foo", "CIRCLE", "--key=color", "--value=orange", "orange://fruit");
+        commands.get("mixed").exec(null, "red", "blue://foo", "CIRCLE", "orange://fruit", "--key=color", "--value=orange", "--size=4");
+        commands.get("mixed").exec(null, "red", "--value=orange", "--size=4", "--key=color", "blue://foo", "CIRCLE", "orange://fruit");
     }
 
     public static class Commands {

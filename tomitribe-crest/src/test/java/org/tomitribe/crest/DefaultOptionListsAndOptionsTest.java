@@ -32,43 +32,43 @@ public class DefaultOptionListsAndOptionsTest extends TestCase {
     private final Map<String, Cmd> commands = org.tomitribe.crest.cmds.processors.Commands.get(Commands.class);
 
     public void testByte() throws Exception {
-        commands.get("doByte").exec("--color=orange", "green");
+        commands.get("doByte").exec(null, "--color=orange", "green");
     }
 
     public void testBoolean() throws Exception {
-        commands.get("doBoolean").exec("--color=orange", "green");
+        commands.get("doBoolean").exec(null, "--color=orange", "green");
     }
 
     public void testCharacter() throws Exception {
-        commands.get("doCharacter").exec("--color=orange", "green");
+        commands.get("doCharacter").exec(null, "--color=orange", "green");
     }
 
     public void testShort() throws Exception {
-        commands.get("doShort").exec("--color=orange", "green");
+        commands.get("doShort").exec(null, "--color=orange", "green");
     }
 
     public void testInt() throws Exception {
-        commands.get("doInt").exec("--color=orange", "green");
+        commands.get("doInt").exec(null, "--color=orange", "green");
     }
 
     public void testLong() throws Exception {
-        commands.get("doLong").exec("--color=orange", "green");
+        commands.get("doLong").exec(null, "--color=orange", "green");
     }
 
     public void testFloat() throws Exception {
-        commands.get("doFloat").exec("--color=orange", "green");
+        commands.get("doFloat").exec(null, "--color=orange", "green");
     }
 
     public void testDouble() throws Exception {
-        commands.get("doDouble").exec("--color=orange", "green");
+        commands.get("doDouble").exec(null, "--color=orange", "green");
     }
 
     public void testString() throws Exception {
-        commands.get("doString").exec("--color=orange", "green");
+        commands.get("doString").exec(null, "--color=orange", "green");
     }
 
     public void testURI() throws Exception {
-        commands.get("doURI").exec("--color=orange", "green");
+        commands.get("doURI").exec(null, "--color=orange", "green");
     }
 
     public static class Commands {

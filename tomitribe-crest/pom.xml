@@ -33,6 +33,12 @@
   <name>Tomitribe :: Crest</name>
 
   <dependencies>
+    <dependency> <!-- user has to add this dep if he wants to use SecurityInterceptor but would be provided most of the time -->
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-annotation_1.0_spec</artifactId>
+      <version>1.1.1</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest-api</artifactId>

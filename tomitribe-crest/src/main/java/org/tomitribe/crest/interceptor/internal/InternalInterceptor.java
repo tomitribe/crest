@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest.interceptor;
+package org.tomitribe.crest.interceptor.internal;
 
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.cmds.targets.Target;
@@ -35,9 +35,13 @@ public class InternalInterceptor {
         try {
             return target.invoke(method, crestContext);
         } catch (final InvocationTargetException e) {
-            throw new IllegalStateException(e.getCause());
+            return throwRuntime(e.getCause());
         } catch (final IllegalAccessException e) {
-            throw new IllegalStateException(e);
+            return throwRuntime(e);
         }
+    }
+
+    private static Object throwRuntime(final Throwable cause) { // try to propagate if possible
+        throw RuntimeException.class.isInstance(cause) ? RuntimeException.class.cast(cause) : new IllegalStateException(cause);
     }
 }

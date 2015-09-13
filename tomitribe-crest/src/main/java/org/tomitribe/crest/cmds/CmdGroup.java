@@ -30,7 +30,7 @@ import java.util.TreeSet;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.utils.CommandLine;
 import org.tomitribe.crest.environments.Environment;
-import org.tomitribe.crest.interceptor.InternalInterceptor;
+import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 
 public class CmdGroup implements Cmd {
 

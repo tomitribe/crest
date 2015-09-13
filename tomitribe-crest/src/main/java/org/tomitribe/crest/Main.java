@@ -29,7 +29,7 @@ import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
-import org.tomitribe.crest.interceptor.InternalInterceptor;
+import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 
 import java.io.PrintStream;
 import java.lang.reflect.Method;
@@ -47,8 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Main implements Completer {
 
-    final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
-    final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<Class<?>, InternalInterceptor>();
+    protected final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
+    protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<Class<?>, InternalInterceptor>();
 
     public Main() {
         this(new SystemPropertiesDefaultsContext(), Commands.load());

@@ -703,6 +703,27 @@ public void test1(
 }
 ----
 
+==== Example for security
+
+Crest provides a `org.tomitribe.crest.interceptor.security.SecurityInterceptor` which
+handles `@RolesAllowed` using the SPI `org.tomitribe.crest.interceptor.security.RoleProvider` to determine
+if you can call or not the command contextually.
+
+NOTE: `RoleProvider` is taken from `Environment` services. You can register it through `org.tomitribe.crest.environments.SystemEnvironment` constructor
+and just set it as environment on `org.tomitribe.crest.environments.Environment.ENVIRONMENT_THREAD_LOCAL`.
+
+
+Here a sample command using it:
+
+[source,java]
+----
+@RolesAllowed("test")
+@Command(interceptedBy = SecurityInterceptor.class)
+public static String val() {
+    return "ok";
+}
+----
+
 == Maven Archetype
 
 A maven archetype is available to quickly bootstrap small projects complete with the a pom like the above.  Save yourself some time on copy/paste then find/replace.

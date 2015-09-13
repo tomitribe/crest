@@ -19,9 +19,20 @@ package org.tomitribe.crest.environments;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
 
 public class SystemEnvironment implements Environment {
+    private final Map<Class<?>, Object> services;
+
+    public SystemEnvironment(final Map<Class<?>, Object> services) {
+        this.services = services;
+    }
+
+    public SystemEnvironment() {
+        this.services = Collections.emptyMap();
+    }
 
     @Override
     public PrintStream getOutput() {
@@ -40,5 +51,10 @@ public class SystemEnvironment implements Environment {
 
     public Properties getProperties() {
         return System.getProperties();
+    }
+
+    @Override
+    public <T> T findService(Class<T> type) {
+        return type.cast(services.get(type));
     }
 }

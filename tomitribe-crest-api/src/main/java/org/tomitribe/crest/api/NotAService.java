@@ -14,19 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest.cmds;
+package org.tomitribe.crest.api;
 
-import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import java.io.PrintStream;
-import java.util.Map;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-public interface Cmd extends Completer {
-    String getUsage();
-
-    String getName();
-
-    Object exec(Map<Class<?>, InternalInterceptor> globalInterceptors, String... rawArgs);
-
-    void help(PrintStream out);
+/**
+ * intended to skip service injection tentative for this parameter if other tries failed.
+ */
+@Retention(RUNTIME)
+@Target(PARAMETER)
+public @interface NotAService {
 }

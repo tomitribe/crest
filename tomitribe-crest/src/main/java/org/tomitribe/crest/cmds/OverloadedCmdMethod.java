@@ -18,7 +18,7 @@ package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.processors.OptionParam;
-import org.tomitribe.crest.interceptor.InternalInterceptor;
+import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.util.Join;
 
 import java.io.PrintStream;

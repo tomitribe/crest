@@ -14,19 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest.cmds;
+package org.tomitribe.crest.interceptor.security;
 
-import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
-
-import java.io.PrintStream;
-import java.util.Map;
-
-public interface Cmd extends Completer {
-    String getUsage();
-
-    String getName();
-
-    Object exec(Map<Class<?>, InternalInterceptor> globalInterceptors, String... rawArgs);
-
-    void help(PrintStream out);
+public interface RoleProvider {
+    boolean hasRole(String role);
 }

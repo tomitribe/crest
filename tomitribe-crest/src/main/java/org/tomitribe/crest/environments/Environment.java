@@ -22,18 +22,20 @@ import java.util.Properties;
 
 public interface Environment {
 
-    public static ThreadLocal<Environment> ENVIRONMENT_THREAD_LOCAL = new ThreadLocal<Environment>() {
+    ThreadLocal<Environment> ENVIRONMENT_THREAD_LOCAL = new ThreadLocal<Environment>() {
         @Override
         protected Environment initialValue() {
             return new SystemEnvironment();
         }
     };
 
-    public PrintStream getOutput();
+    PrintStream getOutput();
 
-    public PrintStream getError();
+    PrintStream getError();
 
-    public InputStream getInput();
+    InputStream getInput();
 
-    public Properties getProperties();
+    Properties getProperties();
+
+    <T> T findService(Class<T> type);
 }

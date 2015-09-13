@@ -16,6 +16,7 @@
  */
 package org.tomitribe.crest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tomitribe.crest.api.Err;
 import org.tomitribe.crest.api.In;
@@ -37,6 +38,29 @@ public class StreamInjectionTest {
     @Test
     public void run() throws Exception {
         assertEquals("123", new Main(Command.class).exec("asserts", "--p1=1", "--p2=2", "--p3=3"));
+    }
+
+    @Test
+    @Ignore
+    public void withArgs() throws Exception {
+        assertEquals("orange", new Main(Command.class).exec("withArgs", "orange"));
+    }
+
+    @Test
+    @Ignore
+    public void withArgsWithInput() throws Exception {
+        assertEquals("orange", new Main(Command.class).exec("withArgsWithInput", "orange"));
+    }
+
+    @Test
+    @Ignore
+    public void withArgs1() throws Exception {
+        assertEquals("orange", new Main(Command.class).exec("withArgs1", "orange"));
+    }
+
+    @Test
+    public void withArgs2() throws Exception {
+        assertEquals("orange", new Main(Command.class).exec("withArgs2", "orange"));
     }
 
     @Test
@@ -112,6 +136,55 @@ public class StreamInjectionTest {
             assertEquals(out, environment.getOutput());
             assertEquals(err, environment.getError());
             return p1 + p2 + asList(p3);
+        }
+
+        @org.tomitribe.crest.api.Command
+        public static String withArgs(@Out final PrintStream out,
+                                      @Err PrintStream err,
+                                      Environment environment,
+                                      String arg
+        ) {
+            assertEquals(environment, Environment.ENVIRONMENT_THREAD_LOCAL.get());
+            assertEquals(out, environment.getOutput());
+            assertEquals(err, environment.getError());
+            return arg;
+        }
+
+        @org.tomitribe.crest.api.Command
+        public static String withArgsWithInput(@In final InputStream in,
+                                               @Out final PrintStream out,
+                                               @Err PrintStream err,
+                                               Environment environment,
+                                               String arg
+        ) {
+            assertEquals(environment, Environment.ENVIRONMENT_THREAD_LOCAL.get());
+            assertEquals(in, environment.getInput());
+            assertEquals(out, environment.getOutput());
+            assertEquals(err, environment.getError());
+            return arg;
+        }
+
+        @org.tomitribe.crest.api.Command
+        public static String withArgs1(@Out final PrintStream out,
+                                       @Err PrintStream err,
+                                       String arg
+        ) {
+            final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+            assertEquals(out, environment.getOutput());
+            assertEquals(err, environment.getError());
+            return arg;
+        }
+
+        @org.tomitribe.crest.api.Command
+        public static String withArgs2(String arg,
+                                       @Err PrintStream err,
+                                       @Out final PrintStream out
+
+        ) {
+            final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+            assertEquals(out, environment.getOutput());
+            assertEquals(err, environment.getError());
+            return arg;
         }
     }
 }

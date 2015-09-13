@@ -16,8 +16,8 @@
  */
 package org.tomitribe.crest;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Err;
 import org.tomitribe.crest.api.In;
 import org.tomitribe.crest.api.Option;
@@ -25,6 +25,7 @@ import org.tomitribe.crest.api.Out;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
+import org.tomitribe.util.Duration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -41,19 +42,16 @@ public class StreamInjectionTest {
     }
 
     @Test
-    @Ignore
     public void withArgs() throws Exception {
         assertEquals("orange", new Main(Command.class).exec("withArgs", "orange"));
     }
 
     @Test
-    @Ignore
     public void withArgsWithInput() throws Exception {
         assertEquals("orange", new Main(Command.class).exec("withArgsWithInput", "orange"));
     }
 
     @Test
-    @Ignore
     public void withArgs1() throws Exception {
         assertEquals("orange", new Main(Command.class).exec("withArgs1", "orange"));
     }
@@ -107,7 +105,35 @@ public class StreamInjectionTest {
         assertFalse(errorOutput.contains("Environment"));
     }
 
+    @Test
+    public void issue44_messyArgsWithStreams() throws Exception {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final PrintStream err = new PrintStream(out);
+        Environment.ENVIRONMENT_THREAD_LOCAL.set(new SystemEnvironment() {
+            @Override
+            public PrintStream getError() {
+                return err;
+            }
+        });
+        assertEquals("5 seconds1 HOURSok1ok2someval6", new Main(new SystemPropertiesDefaultsContext(), Command.class).exec("issue44", "someval", "6"));
+        Environment.ENVIRONMENT_THREAD_LOCAL.remove();
+
+        final String errorOutput = new String(out.toByteArray());
+        assertFalse(errorOutput.contains("InputStream"));
+        assertFalse(errorOutput.contains("Environment"));
+    }
+
     public static class Command {
+        @org.tomitribe.crest.api.Command
+        public String issue44(
+            @Option("o1") @Default("5 seconds") final String o1,
+            @Option("o2") @Default("1 hour") final Duration duration,
+            @Err PrintStream err,
+            @Out PrintStream out,
+            final String val1, final int val2) {
+            return o1 + duration.toString() + (err != null ? "ok1" : "ko") + (out != null ? "ok2" : "ko") + val1 + val2;
+        }
+
         @org.tomitribe.crest.api.Command
         public static String asserts(@Option("p1") final String p1,
                                      @In final InputStream in,

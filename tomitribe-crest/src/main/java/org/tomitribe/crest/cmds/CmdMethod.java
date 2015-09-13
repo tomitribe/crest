@@ -445,24 +445,6 @@ public class CmdMethod implements Cmd {
                 } else {
                     converted.add(Converter.convert(value, parameter.getType(), optionValue));
                 }
-            } else if (args.list.size() > 0) {
-                needed.count--;
-
-                if (parameter.isListable()) {
-                    final List<String> glob = new ArrayList<String>(args.list.size());
-
-                    for (int i = args.list.size(); i > needed.count; i--) {
-                        glob.add(args.list.remove(0));
-                    }
-
-                    converted.add(convert(parameter, glob, null));
-                } else {
-
-                    final String value = args.list.remove(0);
-                    converted.add(Converter.convert(value, parameter.getType(),
-                        parameter.getDisplayType().replace("[]", "...")));
-                }
-
             } else if (Environment.class == parameter.getType()) {
                 converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get());
 
@@ -483,6 +465,24 @@ public class CmdMethod implements Cmd {
                     throw new IllegalArgumentException("@Err only supports PrintStream injection");
                 }
                 converted.add(Environment.ENVIRONMENT_THREAD_LOCAL.get().getError());
+
+            } else if (args.list.size() > 0) {
+                needed.count--;
+
+                if (parameter.isListable()) {
+                    final List<String> glob = new ArrayList<String>(args.list.size());
+
+                    for (int i = args.list.size(); i > needed.count; i--) {
+                        glob.add(args.list.remove(0));
+                    }
+
+                    converted.add(convert(parameter, glob, null));
+                } else {
+
+                    final String value = args.list.remove(0);
+                    converted.add(Converter.convert(value, parameter.getType(),
+                        parameter.getDisplayType().replace("[]", "...")));
+                }
 
             } else {
 

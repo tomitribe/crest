@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Describe basic metadata about a crest parameter.
  */
-public interface CommandParameter {
+public interface ParameterMetadata {
     enum ParamType {
         /**
          * {@see Environment} or stdout, stderr, stdin.
@@ -78,5 +78,5 @@ public interface CommandParameter {
     /**
      * @return the list of nested parameters if a complex parameter (BEAN_OPTION type) or null otherwise.
      */
-    List<CommandParameter> getNested();
+    List<ParameterMetadata> getNested();
 }

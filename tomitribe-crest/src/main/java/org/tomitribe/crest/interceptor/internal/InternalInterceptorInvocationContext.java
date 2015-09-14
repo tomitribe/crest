@@ -16,7 +16,7 @@
  */
 package org.tomitribe.crest.interceptor.internal;
 
-import org.tomitribe.crest.api.interceptor.CommandParameter;
+import org.tomitribe.crest.api.interceptor.ParameterMetadata;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 
 import java.lang.reflect.Method;
@@ -34,7 +34,7 @@ public abstract class InternalInterceptorInvocationContext {
     public InternalInterceptorInvocationContext(final Map<Class<?>, InternalInterceptor> interceptors,
                                                 final Class<?>[] interceptorKeys,
                                                 final String name,
-                                                final List<CommandParameter> commandParameters,
+                                                final List<ParameterMetadata> parameterMetadatas,
                                                 final Method method,
                                                 final List<Object> parameters) {
         this.interceptorKeys = interceptorKeys;
@@ -62,8 +62,8 @@ public abstract class InternalInterceptorInvocationContext {
             }
 
             @Override
-            public List<CommandParameter> getOptions() {
-                return commandParameters;
+            public List<ParameterMetadata> getParameterMetadata() {
+                return parameterMetadatas;
             }
         };
     }

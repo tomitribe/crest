@@ -27,7 +27,7 @@ import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Out;
 import org.tomitribe.crest.api.Required;
-import org.tomitribe.crest.api.interceptor.CommandParameter;
+import org.tomitribe.crest.api.interceptor.ParameterMetadata;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.processors.OptionParam;
@@ -75,10 +75,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import static java.util.Collections.unmodifiableList;
-import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.BEAN_OPTION;
-import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.INTERNAL;
-import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.OPTION;
-import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.SERVICE;
+import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.BEAN_OPTION;
+import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.INTERNAL;
+import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.OPTION;
+import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.SERVICE;
 
 /**
  * @version $Revision$ $Date$
@@ -105,7 +105,7 @@ public class CmdMethod implements Cmd {
     private final Class<?>[] interceptors;
     private final DefaultsContext defaultsFinder;
     private final Spec spec = new Spec();
-    private volatile List<CommandParameter> commandParameters;
+    private volatile List<ParameterMetadata> parameterMetadatas;
 
     public class Spec {
         private final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
@@ -209,7 +209,7 @@ public class CmdMethod implements Cmd {
             }
         }
 
-        commandParameters = buildApiParameterViews(parameters);
+        parameterMetadatas = buildApiParameterViews(parameters);
 
         return parameters;
     }
@@ -355,7 +355,7 @@ public class CmdMethod implements Cmd {
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final List<Object> list) {
         return interceptors == null || interceptors.length == 0 ?
             doInvoke(list) :
-            new InternalInterceptorInvocationContext(globalInterceptors, interceptors, name, commandParameters, method, list) {
+            new InternalInterceptorInvocationContext(globalInterceptors, interceptors, name, parameterMetadatas, method, list) {
                 @Override
                 protected Object doInvoke(final List<Object> parameters) {
                     return CmdMethod.this.doInvoke(parameters);
@@ -363,15 +363,15 @@ public class CmdMethod implements Cmd {
             }.proceed();
     }
 
-    private List<CommandParameter> buildApiParameterViews(final List<Param> parameters) {
-        final List<CommandParameter> commandParameters = new ArrayList<CommandParameter>();
+    private List<ParameterMetadata> buildApiParameterViews(final List<Param> parameters) {
+        final List<ParameterMetadata> parameterMetadatas = new ArrayList<ParameterMetadata>();
         for (final Param param : parameters) {
             // precompute all values to get a fast runtime immutable structure
-            final CommandParameter.ParamType type = OptionParam.class.isInstance(param) ?  OPTION :
+            final ParameterMetadata.ParamType type = OptionParam.class.isInstance(param) ?  OPTION :
                 (ComplexParam.class.isInstance(param) ? BEAN_OPTION :
                 (Environment.class == param.getType() || param.getAnnotation(In.class) != null
                     || param.getAnnotation(Out.class) != null || param.getAnnotation(Err.class) != null ? INTERNAL :
-                (Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(param.getType()) != null ? SERVICE : CommandParameter.ParamType.PLAIN)));
+                (Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(param.getType()) != null ? SERVICE : ParameterMetadata.ParamType.PLAIN)));
 
             if (type == INTERNAL) { // some pre runtime checks
                 if (param.isAnnotationPresent(In.class)) {
@@ -389,10 +389,10 @@ public class CmdMethod implements Cmd {
                 }
             }
 
-            final String name = type == CommandParameter.ParamType.OPTION ? OptionParam.class.cast(param).getName() : null;
-            final List<CommandParameter> nested = type == BEAN_OPTION ? buildApiParameterViews(ComplexParam.class.cast(param).parameters) : null;
+            final String name = type == ParameterMetadata.ParamType.OPTION ? OptionParam.class.cast(param).getName() : null;
+            final List<ParameterMetadata> nested = type == BEAN_OPTION ? buildApiParameterViews(ComplexParam.class.cast(param).parameters) : null;
 
-            final CommandParameter commandParameter = new CommandParameter() {
+            final ParameterMetadata parameterMetadata = new ParameterMetadata() {
                 @Override
                 public ParamType getType() {
                     return type;
@@ -404,7 +404,7 @@ public class CmdMethod implements Cmd {
                 }
 
                 @Override
-                public List<CommandParameter> getNested() {
+                public List<ParameterMetadata> getNested() {
                     return nested;
                 }
 
@@ -428,10 +428,10 @@ public class CmdMethod implements Cmd {
                     return getType() + ": " + getReflectType() + ", name=" + getName() + ", nested=" + getNested();
                 }
             };
-            param.setApiView(commandParameter);
-            commandParameters.add(commandParameter);
+            param.setApiView(parameterMetadata);
+            parameterMetadatas.add(parameterMetadata);
         }
-        return unmodifiableList(commandParameters);
+        return unmodifiableList(parameterMetadatas);
     }
 
     protected Object doInvoke(final List<Object> list) {
@@ -532,7 +532,7 @@ public class CmdMethod implements Cmd {
         final List<Object> converted = new ArrayList<Object>();
         final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
         for (final Param parameter : parameters1) {
-            final CommandParameter apiView = parameter.getApiView();
+            final ParameterMetadata apiView = parameter.getApiView();
             switch (apiView.getType()) {
                 case INTERNAL: {
                     if (parameter.isAnnotationPresent(In.class)) {

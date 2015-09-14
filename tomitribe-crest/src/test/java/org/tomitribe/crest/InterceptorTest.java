@@ -21,15 +21,25 @@ import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Err;
 import org.tomitribe.crest.api.In;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Out;
+import org.tomitribe.crest.api.interceptor.CommandParameter;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.BEAN_OPTION;
+import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.INTERNAL;
+import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.OPTION;
+import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.PLAIN;
 
 public class InterceptorTest {
     @Test
@@ -45,6 +55,15 @@ public class InterceptorTest {
             "mock",
             new Main(InterceptMe.class, In3.class)
                 .exec("test2", "--o1=1", "--o2=2", "--o3=p3", "http://localhost:1253"));
+    }
+
+
+    @Test
+    public void changeParameters() throws Exception {
+        assertEquals(
+            "changedX2truetruetruep3http://localhost:1253",
+            new Main(InterceptMe.class, InComplex.class)
+                .exec("complex", "--prefix.val=1", "--o2=2", "--o3=p3", "http://localhost:1253"));
     }
 
     public static class InterceptMe {
@@ -70,6 +89,77 @@ public class InterceptorTest {
                          @Option("o3") final String o3,
                          final URL url) {
             return test1(o1, o2, err, out, is, o3, url);
+        }
+
+        @Command(interceptedBy = InComplex.class)
+        public String complex(
+                         @Option("prefix.") final CustomParam o1,
+                         @Option("o2") final int o2,
+                         @Err final PrintStream err,
+                         @Out final PrintStream out,
+                         @In final InputStream is,
+                         @Option("o3") final String[] o3,
+                         final URL url) {
+            return test1(o1.val, o2, err, out, is, o3[0], url);
+        }
+    }
+
+    public static class InComplex {
+        @CrestInterceptor
+        public Object intercept(final CrestContext crestContext) {
+            final List<CommandParameter> options = crestContext.getOptions();
+            {
+                assertFalse(options.get(0).isListable());
+                assertEquals(BEAN_OPTION, options.get(0).getType());
+                assertEquals(1, options.get(0).getNested().size());
+
+                final CommandParameter option = options.get(0).getNested().get(0);
+                assertFalse(option.isListable());
+                assertEquals(OPTION, option.getType());
+                assertEquals("prefix.val", option.getName());
+                assertEquals(String.class, option.getReflectType());
+            }
+            {
+                assertFalse(options.get(1).isListable());
+                assertEquals(OPTION, options.get(1).getType());
+                assertEquals("o2", options.get(1).getName());
+                assertEquals(int.class, options.get(1).getReflectType());
+            }
+            {
+                assertEquals(INTERNAL, options.get(2).getType());
+                assertEquals(PrintStream.class, options.get(2).getReflectType());
+            }
+            {
+                assertEquals(INTERNAL, options.get(3).getType());
+                assertEquals(PrintStream.class, options.get(3).getReflectType());
+            }
+            {
+                assertEquals(INTERNAL, options.get(4).getType());
+                assertEquals(InputStream.class, options.get(4).getReflectType());
+            }
+            {
+                assertTrue(options.get(5).isListable());
+                assertEquals(OPTION, options.get(5).getType());
+                assertEquals("o3", options.get(5).getName());
+                assertEquals(String[].class, options.get(5).getReflectType());
+            }
+            {
+                assertFalse(options.get(6).isListable());
+                assertEquals(PLAIN, options.get(6).getType());
+                assertNull(options.get(6).getName());
+                assertEquals(URL.class, options.get(6).getReflectType());
+            }
+            crestContext.getParameters().set(0, new CustomParam("changedX"));
+            return crestContext.proceed();
+        }
+    }
+
+    @Options
+    public static class CustomParam {
+        private final String val;
+
+        public CustomParam(@Option("val") final String v) {
+            val = v;
         }
     }
 

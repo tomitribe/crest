@@ -23,7 +23,7 @@ import org.tomitribe.crest.api.In;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Out;
-import org.tomitribe.crest.api.interceptor.CommandParameter;
+import org.tomitribe.crest.api.interceptor.ParameterMetadata;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 
@@ -36,10 +36,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.BEAN_OPTION;
-import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.INTERNAL;
-import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.OPTION;
-import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.PLAIN;
+import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.BEAN_OPTION;
+import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.INTERNAL;
+import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.OPTION;
+import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.PLAIN;
 
 public class InterceptorTest {
     @Test
@@ -107,13 +107,13 @@ public class InterceptorTest {
     public static class InComplex {
         @CrestInterceptor
         public Object intercept(final CrestContext crestContext) {
-            final List<CommandParameter> options = crestContext.getOptions();
+            final List<ParameterMetadata> options = crestContext.getParameterMetadata();
             {
                 assertFalse(options.get(0).isListable());
                 assertEquals(BEAN_OPTION, options.get(0).getType());
                 assertEquals(1, options.get(0).getNested().size());
 
-                final CommandParameter option = options.get(0).getNested().get(0);
+                final ParameterMetadata option = options.get(0).getNested().get(0);
                 assertFalse(option.isListable());
                 assertEquals(OPTION, option.getType());
                 assertEquals("prefix.val", option.getName());

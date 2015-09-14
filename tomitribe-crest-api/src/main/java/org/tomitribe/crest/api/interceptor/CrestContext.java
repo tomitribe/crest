@@ -43,5 +43,5 @@ public interface CrestContext {
     /**
      * @return the metadata about parameters.
      */
-    List<CommandParameter> getOptions();
+    List<ParameterMetadata> getParameterMetadata();
 }

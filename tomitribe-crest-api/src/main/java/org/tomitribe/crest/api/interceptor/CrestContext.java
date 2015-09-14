@@ -34,4 +34,14 @@ public interface CrestContext {
      * @return get the <b>mutable</b> list of command parameters.
      */
     List<Object> getParameters();
+
+    /**
+     * @return the command name.
+     */
+    String getName();
+
+    /**
+     * @return the metadata about parameters.
+     */
+    List<CommandParameter> getOptions();
 }

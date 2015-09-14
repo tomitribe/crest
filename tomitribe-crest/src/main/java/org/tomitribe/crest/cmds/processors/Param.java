@@ -16,12 +16,14 @@
  */
 package org.tomitribe.crest.cmds.processors;
 
+import org.tomitribe.crest.api.interceptor.CommandParameter;
 import org.tomitribe.util.reflect.Generics;
 import org.tomitribe.util.reflect.Parameter;
 
 import java.util.Collection;
 
 public class Param extends Parameter {
+    private volatile CommandParameter apiView;
 
     public Param(final Parameter parameter) {
         super(parameter.getAnnotations(), parameter.getType(), parameter.getGenericType());
@@ -52,5 +54,13 @@ public class Param extends Parameter {
 
             return (Class<?>) Generics.getType(this);
         }
+    }
+
+    public CommandParameter getApiView() {
+        return apiView;
+    }
+
+    public void setApiView(final CommandParameter apiView) {
+        this.apiView = apiView;
     }
 }

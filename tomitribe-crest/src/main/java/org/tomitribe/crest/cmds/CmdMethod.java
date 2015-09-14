@@ -27,6 +27,7 @@ import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Out;
 import org.tomitribe.crest.api.Required;
+import org.tomitribe.crest.api.interceptor.CommandParameter;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.processors.OptionParam;
@@ -54,6 +55,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,6 +73,12 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import static java.util.Collections.unmodifiableList;
+import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.BEAN_OPTION;
+import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.INTERNAL;
+import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.OPTION;
+import static org.tomitribe.crest.api.interceptor.CommandParameter.ParamType.SERVICE;
 
 /**
  * @version $Revision$ $Date$
@@ -97,6 +105,7 @@ public class CmdMethod implements Cmd {
     private final Class<?>[] interceptors;
     private final DefaultsContext defaultsFinder;
     private final Spec spec = new Spec();
+    private volatile List<CommandParameter> commandParameters;
 
     public class Spec {
         private final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
@@ -199,6 +208,9 @@ public class CmdMethod implements Cmd {
                 parameters.add(e);
             }
         }
+
+        commandParameters = buildApiParameterViews(parameters);
+
         return parameters;
     }
 
@@ -343,12 +355,83 @@ public class CmdMethod implements Cmd {
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final List<Object> list) {
         return interceptors == null || interceptors.length == 0 ?
             doInvoke(list) :
-            new InternalInterceptorInvocationContext(globalInterceptors, interceptors, method, list) {
+            new InternalInterceptorInvocationContext(globalInterceptors, interceptors, name, commandParameters, method, list) {
                 @Override
                 protected Object doInvoke(final List<Object> parameters) {
                     return CmdMethod.this.doInvoke(parameters);
                 }
             }.proceed();
+    }
+
+    private List<CommandParameter> buildApiParameterViews(final List<Param> parameters) {
+        final List<CommandParameter> commandParameters = new ArrayList<CommandParameter>();
+        for (final Param param : parameters) {
+            // precompute all values to get a fast runtime immutable structure
+            final CommandParameter.ParamType type = OptionParam.class.isInstance(param) ?  OPTION :
+                (ComplexParam.class.isInstance(param) ? BEAN_OPTION :
+                (Environment.class == param.getType() || param.getAnnotation(In.class) != null
+                    || param.getAnnotation(Out.class) != null || param.getAnnotation(Err.class) != null ? INTERNAL :
+                (Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(param.getType()) != null ? SERVICE : CommandParameter.ParamType.PLAIN)));
+
+            if (type == INTERNAL) { // some pre runtime checks
+                if (param.isAnnotationPresent(In.class)) {
+                    if (InputStream.class != param.getType()) {
+                        throw new IllegalArgumentException("@In only supports InputStream injection");
+                    }
+                } else if (param.isAnnotationPresent(Out.class)) {
+                    if (PrintStream.class != param.getType()) {
+                        throw new IllegalArgumentException("@Out only supports PrintStream injection");
+                    }
+                } else if (param.isAnnotationPresent(Err.class)) {
+                    if (PrintStream.class != param.getType()) {
+                        throw new IllegalArgumentException("@Err only supports PrintStream injection");
+                    }
+                }
+            }
+
+            final String name = type == CommandParameter.ParamType.OPTION ? OptionParam.class.cast(param).getName() : null;
+            final List<CommandParameter> nested = type == BEAN_OPTION ? buildApiParameterViews(ComplexParam.class.cast(param).parameters) : null;
+
+            final CommandParameter commandParameter = new CommandParameter() {
+                @Override
+                public ParamType getType() {
+                    return type;
+                }
+
+                @Override
+                public String getName() {
+                    return name;
+                }
+
+                @Override
+                public List<CommandParameter> getNested() {
+                    return nested;
+                }
+
+                @Override
+                public Type getReflectType() {
+                    return param.getGenericType();
+                }
+
+                @Override
+                public boolean isListable() {
+                    return param.isListable();
+                }
+
+                @Override
+                public Class<?> getComponentType() {
+                    return param.getListableType();
+                }
+
+                @Override
+                public String toString() {
+                    return getType() + ": " + getReflectType() + ", name=" + getName() + ", nested=" + getNested();
+                }
+            };
+            param.setApiView(commandParameter);
+            commandParameters.add(commandParameter);
+        }
+        return unmodifiableList(commandParameters);
     }
 
     protected Object doInvoke(final List<Object> list) {
@@ -448,75 +531,62 @@ public class CmdMethod implements Cmd {
          */
         final List<Object> converted = new ArrayList<Object>();
         final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
-        Object service;
         for (final Param parameter : parameters1) {
-            final Option option = parameter.getAnnotation(Option.class);
-
-            if (parameter instanceof ComplexParam) {
-
-                final ComplexParam complexParam = (ComplexParam) parameter;
-
-                converted.add(complexParam.convert(args, needed));
-
-            } else if (option != null) {
-                final String optionValue = OptionParam.class.isInstance(parameter) ?
-                    OptionParam.class.cast(parameter).getName() : option.value()[0];
-                final String value = args.options.remove(optionValue);
-
-                if (parameter.isListable()) {
-                    converted.add(convert(parameter, OptionParam.getSeparatedValues(value), optionValue));
-                } else {
-                    converted.add(Converter.convert(value, parameter.getType(), optionValue));
-                }
-            } else if (Environment.class == parameter.getType()) {
-                converted.add(environment);
-
-            } else if (parameter.isAnnotationPresent(In.class)) {
-                if (InputStream.class != parameter.getType()) {
-                    throw new IllegalArgumentException("@In only supports InputStream injection");
-                }
-                converted.add(environment.getInput());
-
-            } else if (parameter.isAnnotationPresent(Out.class)) {
-                if (PrintStream.class != parameter.getType()) {
-                    throw new IllegalArgumentException("@Out only supports PrintStream injection");
-                }
-                converted.add(environment.getOutput());
-
-            } else if (parameter.isAnnotationPresent(Err.class)) {
-                if (PrintStream.class != parameter.getType()) {
-                    throw new IllegalArgumentException("@Err only supports PrintStream injection");
-                }
-                converted.add(environment.getError());
-
-            } else if (parameter.getAnnotation(NotAService.class) == null && (service = environment.findService(parameter.getType())) != null) {
-                converted.add(service);
-
-            } else if (args.list.size() > 0) {
-                needed.count--;
-
-                if (parameter.isListable()) {
-                    final List<String> glob = new ArrayList<String>(args.list.size());
-
-                    for (int i = args.list.size(); i > needed.count; i--) {
-                        glob.add(args.list.remove(0));
+            final CommandParameter apiView = parameter.getApiView();
+            switch (apiView.getType()) {
+                case INTERNAL: {
+                    if (parameter.isAnnotationPresent(In.class)) {
+                        converted.add(environment.getInput());
+                    } else if (parameter.isAnnotationPresent(Out.class)) {
+                        converted.add(environment.getOutput());
+                    } else if (parameter.isAnnotationPresent(Err.class)) {
+                        converted.add(environment.getError());
+                    } else if (Environment.class == parameter.getType()) {
+                        converted.add(environment);
                     }
-
-                    converted.add(convert(parameter, glob, null));
-                } else {
-
-                    final String value = args.list.remove(0);
-                    converted.add(Converter.convert(value, parameter.getType(),
-                        parameter.getDisplayType().replace("[]", "...")));
+                    break;
                 }
-
-            } else {
-
-                throw new IllegalArgumentException("Missing argument: "
-                        + parameter.getDisplayType().replace("[]", "...") + "");
+                case SERVICE:
+                    converted.add(environment.findService(parameter.getType()));
+                    break;
+                case PLAIN: if (args.list.size() > 0) {
+                        needed.count--;
+                        fillPlainParameter(args, needed, converted, parameter);
+                    }
+                    break;
+                case BEAN_OPTION:
+                    converted.add(ComplexParam.class.cast(parameter).convert(args, needed));
+                    break;
+                case OPTION:
+                    fillOptionParameter(args, converted, parameter, apiView.getName());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
             }
         }
         return converted;
+    }
+
+    private void fillOptionParameter(final Arguments args, final List<Object> converted, final Param parameter, final String name) {
+        final String value = args.options.remove(name);
+        if (parameter.isListable()) {
+            converted.add(convert(parameter, OptionParam.getSeparatedValues(value), name));
+        } else {
+            converted.add(Converter.convert(value, parameter.getType(), name));
+        }
+    }
+
+    private void fillPlainParameter(final Arguments args, final Needed needed, final List<Object> converted, final Param parameter) {
+        if (parameter.isListable()) {
+            final List<String> glob = new ArrayList<String>(args.list.size());
+            for (int i = args.list.size(); i > needed.count; i--) {
+                glob.add(args.list.remove(0));
+            }
+            converted.add(convert(parameter, glob, null));
+        } else {
+            final String value = args.list.remove(0);
+            converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")));
+        }
     }
 
     private static Object convert(final Param parameter, final List<String> values, final String name) {

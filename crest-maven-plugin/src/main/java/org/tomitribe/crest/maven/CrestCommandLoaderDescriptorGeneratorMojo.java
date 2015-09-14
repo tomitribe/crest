@@ -43,6 +43,7 @@ import static org.objectweb.asm.Opcodes.ASM5;
 @Mojo(name = "descriptor", defaultPhase = LifecyclePhase.PROCESS_CLASSES)
 public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
     private static final String COMMAND_MARKER = "Lorg/tomitribe/crest/api/Command;";
+    private static final String INTERCEPTOR_MARKER = "Lorg/tomitribe/crest/api/interceptor/CrestInterceptor;";
 
     @Parameter(property = "crest.descriptor.classes", defaultValue = "${project.build.outputDirectory}")
     protected File classes;
@@ -137,7 +138,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
                 }
 
                 private void checkAnnotation(final String desc) {
-                    if (COMMAND_MARKER.equals(desc)) {
+                    if (COMMAND_MARKER.equals(desc) || INTERCEPTOR_MARKER.equals(desc)) {
                         throw new CommandFoundException(className);
                     }
                 }

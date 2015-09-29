@@ -25,8 +25,8 @@ import org.tomitribe.crest.environments.Environment;
 
 import java.lang.reflect.AnnotatedElement;
 
-public class AskMissingParameters {
-    private AskMissingParameters() {
+public class InteractiveMissingParameters {
+    private InteractiveMissingParameters() {
         // no-op
     }
 

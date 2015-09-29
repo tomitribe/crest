@@ -23,7 +23,7 @@ import jline.console.history.History;
 import jline.console.history.MemoryHistory;
 import org.tomitribe.crest.Main;
 import org.tomitribe.crest.api.Command;
-import org.tomitribe.crest.cli.api.interceptor.interactive.AskMissingParameters;
+import org.tomitribe.crest.cli.api.interceptor.interactive.InteractiveMissingParameters;
 import org.tomitribe.crest.cli.impl.CliEnv;
 import org.tomitribe.crest.cli.impl.CommandParser;
 import org.tomitribe.crest.cli.impl.command.Streams;
@@ -261,7 +261,7 @@ public class CrestCli {
                 commands.putAll(Commands.get(Streams.class, ctx));
 
                 // built-in interceptors
-                commands.putAll(Commands.get(AskMissingParameters.class, ctx));
+                commands.putAll(Commands.get(InteractiveMissingParameters.class, ctx));
 
                 // hook for user extensions
                 onMainCreated(commands);

@@ -209,6 +209,11 @@ public final class ParameterVisitor {
         }
 
         @Override
+        public boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
+            return getAnnotation(annotationClass) != null;
+        }
+
+        @Override
         public Annotation[] getAnnotations() {
             return annotations;
         }

@@ -44,6 +44,7 @@
     <module>tomitribe-crest-archetype</module>
     <module>toolz</module>
     <module>crest-maven-plugin</module>
+    <module>tomitribe-crest-cli</module>
   </modules>
 
   <properties>

@@ -28,7 +28,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>tomitribe-crest-cli</artifactId>
-  <name>Tomitribe :: Crest CLI</name>
+  <name>Tomitribe :: Crest :: CLI</name>
 
   <dependencies>
     <dependency>

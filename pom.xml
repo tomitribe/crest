@@ -28,7 +28,7 @@
   <artifactId>tomitribe-crest-parent</artifactId>
   <packaging>pom</packaging>
   <version>0.7-SNAPSHOT</version>
-  <name>Tomitribe :: CREST</name>
+  <name>Tomitribe :: Crest</name>
 
   <scm>
     <connection>scm:git:git@github.com:tomitribe/crest.git</connection>

@@ -30,7 +30,7 @@
 
   <artifactId>tomitribe-crest</artifactId>
   <packaging>jar</packaging>
-  <name>Tomitribe :: Crest</name>
+  <name>Tomitribe :: Crest :; Core</name>
 
   <dependencies>
     <dependency> <!-- user has to add this dep if he wants to use SecurityInterceptor but would be provided most of the time -->

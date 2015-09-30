@@ -29,6 +29,10 @@
   <groupId>org.example</groupId>
   <artifactId>toolz</artifactId>
   <version>0.7-SNAPSHOT</version>
+  <name>Tools (Demo)</name>
+  <description>
+    A Crest Demo Application.
+  </description>
 
   <dependencies>
     <dependency>

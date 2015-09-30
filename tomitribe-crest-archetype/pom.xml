@@ -25,7 +25,7 @@
   </parent>
 
   <artifactId>tomitribe-crest-archetype</artifactId>
-  <name>Tomitribe :: Crest Archetype</name>
+  <name>Tomitribe :: Crest :: Archetype</name>
 
   <dependencies>
     <dependency>

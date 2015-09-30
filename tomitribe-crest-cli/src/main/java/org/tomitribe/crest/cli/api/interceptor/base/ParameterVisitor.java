@@ -82,6 +82,7 @@ public final class ParameterVisitor {
     }
 
     // here try to use javabeans convention to read/write values. If name is "x.y.z" we consider the name is "z" is the bean.
+    // TODO: enhance constructor handling
     private static Object fillBean(final OptionVisitor visitor, final Type type, final Object bean, final List<ParameterMetadata> metadatas) {
         if (!Class.class.isInstance(type)) { // can't do anything
             return null;
@@ -133,7 +134,7 @@ public final class ParameterVisitor {
 
                 final Method write = propertyDescriptor.getWriteMethod();
                 if (write != null) {
-                    final Object val = visitor.onOption(consIdx, metadata, new AnnotatedElementImpl(write.getParameterAnnotations()[consIdx]));
+                    final Object val = visitor.onOption(consIdx, metadata, new AnnotatedElementImpl(write.getParameterAnnotations()[0]));
                     if (val != null) {
                         try {
                             if (value == null) {

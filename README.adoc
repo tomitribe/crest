@@ -68,7 +68,7 @@ Some quick notes on `@Command` usage:
 
 Pack this class in an uber jar with the Crest library and you could execute this command from the command line as follows:
 
-[source]
+[listing]
 ----
 $ java -jar target/toolz-1.0.0-SNAPSHOT.jar rsync
 Missing argument: URI...
@@ -105,7 +105,7 @@ Computers are easy, humans are complex.  Let Crest deal with the humans, you jus
 In the above example we have no details in our help other than what can be generated from inspecting the code.  To add actual descriptions to our
 code we simply need to put an `OptionDescriptions.properties` in the same package as our class.
 
-[source]
+[listing]
 ----
 #code
 # <option> = <description>
@@ -137,7 +137,7 @@ Some quick notes on `OptionDescription.properties` files:
 
 With the above in our classpath, our command's help will now look like the following:
 
-[source]
+[listing]
 ----
 $ java -jar target/toolz-1.0.0-SNAPSHOT.jar rsync
 Missing argument: URI...
@@ -188,7 +188,7 @@ Some quick notes about `@Option`:
 
 Default values will show up in help output automatically, no need to update your `OptionDescriptions.properties`
 
-[source]
+[listing]
 ----
 Usage: rsync [options] URI... URI
 
@@ -219,7 +219,7 @@ public void rsync(@Option("exclude") @Default(".*~") Pattern[] excludes,
 
 The user can now specify multiple values when invoking the command by repeating the flag.
 
-[source]
+[listing]
 ----
 $ java -jar target/toolz-1.0.0-SNAPSHOT.jar rsync --exclude=".*\.log" --exclude=".*\.iml"  ...
 ----
@@ -731,7 +731,7 @@ public static String val() {
 
 A maven archetype is available to quickly bootstrap small projects complete with the a pom like the above.  Save yourself some time on copy/paste then find/replace.
 
-[source]
+[listing]
 ----
 mvn archetype:generate \
  -DarchetypeGroupId=org.tomitribe \

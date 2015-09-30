@@ -220,7 +220,7 @@ public void rsync(@Option("exclude") @Default(".*~") Pattern[] excludes,
 
 The user can now specify multiple values when invoking the command by repeating the flag.
 
-[listing]
+[source]
 ----
 $ java -jar target/toolz-1.0.0-SNAPSHOT.jar rsync --exclude=".*\.log" --exclude=".*\.iml"  ...
 ----

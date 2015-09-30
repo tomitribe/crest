@@ -177,9 +177,11 @@ public class CrestCli {
                         try {
                             main.main(env, commands[0].getArgs());
                         } catch (final Exception error) {
-                            if (!ExitException.class.isInstance(error.getCause())) {
-                                error.printStackTrace(env.getError());
+                            if (ExitException.class.isInstance(error.getCause())) {
+                                break;
                             }
+                            error.printStackTrace(env.getError());
+                            throw error;
                         }
                     } else { // should move to a common module
                         // execute tasks piping them
@@ -246,8 +248,6 @@ public class CrestCli {
                     env.getError().flush();
                 }
             }
-        } catch (final ExitException ee) {
-            // no-op: exit
         } finally {
             exitHook.run();
             exitHook = null;

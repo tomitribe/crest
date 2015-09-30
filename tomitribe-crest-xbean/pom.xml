@@ -25,7 +25,7 @@
   </parent>
 
   <artifactId>tomitribe-crest-xbean</artifactId>
-  <name>Tomitribe :: Crest XBean Finder Scanning</name>
+  <name>Tomitribe :: Crest :: XBean Finder Scanning</name>
 
   <dependencies>
     <dependency>

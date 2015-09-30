@@ -30,6 +30,6 @@
 
   <artifactId>tomitribe-crest-api</artifactId>
   <packaging>jar</packaging>
-  <name>Tomitribe :: Crest API</name>
+  <name>Tomitribe :: Crest :: API</name>
 
 </project>

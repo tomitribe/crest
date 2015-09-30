@@ -301,7 +301,7 @@ public class CmdMethod implements Cmd {
         final List<Object> args = new ArrayList<Object>();
 
         for (final Param parameter : spec.arguments) {
-            boolean skip = parameter.getType() == Environment.class;
+            boolean skip = Environment.class.isAssignableFrom(parameter.getType());
             for (final Annotation a : parameter.getAnnotations()) {
                 final CrestAnnotation crestAnnotation = a.annotationType().getAnnotation(CrestAnnotation.class);
                 if (crestAnnotation != null) {
@@ -369,7 +369,7 @@ public class CmdMethod implements Cmd {
             // precompute all values to get a fast runtime immutable structure
             final ParameterMetadata.ParamType type = OptionParam.class.isInstance(param) ?  OPTION :
                 (ComplexParam.class.isInstance(param) ? BEAN_OPTION :
-                (Environment.class == param.getType() || param.getAnnotation(In.class) != null
+                (Environment.class.isAssignableFrom(param.getType()) || param.getAnnotation(In.class) != null
                     || param.getAnnotation(Out.class) != null || param.getAnnotation(Err.class) != null ? INTERNAL :
                 (Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(param.getType()) != null ? SERVICE : ParameterMetadata.ParamType.PLAIN)));
 
@@ -541,7 +541,7 @@ public class CmdMethod implements Cmd {
                         converted.add(environment.getOutput());
                     } else if (parameter.isAnnotationPresent(Err.class)) {
                         converted.add(environment.getError());
-                    } else if (Environment.class == parameter.getType()) {
+                    } else if (Environment.class.isAssignableFrom(parameter.getType())) {
                         converted.add(environment);
                     }
                     break;

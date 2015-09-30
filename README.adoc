@@ -756,3 +756,28 @@ Here is how to define it in your pom:
     </executions>
 </plugin>
 ----
+
+== Cli module
+
+Cli module aims to provide a basic integration with JLine.
+
+All starts from `org.tomitribe.crest.cli.api.CrestCli` class. Current version is extensible through inheritance but already provides:
+
+- support of maven plugin commands (crest-commands.txt)
+- JLine integration
+- Basic pipping support (`mycommand | jgrep foo`)
+- History support is you return a file in `org.tomitribe.crest.cli.api.CrestCli.cliHistoryFile`
+- `org.tomitribe.crest.cli.api.interceptor.interactive.Interactivable` can be used to mark a parameter as required but compatible with interactive mode
+(ie the parameter is asked in interactive mode if missing).
+
+Sample usage:
+
+[source,java]
+----
+final CrestCli cli = new CrestCli();
+cli.run();
+----
+
+TIP: `CrestCli` also has a `main(String[])` so it can be used directly as well.
+
+NOTE: if you don't provide an `exit` command one is added by default.

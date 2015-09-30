@@ -32,6 +32,7 @@ import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.util.IO;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,6 +46,7 @@ import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -80,6 +82,12 @@ public class CrestCli {
 
         final DefaultsContext ctx = new SystemPropertiesDefaultsContext();
         final Main main = newMain(ctx);
+
+        final Map<String, String> aliasesMapping = new HashMap<String, String>();
+        final File aliases = aliasesFile();
+        if (aliases != null && aliases.isFile()) {
+            aliasesMapping.putAll(Map.class.cast(IO.readProperties(aliases)));
+        }
 
         final History history;
         final InputReader readerFacade;
@@ -170,6 +178,13 @@ public class CrestCli {
                     continue;
                 }
 
+                final String actualCmd = aliasesMapping.get(line.trim());
+                if (actualCmd != null) {
+                    line = actualCmd;
+                }
+
+                line = transformCommand(line);
+
                 try {
                     final CommandParser.Command[] commands = parser.toArgs(line);
                     if (commands.length > nThreads) {
@@ -257,6 +272,10 @@ public class CrestCli {
         }
     }
 
+    protected String transformCommand(final String line) {
+        return line;
+    }
+
     protected Main newMain(final DefaultsContext ctx) {
         return new Main() {
             {
@@ -275,6 +294,10 @@ public class CrestCli {
                 }
             }
         };
+    }
+
+    protected File aliasesFile() {
+        return null;
     }
 
     protected File cliHistoryFile() {

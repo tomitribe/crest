@@ -23,6 +23,8 @@ import org.tomitribe.crest.cmds.processors.Commands;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Map;
@@ -110,6 +112,85 @@ public class CrestCliTest {
             "\n" +
             "prompt$test | jgrep 2\n" +
             "line 2\n" +
+            "prompt$exit", new String(out.toByteArray()));
+    }
+
+    @Test
+    public void alias() throws Exception {
+        final File file = new File("target/clitest/alias.txt");
+        file.getParentFile().mkdirs();
+        final FileWriter w = new FileWriter(file);
+        w.write("al=test");
+        w.close();
+
+        final String input = "al\nexit";
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final CrestCli cli = new CrestCli() {
+            @Override
+            protected File aliasesFile() {
+                return file;
+            }
+
+            @Override
+            protected CliEnvironment createMainEnvironment(final AtomicReference<InputReader> dynamicInputReaderRef) {
+                final CliEnvironment mainEnvironment = super.createMainEnvironment(dynamicInputReaderRef);
+                final InputStream is = new ByteArrayInputStream(input.getBytes());
+                final PrintStream stdout = new PrintStream(out);
+                return new CliEnvironment() {
+                    @Override
+                    public String readInput(final String prefix) {
+                        return mainEnvironment.readInput(prefix);
+                    }
+
+                    @Override
+                    public String readPassword(final String prefix) {
+                        return mainEnvironment.readPassword(prefix);
+                    }
+
+                    @Override
+                    public PrintStream getOutput() {
+                        return stdout;
+                    }
+
+                    @Override
+                    public PrintStream getError() {
+                        return mainEnvironment.getError();
+                    }
+
+                    @Override
+                    public InputStream getInput() {
+                        return is;
+                    }
+
+                    @Override
+                    public Properties getProperties() {
+                        return mainEnvironment.getProperties();
+                    }
+
+                    @Override
+                    public <T> T findService(final Class<T> type) {
+                        return mainEnvironment.findService(type);
+                    }
+                };
+            }
+
+            @Override
+            protected void onMainCreated(final Map<String, Cmd> mainCommands) {
+                mainCommands.putAll(Commands.get(MyTestCmd.class));
+            }
+
+            @Override
+            protected String nextPrompt() {
+                return "prompt$";
+            }
+        };
+        cli.run();
+        assertEquals(
+            "prompt$al\n" +
+            "line1\n" +
+            "line 2\n" +
+            "end\n" +
+            "\n" +
             "prompt$exit", new String(out.toByteArray()));
     }
 

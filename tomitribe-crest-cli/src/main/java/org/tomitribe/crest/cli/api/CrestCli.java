@@ -31,6 +31,7 @@ import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
+import org.tomitribe.crest.environments.Environment;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -63,6 +64,7 @@ public class CrestCli {
         if (exitHook != null) {
             exitHook.run();
         }
+        Environment.ENVIRONMENT_THREAD_LOCAL.remove();
         throw new ExitException();
     }
 
@@ -74,6 +76,7 @@ public class CrestCli {
     public void run(final String... args) throws Exception {
         final AtomicReference<InputReader> inputReaderRef = new AtomicReference<InputReader>();
         final CliEnvironment env = createMainEnvironment(inputReaderRef);
+        Environment.ENVIRONMENT_THREAD_LOCAL.set(env);
 
         final DefaultsContext ctx = new SystemPropertiesDefaultsContext();
         final Main main = newMain(ctx);

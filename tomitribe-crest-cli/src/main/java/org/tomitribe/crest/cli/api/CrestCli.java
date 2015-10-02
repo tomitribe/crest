@@ -49,13 +49,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -152,7 +150,7 @@ public class CrestCli {
         historyRef.set(history);
 
         final int nThreads = Integer.getInteger("crest.cli.pipping.threads", 16);
-        final ExecutorService es = new ThreadPoolExecutor(1, nThreads, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(64), new ThreadFactory() {
+        final ExecutorService es = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
             private final ThreadGroup group;
             private final AtomicInteger threadNumber = new AtomicInteger();
 
@@ -222,6 +220,10 @@ public class CrestCli {
                             throw error;
                         }
                     } else { // should move to a common module
+                        if (nThreads < commands.length) {
+                            throw new IllegalArgumentException("We dont support more than " + nThreads + " pipping commands, use -Dcrest.cli.pipping.threads to update it");
+                        }
+
                         // execute tasks piping them
                         final InputStream[] ins = new InputStream[commands.length];
                         final OutputStream[] outs = new OutputStream[commands.length];

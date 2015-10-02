@@ -23,12 +23,11 @@ import jline.console.history.History;
 import jline.console.history.MemoryHistory;
 import org.tomitribe.crest.Main;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Out;
 import org.tomitribe.crest.cli.api.interceptor.interactive.InteractiveMissingParameters;
 import org.tomitribe.crest.cli.impl.CliEnv;
 import org.tomitribe.crest.cli.impl.CommandParser;
 import org.tomitribe.crest.cli.impl.command.Streams;
-import org.tomitribe.crest.cmds.Cmd;
-import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
@@ -50,11 +49,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -70,6 +71,18 @@ public class CrestCli {
         throw new ExitException();
     }
 
+    @Command
+    public static void history(final CliEnvironment env, @Out final PrintStream out) {
+        for (final History.Entry entry : env.history()) {
+            out.println(String.format("[%3d] %s", entry.index(), entry.value()));
+        }
+    }
+
+    @Command
+    public static void clear(final CliEnvironment env) {
+        env.reader().clear();
+    }
+
     // using all defaults
     public static void main(final String[] args) throws Exception {
         new CrestCli().run(args);
@@ -77,7 +90,8 @@ public class CrestCli {
 
     public void run(final String... args) throws Exception {
         final AtomicReference<InputReader> inputReaderRef = new AtomicReference<InputReader>();
-        final CliEnvironment env = createMainEnvironment(inputReaderRef);
+        final AtomicReference<History> historyRef = new AtomicReference<History>();
+        final CliEnvironment env = createMainEnvironment(inputReaderRef, historyRef);
         Environment.ENVIRONMENT_THREAD_LOCAL.set(env);
 
         final DefaultsContext ctx = new SystemPropertiesDefaultsContext();
@@ -89,8 +103,8 @@ public class CrestCli {
             aliasesMapping.putAll(Map.class.cast(IO.readProperties(aliases)));
         }
 
-        final History history;
         final InputReader readerFacade;
+        final History history;
         if (args == null || args.length == 0) {
             final ConsoleReader reader = new ConsoleReader(env.getInput(), env.getOutput());
             final File historyFile = cliHistoryFile();
@@ -117,6 +131,15 @@ public class CrestCli {
                 }
 
                 @Override
+                public void clear() {
+                    try {
+                        reader.clearScreen();
+                    } catch (final IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+
+                @Override
                 public void close() throws Exception {
                     // no-op
                 }
@@ -126,9 +149,10 @@ public class CrestCli {
             readerFacade = new FileInputReader(args["-f".equals(args[0]) ? 1 : 0]);
         }
         inputReaderRef.set(readerFacade);
+        historyRef.set(history);
 
-        final int nThreads = Integer.getInteger("crest.cli.pipping.threads", 4);
-        final ExecutorService es = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
+        final int nThreads = Integer.getInteger("crest.cli.pipping.threads", 16);
+        final ExecutorService es = new ThreadPoolExecutor(1, nThreads, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(64), new ThreadFactory() {
             private final ThreadGroup group;
             private final AtomicInteger threadNumber = new AtomicInteger();
 
@@ -187,10 +211,6 @@ public class CrestCli {
 
                 try {
                     final CommandParser.Command[] commands = parser.toArgs(line);
-                    if (commands.length > nThreads) {
-                        throw new IllegalArgumentException("Current implementation doesn't support more than " + nThreads + " piped commands.");
-                    }
-
                     if (commands.length == 1) {
                         try {
                             main.main(env, commands[0].getArgs());
@@ -277,23 +297,16 @@ public class CrestCli {
     }
 
     protected Main newMain(final DefaultsContext ctx) {
-        return new Main() {
-            {
-                // pipeable commands
-                commands.putAll(Commands.get(Streams.class, ctx));
+        final Main main = new Main();
+        main.processClass(ctx, Streams.class);
+        main.processClass(ctx, InteractiveMissingParameters.class);
+        main.processClass(ctx, CrestCli.class);
+        onMainCreated(ctx, main);
+        return main;
+    }
 
-                // built-in interceptors
-                commands.putAll(Commands.get(InteractiveMissingParameters.class, ctx));
-
-                // hook for user extensions
-                onMainCreated(commands);
-
-                // ensure we can quit
-                if (!commands.containsKey("exit")) { // add exit command
-                    commands.putAll(Commands.get(CrestCli.class, ctx));
-                }
-            }
-        };
+    protected void onMainCreated(final DefaultsContext ctx, final Main main) {
+        // no-op
     }
 
     protected File aliasesFile() {
@@ -312,20 +325,21 @@ public class CrestCli {
         // no-op
     }
 
-    protected void onMainCreated(final Map<String, Cmd> mainCommands) {
-        // no-op
-    }
-
     protected CliEnvironment pipeEnvironment(final CliEnvironment env, final InputStream in, final PrintStream out) {
         return new CliEnvironment() {
             @Override
-            public String readInput(final String prefix) {
-                return env.readInput(prefix);
+            public History history() {
+                return env.history();
             }
 
             @Override
-            public String readPassword(final String prefix) {
-                return env.readPassword(prefix);
+            public InputReader reader() {
+                return env.reader();
+            }
+
+            @Override
+            public Map<String, ?> userData() {
+                return env.userData();
             }
 
             @Override
@@ -355,32 +369,26 @@ public class CrestCli {
         };
     }
 
-    protected CliEnvironment createMainEnvironment(final AtomicReference<InputReader> dynamicInputReaderRef) {
+    // java 8 would have use Supplier which is cleaner
+    protected CliEnvironment createMainEnvironment(final AtomicReference<InputReader> dynamicInputReaderRef,
+                                                   final AtomicReference<History> dynamicHistoryAtomicReference) {
+        final Map<String, ?> data = new HashMap<String, Object>();
         return new CliEnv() {
             @Override
-            public String readInput(final String prefix) {
-                try {
-                    return dynamicInputReaderRef.get().readLine(prefix);
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
-                }
+            public History history() {
+                return dynamicHistoryAtomicReference.get();
             }
 
             @Override
-            public String readPassword(final String prefix) {
-                try {
-                    return dynamicInputReaderRef.get().readPassword(prefix);
-                } catch (final IOException e) {
-                    throw new IllegalStateException(e);
-                }
+            public InputReader reader() {
+                return dynamicInputReaderRef.get();
+            }
+
+            @Override
+            public Map<String, ?> userData() {
+                return data;
             }
         };
-    }
-
-    protected interface InputReader extends AutoCloseable {
-        String readLine(String prompt) throws IOException;
-
-        String readPassword(String prompt) throws IOException;
     }
 
     protected static class FileInputReader implements InputReader {
@@ -402,6 +410,11 @@ public class CrestCli {
         @Override
         public String readPassword(final String prompt) throws IOException {
             throw new IllegalArgumentException("Can't read password when input is a file");
+        }
+
+        @Override
+        public void clear() {
+            // no-op
         }
 
         @Override

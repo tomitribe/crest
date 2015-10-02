@@ -64,27 +64,31 @@ public class Main implements Completer {
 
     public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes) {
         for (final Class clazz : classes) {
-            final Map<String, Cmd> m = Commands.get(clazz, defaultsContext);
-            if (!m.isEmpty()) {
-                this.commands.putAll(m);
-            } else {
-                for (final Method method : clazz.getMethods()) {
-                    if (Object.class == method.getDeclaringClass()) {
-                        continue;
-                    }
+            processClass(defaultsContext, clazz);
+        }
 
-                    final CrestInterceptor interceptor = method.getAnnotation(CrestInterceptor.class);
-                    if (interceptor != null) {
-                        final Class<?> key = interceptor.value() == Object.class ? clazz : interceptor.value();
-                        if (interceptors.put(key, new InternalInterceptor(new SimpleBean(null), method)) != null) {
-                            throw new IllegalArgumentException(key + " interceptor is conflicting");
-                        }
+        installHelp(defaultsContext);
+    }
+
+    public void processClass(final DefaultsContext defaultsContext, final Class<?> clazz) {
+        final Map<String, Cmd> m = Commands.get(clazz, defaultsContext);
+        if (!m.isEmpty()) {
+            this.commands.putAll(m);
+        } else {
+            for (final Method method : clazz.getMethods()) {
+                if (Object.class == method.getDeclaringClass()) {
+                    continue;
+                }
+
+                final CrestInterceptor interceptor = method.getAnnotation(CrestInterceptor.class);
+                if (interceptor != null) {
+                    final Class<?> key = interceptor.value() == Object.class ? clazz : interceptor.value();
+                    if (interceptors.put(key, new InternalInterceptor(new SimpleBean(null), method)) != null) {
+                        throw new IllegalArgumentException(key + " interceptor is conflicting");
                     }
                 }
             }
         }
-
-        installHelp(defaultsContext);
     }
 
     public Main(final Iterable<Class<?>> classes) {

@@ -16,13 +16,12 @@
  */
 package org.tomitribe.crest.cli.api;
 
-import jline.console.history.History;
-import org.tomitribe.crest.environments.Environment;
+import java.io.IOException;
 
-import java.util.Map;
+public interface InputReader extends AutoCloseable {
+    String readLine(String prompt) throws IOException;
 
-public interface CliEnvironment extends Environment {
-    History history();
-    InputReader reader();
-    Map<String, ?> userData();
+    String readPassword(String prompt) throws IOException;
+
+    void clear();
 }

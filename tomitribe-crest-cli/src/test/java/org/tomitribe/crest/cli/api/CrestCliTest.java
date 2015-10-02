@@ -16,10 +16,11 @@
  */
 package org.tomitribe.crest.cli.api;
 
+import jline.console.history.History;
 import org.junit.Test;
+import org.tomitribe.crest.Main;
 import org.tomitribe.crest.api.Command;
-import org.tomitribe.crest.cmds.Cmd;
-import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.contexts.DefaultsContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -38,67 +39,16 @@ public class CrestCliTest {
     public void cli() throws Exception {
         final String input = "help\ntest\ntest | jgrep 2\nexit";
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final CrestCli cli = new CrestCli() {
-            @Override
-            protected CliEnvironment createMainEnvironment(final AtomicReference<InputReader> dynamicInputReaderRef) {
-                final CliEnvironment mainEnvironment = super.createMainEnvironment(dynamicInputReaderRef);
-                final InputStream is = new ByteArrayInputStream(input.getBytes());
-                final PrintStream stdout = new PrintStream(out);
-                return new CliEnvironment() {
-                    @Override
-                    public String readInput(final String prefix) {
-                        return mainEnvironment.readInput(prefix);
-                    }
-
-                    @Override
-                    public String readPassword(final String prefix) {
-                        return mainEnvironment.readPassword(prefix);
-                    }
-
-                    @Override
-                    public PrintStream getOutput() {
-                        return stdout;
-                    }
-
-                    @Override
-                    public PrintStream getError() {
-                        return mainEnvironment.getError();
-                    }
-
-                    @Override
-                    public InputStream getInput() {
-                        return is;
-                    }
-
-                    @Override
-                    public Properties getProperties() {
-                        return mainEnvironment.getProperties();
-                    }
-
-                    @Override
-                    public <T> T findService(final Class<T> type) {
-                        return mainEnvironment.findService(type);
-                    }
-                };
-            }
-
-            @Override
-            protected void onMainCreated(final Map<String, Cmd> mainCommands) {
-                mainCommands.putAll(Commands.get(MyTestCmd.class));
-            }
-
-            @Override
-            protected String nextPrompt() {
-                return "prompt$";
-            }
-        };
+        final CrestCli cli = newTestCli(input, out, null);
         cli.run();
         assertEquals(
             "prompt$help\n" +
             "Commands: \n" +
             "                       \n" +
+            "   clear               \n" +
             "   exit                \n" +
             "   help                \n" +
+            "   history             \n" +
             "   jgrep               \n" +
             "   jsed                \n" +
             "   pretty              \n" +
@@ -115,6 +65,74 @@ public class CrestCliTest {
             "prompt$exit", new String(out.toByteArray()));
     }
 
+    private CrestCli newTestCli(final String input, final ByteArrayOutputStream out, final File alias) {
+        return new CrestCli() {
+                @Override
+                protected CliEnvironment createMainEnvironment(final AtomicReference<InputReader> dynamicInputReaderRef,
+                                                               final AtomicReference<History> historyAtomicReference) {
+                    final CliEnvironment mainEnvironment = super.createMainEnvironment(dynamicInputReaderRef, historyAtomicReference);
+                    final InputStream is = new ByteArrayInputStream(input.getBytes());
+                    final PrintStream stdout = new PrintStream(out);
+                    return new CliEnvironment() {
+                        @Override
+                        public History history() {
+                            return historyAtomicReference.get();
+                        }
+
+                        @Override
+                        public InputReader reader() {
+                            return dynamicInputReaderRef.get();
+                        }
+
+                        @Override
+                        public Map<String, ?> userData() {
+                            return mainEnvironment.userData();
+                        }
+
+                        @Override
+                        public PrintStream getOutput() {
+                            return stdout;
+                        }
+
+                        @Override
+                        public PrintStream getError() {
+                            return mainEnvironment.getError();
+                        }
+
+                        @Override
+                        public InputStream getInput() {
+                            return is;
+                        }
+
+                        @Override
+                        public Properties getProperties() {
+                            return mainEnvironment.getProperties();
+                        }
+
+                        @Override
+                        public <T> T findService(final Class<T> type) {
+                            return mainEnvironment.findService(type);
+                        }
+                    };
+                }
+
+                @Override
+                protected void onMainCreated(final DefaultsContext ctx, final Main main) {
+                    main.processClass(ctx, MyTestCmd.class);
+                }
+
+                @Override
+                protected String nextPrompt() {
+                    return "prompt$";
+                }
+
+                @Override
+                protected File aliasesFile() {
+                    return alias;
+                }
+            };
+    }
+
     @Test
     public void alias() throws Exception {
         final File file = new File("target/clitest/alias.txt");
@@ -125,66 +143,8 @@ public class CrestCliTest {
 
         final String input = "al\nexit";
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final CrestCli cli = new CrestCli() {
-            @Override
-            protected File aliasesFile() {
-                return file;
-            }
 
-            @Override
-            protected CliEnvironment createMainEnvironment(final AtomicReference<InputReader> dynamicInputReaderRef) {
-                final CliEnvironment mainEnvironment = super.createMainEnvironment(dynamicInputReaderRef);
-                final InputStream is = new ByteArrayInputStream(input.getBytes());
-                final PrintStream stdout = new PrintStream(out);
-                return new CliEnvironment() {
-                    @Override
-                    public String readInput(final String prefix) {
-                        return mainEnvironment.readInput(prefix);
-                    }
-
-                    @Override
-                    public String readPassword(final String prefix) {
-                        return mainEnvironment.readPassword(prefix);
-                    }
-
-                    @Override
-                    public PrintStream getOutput() {
-                        return stdout;
-                    }
-
-                    @Override
-                    public PrintStream getError() {
-                        return mainEnvironment.getError();
-                    }
-
-                    @Override
-                    public InputStream getInput() {
-                        return is;
-                    }
-
-                    @Override
-                    public Properties getProperties() {
-                        return mainEnvironment.getProperties();
-                    }
-
-                    @Override
-                    public <T> T findService(final Class<T> type) {
-                        return mainEnvironment.findService(type);
-                    }
-                };
-            }
-
-            @Override
-            protected void onMainCreated(final Map<String, Cmd> mainCommands) {
-                mainCommands.putAll(Commands.get(MyTestCmd.class));
-            }
-
-            @Override
-            protected String nextPrompt() {
-                return "prompt$";
-            }
-        };
-        cli.run();
+        newTestCli(input, out, file).run();
         assertEquals(
             "prompt$al\n" +
             "line1\n" +

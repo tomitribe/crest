@@ -23,6 +23,7 @@ import org.tomitribe.crest.cli.api.CliEnvironment;
 import org.tomitribe.crest.cli.api.interceptor.base.ParameterVisitor;
 import org.tomitribe.crest.environments.Environment;
 
+import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
 
 public class InteractiveMissingParameters {
@@ -47,7 +48,12 @@ public class InteractiveMissingParameters {
         }
         final CliEnvironment e = CliEnvironment.class.cast(Environment.ENVIRONMENT_THREAD_LOCAL.get());
         final String prompt = "Enter " + name + ": ";
-        final String val = interactivable.password() ? e.readPassword(prompt) : e.readInput(prompt);
+        final String val;
+        try {
+            val = interactivable.password() ? e.reader().readPassword(prompt) : e.reader().readLine(prompt);
+        } catch (final IOException readEx) {
+            throw new IllegalStateException(readEx);
+        }
         return "null".equals(val) ? null : val;
     }
 }

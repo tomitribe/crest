@@ -72,7 +72,7 @@ public class CrestCli {
     @Command
     public static void history(final CliEnvironment env, @Out final PrintStream out) {
         for (final History.Entry entry : env.history()) {
-            out.println(String.format("[%3d] %s", entry.index(), entry.value()));
+            out.println(String.format("[%3d] %s", entry.index() + 1, entry.value()));
         }
     }
 

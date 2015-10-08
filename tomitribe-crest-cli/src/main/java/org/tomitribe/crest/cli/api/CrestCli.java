@@ -54,6 +54,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -86,11 +87,13 @@ public class CrestCli {
         new CrestCli().run(args);
     }
 
+    private CliEnvironment mainEnvironment;
+
     public void run(final String... args) throws Exception {
         final AtomicReference<InputReader> inputReaderRef = new AtomicReference<InputReader>();
         final AtomicReference<History> historyRef = new AtomicReference<History>();
-        final CliEnvironment env = createMainEnvironment(inputReaderRef, historyRef);
-        Environment.ENVIRONMENT_THREAD_LOCAL.set(env);
+        mainEnvironment = createMainEnvironment(inputReaderRef, historyRef);
+        Environment.ENVIRONMENT_THREAD_LOCAL.set(mainEnvironment);
 
         final DefaultsContext ctx = new SystemPropertiesDefaultsContext();
         final Main main = newMain(ctx);
@@ -104,7 +107,7 @@ public class CrestCli {
         final InputReader readerFacade;
         final History history;
         if (args == null || args.length == 0) {
-            final ConsoleReader reader = new ConsoleReader(env.getInput(), env.getOutput());
+            final ConsoleReader reader = new ConsoleReader(mainEnvironment.getInput(), mainEnvironment.getOutput());
             final File historyFile = cliHistoryFile();
             history = historyFile != null && historyFile.isFile() ? new FileHistory(historyFile) : new MemoryHistory();
             reader.setHistory(history);
@@ -207,16 +210,24 @@ public class CrestCli {
 
                 line = transformCommand(line);
 
+                final long start;
+                if (line.startsWith("time ")) {
+                    start = System.nanoTime();
+                    line = line.substring("time ".length());
+                } else {
+                    start = -1;
+                }
+
                 try {
                     final CommandParser.Command[] commands = parser.toArgs(line);
                     if (commands.length == 1) {
                         try {
-                            main.main(env, commands[0].getArgs());
+                            main.main(mainEnvironment, commands[0].getArgs());
                         } catch (final Exception error) {
                             if (ExitException.class.isInstance(error.getCause())) {
                                 break;
                             }
-                            error.printStackTrace(env.getError());
+                            error.printStackTrace(mainEnvironment.getError());
                             throw error;
                         }
                     } else { // should move to a common module
@@ -228,8 +239,8 @@ public class CrestCli {
                         final InputStream[] ins = new InputStream[commands.length];
                         final OutputStream[] outs = new OutputStream[commands.length];
                         for (int i = 0; i < commands.length; i++) { // allocate
-                            ins[i] = i == 0 ? env.getInput() : new PipedInputStream();
-                            outs[i] = i == commands.length - 1 ? env.getOutput() : new PipedOutputStream();
+                            ins[i] = i == 0 ? mainEnvironment.getInput() : new PipedInputStream();
+                            outs[i] = i == commands.length - 1 ? mainEnvironment.getOutput() : new PipedOutputStream();
                         }
                         for (int i = 0; i < commands.length; i++) { // wire
                             if (PipedInputStream.class.isInstance(ins[i])) {
@@ -246,9 +257,9 @@ public class CrestCli {
                                 @Override
                                 public void run() {
                                     try {
-                                        main.main(pipeEnvironment(env, ins[idx], out), commands[idx].getArgs());
+                                        main.main(pipeEnvironment(mainEnvironment, ins[idx], out), commands[idx].getArgs());
                                     } catch (final Exception error) {
-                                        error.printStackTrace(env.getError());
+                                        error.printStackTrace(mainEnvironment.getError());
                                     } finally {
                                         if (PipedInputStream.class.isInstance(ins[idx])) {
                                             try {
@@ -281,11 +292,18 @@ public class CrestCli {
                                 // no-op
                             }
                         }
-                        env.getOutput().flush();
+                        mainEnvironment.getOutput().flush();
                     }
                 } catch (final Exception error) {
-                    error.printStackTrace(env.getError());
-                    env.getError().flush();
+                    error.printStackTrace(mainEnvironment.getError());
+                    mainEnvironment.getError().flush();
+                } finally {
+                    if (start > 0) {
+                        final long end = System.nanoTime();
+                        final long sec = TimeUnit.NANOSECONDS.toSeconds(end - start);
+                        final long msec = TimeUnit.NANOSECONDS.toMillis((end - start) - TimeUnit.SECONDS.toNanos(sec));
+                        mainEnvironment.getOutput().println("Time " + sec + "s " + msec + "ms");
+                    }
                 }
             }
         } finally {

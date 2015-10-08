@@ -154,6 +154,22 @@ public class CrestCliTest {
             "prompt$exit", new String(out.toByteArray()));
     }
 
+    @Test
+    public void time() throws Exception {
+        final String input = "time test\nexit";
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        newTestCli(input, out, null).run();
+        assertEquals(
+            "prompt$time test\n" +
+            "line1\n" +
+            "line 2\n" +
+            "end\n" +
+            "\n" +
+            "Time 0s Xms\n" +
+            "prompt$exit", new String(out.toByteArray()).replaceAll("[0-9]+ms", "Xms"));
+    }
+
     public static class MyTestCmd {
         @Command
         public static String test() {

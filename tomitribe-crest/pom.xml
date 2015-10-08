@@ -30,7 +30,7 @@
 
   <artifactId>tomitribe-crest</artifactId>
   <packaging>jar</packaging>
-  <name>Tomitribe :: Crest :; Core</name>
+  <name>Tomitribe :: Crest :: Core</name>
 
   <dependencies>
     <dependency> <!-- user has to add this dep if he wants to use SecurityInterceptor but would be provided most of the time -->
@@ -63,11 +63,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.bval</groupId>
-      <artifactId>bval-jsr303</artifactId>
+      <artifactId>bval-jsr</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-validation_1.0_spec</artifactId>
+      <artifactId>geronimo-validation_1.1_spec</artifactId>
     </dependency>
   </dependencies>
 

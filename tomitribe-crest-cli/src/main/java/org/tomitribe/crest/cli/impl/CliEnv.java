@@ -19,5 +19,14 @@ package org.tomitribe.crest.cli.impl;
 import org.tomitribe.crest.cli.api.CliEnvironment;
 import org.tomitribe.crest.environments.SystemEnvironment;
 
+import java.util.Map;
+
 public abstract class CliEnv extends SystemEnvironment implements CliEnvironment {
+    public CliEnv(final Map<Class<?>, Object> services) {
+        super(services);
+    }
+
+    public CliEnv() {
+        super();
+    }
 }

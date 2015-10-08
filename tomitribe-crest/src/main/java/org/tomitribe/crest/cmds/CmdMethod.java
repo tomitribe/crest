@@ -235,7 +235,7 @@ public class CmdMethod implements Cmd {
             try {
                 final Object[] args = converted.toArray();
 
-                BeanValidation.validateParameters(constructor.getDeclaringClass(), constructor, args);
+                BeanValidation.validateParameters(constructor, args);
 
                 return constructor.newInstance(args);
 
@@ -438,7 +438,7 @@ public class CmdMethod implements Cmd {
         final Object[] args;
         try {
             args = list.toArray();
-            BeanValidation.validateParameters(method.getDeclaringClass(), method, args);
+            BeanValidation.validateParameters(target.getInstance(method), method, args);
         } catch (final Exception e) {
             reportWithHelp(e);
             throw toRuntimeException(e);

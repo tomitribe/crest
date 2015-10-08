@@ -34,6 +34,11 @@ public class SimpleBean implements Target {
         return method.invoke(bean, args);
     }
 
+    @Override
+    public Object getInstance(final Method method) {
+        return getBean(method);
+    }
+
     private Object getBean(final Method method) {
         if (bean != null) {
             return bean;

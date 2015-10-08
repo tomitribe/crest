@@ -20,5 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public interface Target {
-    public Object invoke(Method method, Object... args) throws InvocationTargetException, IllegalAccessException;
+    Object invoke(Method method, Object... args) throws InvocationTargetException, IllegalAccessException;
+
+    Object getInstance(Method method);
 }

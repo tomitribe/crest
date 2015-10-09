@@ -17,6 +17,7 @@
 package org.tomitribe.crest.cli.api;
 
 import jline.console.ConsoleReader;
+import jline.console.UserInterruptException;
 import jline.console.completer.Completer;
 import jline.console.history.FileHistory;
 import jline.console.history.History;
@@ -108,6 +109,8 @@ public class CrestCli {
         final History history;
         if (args == null || args.length == 0) {
             final ConsoleReader reader = new ConsoleReader(mainEnvironment.getInput(), mainEnvironment.getOutput());
+            reader.setHandleUserInterrupt(true);
+
             final File historyFile = cliHistoryFile();
             history = historyFile != null && historyFile.isFile() ? new FileHistory(historyFile) : new MemoryHistory();
             reader.setHistory(history);
@@ -198,117 +201,127 @@ public class CrestCli {
         final CommandParser parser = new CommandParser();
         try {
             String line;
-            while ((line = readerFacade.readLine(nextPrompt())) != null) {
-                if (line.trim().isEmpty() || line.startsWith("#")) {
-                    continue;
-                }
-
-                final String actualCmd = aliasesMapping.get(line.trim());
-                if (actualCmd != null) {
-                    line = actualCmd;
-                }
-
-                line = transformCommand(line);
-
-                final long start;
-                if (line.startsWith("time ")) {
-                    start = System.nanoTime();
-                    line = line.substring("time ".length());
-                } else {
-                    start = -1;
-                }
-
+            boolean quit;
+            do {
+                quit = true;
                 try {
-                    final CommandParser.Command[] commands = parser.toArgs(line);
-                    if (commands.length == 1) {
+                    while ((line = readerFacade.readLine(nextPrompt())) != null) {
+                        if (line.trim().isEmpty() || line.startsWith("#")) {
+                            continue;
+                        }
+
+                        final String actualCmd = aliasesMapping.get(line.trim());
+                        if (actualCmd != null) {
+                            line = actualCmd;
+                        }
+
+                        line = transformCommand(line);
+
+                        final long start;
+                        if (line.startsWith("time ")) {
+                            start = System.nanoTime();
+                            line = line.substring("time ".length());
+                        } else {
+                            start = -1;
+                        }
+
                         try {
-                            main.main(mainEnvironment, commands[0].getArgs());
-                        } catch (final Exception error) {
-                            if (ExitException.class.isInstance(error.getCause())) {
-                                break;
-                            }
-                            error.printStackTrace(mainEnvironment.getError());
-                            throw error;
-                        }
-                    } else { // should move to a common module
-                        if (nThreads < commands.length) {
-                            throw new IllegalArgumentException("We dont support more than " + nThreads + " pipping commands, use -Dcrest.cli.pipping.threads to update it");
-                        }
+                            final CommandParser.Command[] commands = parser.toArgs(line);
+                            if (commands.length == 1) {
+                                try {
+                                    main.main(mainEnvironment, commands[0].getArgs());
+                                } catch (final Exception error) {
+                                    if (ExitException.class.isInstance(error.getCause())) {
+                                        break;
+                                    }
+                                    error.printStackTrace(mainEnvironment.getError());
+                                    throw error;
+                                }
+                            } else { // should move to a common module
+                                if (nThreads < commands.length) {
+                                    throw new IllegalArgumentException("We dont support more than " + nThreads + " pipping commands, use -Dcrest.cli.pipping.threads to update it");
+                                }
 
-                        // execute tasks piping them
-                        final InputStream[] ins = new InputStream[commands.length];
-                        final OutputStream[] outs = new OutputStream[commands.length];
-                        for (int i = 0; i < commands.length; i++) { // allocate
-                            ins[i] = i == 0 ? mainEnvironment.getInput() : new PipedInputStream();
-                            outs[i] = i == commands.length - 1 ? mainEnvironment.getOutput() : new PipedOutputStream();
-                        }
-                        for (int i = 0; i < commands.length; i++) { // wire
-                            if (PipedInputStream.class.isInstance(ins[i])) {
-                                PipedInputStream.class.cast(ins[i]).connect(PipedOutputStream.class.cast(outs[i - 1]));
-                            }
-                        }
-
-                        final Collection<Future<?>> tasks = new ArrayList<Future<?>>(commands.length);
-
-                        for (int i = 0; i < commands.length; i++) {
-                            final int idx = i;
-                            final PrintStream out = new PrintStream(outs[idx]);
-                            tasks.add(es.submit(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        main.main(pipeEnvironment(mainEnvironment, ins[idx], out), commands[idx].getArgs());
-                                    } catch (final Exception error) {
-                                        error.printStackTrace(mainEnvironment.getError());
-                                    } finally {
-                                        if (PipedInputStream.class.isInstance(ins[idx])) {
-                                            try {
-                                                ins[idx].close();
-                                            } catch (final IOException e) {
-                                                // no-op
-                                            }
-                                        }
-                                        try {
-                                            if (PipedOutputStream.class.isInstance(outs[idx])) {
-                                                outs[idx].close();
-                                            } else {
-                                                outs[idx].flush();
-                                            }
-                                        } catch (final IOException e) {
-                                            // no-op
-                                        }
+                                // execute tasks piping them
+                                final InputStream[] ins = new InputStream[commands.length];
+                                final OutputStream[] outs = new OutputStream[commands.length];
+                                for (int i = 0; i < commands.length; i++) { // allocate
+                                    ins[i] = i == 0 ? mainEnvironment.getInput() : new PipedInputStream();
+                                    outs[i] = i == commands.length - 1 ? mainEnvironment.getOutput() : new PipedOutputStream();
+                                }
+                                for (int i = 0; i < commands.length; i++) { // wire
+                                    if (PipedInputStream.class.isInstance(ins[i])) {
+                                        PipedInputStream.class.cast(ins[i]).connect(PipedOutputStream.class.cast(outs[i - 1]));
                                     }
                                 }
-                            }));
-                        }
 
-                        // wait end of the global command
-                        for (final Future<?> t : tasks) {
-                            try {
-                                t.get();
-                            } catch (final InterruptedException e) {
-                                Thread.interrupted();
-                            } catch (final ExecutionException e) {
-                                // no-op
+                                final Collection<Future<?>> tasks = new ArrayList<Future<?>>(commands.length);
+
+                                for (int i = 0; i < commands.length; i++) {
+                                    final int idx = i;
+                                    final PrintStream out = new PrintStream(outs[idx]);
+                                    tasks.add(es.submit(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                main.main(pipeEnvironment(mainEnvironment, ins[idx], out), commands[idx].getArgs());
+                                            } catch (final Exception error) {
+                                                error.printStackTrace(mainEnvironment.getError());
+                                            } finally {
+                                                if (PipedInputStream.class.isInstance(ins[idx])) {
+                                                    try {
+                                                        ins[idx].close();
+                                                    } catch (final IOException e) {
+                                                        // no-op
+                                                    }
+                                                }
+                                                try {
+                                                    if (PipedOutputStream.class.isInstance(outs[idx])) {
+                                                        outs[idx].close();
+                                                    } else {
+                                                        outs[idx].flush();
+                                                    }
+                                                } catch (final IOException e) {
+                                                    // no-op
+                                                }
+                                            }
+                                        }
+                                    }));
+                                }
+
+                                // wait end of the global command
+                                for (final Future<?> t : tasks) {
+                                    try {
+                                        t.get();
+                                    } catch (final InterruptedException e) {
+                                        Thread.interrupted();
+                                    } catch (final ExecutionException e) {
+                                        // no-op
+                                    }
+                                }
+                                mainEnvironment.getOutput().flush();
+                            }
+                        } catch (final Exception error) {
+                            error.printStackTrace(mainEnvironment.getError());
+                            mainEnvironment.getError().flush();
+                        } finally {
+                            if (start > 0) {
+                                final long end = System.nanoTime();
+                                final long sec = TimeUnit.NANOSECONDS.toSeconds(end - start);
+                                final long msec = TimeUnit.NANOSECONDS.toMillis((end - start) - TimeUnit.SECONDS.toNanos(sec));
+                                mainEnvironment.getOutput().println("Time " + sec + "s " + msec + "ms");
                             }
                         }
-                        mainEnvironment.getOutput().flush();
                     }
-                } catch (final Exception error) {
-                    error.printStackTrace(mainEnvironment.getError());
-                    mainEnvironment.getError().flush();
-                } finally {
-                    if (start > 0) {
-                        final long end = System.nanoTime();
-                        final long sec = TimeUnit.NANOSECONDS.toSeconds(end - start);
-                        final long msec = TimeUnit.NANOSECONDS.toMillis((end - start) - TimeUnit.SECONDS.toNanos(sec));
-                        mainEnvironment.getOutput().println("Time " + sec + "s " + msec + "ms");
-                    }
+                } catch (final UserInterruptException uie) {
+                    quit = false;
                 }
-            }
+            } while (!quit);
         } finally {
-            exitHook.run();
-            exitHook = null;
+            if (exitHook != null) {
+                exitHook.run();
+                exitHook = null;
+            }
         }
     }
 

@@ -23,7 +23,6 @@ import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.cmds.Cmd;
-import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.util.Files;
 import org.tomitribe.util.IO;
 
@@ -58,9 +57,9 @@ public class CmdMethodTest extends TestCase {
         cmd.help(new PrintStream(out));
         assertEquals(
                 "Usage: prefixed [options]" +
-                "Options: " +
-                "  ----value=<String>    " +
-                "     -value=<String>",
+                        "Options: " +
+                        "  ----value=<String>    " +
+                        "     -value=<String>",
                 new String(out.toByteArray()).replace(System.getProperty("line.separator"), "").trim());
     }
 
@@ -134,6 +133,36 @@ public class CmdMethodTest extends TestCase {
         touch.exec(null, SOME_FILE);
     }
 
+    public void testRequiredMultiOption() {
+        // Required option
+        try {
+            final Cmd tail = commands.get("requiredMultiOption");
+            tail.exec(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+        }
+    }
+
+    public void testRequiredMultiOptionWithFirstAliasProvided() throws Exception {
+        // Required option
+        try {
+            final Cmd tail = commands.get("requiredMultiOption");
+            tail.exec(null, "-p");
+            fail();
+        }catch (final IllegalArgumentException e) {
+        }
+    }
+
+    public void testRequiredMultiOptionWithSecondAliasProvided() throws Exception {
+        // Required option
+        try {
+            final Cmd tail = commands.get("requiredMultiOption");
+            tail.exec(null, "--pass");
+            fail();
+        }catch (final IllegalArgumentException e) {
+        }
+    }
+
     public static class Commands {
         private static boolean prefixed;
 
@@ -180,6 +209,10 @@ public class CmdMethodTest extends TestCase {
 
         @Command
         public static void required(@Option("pass") @Required final String pass) {
+        }
+
+        @Command
+        public static void requiredMultiOption(@Option({"pass", "p"}) @Required final String pass) {
         }
 
         @Command

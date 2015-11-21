@@ -49,6 +49,9 @@ public class BVal05 implements BeanValidation.BeanValidationImpl {
 
     @Override
     public void validateParameters(final Object instanceOrClass, final Method method, final Object[] parameters) {
+        if (instanceOrClass == null) { // static command
+            return;
+        }
         try {
             final Set<ConstraintViolation<?>> violations = Set.class.cast(
                 validateMethodParameters.invoke(getValidatorObject(), instanceOrClass.getClass(), method, parameters, NO_GROUP));

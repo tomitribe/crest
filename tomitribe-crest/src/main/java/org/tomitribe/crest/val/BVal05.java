@@ -38,7 +38,7 @@ public class BVal05 implements BeanValidation.BeanValidationImpl {
         try {
             final ClassLoader classLoader = BVal05.class.getClassLoader();
             unwrapClass = classLoader.loadClass("org.apache.bval.jsr303.extensions.MethodValidator");
-            providerClass = classLoader.loadClass("org.apache.bval.jsr303.ApacheValidationProvider.class");
+            providerClass = classLoader.loadClass("org.apache.bval.jsr303.ApacheValidationProvider");
             byProviderMethod = Validation.class.getMethod("byProvider", Class.class);
             validateMethodParameters = unwrapClass.getMethod("validateParameters", Class.class, Method.class, Object[].class, Class[].class);
             validateConstructorParamters = unwrapClass.getMethod("validateParameters", Class.class, Constructor.class, Object[].class, Class[].class);

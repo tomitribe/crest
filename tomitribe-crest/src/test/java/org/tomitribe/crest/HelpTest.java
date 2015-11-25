@@ -25,11 +25,13 @@ import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.targets.SimpleBean;
+import org.tomitribe.crest.environments.SystemEnvironment;
 import org.tomitribe.util.Files;
 import org.tomitribe.util.IO;
 import org.tomitribe.util.JarLocation;
@@ -46,12 +48,13 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import static java.lang.System.lineSeparator;
 
 public class HelpTest extends Assert {
 
@@ -156,6 +159,45 @@ public class HelpTest extends Assert {
         ) {
 
         }
+    }
+
+    public static class Descripted {
+        @Command
+        public void test(@Option(value = "a", description = "a super parameter") final String superA,
+                         final Binding simpleBean,
+                         @Option(value = "b-", description = "a super parameter") final Binding overridedBean,
+                         @Option(value = "c.", description = "pre description: ") final Binding simpleBeanWithPrefix,
+                         @Option(value = "d", description = "a parameter with default") @Default("otherwise") final String def) {
+
+        }
+    }
+
+    @Options
+    public static class Binding {
+        public Binding(@Option(value = "binded", description = "overrided desc") final String binded) {
+            // no-op
+        }
+    }
+
+    @Test
+    public void annotatedParamDescription() throws Exception {
+        final PrintString out = new PrintString();
+        new Main(Descripted.class).main(new SystemEnvironment() {
+            @Override
+            public PrintStream getOutput() {
+                return out;
+            }
+        }, new String[] {"help", "test"});
+        assertEquals(
+            "Usage: test [options]" +
+            "Options: " +
+            "  -a=<String>              a super parameter" +
+            "  --b-binded=<String>      a super parameteroverrided desc" +
+            "  --binded=<String>        overrided desc" +
+            "  --c.binded=<String>      pre description: overrided desc" +
+            "  -d=<String>              a parameter with default" +
+            "                           (default: otherwise)",
+            out.toString().replace(lineSeparator(), ""));
     }
 
     @Test

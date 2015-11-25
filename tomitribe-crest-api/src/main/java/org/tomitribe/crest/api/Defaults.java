@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * override default for a parameter bean.
+ * override defaults for a parameter bean.
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = ElementType.PARAMETER)
@@ -41,5 +41,10 @@ public @interface Defaults {
          * @return parameter default value.
          */
         String value();
+
+        /**
+         * @return overriden description for the parameter.
+         */
+        String description() default "";
     }
 }

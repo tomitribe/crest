@@ -52,13 +52,19 @@ public class Help {
             return;
         }
 
-        final ResourceBundle general = getResourceBundle(clazz);
+        ResourceBundle general = null; // lazily loaded cause breaks the annotation driven API so not considered as default
 
         final List<Item> items = new ArrayList<Item>(optionParams.size());
 
         int width = 20;
         for (final OptionParam optionParam : optionParams) {
-            final String description = getDescription(general, commandName, optionParam.getName());
+            String description = optionParam.getDescription();
+            if (description == null || description.isEmpty()) {
+                if (general == null) {
+                    general = getResourceBundle(clazz);
+                }
+                description = getDescription(general, commandName, optionParam.getName());
+            }
             final Item item = new Item(optionParam, description);
             items.add(item);
 

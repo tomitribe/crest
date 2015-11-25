@@ -32,12 +32,18 @@ public class OptionParam extends Param {
     public static final String LIST_TYPE = "\uFFFF\uFFFF";
     private final String name;
     private final String defaultValue;
+    private final String description;
 
-    public OptionParam(final Parameter parameter, final String name, final String defaultVal) {
+    public OptionParam(final Parameter parameter, final String name, final String defaultVal, final String description) {
         super(parameter);
 
         this.name = name;
         this.defaultValue = defaultVal == null ? initDefault() : defaultVal;
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public static List<String> getSeparatedValues(final String value) {

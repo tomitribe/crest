@@ -123,7 +123,7 @@ public class CmdMethod implements Cmd {
         this.defaultsFinder = defaultsFinder;
         this.name = Commands.name(method);
 
-        final List<Param> parameters = buildParams(NO_PREFIX, null, Reflection.params(method));
+        final List<Param> parameters = buildParams(null, NO_PREFIX, null, Reflection.params(method));
 
         this.parameters = Collections.unmodifiableList(parameters);
 
@@ -133,7 +133,7 @@ public class CmdMethod implements Cmd {
         validate();
     }
 
-    private List<Param> buildParams(final String[] inPrefixes, final Defaults defaults, final Iterable<Parameter> params) {
+    private List<Param> buildParams(final String globalDescription, final String[] inPrefixes, final Defaults defaults, final Iterable<Parameter> params) {
         final String[] prefixes = inPrefixes == null ? NO_PREFIX : inPrefixes;
         final List<Param> parameters = new ArrayList<Param>();
         for (final Parameter parameter : params) {
@@ -145,7 +145,8 @@ public class CmdMethod implements Cmd {
                 if (parameter.getType().isAnnotationPresent(Options.class)) {
 
                     final Defaults defaultMappings = parameter.getAnnotation(Defaults.class);
-                    final ComplexParam complexParam = new ComplexParam(option.value(), defaultMappings == null ? null : defaultMappings, parameter);
+                    final ComplexParam complexParam = new ComplexParam(
+                        option.value(), option.description(), defaultMappings == null ? null : defaultMappings, parameter);
 
                     parameters.add(complexParam);
 
@@ -157,15 +158,19 @@ public class CmdMethod implements Cmd {
                     final String shortName = option.value()[0];
                     final String mainOption = prefixes[0] + shortName;
                     String def = null;
+                    String description = option.description();
                     if (defaults != null) {
                         for (final Defaults.DefaultMapping mapping : defaults.value()) {
                             if (mapping.name().equals(shortName)) {
                                 def = mapping.value();
+                                if (!mapping.description().isEmpty()) {
+                                    def = mapping.description();
+                                }
                                 break;
                             }
                         }
                     }
-                    final OptionParam optionParam = new OptionParam(parameter, mainOption, def);
+                    final OptionParam optionParam = new OptionParam(parameter, mainOption, def, (globalDescription != null ? globalDescription : "") + description);
 
                     final OptionParam existing = spec.options.put(mainOption, optionParam);
                     if (existing != null) {
@@ -197,7 +202,7 @@ public class CmdMethod implements Cmd {
                 }
             } else if (parameter.getType().isAnnotationPresent(Options.class)) {
 
-                final ComplexParam complexParam = new ComplexParam(null, null, parameter);
+                final ComplexParam complexParam = new ComplexParam(null, null, null, parameter);
 
                 parameters.add(complexParam);
 
@@ -220,12 +225,12 @@ public class CmdMethod implements Cmd {
         private final Constructor<?> constructor;
         private final String[] prefixes;
 
-        private ComplexParam(final String[] prefixes, final Defaults defaults, final Parameter parent) {
+        private ComplexParam(final String[] prefixes, final String globalDescription, final Defaults defaults, final Parameter parent) {
             super(parent);
 
             this.prefixes = prefixes;
             this.constructor = parent.getType().getConstructors()[0];
-            this.parameters = Collections.unmodifiableList(buildParams(prefixes, defaults, Reflection.params(constructor)));
+            this.parameters = Collections.unmodifiableList(buildParams(globalDescription, prefixes, defaults, Reflection.params(constructor)));
         }
 
         public Object convert(final Arguments arguments, final Needed needed) {

@@ -592,21 +592,21 @@ public class ColorfulCmd {
 }
 ----
 
-To identify `Params` as an "option aware" parameter just decorate it with `@Options`:
+To identify `Color` as an "option aware" parameter just decorate it with `@Options`:
 
 [source,java]
 ----
 @Options
-public class Params { // getters omitted for brevity
+public class Color { // getters omitted for brevity
     private final int r;
     private final int g;
     private final int b;
     private final int a;
 
-    public Params(@Option("r") @Default("255") final int r,
-                  @Option("g") @Default("255") final int g,
-                  @Option("b") @Default("255") final int b,
-                  @Option("a") @Default("255") final int a) {
+    public Color(@Option("r") @Default("255") final int r,
+                 @Option("g") @Default("255") final int g,
+                 @Option("b") @Default("255") final int b,
+                 @Option("a") @Default("255") final int a) {
         this.r = r;
         this.g = g;
         this.b = b;

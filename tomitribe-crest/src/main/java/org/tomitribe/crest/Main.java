@@ -179,7 +179,7 @@ public class Main implements Completer {
     public Object exec(String... args) throws Exception {
         final List<String> list = processSystemProperties(args);
 
-        final String command = (list.size() == 0) ? "help" : list.remove(0);
+        final String command = (list.isEmpty()) ? "help" : list.remove(0);
         args = list.toArray(new String[list.size()]);
 
         final Cmd cmd = commands.get(command);
@@ -220,7 +220,7 @@ public class Main implements Completer {
     public Collection<String> complete(final String buffer, final int cursorPosition) {
         final List<String> cmds = new ArrayList<String>();
 
-        if (buffer == null || buffer.length() == 0) {
+        if (buffer == null || buffer.isEmpty()) {
             final Set<String> cmd = commands.keySet();
             for (final String s : cmd) {
                 cmds.add(s + " ");

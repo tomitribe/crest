@@ -43,7 +43,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojoTest {
         mojo.execute();
 
         final BufferedReader reader = new BufferedReader(new FileReader(mojo.output));
-        final Collection<String> found = new HashSet<String>();
+        final Collection<String> found = new HashSet<>();
         String line;
         while ((line = reader.readLine()) != null) {
             found.add(line);

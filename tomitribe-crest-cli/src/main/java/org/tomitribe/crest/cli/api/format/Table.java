@@ -31,7 +31,7 @@ public class Table {
     private static final String LINE_CHAR = "-";
     private static final char EMPTY_CHAR = ' ';
 
-    private final List<Row> rows = new LinkedList<Row>();
+    private final List<Row> rows = new LinkedList<>();
     private final String cr;
     private final Row header;
 
@@ -45,7 +45,7 @@ public class Table {
             throw new IllegalArgumentException("columns should have all the same size");
         }
 
-        final Collection<String> str = new ArrayList<String>(columns.length);
+        final Collection<String> str = new ArrayList<>(columns.length);
         for (final Object o : columns) {
             str.add(String.valueOf(o));
         }
@@ -67,7 +67,7 @@ public class Table {
     }
 
     public void printHorizontal(final PrintStream printStream) {
-        final List<Integer> width = new ArrayList<Integer>(rows.size());
+        final List<Integer> width = new ArrayList<>(rows.size());
         for (int i = 0; i < header.columns.length; i++) {
             if (width.size() <= i) {
                 width.add(header.columns[i].length());

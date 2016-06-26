@@ -108,9 +108,9 @@ public class CmdMethod implements Cmd {
     private volatile List<ParameterMetadata> parameterMetadatas;
 
     public class Spec {
-        private final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
-        private final Map<String, OptionParam> aliases = new TreeMap<String, OptionParam>();
-        private final List<Param> arguments = new LinkedList<Param>();
+        private final Map<String, OptionParam> options = new TreeMap<>();
+        private final Map<String, OptionParam> aliases = new TreeMap<>();
+        private final List<Param> arguments = new LinkedList<>();
     }
 
     public CmdMethod(final Method method, final DefaultsContext defaultsFinder) {
@@ -135,7 +135,7 @@ public class CmdMethod implements Cmd {
 
     private List<Param> buildParams(final String globalDescription, final String[] inPrefixes, final Defaults defaults, final Iterable<Parameter> params) {
         final String[] prefixes = inPrefixes == null ? NO_PREFIX : inPrefixes;
-        final List<Param> parameters = new ArrayList<Param>();
+        final List<Param> parameters = new ArrayList<>();
         for (final Parameter parameter : params) {
 
             if (parameter.isAnnotationPresent(Option.class)) {
@@ -303,7 +303,7 @@ public class CmdMethod implements Cmd {
             }
         }
 
-        final List<Object> args = new ArrayList<Object>();
+        final List<Object> args = new ArrayList<>();
 
         for (final Param parameter : spec.arguments) {
             boolean skip = Environment.class.isAssignableFrom(parameter.getType());
@@ -369,7 +369,7 @@ public class CmdMethod implements Cmd {
     }
 
     private List<ParameterMetadata> buildApiParameterViews(final List<Param> parameters) {
-        final List<ParameterMetadata> parameterMetadatas = new ArrayList<ParameterMetadata>();
+        final List<ParameterMetadata> parameterMetadatas = new ArrayList<>();
         for (final Param param : parameters) {
             // precompute all values to get a fast runtime immutable structure
             final ParameterMetadata.ParamType type = OptionParam.class.isInstance(param) ?  OPTION :
@@ -534,7 +534,7 @@ public class CmdMethod implements Cmd {
          *
          * Thus, iteration order is very significant in this loop.
          */
-        final List<Object> converted = new ArrayList<Object>();
+        final List<Object> converted = new ArrayList<>();
         final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
         for (final Param parameter : parameters1) {
             final ParameterMetadata apiView = parameter.getApiView();
@@ -583,7 +583,7 @@ public class CmdMethod implements Cmd {
 
     private void fillPlainParameter(final Arguments args, final Needed needed, final List<Object> converted, final Param parameter) {
         if (parameter.isListable()) {
-            final List<String> glob = new ArrayList<String>(args.list.size());
+            final List<String> glob = new ArrayList<>(args.list.size());
             for (int i = args.list.size(); i > needed.count; i--) {
                 glob.add(args.list.remove(0));
             }
@@ -667,36 +667,36 @@ public class CmdMethod implements Cmd {
 
             // Sets
             if (NavigableSet.class.isAssignableFrom(aClass)) {
-                return new TreeSet<Object>();
+                return new TreeSet<>();
             }
             if (SortedSet.class.isAssignableFrom(aClass)) {
-                return new TreeSet<Object>();
+                return new TreeSet<>();
             }
             if (Set.class.isAssignableFrom(aClass)) {
-                return new LinkedHashSet<Object>();
+                return new LinkedHashSet<>();
             }
 
             // Queues
             if (Deque.class.isAssignableFrom(aClass)) {
-                return new LinkedList<Object>();
+                return new LinkedList<>();
             }
             if (Queue.class.isAssignableFrom(aClass)) {
-                return new LinkedList<Object>();
+                return new LinkedList<>();
             }
 
             // Lists
             if (List.class.isAssignableFrom(aClass)) {
-                return new ArrayList<Object>();
+                return new ArrayList<>();
             }
 
             // Collection
             if (Collection.class.isAssignableFrom(aClass)) {
-                return new LinkedList<Object>();
+                return new LinkedList<>();
             }
 
             // Iterable
             if (Iterable.class.isAssignableFrom(aClass)) {
-                return new LinkedList<Object>();
+                return new LinkedList<>();
             }
 
             throw new IllegalStateException("Unsupported Collection type: " + aClass.getName());
@@ -725,7 +725,7 @@ public class CmdMethod implements Cmd {
     }
 
     public Map<String, String> getDefaults() {
-        final Map<String, String> options = new HashMap<String, String>();
+        final Map<String, String> options = new HashMap<>();
 
         for (final OptionParam parameter : spec.options.values()) {
             options.put(parameter.getName(), parameter.getDefaultValue());
@@ -735,16 +735,16 @@ public class CmdMethod implements Cmd {
     }
 
     private class Arguments {
-        private final List<String> list = new ArrayList<String>();
-        private final Map<String, String> options = new HashMap<String, String>();
+        private final List<String> list = new ArrayList<>();
+        private final Map<String, String> options = new HashMap<>();
 
         private Arguments(final String[] rawArgs) {
 
             final Map<String, String> defaults = getDefaults();
-            final Map<String, String> supplied = new HashMap<String, String>();
+            final Map<String, String> supplied = new HashMap<>();
 
-            final List<String> invalid = new ArrayList<String>();
-            final Set<String> repeated = new HashSet<String>();
+            final List<String> invalid = new ArrayList<>();
+            final Set<String> repeated = new HashSet<>();
 
             // Read in and apply the options specified on the command line
             for (final String arg : rawArgs) {
@@ -804,7 +804,7 @@ public class CmdMethod implements Cmd {
                     return;
                 }
 
-                final Set<String> opts = new HashSet<String>();
+                final Set<String> opts = new HashSet<>();
                 for (final String opt : name.split("(?!^)")) {
                     opts.add(opt);
                 }
@@ -890,7 +890,7 @@ public class CmdMethod implements Cmd {
         }
 
         private void checkRequired(final Map<String, String> supplied) {
-            final List<String> required = new ArrayList<String>();
+            final List<String> required = new ArrayList<>();
             for (final Param parameter : spec.options.values()) {
                 if (!parameter.isAnnotationPresent(Required.class)) {
                     continue;
@@ -924,7 +924,7 @@ public class CmdMethod implements Cmd {
 
     @Override
     public Collection<String> complete(final String buffer, final int cursorPosition) {
-        final List<String> result = new ArrayList<String>();
+        final List<String> result = new ArrayList<>();
         final String commandLine = buffer.substring(0, cursorPosition);
         final String[] args = CommandLine.translateCommandline(commandLine);
 
@@ -941,7 +941,7 @@ public class CmdMethod implements Cmd {
     }
 
     private Collection<String> findMatcingParametersOptions(String prefix, boolean isIncludeAliasChar) {
-        final List<String> result = new ArrayList<String>();
+        final List<String> result = new ArrayList<>();
         for (Param param : parameters) {
             if (param instanceof OptionParam) {
                 final OptionParam optionParam = (OptionParam) param;
@@ -966,7 +966,7 @@ public class CmdMethod implements Cmd {
     }
 
     private Collection<String> findMatchingAliasOptions(String prefix, boolean isIncludeAliasChar) {
-        final List<String> result = new ArrayList<String>();
+        final List<String> result = new ArrayList<>();
         for (String alias : spec.aliases.keySet()) {
             if (alias.startsWith(prefix)) {
                 if (alias.startsWith("-")) {
@@ -983,7 +983,7 @@ public class CmdMethod implements Cmd {
     }
 
     private Collection<String> findMatchingOptions(String prefix, boolean isIncludeAliasChar) {
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList<>();
         results.addAll(findMatcingParametersOptions(prefix, isIncludeAliasChar));
         results.addAll(findMatchingAliasOptions(prefix, isIncludeAliasChar));
         return results;

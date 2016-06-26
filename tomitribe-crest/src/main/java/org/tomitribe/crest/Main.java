@@ -47,8 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Main implements Completer {
 
-    protected final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
-    protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<Class<?>, InternalInterceptor>();
+    protected final Map<String, Cmd> commands = new ConcurrentHashMap<>();
+    protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<>();
 
     public Main() {
         this(new SystemPropertiesDefaultsContext(), Commands.load());
@@ -197,7 +197,7 @@ public class Main implements Completer {
     }
 
     public static List<String> processSystemProperties(final String[] args) {
-        final List<String> list = new ArrayList<String>();
+        final List<String> list = new ArrayList<>();
 
         // Read in and apply the properties specified on the command line
         for (final String arg : args) {
@@ -218,7 +218,7 @@ public class Main implements Completer {
 
     @Override
     public Collection<String> complete(final String buffer, final int cursorPosition) {
-        final List<String> cmds = new ArrayList<String>();
+        final List<String> cmds = new ArrayList<>();
 
         if (buffer == null || buffer.length() == 0) {
             final Set<String> cmd = commands.keySet();

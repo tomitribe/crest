@@ -52,7 +52,7 @@ public class Commands {
     }
 
     public static Iterable<Method> commands(final Class<?> clazz) {
-        return new FilteredIterable<Method>(Reflection.methods(clazz),
+        return new FilteredIterable<>(Reflection.methods(clazz),
                 new FilteredIterator.Filter<Method>() {
                     @Override
                     public boolean accept(final Method method) {
@@ -83,7 +83,7 @@ public class Commands {
             throw new IllegalArgumentException("Target cannot be null");
         }
 
-        final Map<String, Cmd> map = new HashMap<String, Cmd>();
+        final Map<String, Cmd> map = new HashMap<>();
 
         for (final Method method : commands(clazz)) {
 
@@ -113,7 +113,7 @@ public class Commands {
 
             final CmdGroup cmdGroup = new CmdGroup(clazz, map);
 
-            final HashMap<String, Cmd> group = new HashMap<String, Cmd>();
+            final HashMap<String, Cmd> group = new HashMap<>();
             group.put(cmdGroup.getName(), cmdGroup);
 
             return group;
@@ -165,7 +165,7 @@ public class Commands {
         final Iterator<Loader> all = ServiceLoader.load(Loader.class, loader).iterator();
 
         // Let them tell is the list of classes to use
-        final LinkedHashSet<Class<?>> classes = new LinkedHashSet<Class<?>>();
+        final LinkedHashSet<Class<?>> classes = new LinkedHashSet<>();
 
         while (all.hasNext()) {
             final Iterable<Class<?>> c = all.next();

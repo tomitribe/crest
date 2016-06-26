@@ -50,7 +50,7 @@ public class OptionParam extends Param {
         if (value == null) {
             return Collections.EMPTY_LIST;
         }
-        final List<String> split = new ArrayList<String>(Arrays.asList(value.split(LIST_TYPE + "|" + LIST_SEPARATOR)));
+        final List<String> split = new ArrayList<>(Arrays.asList(value.split(LIST_TYPE + "|" + LIST_SEPARATOR)));
         if (split.size() > 0) {
             split.remove(0);
         }

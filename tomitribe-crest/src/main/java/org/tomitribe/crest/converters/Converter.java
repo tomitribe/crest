@@ -125,7 +125,9 @@ public class Converter {
         }
 
         for (final Method method : type.getMethods()) {
-            if (isInvalidMethod(type, method)) { continue; }
+            if (isInvalidMethod(type, method)) {
+                continue;
+            }
 
             try {
                 return method.invoke(null, value);
@@ -143,8 +145,7 @@ public class Converter {
             !Modifier.isPublic(method.getModifiers()) ||
             !method.getReturnType().equals(type) ||
             !method.getParameterTypes()[0].equals(String.class) ||
-            method.getParameterTypes().length != 1)
-        {
+            method.getParameterTypes().length != 1) {
             return true;
         }
         return false;

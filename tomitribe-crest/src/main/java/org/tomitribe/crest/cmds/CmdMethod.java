@@ -773,8 +773,7 @@ public class CmdMethod implements Cmd {
                                 final Map<String, String> defaults,
                                 final Map<String, String> supplied,
                                 final List<String> invalid,
-                                final Set<String> repeated)
-        {
+                                final Set<String> repeated) {
             String name;
             String value;
             String prefix = defaultPrefix;
@@ -834,8 +833,7 @@ public class CmdMethod implements Cmd {
                                    final Map<String, String> defaults, 
                                    final Map<String, String> supplied,
                                    final List<String> invalid, 
-                                   final Set<String> repeated)
-        {
+                                   final Set<String> repeated) {
             
             String name = optName;
             String value = optValue;

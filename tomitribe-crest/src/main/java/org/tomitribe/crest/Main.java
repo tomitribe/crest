@@ -238,7 +238,7 @@ public class Main implements Completer {
             final String prefix = buffer.substring(0, cursorPosition);
             Iterator<String> iterator = commands.keySet().iterator();
             while (iterator.hasNext()) {
-                final String command = (String) iterator.next();
+                final String command = iterator.next();
                 if (command.startsWith(prefix)) {
                     cmds.add(command + " ");
                 }
@@ -254,7 +254,7 @@ public class Main implements Completer {
         final Iterator<String> iterator = this.commands.keySet().iterator();
 
         while (iterator.hasNext()) {
-            String cmd = (String) iterator.next();
+            String cmd = iterator.next();
             if (cmd.equals(commandName)) {
                 return this.commands.get(cmd);
             }

@@ -514,11 +514,11 @@ public class CmdMethod implements Cmd {
 
         final List<Object> converted = convert(args, needed, parameters);
 
-        if (args.list.size() > 0) {
+        if (!args.list.isEmpty()) {
             throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", args.list));
         }
 
-        if (args.options.size() > 0) {
+        if (!args.options.isEmpty()) {
             throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", STRING_NAME_CALLBACK, args.options.keySet()));
         }
 
@@ -554,7 +554,7 @@ public class CmdMethod implements Cmd {
                 case SERVICE:
                     converted.add(environment.findService(parameter.getType()));
                     break;
-                case PLAIN: if (args.list.size() > 0) {
+                case PLAIN: if (!args.list.isEmpty()) {
                         needed.count--;
                         fillPlainParameter(args, needed, converted, parameter);
                     }
@@ -597,7 +597,7 @@ public class CmdMethod implements Cmd {
     private static Object convert(final Param parameter, final List<String> values, final String name) {
         final Class<?> type = parameter.getListableType();
 
-        if (parameter.isAnnotationPresent(Required.class) && values.size() == 0) {
+        if (parameter.isAnnotationPresent(Required.class) && values.isEmpty()) {
             if (parameter instanceof OptionParam) {
                 final OptionParam optionParam = (OptionParam) parameter;
                 throw new IllegalArgumentException(String.format("--%s must be specified at least once",
@@ -884,7 +884,7 @@ public class CmdMethod implements Cmd {
         }
 
         private void checkInvalid(final List<String> invalid) {
-            if (invalid.size() > 0) {
+            if (!invalid.isEmpty()) {
                 throw new IllegalArgumentException("Unknown options: " + Join.join(", ", STRING_NAME_CALLBACK, invalid));
             }
         }
@@ -905,13 +905,13 @@ public class CmdMethod implements Cmd {
                 }
             }
 
-            if (required.size() > 0) {
+            if (!required.isEmpty()) {
                 throw new IllegalArgumentException("Required: " + Join.join(", ", STRING_NAME_CALLBACK, required));
             }
         }
 
         private void checkRepeated(final Set<String> repeated) {
-            if (repeated.size() > 0) {
+            if (!repeated.isEmpty()) {
                 throw new IllegalArgumentException("Cannot be specified more than once: " + Join.join(", ", repeated));
             }
         }

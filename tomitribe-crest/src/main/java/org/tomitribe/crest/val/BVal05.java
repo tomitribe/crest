@@ -55,7 +55,7 @@ public class BVal05 implements BeanValidation.BeanValidationImpl {
         try {
             final Set<ConstraintViolation<?>> violations = Set.class.cast(
                 validateMethodParameters.invoke(getValidatorObject(), instanceOrClass.getClass(), method, parameters, NO_GROUP));
-            if (violations.size() > 0) {
+            if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }
         } catch (final IllegalAccessException e) {
@@ -70,7 +70,7 @@ public class BVal05 implements BeanValidation.BeanValidationImpl {
         try {
             final Set<ConstraintViolation<?>> violations = Set.class.cast(
                 validateConstructorParamters.invoke(getValidatorObject(), constructor.getDeclaringClass(), constructor, parameters, NO_GROUP));
-            if (violations.size() > 0) {
+            if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }
         } catch (final IllegalAccessException e) {

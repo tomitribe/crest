@@ -39,7 +39,7 @@ public class BeanValidation11 implements BeanValidation.BeanValidationImpl {
         }
         final ExecutableValidator executableValidator = validatorFactory.getValidator().forExecutables();
         final Set<ConstraintViolation<Object>> violations = executableValidator.validateParameters(instanceOrClass, method, parameters);
-        if (violations.size() > 0) {
+        if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
     }
@@ -48,7 +48,7 @@ public class BeanValidation11 implements BeanValidation.BeanValidationImpl {
     public void validateParameters(final Constructor constructor, final Object[] parameters) {
         final ExecutableValidator executableValidator = validatorFactory.getValidator().forExecutables();
         final Set<ConstraintViolation<?>> violations = executableValidator.validateConstructorParameters(constructor, parameters);
-        if (violations.size() > 0) {
+        if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
     }

@@ -140,7 +140,7 @@ public class Commands {
     }
 
     public static String value(final String value, final String defaultValue) {
-        return value == null || value.length() == 0 ? defaultValue : value;
+        return value == null || value.isEmpty() ? defaultValue : value;
     }
 
     /**

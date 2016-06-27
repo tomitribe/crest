@@ -203,8 +203,8 @@ public class Main implements Completer {
         for (final String arg : args) {
             if (arg.startsWith("-D")) {
 
-                final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf("="));
-                final String value = arg.substring(arg.indexOf("=") + 1);
+                final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf('='));
+                final String value = arg.substring(arg.indexOf('=') + 1);
 
                 final Properties properties = Environment.ENVIRONMENT_THREAD_LOCAL.get().getProperties();
                 properties.setProperty(name, value);

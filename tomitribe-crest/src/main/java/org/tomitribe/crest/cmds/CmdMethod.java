@@ -779,13 +779,13 @@ public class CmdMethod implements Cmd {
             String value;
             String prefix = defaultPrefix;
 
-            if (arg.indexOf("=") > 0) {
-                name = arg.substring(arg.indexOf(prefix) + prefix.length(), arg.indexOf("="));
+            if (arg.indexOf('=') > 0) {
+                name = arg.substring(arg.indexOf(prefix) + prefix.length(), arg.indexOf('='));
                 if (!defaults.containsKey(name) && !spec.aliases.containsKey(name)) {
-                    name = arg.substring(0, arg.indexOf("="));
+                    name = arg.substring(0, arg.indexOf('='));
                     prefix = "";
                 }
-                value = arg.substring(arg.indexOf("=") + 1);
+                value = arg.substring(arg.indexOf('=') + 1);
             } else {
                 if (arg.startsWith("--no-")) {
                     name = arg.substring(5);
@@ -799,7 +799,7 @@ public class CmdMethod implements Cmd {
             if ("-".equals(prefix)) {
 
                 // reject -del=true
-                if (arg.indexOf("=") > -1 && name.length() > 1) {
+                if (arg.indexOf('=') > -1 && name.length() > 1) {
                     invalid.add(prefix + name);
                     return;
                 }

@@ -49,6 +49,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
   </properties>
 
   <repositories>
@@ -135,6 +136,8 @@
             <exclude>**/*.json</exclude>
             <exclude>src/test/resources/**/*.txt</exclude>
             <exclude>**/src/main/resources/archetype-resources/**/*</exclude>
+            <exclude>.drone.yml</exclude>
+            <exclude>.travis.yml</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -158,4 +161,18 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>windows</id>
+      <activation>
+        <os>
+          <family>Windows</family>
+        </os>
+      </activation>
+      <properties>
+        <!-- https://issues.apache.org/jira/browse/MCHECKSTYLE-324 -->
+        <checkstyle.skip>true</checkstyle.skip>
+      </properties>
+    </profile>
+  </profiles>
 </project>

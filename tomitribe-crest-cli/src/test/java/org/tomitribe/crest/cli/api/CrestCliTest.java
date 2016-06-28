@@ -37,12 +37,12 @@ import static org.junit.Assert.assertEquals;
 public class CrestCliTest {
     @Test
     public void cli() throws Exception {
-        final String input = "help\ntest\ntest | jgrep 2\nexit";
+        final String input = "help\n" + "test\n" + "test | jgrep 2\n" + "exit";
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final CrestCli cli = newTestCli(input, out, null);
         cli.run();
         assertEquals(
-            "prompt$help\n" +
+            portable("prompt$help\n" +
             "Commands: \n" +
             "                       \n" +
             "   clear               \n" +
@@ -62,7 +62,7 @@ public class CrestCliTest {
             "\n" +
             "prompt$test | jgrep 2\n" +
             "line 2\n" +
-            "prompt$exit", new String(out.toByteArray()));
+            "prompt$exit"), portable(new String(out.toByteArray())));
     }
 
     private CrestCli newTestCli(final String input, final ByteArrayOutputStream out, final File alias) {
@@ -141,7 +141,7 @@ public class CrestCliTest {
         w.write("al=test");
         w.close();
 
-        final String input = "al\nexit";
+        final String input = "al\n" + "exit";
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         newTestCli(input, out, file).run();
@@ -151,29 +151,33 @@ public class CrestCliTest {
             "line 2\n" +
             "end\n" +
             "\n" +
-            "prompt$exit", new String(out.toByteArray()));
+            "prompt$exit", portable(new String(out.toByteArray())));
     }
 
     @Test
     public void time() throws Exception {
-        final String input = "time test\nexit";
+        final String input = "time test\n" + "exit";
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         newTestCli(input, out, null).run();
         assertEquals(
-            "prompt$time test\n" +
+            portable("prompt$time test\n" +
             "line1\n" +
             "line 2\n" +
             "end\n" +
             "\n" +
             "Time 0s Xms\n" +
-            "prompt$exit", new String(out.toByteArray()).replaceAll("[0-9]+ms", "Xms"));
+            "prompt$exit"), portable(new String(out.toByteArray()).replaceAll("[0-9]+ms", "Xms")));
+    }
+
+    private static String portable(final String raw) {
+        return raw.replace("\r", "");
     }
 
     public static class MyTestCmd {
         @Command
         public static String test() {
-            return "line1\nline 2\nend";
+            return "line1\n" + "line 2\n" + "end";
         }
     }
 }

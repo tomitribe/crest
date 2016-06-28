@@ -40,7 +40,7 @@ public class CommandLine {
         final int inDoubleQuote = 2;
         int state = normal;
         StringTokenizer tok = new StringTokenizer(toProcess, "\"\' ", true);
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         StringBuffer current = new StringBuffer();
         boolean lastTokenHasBeenQuoted = false;
 

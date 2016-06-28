@@ -232,7 +232,7 @@ public class HelpTest extends Assert {
 
     @Test
     public void test() throws Exception {
-        final Map<Class, Map<String, Cmd>> parsed = new HashMap<Class, Map<String, Cmd>>();
+        final Map<Class, Map<String, Cmd>> parsed = new HashMap<>();
 
         final File base = getHelpBase();
 
@@ -373,7 +373,7 @@ public class HelpTest extends Assert {
 
         final AnnotationFinder finder = new AnnotationFinder(archive);
 
-        final Set<Class> classes = new TreeSet<Class>(new Comparator<Class>() {
+        final Set<Class> classes = new TreeSet<>(new Comparator<Class>() {
             @Override
             public int compare(final Class o1, final Class o2) {
                 return o1.getName().compareTo(o2.getName());

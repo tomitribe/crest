@@ -88,11 +88,11 @@ public final class ParameterVisitor {
             return null;
         }
 
-        List<Object> constructorParam = bean == null ? new ArrayList<Object>() : null;
+        List<Object> constructorParam = bean == null ? new ArrayList<>() : null;
         try {
             final Constructor constructor = Class.class.cast(type).getConstructors()[0];
             final BeanInfo descriptor = Introspector.getBeanInfo(Class.class.cast(type));
-            final Map<String, PropertyDescriptor> descriptorMap = new HashMap<String, PropertyDescriptor>();
+            final Map<String, PropertyDescriptor> descriptorMap = new HashMap<>();
             for (final PropertyDescriptor d : descriptor.getPropertyDescriptors()) {
                 descriptorMap.put(d.getName(), d);
             }

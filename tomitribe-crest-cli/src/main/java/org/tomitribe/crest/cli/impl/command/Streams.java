@@ -55,7 +55,7 @@ public class Streams {
         if (pattern == null) {
             throw new NullPointerException("Pattern shouldnt be null");
         }
-        final Collection<Predicate<String>> predicates = new ArrayList<Predicate<String>>();
+        final Collection<Predicate<String>> predicates = new ArrayList<>();
         for (final String patt : pattern.split("\\|")) {
             predicates.add(isRegex ?
                 new Predicate<String>() {

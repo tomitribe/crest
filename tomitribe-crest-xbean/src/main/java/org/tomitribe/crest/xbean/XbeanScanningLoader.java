@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 public abstract class XbeanScanningLoader implements Commands.Loader {
-    final Set<Class<?>> classes = new HashSet<Class<?>>();
+    final Set<Class<?>> classes = new HashSet<>();
 
     public XbeanScanningLoader(final Archive archive) {
         final AnnotationFinder finder = new AnnotationFinder(archive);

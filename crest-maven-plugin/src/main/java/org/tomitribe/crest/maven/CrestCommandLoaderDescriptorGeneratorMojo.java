@@ -59,7 +59,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
         }
 
         // find commands
-        final Collection<String> commands = new TreeSet<String>(); // sorted if a human wants to check it
+        final Collection<String> commands = new TreeSet<>(); // sorted if a human wants to check it
         try {
             scan(commands, classes);
         } catch (final IOException e) {

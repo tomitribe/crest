@@ -39,7 +39,7 @@ public class OverloadedCmdMethod implements Cmd {
     public OverloadedCmdMethod(final String name) {
         this.name = name;
 
-        this.methods = new TreeSet<CmdMethod>(new Comparator<CmdMethod>() {
+        this.methods = new TreeSet<>(new Comparator<CmdMethod>() {
             @Override
             public int compare(final CmdMethod a, final CmdMethod b) {
                 return a.getArgumentParameters().size() - b.getArgumentParameters().size();
@@ -111,7 +111,7 @@ public class OverloadedCmdMethod implements Cmd {
         }
         out.println();
 
-        final Map<String, OptionParam> options = new TreeMap<String, OptionParam>();
+        final Map<String, OptionParam> options = new TreeMap<>();
         for (final CmdMethod method : methods) {
             options.putAll(method.getOptionParameters());
         }

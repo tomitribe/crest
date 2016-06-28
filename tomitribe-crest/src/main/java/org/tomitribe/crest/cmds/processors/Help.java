@@ -53,7 +53,7 @@ public class Help {
 
         ResourceBundle general = null; // lazily loaded cause breaks the annotation driven API so not considered as default
 
-        final List<Item> items = new ArrayList<Item>(optionParams.size());
+        final List<Item> items = new ArrayList<>(optionParams.size());
 
         int width = 20;
         for (final OptionParam optionParam : optionParams) {
@@ -75,7 +75,7 @@ public class Help {
         out.println("Options: ");
 
         for (final Item item : items) {
-            final List<String> lines = new ArrayList<String>();
+            final List<String> lines = new ArrayList<>();
 
             if (item.description != null) {
                 lines.add(item.description);
@@ -129,14 +129,14 @@ public class Help {
     private static class Item {
 
         private final String flag;
-        private final List<String> note = new LinkedList<String>();
+        private final List<String> note = new LinkedList<>();
         private final String description;
 
         private Item(final OptionParam p, final String description) {
             this.description = description;
             final String prefix = p.getName().length() > 1 ? "--" : "-";
             
-            final List<String> alias = new ArrayList<String>();
+            final List<String> alias = new ArrayList<>();
 
             Option option = p.getAnnotation(Option.class);
             for (int i = 1; i < option.value().length; i++) {
@@ -216,7 +216,7 @@ public class Help {
         string.printf("   %-20s", "");
         string.println();
 
-        final SortedSet<String> strings = new TreeSet<String>(new Comparator<String>() {
+        final SortedSet<String> strings = new TreeSet<>(new Comparator<String>() {
             @Override
             public int compare(final String s1, final String s2) {
                 assert null != s1;

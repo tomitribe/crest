@@ -76,7 +76,7 @@ public class BeanValidation {
         if (!ConstraintViolationException.class.isInstance(e)) {
             return singletonList(e.getMessage());
         }
-        final Collection<String> msg = new LinkedList<String>();
+        final Collection<String> msg = new LinkedList<>();
         final ConstraintViolationException cve = (ConstraintViolationException) e;
         for (final ConstraintViolation<?> violation : cve.getConstraintViolations()) {
             msg.add(violation.getMessage());

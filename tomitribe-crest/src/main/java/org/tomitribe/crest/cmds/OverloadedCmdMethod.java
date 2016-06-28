@@ -96,7 +96,7 @@ public class OverloadedCmdMethod implements Cmd {
 
     @Override
     public void help(final PrintStream out) {
-        if (methods.size() == 0) {
+        if (methods.isEmpty()) {
             throw new IllegalStateException("No method in group: " + name);
         }
 

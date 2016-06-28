@@ -46,9 +46,8 @@ public class Help {
     }
 
     public static void optionHelp(final Class<?> clazz, final String commandName,
-                                  final Collection<OptionParam> optionParams, final PrintStream out)
-    {
-        if (optionParams.size() == 0) {
+                                  final Collection<OptionParam> optionParams, final PrintStream out) {
+        if (optionParams.isEmpty()) {
             return;
         }
 
@@ -83,7 +82,7 @@ public class Help {
             }
 
             lines.addAll(item.note);
-            if (lines.size() == 0) {
+            if (lines.isEmpty()) {
                 lines.add("");
             }
 
@@ -145,7 +144,7 @@ public class Help {
                 alias.add(aliasName);
             }
 
-            final boolean hasAlias = alias.size() > 0;
+            final boolean hasAlias = !alias.isEmpty();
             final Class<?> type = p.getType();
 
             String defaultValue = p.getDefaultValue();
@@ -173,7 +172,7 @@ public class Help {
                 if (p.isListable()) {
                     final List<String> defaultValues = p.getDefaultValues();
 
-                    if (defaultValues.size() > 0) {
+                    if (!defaultValues.isEmpty()) {
                         this.note.add(String.format("default: %s", Join.join(", ", defaultValues)));
                     }
 

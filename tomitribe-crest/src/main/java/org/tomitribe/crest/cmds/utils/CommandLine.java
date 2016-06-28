@@ -29,7 +29,7 @@ public class CommandLine {
     }
     
     public static String[] translateCommandline(String toProcess) {
-        if (toProcess == null || toProcess.length() == 0) {
+        if (toProcess == null || toProcess.isEmpty()) {
             // no command? no string
             return new String[0];
         }

@@ -514,11 +514,11 @@ public class CmdMethod implements Cmd {
 
         final List<Object> converted = convert(args, needed, parameters);
 
-        if (args.list.size() > 0) {
+        if (!args.list.isEmpty()) {
             throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", args.list));
         }
 
-        if (args.options.size() > 0) {
+        if (!args.options.isEmpty()) {
             throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", STRING_NAME_CALLBACK, args.options.keySet()));
         }
 
@@ -554,7 +554,7 @@ public class CmdMethod implements Cmd {
                 case SERVICE:
                     converted.add(environment.findService(parameter.getType()));
                     break;
-                case PLAIN: if (args.list.size() > 0) {
+                case PLAIN: if (!args.list.isEmpty()) {
                         needed.count--;
                         fillPlainParameter(args, needed, converted, parameter);
                     }
@@ -597,7 +597,7 @@ public class CmdMethod implements Cmd {
     private static Object convert(final Param parameter, final List<String> values, final String name) {
         final Class<?> type = parameter.getListableType();
 
-        if (parameter.isAnnotationPresent(Required.class) && values.size() == 0) {
+        if (parameter.isAnnotationPresent(Required.class) && values.isEmpty()) {
             if (parameter instanceof OptionParam) {
                 final OptionParam optionParam = (OptionParam) parameter;
                 throw new IllegalArgumentException(String.format("--%s must be specified at least once",
@@ -773,19 +773,18 @@ public class CmdMethod implements Cmd {
                                 final Map<String, String> defaults,
                                 final Map<String, String> supplied,
                                 final List<String> invalid,
-                                final Set<String> repeated)
-        {
+                                final Set<String> repeated) {
             String name;
             String value;
             String prefix = defaultPrefix;
 
-            if (arg.indexOf("=") > 0) {
-                name = arg.substring(arg.indexOf(prefix) + prefix.length(), arg.indexOf("="));
+            if (arg.indexOf('=') > 0) {
+                name = arg.substring(arg.indexOf(prefix) + prefix.length(), arg.indexOf('='));
                 if (!defaults.containsKey(name) && !spec.aliases.containsKey(name)) {
-                    name = arg.substring(0, arg.indexOf("="));
+                    name = arg.substring(0, arg.indexOf('='));
                     prefix = "";
                 }
-                value = arg.substring(arg.indexOf("=") + 1);
+                value = arg.substring(arg.indexOf('=') + 1);
             } else {
                 if (arg.startsWith("--no-")) {
                     name = arg.substring(5);
@@ -799,7 +798,7 @@ public class CmdMethod implements Cmd {
             if ("-".equals(prefix)) {
 
                 // reject -del=true
-                if (arg.indexOf("=") > -1 && name.length() > 1) {
+                if (arg.indexOf('=') > -1 && name.length() > 1) {
                     invalid.add(prefix + name);
                     return;
                 }
@@ -834,8 +833,7 @@ public class CmdMethod implements Cmd {
                                    final Map<String, String> defaults, 
                                    final Map<String, String> supplied,
                                    final List<String> invalid, 
-                                   final Set<String> repeated)
-        {
+                                   final Set<String> repeated) {
             
             String name = optName;
             String value = optValue;
@@ -884,7 +882,7 @@ public class CmdMethod implements Cmd {
         }
 
         private void checkInvalid(final List<String> invalid) {
-            if (invalid.size() > 0) {
+            if (!invalid.isEmpty()) {
                 throw new IllegalArgumentException("Unknown options: " + Join.join(", ", STRING_NAME_CALLBACK, invalid));
             }
         }
@@ -905,13 +903,13 @@ public class CmdMethod implements Cmd {
                 }
             }
 
-            if (required.size() > 0) {
+            if (!required.isEmpty()) {
                 throw new IllegalArgumentException("Required: " + Join.join(", ", STRING_NAME_CALLBACK, required));
             }
         }
 
         private void checkRepeated(final Set<String> repeated) {
-            if (repeated.size() > 0) {
+            if (!repeated.isEmpty()) {
                 throw new IllegalArgumentException("Cannot be specified more than once: " + Join.join(", ", repeated));
             }
         }

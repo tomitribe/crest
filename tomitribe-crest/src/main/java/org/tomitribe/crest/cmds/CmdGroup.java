@@ -148,7 +148,7 @@ public class CmdGroup implements Cmd {
                 // look at all the possible commands and return those that match
                 final Iterator<String> iterator = commands.keySet().iterator();
                 while (iterator.hasNext()) {
-                    final String commandName = (String) iterator.next();
+                    final String commandName = iterator.next();
                     if (commandName.startsWith(prefix)) {
                         results.add(commandName + " ");
                     }

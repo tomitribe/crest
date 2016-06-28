@@ -1,4 +1,6 @@
 language: java
+before_script:
+  - export MAVEN_SKIP_RC=true
 jdk:
   - openjdk7
   - oraclejdk8

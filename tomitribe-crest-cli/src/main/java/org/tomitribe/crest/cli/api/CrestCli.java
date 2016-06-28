@@ -119,7 +119,7 @@ public class CrestCli {
                 @Override
                 public int complete(final String buffer, final int cursor, final List<CharSequence> candidates) {
                     candidates.addAll(main.complete(buffer, cursor));
-                    return buffer.lastIndexOf(" ", cursor) + 1; // TODO: enhance it
+                    return buffer.lastIndexOf(' ', cursor) + 1; // TODO: enhance it
                 }
             });
 

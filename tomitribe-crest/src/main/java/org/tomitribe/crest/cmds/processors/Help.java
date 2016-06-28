@@ -46,8 +46,7 @@ public class Help {
     }
 
     public static void optionHelp(final Class<?> clazz, final String commandName,
-                                  final Collection<OptionParam> optionParams, final PrintStream out)
-    {
+                                  final Collection<OptionParam> optionParams, final PrintStream out) {
         if (optionParams.isEmpty()) {
             return;
         }

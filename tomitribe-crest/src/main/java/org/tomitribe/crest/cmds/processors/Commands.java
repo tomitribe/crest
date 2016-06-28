@@ -180,12 +180,8 @@ public class Commands {
                 final Enumeration<URL> urls = loader.getResources(prefix + "crest-commands.txt");
                 while (urls.hasMoreElements()) {
                     final URL url = urls.nextElement();
-                    InputStream stream = null;
-                    try {
-                        stream = url.openStream();
-                        BufferedReader reader = null;
-                        try {
-                            reader = new BufferedReader(new InputStreamReader(stream));
+                    try (InputStream stream = url.openStream();
+                         BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
                             String line;
                             while ((line = reader.readLine()) != null) {
                                 try {
@@ -194,21 +190,8 @@ public class Commands {
                                     // no-op: we can log it but don't fail cause one command didn't load
                                 }
                             }
-                        } finally {
-                            if (reader != null) {
-                                reader.close();
-                            }
-                        }
                     } catch (final IOException ioe) {
                         // no-op
-                    } finally {
-                        if (stream != null) {
-                            try {
-                                stream.close();
-                            }catch (final IOException ioe) {
-                                // no-op
-                            }
-                        }
                     }
                 }
             } catch (final IOException e) {

@@ -74,9 +74,7 @@ public class Streams {
                 });
         }
 
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(in));
+         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 for (final Predicate<String> p : predicates) {
@@ -88,14 +86,6 @@ public class Streams {
             }
         } catch (final IOException e) {
             throw new IllegalStateException(e);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (final IOException e) {
-                // no-op
-            }
         }
     }
 
@@ -106,40 +96,20 @@ public class Streams {
                           @Out final PrintStream out) {
         int count = 0;
         if (characters) {
-            Reader reader = null;
-            try {
-                reader = new InputStreamReader(in);
+            try (Reader reader = new InputStreamReader(in)) {
                 while (reader.read() >= 0) {
                     count++;
                 }
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
-            } finally {
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch (final IOException e) {
-                    // no-op
-                }
             }
         } else if (line) {
-            BufferedReader reader = null;
-            try {
-                reader = new BufferedReader(new InputStreamReader(in));
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                 while (reader.readLine() != null) {
                     count++;
                 }
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
-            } finally {
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch (final IOException e) {
-                    // no-op
-                }
             }
         } else {
             throw new IllegalStateException("wc needs at least one active option");
@@ -167,23 +137,13 @@ public class Streams {
         final boolean global = command.endsWith("/g");
         final Pattern compiled = Pattern.compile(pattern);
 
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(in));
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 out.println(global ? compiled.matcher(line).replaceAll(substitution) : compiled.matcher(line).replaceFirst(substitution));
             }
         } catch (final IOException e) {
             throw new IllegalStateException(e);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (final IOException e) {
-                // no-op
-            }
         }
     }
 

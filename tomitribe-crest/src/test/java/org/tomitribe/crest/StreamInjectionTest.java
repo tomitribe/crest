@@ -26,6 +26,7 @@ import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
 import org.tomitribe.util.Duration;
+import org.tomitribe.util.Join;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -59,6 +60,11 @@ public class StreamInjectionTest {
     @Test
     public void withArgs2() throws Exception {
         assertEquals("orange", new Main(Command.class).exec("withArgs2", "orange"));
+    }
+
+    @Test
+    public void withArgsArray() throws Exception {
+        assertEquals("orange|juice", new Main(Command.class).exec("withArgsArray", "orange", "juice"));
     }
 
     @Test
@@ -212,5 +218,19 @@ public class StreamInjectionTest {
             assertEquals(err, environment.getError());
             return arg;
         }
+
+        @org.tomitribe.crest.api.Command
+        public static String withArgsArray(
+                                       @Err PrintStream err,
+                                       @Out final PrintStream out,
+                                       String[] args
+
+        ) {
+            final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+            assertEquals(out, environment.getOutput());
+            assertEquals(err, environment.getError());
+            return Join.join("|", args);
+        }
+
     }
 }

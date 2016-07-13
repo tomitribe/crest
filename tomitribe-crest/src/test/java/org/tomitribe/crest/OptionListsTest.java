@@ -121,9 +121,9 @@ public class OptionListsTest extends TestCase {
             assertNotNull(list);
 
             final Iterator<Integer> it = list.iterator();
-            assertEquals((Integer) (int) 2, it.next());
-            assertEquals((Integer) (int) 3, it.next());
-            assertEquals((Integer) (int) 5, it.next());
+            assertEquals((Integer) 2, it.next());
+            assertEquals((Integer) 3, it.next());
+            assertEquals((Integer) 5, it.next());
             assertFalse(it.hasNext());
         }
 

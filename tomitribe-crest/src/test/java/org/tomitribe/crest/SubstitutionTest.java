@@ -41,7 +41,7 @@ public class SubstitutionTest extends Assert {
 
     @Test
     public void test() throws Exception {
-        final Map<String, String> map = new HashMap<String, String>();
+        final Map<String, String> map = new HashMap<>();
         map.put("one", "uno");
         map.put("two", "dos");
         map.put("three", "tres");

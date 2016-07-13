@@ -45,8 +45,7 @@ public class App {
 
     @Command
     public String hello(@Option("name") @Default("World") final String name,
-                        @Option("language") @Default("EN") final Language language)
-    {
+                        @Option("language") @Default("EN") final Language language) {
         return String.format("%s, %s!", language.getSalutation(), name);
     }
 

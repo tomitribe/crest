@@ -46,15 +46,14 @@ public class Help {
     }
 
     public static void optionHelp(final Class<?> clazz, final String commandName,
-                                  final Collection<OptionParam> optionParams, final PrintStream out)
-    {
-        if (optionParams.size() == 0) {
+                                  final Collection<OptionParam> optionParams, final PrintStream out) {
+        if (optionParams.isEmpty()) {
             return;
         }
 
         ResourceBundle general = null; // lazily loaded cause breaks the annotation driven API so not considered as default
 
-        final List<Item> items = new ArrayList<Item>(optionParams.size());
+        final List<Item> items = new ArrayList<>(optionParams.size());
 
         int width = 20;
         for (final OptionParam optionParam : optionParams) {
@@ -76,14 +75,14 @@ public class Help {
         out.println("Options: ");
 
         for (final Item item : items) {
-            final List<String> lines = new ArrayList<String>();
+            final List<String> lines = new ArrayList<>();
 
             if (item.description != null) {
                 lines.add(item.description);
             }
 
             lines.addAll(item.note);
-            if (lines.size() == 0) {
+            if (lines.isEmpty()) {
                 lines.add("");
             }
 
@@ -130,14 +129,14 @@ public class Help {
     private static class Item {
 
         private final String flag;
-        private final List<String> note = new LinkedList<String>();
+        private final List<String> note = new LinkedList<>();
         private final String description;
 
         private Item(final OptionParam p, final String description) {
             this.description = description;
             final String prefix = p.getName().length() > 1 ? "--" : "-";
             
-            final List<String> alias = new ArrayList<String>();
+            final List<String> alias = new ArrayList<>();
 
             Option option = p.getAnnotation(Option.class);
             for (int i = 1; i < option.value().length; i++) {
@@ -145,7 +144,7 @@ public class Help {
                 alias.add(aliasName);
             }
 
-            final boolean hasAlias = alias.size() > 0;
+            final boolean hasAlias = !alias.isEmpty();
             final Class<?> type = p.getType();
 
             String defaultValue = p.getDefaultValue();
@@ -173,7 +172,7 @@ public class Help {
                 if (p.isListable()) {
                     final List<String> defaultValues = p.getDefaultValues();
 
-                    if (defaultValues.size() > 0) {
+                    if (!defaultValues.isEmpty()) {
                         this.note.add(String.format("default: %s", Join.join(", ", defaultValues)));
                     }
 
@@ -217,7 +216,7 @@ public class Help {
         string.printf("   %-20s", "");
         string.println();
 
-        final SortedSet<String> strings = new TreeSet<String>(new Comparator<String>() {
+        final SortedSet<String> strings = new TreeSet<>(new Comparator<String>() {
             @Override
             public int compare(final String s1, final String s2) {
                 assert null != s1;

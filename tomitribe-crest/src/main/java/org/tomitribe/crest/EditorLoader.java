@@ -44,9 +44,7 @@ public class EditorLoader {
         } catch (final Throwable skip) {
             // no-op
         }
-        for (final Editor editor : ServiceLoader.load(Editor.class)) // class MyEditor extends AbstractConverter
-        // implements Editor
-        {
+        for (final Editor editor : ServiceLoader.load(Editor.class)) { // class MyEditor extends AbstractConverter
             try {
                 PropertyEditorManager.registerEditor(editor.value(), editor.getClass());
             } catch (final Exception e) {

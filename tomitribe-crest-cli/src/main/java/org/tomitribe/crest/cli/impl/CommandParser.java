@@ -21,12 +21,12 @@ import java.util.List;
 
 public class CommandParser { // designed as a class in case we add config
     public Command[] toArgs(final String line) {
-        if (line == null || line.length() == 0) {
+        if (line == null || line.isEmpty()) {
             throw new IllegalArgumentException("Empty command.");
         }
 
-        final List<Command> commands = new ArrayList<Command>();
-        final List<String> result = new ArrayList<String>();
+        final List<Command> commands = new ArrayList<>();
+        final List<String> result = new ArrayList<>();
         final StringBuilder current = new StringBuilder();
 
         char waitChar = ' ';

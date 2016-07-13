@@ -59,7 +59,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
         }
 
         // find commands
-        final Collection<String> commands = new TreeSet<String>(); // sorted if a human wants to check it
+        final Collection<String> commands = new TreeSet<>(); // sorted if a human wants to check it
         try {
             scan(commands, classes);
         } catch (final IOException e) {
@@ -70,22 +70,12 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
         if (!output.getParentFile().isDirectory() && !output.getParentFile().mkdirs()) {
             throw new MojoExecutionException("Can't create " + output.getAbsolutePath());
         }
-        FileWriter writer = null;
-        try {
-            writer = new FileWriter(output);
+        try (FileWriter writer = new FileWriter(output)){
             for (final String cmd : commands) {
                 writer.write(cmd + '\n');
             }
         } catch (final IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (final IOException e) {
-                    // no-op
-                }
-            }
         }
     }
 
@@ -108,9 +98,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
     }
 
     private String commandName(final File classFile) throws IOException {
-        InputStream stream = null;
-        try {
-            stream = new FileInputStream(classFile);
+        try (InputStream stream = new FileInputStream(classFile)) {
             final ClassReader reader = new ClassReader(stream);
             reader.accept(new ClassVisitor(ASM5) {
                 private String className;
@@ -145,14 +133,6 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
             }, SKIP_CODE + SKIP_DEBUG + SKIP_FRAMES);
         } catch (final CommandFoundException cfe) {
             return cfe.getMessage(); // class name
-        } finally {
-            try {
-                if (stream != null) {
-                    stream.close();
-                }
-            } catch (final IOException e) {
-                // no-op
-            }
         }
         return null;
     }

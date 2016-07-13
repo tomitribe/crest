@@ -29,7 +29,7 @@ public class CommandLine {
     }
     
     public static String[] translateCommandline(String toProcess) {
-        if (toProcess == null || toProcess.length() == 0) {
+        if (toProcess == null || toProcess.isEmpty()) {
             // no command? no string
             return new String[0];
         }
@@ -40,7 +40,7 @@ public class CommandLine {
         final int inDoubleQuote = 2;
         int state = normal;
         StringTokenizer tok = new StringTokenizer(toProcess, "\"\' ", true);
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         StringBuffer current = new StringBuffer();
         boolean lastTokenHasBeenQuoted = false;
 

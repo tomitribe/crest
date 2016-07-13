@@ -37,31 +37,18 @@ public final class JSonP {
 
     public static void format(final String content, final PrintStream out) {
         final JsonProvider provider = JsonProvider.provider();
-        JsonReader reader = null;
-        try {
-            reader = provider.createReaderFactory(Collections.<String, Object>emptyMap())
+        try (JsonReader reader = provider.createReaderFactory(Collections.<String, Object>emptyMap())
                 .createReader(new ByteArrayInputStream(content.getBytes("UTF-8")));
-            JsonWriter writer = null;
-            try {
-                writer = provider.createWriterFactory(singletonMap(JsonGenerator.PRETTY_PRINTING, "true"))
-                    .createWriter(new FilterOutputStream(out) {
-                        @Override
-                        public void close() throws IOException {
-                            super.flush(); // stdout shouldnt get closed
-                        }
-                    });
-                writer.write(reader.read());
-            } finally {
-                if (writer != null) {
-                    writer.close();
-                }
-            }
+             JsonWriter writer = provider.createWriterFactory(singletonMap(JsonGenerator.PRETTY_PRINTING, "true"))
+                     .createWriter(new FilterOutputStream(out) {
+                         @Override
+                         public void close() throws IOException {
+                             super.flush(); // stdout shouldnt get closed
+                         }
+                     });) {
+            writer.write(reader.read());
         } catch (final UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
         }
     }
 }

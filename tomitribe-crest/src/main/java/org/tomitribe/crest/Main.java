@@ -47,8 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Main implements Completer {
 
-    protected final Map<String, Cmd> commands = new ConcurrentHashMap<String, Cmd>();
-    protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<Class<?>, InternalInterceptor>();
+    protected final Map<String, Cmd> commands = new ConcurrentHashMap<>();
+    protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<>();
 
     public Main() {
         this(new SystemPropertiesDefaultsContext(), Commands.load());
@@ -179,7 +179,7 @@ public class Main implements Completer {
     public Object exec(String... args) throws Exception {
         final List<String> list = processSystemProperties(args);
 
-        final String command = (list.size() == 0) ? "help" : list.remove(0);
+        final String command = (list.isEmpty()) ? "help" : list.remove(0);
         args = list.toArray(new String[list.size()]);
 
         final Cmd cmd = commands.get(command);
@@ -197,14 +197,14 @@ public class Main implements Completer {
     }
 
     public static List<String> processSystemProperties(final String[] args) {
-        final List<String> list = new ArrayList<String>();
+        final List<String> list = new ArrayList<>();
 
         // Read in and apply the properties specified on the command line
         for (final String arg : args) {
             if (arg.startsWith("-D")) {
 
-                final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf("="));
-                final String value = arg.substring(arg.indexOf("=") + 1);
+                final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf('='));
+                final String value = arg.substring(arg.indexOf('=') + 1);
 
                 final Properties properties = Environment.ENVIRONMENT_THREAD_LOCAL.get().getProperties();
                 properties.setProperty(name, value);
@@ -218,9 +218,9 @@ public class Main implements Completer {
 
     @Override
     public Collection<String> complete(final String buffer, final int cursorPosition) {
-        final List<String> cmds = new ArrayList<String>();
+        final List<String> cmds = new ArrayList<>();
 
-        if (buffer == null || buffer.length() == 0) {
+        if (buffer == null || buffer.isEmpty()) {
             final Set<String> cmd = commands.keySet();
             for (final String s : cmd) {
                 cmds.add(s + " ");
@@ -238,7 +238,7 @@ public class Main implements Completer {
             final String prefix = buffer.substring(0, cursorPosition);
             Iterator<String> iterator = commands.keySet().iterator();
             while (iterator.hasNext()) {
-                final String command = (String) iterator.next();
+                final String command = iterator.next();
                 if (command.startsWith(prefix)) {
                     cmds.add(command + " ");
                 }
@@ -254,7 +254,7 @@ public class Main implements Completer {
         final Iterator<String> iterator = this.commands.keySet().iterator();
 
         while (iterator.hasNext()) {
-            String cmd = (String) iterator.next();
+            String cmd = iterator.next();
             if (cmd.equals(commandName)) {
                 return this.commands.get(cmd);
             }

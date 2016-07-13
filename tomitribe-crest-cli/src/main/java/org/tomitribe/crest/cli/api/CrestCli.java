@@ -91,15 +91,15 @@ public class CrestCli {
     private CliEnvironment mainEnvironment;
 
     public void run(final String... args) throws Exception {
-        final AtomicReference<InputReader> inputReaderRef = new AtomicReference<InputReader>();
-        final AtomicReference<History> historyRef = new AtomicReference<History>();
+        final AtomicReference<InputReader> inputReaderRef = new AtomicReference<>();
+        final AtomicReference<History> historyRef = new AtomicReference<>();
         mainEnvironment = createMainEnvironment(inputReaderRef, historyRef);
         Environment.ENVIRONMENT_THREAD_LOCAL.set(mainEnvironment);
 
         final DefaultsContext ctx = new SystemPropertiesDefaultsContext();
         final Main main = newMain(ctx);
 
-        final Map<String, String> aliasesMapping = new HashMap<String, String>();
+        final Map<String, String> aliasesMapping = new HashMap<>();
         final File aliases = aliasesFile();
         if (aliases != null && aliases.isFile()) {
             aliasesMapping.putAll(Map.class.cast(IO.readProperties(aliases)));
@@ -119,7 +119,7 @@ public class CrestCli {
                 @Override
                 public int complete(final String buffer, final int cursor, final List<CharSequence> candidates) {
                     candidates.addAll(main.complete(buffer, cursor));
-                    return buffer.lastIndexOf(" ", cursor) + 1; // TODO: enhance it
+                    return buffer.lastIndexOf(' ', cursor) + 1; // TODO: enhance it
                 }
             });
 
@@ -255,7 +255,7 @@ public class CrestCli {
                                     }
                                 }
 
-                                final Collection<Future<?>> tasks = new ArrayList<Future<?>>(commands.length);
+                                final Collection<Future<?>> tasks = new ArrayList<>(commands.length);
 
                                 for (int i = 0; i < commands.length; i++) {
                                     final int idx = i;

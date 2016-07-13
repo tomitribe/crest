@@ -52,7 +52,7 @@ public class Commands {
     }
 
     public static Iterable<Method> commands(final Class<?> clazz) {
-        return new FilteredIterable<Method>(Reflection.methods(clazz),
+        return new FilteredIterable<>(Reflection.methods(clazz),
                 new FilteredIterator.Filter<Method>() {
                     @Override
                     public boolean accept(final Method method) {
@@ -83,7 +83,7 @@ public class Commands {
             throw new IllegalArgumentException("Target cannot be null");
         }
 
-        final Map<String, Cmd> map = new HashMap<String, Cmd>();
+        final Map<String, Cmd> map = new HashMap<>();
 
         for (final Method method : commands(clazz)) {
 
@@ -113,7 +113,7 @@ public class Commands {
 
             final CmdGroup cmdGroup = new CmdGroup(clazz, map);
 
-            final HashMap<String, Cmd> group = new HashMap<String, Cmd>();
+            final HashMap<String, Cmd> group = new HashMap<>();
             group.put(cmdGroup.getName(), cmdGroup);
 
             return group;
@@ -140,7 +140,7 @@ public class Commands {
     }
 
     public static String value(final String value, final String defaultValue) {
-        return value == null || value.length() == 0 ? defaultValue : value;
+        return value == null || value.isEmpty() ? defaultValue : value;
     }
 
     /**
@@ -165,7 +165,7 @@ public class Commands {
         final Iterator<Loader> all = ServiceLoader.load(Loader.class, loader).iterator();
 
         // Let them tell is the list of classes to use
-        final LinkedHashSet<Class<?>> classes = new LinkedHashSet<Class<?>>();
+        final LinkedHashSet<Class<?>> classes = new LinkedHashSet<>();
 
         while (all.hasNext()) {
             final Iterable<Class<?>> c = all.next();
@@ -180,12 +180,8 @@ public class Commands {
                 final Enumeration<URL> urls = loader.getResources(prefix + "crest-commands.txt");
                 while (urls.hasMoreElements()) {
                     final URL url = urls.nextElement();
-                    InputStream stream = null;
-                    try {
-                        stream = url.openStream();
-                        BufferedReader reader = null;
-                        try {
-                            reader = new BufferedReader(new InputStreamReader(stream));
+                    try (InputStream stream = url.openStream();
+                         BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
                             String line;
                             while ((line = reader.readLine()) != null) {
                                 try {
@@ -194,21 +190,8 @@ public class Commands {
                                     // no-op: we can log it but don't fail cause one command didn't load
                                 }
                             }
-                        } finally {
-                            if (reader != null) {
-                                reader.close();
-                            }
-                        }
                     } catch (final IOException ioe) {
                         // no-op
-                    } finally {
-                        if (stream != null) {
-                            try {
-                                stream.close();
-                            }catch (final IOException ioe) {
-                                // no-op
-                            }
-                        }
                     }
                 }
             } catch (final IOException e) {

@@ -35,7 +35,7 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 public class CmdGroup implements Cmd {
 
     final String name;
-    final Map<String, Cmd> commands = new TreeMap<String, Cmd>();
+    final Map<String, Cmd> commands = new TreeMap<>();
 
     public CmdGroup(final Class<?> owner, final Map<String, Cmd> commands) {
         this.name = Commands.name(owner);
@@ -88,7 +88,7 @@ public class CmdGroup implements Cmd {
         out.printf("   %-20s", "");
         out.println();
 
-        final SortedSet<String> strings = new TreeSet<String>(new Comparator<String>() {
+        final SortedSet<String> strings = new TreeSet<>(new Comparator<String>() {
             @Override
             public int compare(final String s1, final String s2) {
                 assert null != s1;
@@ -116,7 +116,7 @@ public class CmdGroup implements Cmd {
     @Override
     public Collection<String> complete(final String buffer, final int cursorPosition) {
 
-        final List<String> results = new ArrayList<String>();
+        final List<String> results = new ArrayList<>();
 
         try {
 
@@ -148,7 +148,7 @@ public class CmdGroup implements Cmd {
                 // look at all the possible commands and return those that match
                 final Iterator<String> iterator = commands.keySet().iterator();
                 while (iterator.hasNext()) {
-                    final String commandName = (String) iterator.next();
+                    final String commandName = iterator.next();
                     if (commandName.startsWith(prefix)) {
                         results.add(commandName + " ");
                     }

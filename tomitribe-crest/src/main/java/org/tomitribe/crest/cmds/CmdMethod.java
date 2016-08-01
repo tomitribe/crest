@@ -542,12 +542,16 @@ public class CmdMethod implements Cmd {
                 case INTERNAL: {
                     if (parameter.isAnnotationPresent(In.class)) {
                         converted.add(environment.getInput());
+                        needed.count--;
                     } else if (parameter.isAnnotationPresent(Out.class)) {
                         converted.add(environment.getOutput());
+                        needed.count--;
                     } else if (parameter.isAnnotationPresent(Err.class)) {
                         converted.add(environment.getError());
+                        needed.count--;
                     } else if (Environment.class.isAssignableFrom(parameter.getType())) {
                         converted.add(environment);
+                        needed.count--;
                     }
                     break;
                 }

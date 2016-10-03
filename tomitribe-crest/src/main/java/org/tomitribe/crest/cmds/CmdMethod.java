@@ -237,6 +237,10 @@ public class CmdMethod implements Cmd {
 
             final List<Object> converted = CmdMethod.this.convert(arguments, needed, parameters);
 
+            if (allValuesAreNull(converted)) {
+                return null;
+            }
+
             try {
                 final Object[] args = converted.toArray();
 
@@ -252,6 +256,13 @@ public class CmdMethod implements Cmd {
 
                 throw toRuntimeException(e);
             }
+        }
+
+        private boolean allValuesAreNull(List<Object> objects) {
+            for (final Object object : objects) {
+                if (object != null) return false;
+            }
+            return true;
         }
     }
 

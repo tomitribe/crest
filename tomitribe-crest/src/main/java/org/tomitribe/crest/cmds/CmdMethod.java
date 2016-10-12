@@ -142,11 +142,12 @@ public class CmdMethod implements Cmd {
 
                 final Option option = parameter.getAnnotation(Option.class);
 
-                if (parameter.getType().isAnnotationPresent(Options.class)) {
+                final Options options = parameter.getType().getAnnotation(Options.class);
+                if (options != null) {
 
                     final Defaults defaultMappings = parameter.getAnnotation(Defaults.class);
                     final ComplexParam complexParam = new ComplexParam(
-                        option.value(), option.description(), defaultMappings == null ? null : defaultMappings, parameter);
+                            option.value(), option.description(), defaultMappings == null ? null : defaultMappings, parameter, options.nillable());
 
                     parameters.add(complexParam);
 
@@ -202,7 +203,7 @@ public class CmdMethod implements Cmd {
                 }
             } else if (parameter.getType().isAnnotationPresent(Options.class)) {
 
-                final ComplexParam complexParam = new ComplexParam(null, null, null, parameter);
+                final ComplexParam complexParam = new ComplexParam(null, null, null, parameter, parameter.getType().getAnnotation(Options.class).nillable());
 
                 parameters.add(complexParam);
 
@@ -223,26 +224,35 @@ public class CmdMethod implements Cmd {
 
         private final List<Param> parameters;
         private final Constructor<?> constructor;
-        private final String[] prefixes;
+        private final boolean nullable;
 
-        private ComplexParam(final String[] prefixes, final String globalDescription, final Defaults defaults, final Parameter parent) {
+        private ComplexParam(final String[] prefixes, final String globalDescription, final Defaults defaults, final Parameter parent, final boolean nullable) {
             super(parent);
 
-            this.prefixes = prefixes;
             this.constructor = parent.getType().getConstructors()[0];
             this.parameters = Collections.unmodifiableList(buildParams(globalDescription, prefixes, defaults, Reflection.params(constructor)));
+            this.nullable = nullable;
         }
 
-        public Object convert(final Arguments arguments, final Needed needed) {
-
-            final List<Object> converted = CmdMethod.this.convert(arguments, needed, parameters);
+        public Value convert(final Arguments arguments, final Needed needed) {
+            final List<Value> converted = CmdMethod.this.convert(arguments, needed, parameters);
+            if (nullable) {
+                boolean allNull = true;
+                for (final Value val : converted) {
+                    if (val.isProvided()) {
+                        allNull = false;
+                        break;
+                    }
+                }
+                if (allNull) {
+                    return new Value(null, false);
+                }
+            }
 
             try {
-                final Object[] args = converted.toArray();
-
+                final Object[] args = toArgs(converted).toArray(new Object[converted.size()]);
                 BeanValidation.validateParameters(constructor, args);
-
-                return constructor.newInstance(args);
+                return new Value(constructor.newInstance(args), true);
 
             } catch (InvocationTargetException e) {
 
@@ -284,15 +294,15 @@ public class CmdMethod implements Cmd {
     @Override
     public String getUsage() {
         String commandName = name;
-        
+
         Class<?> declaringClass = method.getDeclaringClass();
         Map<String, Cmd> commands = Commands.get(declaringClass);
         if (commands.size() == 1 && commands.values().iterator().next() instanceof CmdGroup) {
             final CmdGroup cmdGroup = (CmdGroup) commands.values().iterator().next();
             commandName = cmdGroup.getName() + " " + name;
         }
-        
-        
+
+
         final String usage = usage();
 
         if (usage != null) {
@@ -316,7 +326,7 @@ public class CmdMethod implements Cmd {
             }
             if (!skip) {
                 skip = parameter.getAnnotation(NotAService.class) == null &&
-                    Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(parameter.getType()) != null;
+                        Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(parameter.getType()) != null;
             }
             if (skip) {
                 continue;
@@ -359,24 +369,24 @@ public class CmdMethod implements Cmd {
 
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final List<Object> list) {
         return interceptors == null || interceptors.length == 0 ?
-            doInvoke(list) :
-            new InternalInterceptorInvocationContext(globalInterceptors, interceptors, name, parameterMetadatas, method, list) {
-                @Override
-                protected Object doInvoke(final List<Object> parameters) {
-                    return CmdMethod.this.doInvoke(parameters);
-                }
-            }.proceed();
+                doInvoke(list) :
+                new InternalInterceptorInvocationContext(globalInterceptors, interceptors, name, parameterMetadatas, method, list) {
+                    @Override
+                    protected Object doInvoke(final List<Object> parameters) {
+                        return CmdMethod.this.doInvoke(parameters);
+                    }
+                }.proceed();
     }
 
     private List<ParameterMetadata> buildApiParameterViews(final List<Param> parameters) {
         final List<ParameterMetadata> parameterMetadatas = new ArrayList<>();
         for (final Param param : parameters) {
             // precompute all values to get a fast runtime immutable structure
-            final ParameterMetadata.ParamType type = OptionParam.class.isInstance(param) ?  OPTION :
-                (ComplexParam.class.isInstance(param) ? BEAN_OPTION :
-                (Environment.class.isAssignableFrom(param.getType()) || param.getAnnotation(In.class) != null
-                    || param.getAnnotation(Out.class) != null || param.getAnnotation(Err.class) != null ? INTERNAL :
-                (Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(param.getType()) != null ? SERVICE : ParameterMetadata.ParamType.PLAIN)));
+            final ParameterMetadata.ParamType type = OptionParam.class.isInstance(param) ? OPTION :
+                    (ComplexParam.class.isInstance(param) ? BEAN_OPTION :
+                            (Environment.class.isAssignableFrom(param.getType()) || param.getAnnotation(In.class) != null
+                                    || param.getAnnotation(Out.class) != null || param.getAnnotation(Err.class) != null ? INTERNAL :
+                                    (Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(param.getType()) != null ? SERVICE : ParameterMetadata.ParamType.PLAIN)));
 
             if (type == INTERNAL) { // some pre runtime checks
                 if (param.isAnnotationPresent(In.class)) {
@@ -512,7 +522,7 @@ public class CmdMethod implements Cmd {
 
         final Needed needed = new Needed(spec.arguments.size());
 
-        final List<Object> converted = convert(args, needed, parameters);
+        final List<Value> converted = convert(args, needed, parameters);
 
         if (!args.list.isEmpty()) {
             throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", args.list));
@@ -522,10 +532,18 @@ public class CmdMethod implements Cmd {
             throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", STRING_NAME_CALLBACK, args.options.keySet()));
         }
 
-        return converted;
+        return toArgs(converted);
     }
 
-    private List<Object> convert(Arguments args, Needed needed, List<Param> parameters1) {
+    private List<Object> toArgs(final List<Value> converted) {
+        final List<Object> objects = new ArrayList<>(converted.size());
+        for (final Value v : converted) {
+            objects.add(v.getValue());
+        }
+        return objects;
+    }
+
+    private List<Value> convert(Arguments args, Needed needed, List<Param> parameters1) {
         /**
          * Here we iterate over the method's parameters and convert strings into their equivalent Option or Arg value.
          *
@@ -534,40 +552,41 @@ public class CmdMethod implements Cmd {
          *
          * Thus, iteration order is very significant in this loop.
          */
-        final List<Object> converted = new ArrayList<>();
+        final List<Value> converted = new ArrayList<>(args.options.size() /*approx but better than nothing*/);
         final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
         for (final Param parameter : parameters1) {
             final ParameterMetadata apiView = parameter.getApiView();
             switch (apiView.getType()) {
                 case INTERNAL: {
                     if (parameter.isAnnotationPresent(In.class)) {
-                        converted.add(environment.getInput());
+                        converted.add(new Value(environment.getInput(), false));
                         needed.count--;
                     } else if (parameter.isAnnotationPresent(Out.class)) {
-                        converted.add(environment.getOutput());
+                        converted.add(new Value(environment.getOutput(), false));
                         needed.count--;
                     } else if (parameter.isAnnotationPresent(Err.class)) {
-                        converted.add(environment.getError());
+                        converted.add(new Value(environment.getError(), false));
                         needed.count--;
                     } else if (Environment.class.isAssignableFrom(parameter.getType())) {
-                        converted.add(environment);
+                        converted.add(new Value(environment, false));
                         needed.count--;
                     }
                     break;
                 }
                 case SERVICE:
-                    converted.add(environment.findService(parameter.getType()));
+                    converted.add(new Value(environment.findService(parameter.getType()), false));
                     break;
-                case PLAIN: if (!args.list.isEmpty()) {
+                case PLAIN:
+                    if (!args.list.isEmpty()) {
                         needed.count--;
-                        fillPlainParameter(args, needed, converted, parameter);
+                        converted.add(fillPlainParameter(args, needed, parameter));
                     }
                     break;
                 case BEAN_OPTION:
                     converted.add(ComplexParam.class.cast(parameter).convert(args, needed));
                     break;
                 case OPTION:
-                    fillOptionParameter(args, converted, parameter, apiView.getName());
+                    converted.add(fillOptionParameter(args, parameter, apiView.getName()));
                     break;
                 default:
                     throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
@@ -576,29 +595,29 @@ public class CmdMethod implements Cmd {
         return converted;
     }
 
-    private void fillOptionParameter(final Arguments args, final List<Object> converted, final Param parameter, final String name) {
+    private Value fillOptionParameter(final Arguments args, final Param parameter, final String name) {
         final String value = args.options.remove(name);
         if (parameter.isListable()) {
-            converted.add(convert(parameter, OptionParam.getSeparatedValues(value), name));
-        } else {
-            converted.add(Converter.convert(value, parameter.getType(), name));
+            return convert(parameter, OptionParam.getSeparatedValues(value), name);
         }
+        final Object convert = Converter.convert(value, parameter.getType(), name);
+        return new Value(convert, value != null && !value.equals(OptionParam.class.cast(parameter).getDefaultValue()));
     }
 
-    private void fillPlainParameter(final Arguments args, final Needed needed, final List<Object> converted, final Param parameter) {
+    private Value fillPlainParameter(final Arguments args, final Needed needed, final Param parameter) {
         if (parameter.isListable()) {
             final List<String> glob = new ArrayList<>(args.list.size());
             for (int i = args.list.size(); i > needed.count; i--) {
                 glob.add(args.list.remove(0));
             }
-            converted.add(convert(parameter, glob, null));
+            return convert(parameter, glob, null);
         } else {
             final String value = args.list.remove(0);
-            converted.add(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")));
+            return new Value(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")), value != null);
         }
     }
 
-    private static Object convert(final Param parameter, final List<String> values, final String name) {
+    private static Value convert(final Param parameter, final List<String> values, final String name) {
         final Class<?> type = parameter.getListableType();
 
         if (parameter.isAnnotationPresent(Required.class) && values.isEmpty()) {
@@ -636,20 +655,15 @@ public class CmdMethod implements Cmd {
                 Array.set(array, i++, Converter.convert(string, type, description));
             }
 
-            return array;
+            return new Value(array, !values.isEmpty());
 
-        } else {
-
-            final Collection<Object> collection = instantiate((Class<? extends Collection>) parameter.getType());
-
-            for (final String string : values) {
-
-                collection.add(Converter.convert(string, type, description));
-
-            }
-
-            return collection;
         }
+
+        final Collection<Object> collection = instantiate((Class<? extends Collection>) parameter.getType());
+        for (final String string : values) {
+            collection.add(Converter.convert(string, type, description));
+        }
+        return new Value(collection, !collection.isEmpty());
     }
 
     private static boolean isBoolean(final List<String> values) {
@@ -832,16 +846,16 @@ public class CmdMethod implements Cmd {
         }
 
         private void processOption(final String prefix,
-                                   final String optName, 
-                                   final String optValue, 
-                                   final Map<String, String> defaults, 
+                                   final String optName,
+                                   final String optValue,
+                                   final Map<String, String> defaults,
                                    final Map<String, String> supplied,
-                                   final List<String> invalid, 
+                                   final List<String> invalid,
                                    final Set<String> repeated) {
-            
+
             String name = optName;
             String value = optValue;
-            
+
             if (!defaults.containsKey(name) && spec.aliases.containsKey(name)) {
                 // check the options to find see if name is an alias for an option
                 // if it is, get the actual optionparam name
@@ -989,5 +1003,23 @@ public class CmdMethod implements Cmd {
         results.addAll(findMatcingParametersOptions(prefix, isIncludeAliasChar));
         results.addAll(findMatchingAliasOptions(prefix, isIncludeAliasChar));
         return results;
+    }
+
+    public static final class Value {
+        private final Object value;
+        private final boolean provided;
+
+        protected Value(final Object value, final boolean provided) {
+            this.value = value;
+            this.provided = provided;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public boolean isProvided() {
+            return provided;
+        }
     }
 }

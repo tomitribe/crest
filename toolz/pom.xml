@@ -55,6 +55,14 @@
       <artifactId>tomitribe-crest-xbean</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.bval</groupId>
+      <artifactId>bval-jsr</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-validation_1.1_spec</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

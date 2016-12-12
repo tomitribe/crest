@@ -54,7 +54,7 @@ public class BVal05 implements BeanValidation.BeanValidationImpl {
         }
         try {
             final Set<ConstraintViolation<?>> violations = Set.class.cast(
-                validateMethodParameters.invoke(getValidatorObject(), instanceOrClass.getClass(), method, parameters, NO_GROUP));
+                validateMethodParameters.invoke(getValidatorObject(), instanceOrClass, method, parameters, NO_GROUP));
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }

@@ -249,6 +249,10 @@ public class CmdMethod implements Cmd {
                 }
             }
 
+            if (allValuesAreNull(converted)) {
+                return null;
+            }
+
             try {
                 final Object[] args = toArgs(converted).toArray(new Object[converted.size()]);
                 BeanValidation.validateParameters(constructor, args);
@@ -262,6 +266,13 @@ public class CmdMethod implements Cmd {
 
                 throw toRuntimeException(e);
             }
+        }
+
+        private boolean allValuesAreNull(List<Object> objects) {
+            for (final Object object : objects) {
+                if (object != null) return false;
+            }
+            return true;
         }
     }
 

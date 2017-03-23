@@ -558,6 +558,7 @@ public class CmdMethod implements Cmd {
             final ParameterMetadata apiView = parameter.getApiView();
             switch (apiView.getType()) {
                 case INTERNAL: {
+                    needed.count--;
                     if (parameter.isAnnotationPresent(In.class)) {
                         converted.add(new Value(environment.getInput(), false));
                         needed.count--;

@@ -73,4 +73,20 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <environmentVariables>
+            <TEST_ENV_VALUE>test-env-value</TEST_ENV_VALUE>
+          </environmentVariables>
+          <systemPropertyVariables>
+            <test.env.value>test-sys-value</test.env.value>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

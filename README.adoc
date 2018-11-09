@@ -1,5 +1,6 @@
 = CREST
 :showtitle:
+:toc:
 
 Command-line API styled after JAX-RS
 
@@ -199,6 +200,39 @@ Options:
   --include=<Pattern>      don't exclude files matching PATTERN
   --no-progress            don't show progress during transfer
 ----
+
+=== Advanced
+
+Default values also support interpolations:
+
+[source,java]
+----
+@Command
+public void myCommand(@Option("myoption") @Default("${env.MY_ENV_VAR}") String exclude) {
+    // TODO write the implementation...
+}
+@Command
+public void myCommand(@Option("myoption") @Default("${sys.MY_ENV_VAR}") String exclude) {
+    // TODO write the implementation...
+}
+----
+
+`env` is a prefix used to read the default in the environment variables and `sys` to read the system properties.
+
+TIP: you can also register custom `DefaultsContext` in the interpolation registry using `META-INF/services/org.tomitribe.crest.contexts.DefaultsContext`
+file to register it (just put a fully qualified implementation per line). The prefix will be the simple name of the implementation in lowercase. For instance
+`org.company.MyEnv` will use `myenv`.
+
+Finally the interpolation in such a form supports defaults:
+
+[source,java]
+----
+@Command
+public void myCommand(@Option("myoption") @Default("${env.MY_ENV_VAR:defaultIfEnvNotSet}") String exclude) {
+    // TODO write the implementation...
+}
+----
+
 
 == @Option Lists and Arrays
 

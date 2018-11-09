@@ -16,20 +16,32 @@
  */
 package org.tomitribe.crest.cmds.targets;
 
+import static java.util.Locale.ROOT;
+
 import org.tomitribe.crest.contexts.DefaultsContext;
+import org.tomitribe.crest.contexts.EnvDefaultsContext;
+import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
+import org.tomitribe.crest.lang.Substitutor;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @version $Revision$ $Date$
  */
 public class Substitution {
 
-    private static final Pattern PATTERN = Pattern.compile("(\\$\\{)([\\w.]+)(})");
+    private static final Map<String, DefaultsContext> DEFAULTS_JVM_CONTEXTS = new HashMap<String, DefaultsContext>() {{
+        put("env.", new EnvDefaultsContext());
+        put("sys.", new SystemPropertiesDefaultsContext());
+        for (final DefaultsContext defaultsContext : ServiceLoader.load(DefaultsContext.class)) {
+            put(defaultsContext.getClass().getSimpleName().toLowerCase(ROOT), defaultsContext);
+        }
+    }};
 
     private Substitution() {
         // no-op
@@ -39,22 +51,26 @@ public class Substitution {
         return format(target, method, input, df, new HashSet<String>());
     }
 
-    private static String format(final Target target, final Method method, final String input, final DefaultsContext df, final Set<String> seen) {
+    private static String format(final Target target, final Method method, final String input,
+                                 final DefaultsContext df, final Set<String> seen) {
         if (!seen.add(input)) {
             throw new IllegalStateException("Circular reference in " + input);
         }
 
-        final Matcher matcher = PATTERN.matcher(input);
-        final StringBuffer buf = new StringBuffer();
-        while (matcher.find()) {
-            final String key = matcher.group(2);
-            String value = df.find(target, method, key);
-            if (value != null) {
-                value = format(target, method, value, df, seen).replace("\\", "\\\\");
-                matcher.appendReplacement(buf, value);
+        return new Substitutor() {
+            @Override
+            protected String getOrDefault(final String varName, final String varDefaultValue) {
+                for (final Map.Entry<String, DefaultsContext> ctx : DEFAULTS_JVM_CONTEXTS.entrySet()) {
+                    if (varName.startsWith(ctx.getKey())) {
+                        final String value = ctx.getValue().find(target, method, varName.substring(ctx.getKey().length()));
+                        if (value != null) {
+                            return value;
+                        }
+                    }
+                }
+                final String value = df.find(target, method, varName);
+                return value == null ? varDefaultValue : value;
             }
-        }
-        matcher.appendTail(buf);
-        return buf.toString();
+        }.replace(input);
     }
 }

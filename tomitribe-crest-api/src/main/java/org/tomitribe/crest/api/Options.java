@@ -27,4 +27,10 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = ElementType.TYPE)
 public @interface Options {
+    /**
+     * Allow to get null instead of a wrapper instance initialized from defaults.
+     *
+     * @return true if the parameter can be null if no value is set from the command line, false otherwise.
+     */
+    boolean nillable() default false;
 }

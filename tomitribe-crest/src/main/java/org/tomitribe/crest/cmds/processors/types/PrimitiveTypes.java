@@ -119,4 +119,13 @@ public enum PrimitiveTypes {
 
     public abstract String getDefaultValue();
     public abstract Class<?> getWraper();
+
+    public static PrimitiveTypes fromWrapper(final Class<?> wrapper) {
+        for (final PrimitiveTypes primitive : PrimitiveTypes.values()) {
+            if (primitive.getWraper() == wrapper) {
+                return primitive;
+            }
+        }
+        return null; // cheaper than an exception
+    }
 }

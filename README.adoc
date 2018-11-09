@@ -763,6 +763,150 @@ Here is how to define it in your pom:
 </plugin>
 ----
 
+== DeltaSpike Annotation Processor
+
+
+Adding this dependency to your project:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.tomitribe</groupId>
+  <artifactId>tomitribe-crest-generator</artifactId>
+  <version>${crest.version}</version>
+  <scope>provided</scope>
+</dependency>
+----
+
+Crest Generator can integrates with DeltaSpike to generate binding pojo. It will split `@ConfigProperty` on first dot
+and create one binding per prefix.
+
+Here is an example:
+
+[source,java]
+----
+public class DeltaspikeBean {
+    @Inject
+    @ConfigProperty(name = "app.service.base", defaultValue = "http://localhost:8080")
+    private String base;
+
+    @Inject
+    @ConfigProperty(name = "app.service.retries")
+    private Integer retries;
+}
+----
+
+It will generate the following binding:
+
+[source,java]
+----
+package org.tomitribe.crest.generator.generated;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.deltaspike.core.spi.config.ConfigSource;
+import org.tomitribe.crest.api.Default;
+import org.tomitribe.crest.api.Option;
+
+import static java.util.Collections.singletonList;
+
+public class App {
+    private String serviceBase;
+    private Integer serviceRetries;
+
+    public App(
+        @Option("service-base") @Default("http://localhost:8080") String serviceBase,
+        @Option("service-retries") Integer serviceRetries) {
+        final Map<String, String> ____properties = new HashMap<>();
+        this.serviceBase = serviceBase;
+        ____properties.put("app.service.base", String.valueOf(serviceBase));
+        this.serviceRetries = serviceRetries;
+        ____properties.put("app.service.retries", String.valueOf(serviceRetries));
+        ConfigResolver.addConfigSources(Collections.<ConfigSource>singletonList(new ConfigSource() {
+            @Override
+            public int getOrdinal() {
+                return 0;
+            }
+
+            @Override
+            public Map<String, String> getProperties() {
+                return ____properties;
+            }
+
+            @Override
+            public String getPropertyValue(final String key) {
+                return ____properties.get(key);
+            }
+
+            @Override
+            public String getConfigName() {
+                return "crest-app";
+            }
+
+            @Override
+            public boolean isScannable() {
+                return true;
+            }
+        }));    }
+
+    public String getServiceBase() {
+        return serviceBase;
+    }
+
+    public void setServiceBase(final String serviceBase) {
+        this.serviceBase = serviceBase;
+    }
+
+    public Integer getServiceRetries() {
+        return serviceRetries;
+    }
+
+    public void setServiceRetries(final Integer serviceRetries) {
+        this.serviceRetries = serviceRetries;
+    }
+
+}
+----
+
+Then you just need to reuse it ad a crest command parameter:
+
+[source,java]
+----
+@Command
+public void myCommand(@Option("app-") final App app) {
+  // ...
+}
+----
+
+The nice thing is it will integrate with crest of course but also with DeltaSpike. It means the previous code
+will also make DeltaSpike injection respecting `App` configuration (`--app-service-base=... --app-service-retries=3` for instance).
+
+If you create a fatjar using TomEE embedded it means you can handle all your DeltaSpike configuration this way
+and you just need to write a TomEE Embedded runner to get DeltaSpike configuration wired from the command line:
+
+[source,java]
+----
+import org.apache.tomee.embedded.Main;
+
+public final class Runner {
+    @Command("run")
+    public static void run(@Option("app-") App app) {
+        Main.main(new String[] { "--as-war", "--single-classloader" } /*fatjar "as war" deployment*/);
+        // automatically @Inject @ConfigProperty will be populated :)
+    }
+}
+----
+
+Potential enhancement(s):
+
+- option to generate TomEE Embedded main?
+- Tamaya integration on the same model?
+- Owner integration
+- ...
+
 == Cli module
 
 Cli module aims to provide a basic integration with JLine.

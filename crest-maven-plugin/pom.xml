@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>5.0.4</version>
+      <version>6.0_ALPHA</version>
     </dependency>
 
     <dependency>
@@ -63,7 +63,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.5</version>
         <executions>
           <execution>
             <id>mojo-descriptor</id>
@@ -84,7 +84,7 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
-          <excludes>**HelpMojo.java</excludes>
+          <excludes>**/HelpMojo.java</excludes>
         </configuration>
       </plugin>
 

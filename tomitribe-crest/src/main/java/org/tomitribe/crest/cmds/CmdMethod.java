@@ -133,7 +133,8 @@ public class CmdMethod implements Cmd {
         validate();
     }
 
-    private List<Param> buildParams(final String globalDescription, final String[] inPrefixes, final Defaults defaults, final Iterable<Parameter> params) {
+    private List<Param> buildParams(final String globalDescription, final String[] inPrefixes,
+                                    final Defaults.DefaultMapping[] defaultsMapping, final Iterable<Parameter> params) {
         final String[] prefixes = inPrefixes == null ? NO_PREFIX : inPrefixes;
         final List<Param> parameters = new ArrayList<>();
         for (final Parameter parameter : params) {
@@ -146,8 +147,11 @@ public class CmdMethod implements Cmd {
                 if (options != null) {
 
                     final Defaults defaultMappings = parameter.getAnnotation(Defaults.class);
+                    final Defaults.DefaultMapping[] directMapping = parameter.getDeclaredAnnotationsByType(Defaults.DefaultMapping.class);
                     final ComplexParam complexParam = new ComplexParam(
-                            option.value(), option.description(), defaultMappings == null ? null : defaultMappings, parameter, options.nillable());
+                            option.value(), option.description(),
+                            directMapping != null ? directMapping : defaultMappings.value(),
+                            parameter, options.nillable());
 
                     parameters.add(complexParam);
 
@@ -160,8 +164,8 @@ public class CmdMethod implements Cmd {
                     final String mainOption = prefixes[0] + shortName;
                     String def = null;
                     String description = option.description();
-                    if (defaults != null) {
-                        for (final Defaults.DefaultMapping mapping : defaults.value()) {
+                    if (defaultsMapping != null) {
+                        for (final Defaults.DefaultMapping mapping : defaultsMapping) {
                             if (mapping.name().equals(shortName)) {
                                 def = mapping.value();
                                 if (!mapping.description().isEmpty()) {
@@ -226,7 +230,8 @@ public class CmdMethod implements Cmd {
         private final Constructor<?> constructor;
         private final boolean nullable;
 
-        private ComplexParam(final String[] prefixes, final String globalDescription, final Defaults defaults, final Parameter parent, final boolean nullable) {
+        private ComplexParam(final String[] prefixes, final String globalDescription,
+                             final Defaults.DefaultMapping[] defaults, final Parameter parent, final boolean nullable) {
             super(parent);
 
             this.constructor = parent.getType().getConstructors()[0];

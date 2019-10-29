@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.runner.RunWith;
@@ -31,7 +32,10 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
+import org.tomitribe.crest.api.Defaults.DefaultMapping;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.api.Options;
+import org.tomitribe.crest.cmds.processors.OptionParam;
 
 @RunWith(DefaultInterpolationTest.DefaultCasesRunner.class)
 public class DefaultInterpolationTest {
@@ -65,6 +69,26 @@ public class DefaultInterpolationTest {
         return value;
     }
 
+    @Command
+    @Expected("c,b,a")
+    public String defaultOnList(
+            @DefaultMapping(
+                name = "value",
+                value = "a,b,c")
+            @Option("") final Binding binding) {
+        Collections.reverse(binding.value);
+        return String.join(",", binding.value);
+    }
+
+    @Options
+    public static class Binding {
+        private final List<String> value;
+
+        public Binding(@Option("value") final List<String> value) {
+            this.value = value;
+        }
+    }
+
     public static class DefaultCasesRunner extends BlockJUnit4ClassRunner {
         private List<FrameworkMethod> tests;
 
@@ -83,8 +107,9 @@ public class DefaultInterpolationTest {
                     errors.add(new IllegalArgumentException(method.getMethod() + " should have @Command on it without any value"));
                 }
                 final Class<?>[] parameterTypes = method.getMethod().getParameterTypes();
-                if (parameterTypes.length != 1 || parameterTypes[0] != String.class) {
-                    errors.add(new IllegalArgumentException(method.getMethod() + " should have one String parameter"));
+                if (parameterTypes.length != 1 ||
+                        (parameterTypes[0] != String.class && !parameterTypes[0].isAnnotationPresent(Options.class))) {
+                    errors.add(new IllegalArgumentException(method.getMethod() + " should have one @Options or String parameter"));
                 }
             }
         }

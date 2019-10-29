@@ -51,6 +51,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
+    <xbean.version>4.15</xbean.version>
   </properties>
 
   <repositories>
@@ -92,13 +93,13 @@
       <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-asm7-shaded</artifactId>
-        <version>4.13</version>
+        <version>${xbean.version}</version>
         <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-finder-shaded</artifactId>
-        <version>4.13</version>
+        <version>${xbean.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.bval</groupId>
@@ -117,6 +118,14 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>

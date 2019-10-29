@@ -26,6 +26,10 @@
   <artifactId>tomitribe-crest-cli</artifactId>
   <name>Tomitribe :: Crest :: CLI</name>
 
+  <properties>
+    <crest.build.name>${project.groupId}.crest.cli</crest.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.tomitribe</groupId>

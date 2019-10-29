@@ -32,6 +32,10 @@
   <packaging>jar</packaging>
   <name>Tomitribe :: Crest :: Generator</name>
 
+  <properties>
+    <crest.build.name>${project.groupId}.crest.generator</crest.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.tomee</groupId>

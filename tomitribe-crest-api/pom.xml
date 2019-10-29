@@ -32,4 +32,7 @@
   <packaging>jar</packaging>
   <name>Tomitribe :: Crest :: API</name>
 
+  <properties>
+    <crest.build.name>${project.groupId}.crest.api</crest.build.name>
+  </properties>
 </project>

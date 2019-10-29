@@ -27,6 +27,10 @@
   <packaging>maven-plugin</packaging>
   <name>Tomitribe :: Crest :: Maven Plugin</name>
 
+  <properties>
+    <crest.build.name>${project.groupId}.crest.maven</crest.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>

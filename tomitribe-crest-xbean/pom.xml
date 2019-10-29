@@ -27,6 +27,10 @@
   <artifactId>tomitribe-crest-xbean</artifactId>
   <name>Tomitribe :: Crest :: XBean Finder Scanning</name>
 
+  <properties>
+    <crest.build.name>${project.groupId}.crest.xbean</crest.build.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.tomitribe</groupId>

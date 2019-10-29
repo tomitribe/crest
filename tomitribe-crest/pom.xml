@@ -32,6 +32,10 @@
   <packaging>jar</packaging>
   <name>Tomitribe :: Crest :: Core</name>
 
+  <properties>
+    <crest.build.name>${project.groupId}.crest.core</crest.build.name>
+  </properties>
+
   <dependencies>
     <dependency> <!-- user has to add this dep if he wants to use SecurityInterceptor but would be provided most of the time -->
       <groupId>org.apache.geronimo.specs</groupId>
@@ -68,7 +72,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-validation_1.1_spec</artifactId>
+      <artifactId>geronimo-validation_2.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>

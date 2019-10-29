@@ -38,7 +38,9 @@ public class OptionParam extends Param {
         super(parameter);
 
         this.name = name;
-        this.defaultValue = defaultVal == null ? initDefault() : defaultVal;
+        this.defaultValue = defaultVal == null ?
+                initDefault() :
+                ((isListable() ? LIST_TYPE : "") + normalizeDefaultValue(defaultVal));
         this.description = description;
     }
 
@@ -64,7 +66,7 @@ public class OptionParam extends Param {
 
             if (isListable()) {
 
-                return LIST_TYPE + normalize(def);
+                return LIST_TYPE + normalizeDefaultValue(def.value());
 
             } else {
 
@@ -87,9 +89,7 @@ public class OptionParam extends Param {
         }
     }
 
-    public String normalize(final Default def) {
-        final String value = def.value();
-
+    public static String normalizeDefaultValue(final String value) {
         if (value.contains(LIST_SEPARATOR)) {
             return value;
         }

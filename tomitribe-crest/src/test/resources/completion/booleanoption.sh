@@ -80,7 +80,7 @@ function _booleanoption_copy() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --force=*) _propose_flag_values "false" "true" ;;
+  --force=*) _propose_flag_values "true" "false" ;;
   -*) _propose_flags "--force=";;
   *) _propose_files ;;
   esac

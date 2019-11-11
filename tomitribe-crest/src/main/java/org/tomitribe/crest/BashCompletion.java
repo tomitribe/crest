@@ -16,37 +16,51 @@
  */
 package org.tomitribe.crest;
 
+import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.OverloadedCmdMethod;
+import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.OptionParam;
 import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.util.IO;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.PrintString;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class BashCompletion {
 
+    private static final String COMPLETER = "_completer";
     final PrintString out = new PrintString();
-    private final String mainCommand;
     private final Main main;
+    private String mainCommand;
 
-    public BashCompletion(final Main main, final String... args) {
+    public BashCompletion(final Main main) {
         this.main = main;
+    }
 
-        this.mainCommand = getMainCommandName(args);
-
+    @Command(COMPLETER)
+    public String _completer(@Option("f") boolean toFile) {
+        return _completer(toFile, guessName());
+    }
+    
+    @Command(COMPLETER)
+    public String _completer(@Option("f") boolean toFile, final String name) {
+        this.mainCommand = name;
 
         out.println("#!/bin/bash\n");
 
@@ -56,12 +70,32 @@ public class BashCompletion {
 
         out.println("\ncomplete -F _" + mainCommand + " " + mainCommand);
 
+        if (toFile) {
+            return asFile();
+        } else {
+            return out.toString();
+        }
     }
+
+    private String asFile() {
+        try {
+            final File file = File.createTempFile(String.format(".%s-completion-", mainCommand), ".sh");
+            IO.copy(out.toByteArray(), file);
+            return file.getAbsolutePath();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to generate completion script for " + mainCommand, e);
+        }
+    }
+
 
     private String getMainCommandName(String... args) {
         // Specifying it explicitly wins
         if (args.length == 1) return asFilename(args[0]);
 
+        return guessName();
+    }
+
+    private String guessName() {
         { // Next look for a system property 'cmd'
             final String name = System.getProperty("cmd");
             if (name != null) return asFilename(name);
@@ -89,7 +123,9 @@ public class BashCompletion {
     }
 
     public static String generate(final Main main, final String... args) {
-        return new BashCompletion(main, args).get();
+        final BashCompletion bashCompletion = new BashCompletion(main);
+        final Map<String, Cmd> cmds = Commands.get(bashCompletion);
+        return (String) cmds.get(COMPLETER).exec(null, args);
     }
 
     private void cmd(final int depth, final String group, Cmd cmd) {
@@ -385,7 +421,4 @@ public class BashCompletion {
         }
     }
 
-    public String get() {
-        return out.toString();
-    }
 }

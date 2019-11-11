@@ -31,6 +31,8 @@ import java.util.concurrent.FutureTask;
  * @version $Revision$ $Date$
  */
 public class Java {
+    private Java() {
+    }
 
     public static Result java(final String... args) {
         try {

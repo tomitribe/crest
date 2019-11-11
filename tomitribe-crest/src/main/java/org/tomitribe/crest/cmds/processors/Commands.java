@@ -16,13 +16,13 @@
  */
 package org.tomitribe.crest.cmds.processors;
 
-import org.tomitribe.crest.cmds.targets.SimpleBean;
-import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.OverloadedCmdMethod;
+import org.tomitribe.crest.cmds.targets.SimpleBean;
+import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.util.Strings;
@@ -153,7 +153,9 @@ public class Commands {
      * (or pick your favorite collection)
      *
      * This interface is intentionally not used in any method or constructor of crest.
+     * @deprecated use org.tomitribe.crest.api.Loader
      */
+    @Deprecated
     public static interface Loader extends Iterable<Class<?>> {
     }
 
@@ -162,17 +164,12 @@ public class Commands {
         if (loader == null) {
             loader = ClassLoader.getSystemClassLoader();
         }
-        final Iterator<Loader> all = ServiceLoader.load(Loader.class, loader).iterator();
 
-        // Let them tell is the list of classes to use
+        // Let them tell us the list of classes to use
         final LinkedHashSet<Class<?>> classes = new LinkedHashSet<>();
 
-        while (all.hasNext()) {
-            final Iterable<Class<?>> c = all.next();
-            for (final Class<?> clazz : c) {
-                classes.add(clazz);
-            }
-        }
+        addAll(classes, ServiceLoader.load(Loader.class, loader).iterator());
+        addAll(classes, ServiceLoader.load(org.tomitribe.crest.api.Loader.class, loader).iterator());
 
         // if maven plugin has been used just let add the found classes
         for (final String prefix : asList("", "/")) {
@@ -182,14 +179,15 @@ public class Commands {
                     final URL url = urls.nextElement();
                     try (InputStream stream = url.openStream();
                          BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                try {
-                                    classes.add(loader.loadClass(line));
-                                } catch (final ClassNotFoundException e) {
-                                    // no-op: we can log it but don't fail cause one command didn't load
-                                }
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            line = normalize(line);
+                            try {
+                                classes.add(loader.loadClass(line));
+                            } catch (final ClassNotFoundException e) {
+                                // no-op: we can log it but don't fail cause one command didn't load
                             }
+                        }
                     } catch (final IOException ioe) {
                         // no-op
                     }
@@ -200,5 +198,26 @@ public class Commands {
         }
 
         return classes;
+    }
+
+    /**
+     * Remove any whitespace to improve ability to understand what the user meant
+     * Remove 'class ' at the start in case the user added a class via its toString() vs getName()
+     */
+    private static String normalize(String line) {
+        line = line.trim();
+        if (line.startsWith("class ")) {
+            line = line.substring(5).trim();
+        }
+        return line;
+    }
+
+    private static void addAll(final LinkedHashSet<Class<?>> classes, final Iterator<? extends Iterable<Class<?>>> all) {
+        while (all.hasNext()) {
+            final Iterable<Class<?>> c = all.next();
+            for (final Class<?> clazz : c) {
+                classes.add(clazz);
+            }
+        }
     }
 }

@@ -585,6 +585,8 @@ public class CmdMethod implements Cmd {
                     if (!args.list.isEmpty()) {
                         needed.count--;
                         converted.add(fillPlainParameter(args, needed, parameter));
+                    } else {
+                        throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
                     }
                     break;
                 case BEAN_OPTION:
@@ -594,7 +596,7 @@ public class CmdMethod implements Cmd {
                     converted.add(fillOptionParameter(args, parameter, apiView.getName()));
                     break;
                 default:
-                    throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
+                    throw new IllegalStateException("Unsupported ParamType: " + apiView.getType());
             }
         }
         return converted;

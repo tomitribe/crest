@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class Main implements Completer {
 
@@ -111,8 +112,18 @@ public class Main implements Completer {
     }
 
     public static void main(final String... args) throws Exception {
+        final Environment env = new SystemEnvironment();
+        final Consumer<Integer> onExit = System::exit;
+
+        main(env, onExit, args);
+    }
+
+    /**
+     * Added additional method for greater testability, including knowing if exit
+     * is properly called with the correct value.
+     */
+    public static void main(final Environment env, final Consumer<Integer> onExit, final String... args) {
         try {
-            final Environment env = new SystemEnvironment();
             final Main main = new Main();
             main.main(env, args);
         } catch (final CommandFailedException e) {
@@ -121,18 +132,18 @@ public class Main implements Completer {
             final Exit exit = cause.getClass().getAnnotation(Exit.class);
             if (exit != null) {
 
-                System.err.println(cause.getMessage());
-                System.exit(exit.value());
+                env.getError().println(cause.getMessage());
+                onExit.accept(exit.value());
 
             } else {
 
-                cause.printStackTrace();
-                System.exit(-1);
+                cause.printStackTrace(env.getError());
+                onExit.accept(-1);
 
             }
 
         } catch (final Exception alreadyHandled) {
-            System.exit(-1);
+            onExit.accept(-1);
         }
     }
 

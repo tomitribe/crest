@@ -16,9 +16,6 @@
  */
 package org.tomitribe.crest;
 
-import org.tomitribe.crest.api.Exit;
-import org.tomitribe.crest.cmds.CommandFailedException;
-import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
 
 /**
@@ -31,25 +28,9 @@ public class Exec {
     }
 
     public static void main(final String... args) throws Exception {
-        try {
-            final Environment env = new SystemEnvironment();
-            final Main main = new Main();
-            main.main(env, args);
-        } catch (final CommandFailedException e) {
+        Main.main(new SystemEnvironment(), Exec::ignore, args);
+    }
 
-            final Throwable cause = e.getCause();
-            final Exit exit = cause.getClass().getAnnotation(Exit.class);
-            if (exit != null) {
-
-                System.err.println(e.getMessage());
-
-            } else {
-                cause.printStackTrace();
-            }
-
-        } catch (final Exception alreadyHandled) {
-            // Already Handled
-        }
-
+    private static void ignore(final int exitCode) {
     }
 }

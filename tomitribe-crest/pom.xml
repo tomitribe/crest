@@ -75,6 +75,12 @@
       <artifactId>geronimo-validation_2.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.tomitribe</groupId>
+      <artifactId>tomitribe-crest-test</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

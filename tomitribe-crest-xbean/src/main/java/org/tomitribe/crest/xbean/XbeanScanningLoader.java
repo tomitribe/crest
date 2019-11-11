@@ -18,6 +18,7 @@ package org.tomitribe.crest.xbean;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.Archive;
+import org.tomitribe.crest.BashCompletion;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.api.Command;
 
@@ -35,6 +36,7 @@ public abstract class XbeanScanningLoader implements Commands.Loader {
         for (final Method method : finder.findAnnotatedMethods(Command.class)) {
             classes.add(method.getDeclaringClass());
         }
+        classes.remove(BashCompletion.class);
     }
 
 

@@ -111,6 +111,18 @@ public class CmdMethod implements Cmd {
         private final Map<String, OptionParam> options = new TreeMap<>();
         private final Map<String, OptionParam> aliases = new TreeMap<>();
         private final List<Param> arguments = new LinkedList<>();
+
+        public Map<String, OptionParam> getOptions() {
+            return Collections.unmodifiableMap(options);
+        }
+
+        public Map<String, OptionParam> getAliases() {
+            return Collections.unmodifiableMap(aliases);
+        }
+
+        public List<Param> getArguments() {
+            return Collections.unmodifiableList(arguments);
+        }
     }
 
     public CmdMethod(final Method method, final DefaultsContext defaultsFinder) {
@@ -499,6 +511,10 @@ public class CmdMethod implements Cmd {
 
     public Map<String, OptionParam> getOptionParameters() {
         return Collections.unmodifiableMap(spec.options);
+    }
+
+    public Spec getSpec() {
+        return spec;
     }
 
     @Override

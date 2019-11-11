@@ -30,6 +30,7 @@ import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
+import org.tomitribe.util.Join;
 
 import java.io.PrintStream;
 import java.lang.reflect.Method;
@@ -192,6 +193,10 @@ public class Main implements Completer {
 
         final String command = (list.isEmpty()) ? "help" : list.remove(0);
         args = list.toArray(new String[list.size()]);
+
+        if (command.equals("_completion")) {
+            return BashCompletion.generate(this, args);
+        }
 
         final Cmd cmd = commands.get(command);
 

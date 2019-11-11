@@ -20,10 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Loader;
-import org.tomitribe.crest.test.Jar;
-import org.tomitribe.crest.test.Jars;
 import org.tomitribe.crest.test.Java;
-import org.tomitribe.util.Join;
 
 import java.util.Iterator;
 

@@ -23,6 +23,7 @@ import org.tomitribe.util.Join;
 
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +46,10 @@ public class OverloadedCmdMethod implements Cmd {
                 return a.getArgumentParameters().size() - b.getArgumentParameters().size();
             }
         });
+    }
+
+    public Set<CmdMethod> getMethods() {
+        return Collections.unmodifiableSet(methods);
     }
 
     @Override

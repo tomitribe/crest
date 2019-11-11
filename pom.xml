@@ -146,7 +146,7 @@
             <exclude>**/bootstrap-*</exclude>
             <exclude>**/js/jquery-*</exclude>
             <exclude>**/*.json</exclude>
-            <exclude>src/test/resources/**/*.txt</exclude>
+            <exclude>src/test/resources/**/*</exclude>
             <exclude>**/src/main/resources/archetype-resources/**/*</exclude>
             <exclude>.drone.yml</exclude>
             <exclude>.travis.yml</exclude>

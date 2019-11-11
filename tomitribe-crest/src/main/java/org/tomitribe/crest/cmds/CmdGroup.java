@@ -16,9 +16,15 @@
  */
 package org.tomitribe.crest.cmds;
 
+import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.cmds.utils.CommandLine;
+import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -26,11 +32,6 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import org.tomitribe.crest.cmds.processors.Commands;
-import org.tomitribe.crest.cmds.utils.CommandLine;
-import org.tomitribe.crest.environments.Environment;
-import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 
 public class CmdGroup implements Cmd {
 
@@ -40,6 +41,10 @@ public class CmdGroup implements Cmd {
     public CmdGroup(final Class<?> owner, final Map<String, Cmd> commands) {
         this.name = Commands.name(owner);
         this.commands.putAll(commands);
+    }
+
+    public Collection<Cmd> getCommands() {
+        return Collections.unmodifiableCollection(commands.values());
     }
 
     @Override
@@ -103,7 +108,7 @@ public class CmdGroup implements Cmd {
             out.printf("   %-20s%n", command);
         }
     }
-    
+
     public void help(String subCommand, PrintStream out) {
         final Cmd subCmd = commands.get(subCommand);
         if (subCmd == null) {
@@ -122,7 +127,7 @@ public class CmdGroup implements Cmd {
 
             final String commandLine = buffer.substring(0, cursorPosition);
             final String[] args = CommandLine.translateCommandline(commandLine);
-            
+
             // first arg should be the same name as this command
             if (args.length >= 1 && args[0].equals(getName())) {
 

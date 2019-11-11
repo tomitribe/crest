@@ -17,6 +17,7 @@
 package org.tomitribe.crest;
 
 import org.tomitribe.crest.api.Exit;
+import org.tomitribe.crest.api.PrintOutput;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.cmds.Cmd;
@@ -30,7 +31,6 @@ import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
-import org.tomitribe.util.Join;
 
 import java.io.PrintStream;
 import java.lang.reflect.Method;
@@ -46,6 +46,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class Main implements Completer {
 
@@ -162,6 +163,17 @@ public class Main implements Completer {
             if (result instanceof StreamingOutput) {
 
                 ((StreamingOutput) result).write(out);
+
+            } else if (result instanceof PrintOutput) {
+
+                ((PrintOutput) result).write(out);
+
+            } else if (result instanceof Stream) {
+
+                ((Stream<?>) result)
+                        .map(o -> o == null ? "" : o)
+                        .map(Object::toString)
+                        .forEach(out::println);
 
             } else if (result instanceof Iterable) {
 

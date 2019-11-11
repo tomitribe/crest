@@ -38,6 +38,7 @@
   </scm>
 
   <modules>
+    <module>tomitribe-crest-test</module>
     <module>tomitribe-crest-api</module>
     <module>tomitribe-crest</module>
     <module>tomitribe-crest-xbean</module>
@@ -88,7 +89,7 @@
       <dependency>
         <groupId>org.tomitribe</groupId>
         <artifactId>tomitribe-util</artifactId>
-        <version>1.0.0</version>
+        <version>1.3.4</version>
         <!--<scope>compile</scope>-->
       </dependency>
       <dependency>

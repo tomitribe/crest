@@ -28,13 +28,38 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 public class BashCompletionTest {
 
     @Test
-    public void generate() throws IOException {
-
+    public void happyPath() throws IOException {
         assertCompletion("foo", Foo.class);
+    }
+
+    @Test
+    public void optionsBooleanImpliedDefault() throws IOException {
+        assertCompletion("booleanoption", Copy.class);
+    }
+
+    @Test
+    public void enums() throws IOException {
+        assertCompletion("enums", Enums.class);
+    }
+
+    @Test
+    public void defaults() throws IOException {
+        assertCompletion("defaults", Defaults.class);
+    }
+
+    @Test
+    public void overloaded() throws IOException {
+        assertCompletion("overloaded", Overloaded.class);
+    }
+
+    @Test
+    public void groups() throws IOException {
+        assertCompletion("groups", Svn.class);
     }
 
     private void assertCompletion(final String cmd, final Class<?>... clazzes) throws IOException {
@@ -45,7 +70,6 @@ public class BashCompletionTest {
         final Main main = new Main(clazzes);
         Assert.assertEquals(expected, BashCompletion.generate(main, cmd));
     }
-
 
     public static class Foo {
 
@@ -61,6 +85,57 @@ public class BashCompletionTest {
 
         @Command
         public static void blue() {
+        }
+    }
+
+    public enum Shape {
+        CIRCLE,
+        SQUARE,
+        TRIANGLE
+    }
+
+    public static class Enums {
+
+        @Command
+        public String red(@Option("time") final TimeUnit unit) {
+            return "red";
+        }
+
+        @Command
+        public static String green(@Option("time") final TimeUnit unit, @Option("shape") final Shape shape) {
+            return "green";
+        }
+
+        @Command
+        public static void blue() {
+        }
+    }
+
+    public static class Defaults {
+
+        @Command
+        public String objects(@Option("oURI") final URI oURI,
+                              @Option("oURL") final URL oURL,
+                              @Option("oByte") final Byte oByte,
+                              @Option("oCharacter") final Character oCharacter,
+                              @Option("oShort") final Short oShort,
+                              @Option("oInteger") final Integer oInteger,
+                              @Option("oLong") final Long oLong,
+                              @Option("oFloat") final Float oFloat,
+                              @Option("oDouble") final Double oDouble) {
+            return "red";
+        }
+
+        @Command
+        public String primitives(@Option("oByte") final byte oByte,
+                                 @Option("oBoolean") final boolean oBoolean,
+                                 @Option("oCharacter") final char oCharacter,
+                                 @Option("oShort") final short oShort,
+                                 @Option("oInteger") final int oInteger,
+                                 @Option("oLong") final long oLong,
+                                 @Option("oFloat") final float oFloat,
+                                 @Option("oDouble") final double oDouble) {
+            return "red";
         }
     }
 
@@ -81,7 +156,7 @@ public class BashCompletionTest {
         }
 
         @Command
-        public StreamingOutput commit(@Option("username") String username, @Option("password") String password, String[] paths) {
+        public StreamingOutput commit(@Option("message") String message, @Option("password") String password, String[] paths) {
             throw new UnsupportedOperationException();
         }
     }

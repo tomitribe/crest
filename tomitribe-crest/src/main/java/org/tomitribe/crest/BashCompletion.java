@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -153,9 +154,9 @@ public class BashCompletion {
                 final List<String> strings = values.stream()
                         .map(this::quote)
                         .collect(Collectors.toList());
-                out.printf("  --%s=*) _propose_flag_values %s ;;\n", param.getName(), Join.join(" ", strings));
+                out.printf("  %s*) _propose_flag_values %s ;;\n", flag(param.getName()), Join.join(" ", strings));
             } else {
-                out.printf("  --%s=*) _propose_flag_file_values ;;\n", param.getName());
+                out.printf("  %s*) _propose_flag_file_values ;;\n", flag(param.getName()));
             }
         }
 
@@ -180,26 +181,50 @@ public class BashCompletion {
     }
 
     private List<String> guessValues(final OptionParam param) {
-        final ArrayList<String> values = new ArrayList<>();
-        values.add(param.getDefaultValue());
-        values.addAll(param.getDefaultValues());
+        final List<String> values = getDefaults(param);
 
         final Class<?> type = param.getType();
-        if (Boolean.class.isAssignableFrom(type)) {
+
+        if (type.isPrimitive()) {
+            values.remove(0);
+        }
+        if (Boolean.class.isAssignableFrom(type) || Boolean.TYPE.isAssignableFrom(type)) {
+
             values.add("true");
             values.add("false");
+
         } else if (Enum.class.isAssignableFrom(type)) {
+
             final Class<Enum<?>> enumClass = (Class<Enum<?>>) type;
             final Enum<?>[] constants = enumClass.getEnumConstants();
             for (final Enum<?> constant : constants) {
                 values.add(constant.name());
             }
+
         } else if (Pattern.class.isAssignableFrom(type) && values.size() == 0) {
+
             values.add("<regex>");
+
         } else if (isNonFile(type) && values.size() == 0) {
+
             values.add(String.format("<%s>", type.getSimpleName()));
+
         }
-        return values;
+
+        return values.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private static List<String> getDefaults(final OptionParam param) {
+        final ArrayList<String> values = new ArrayList<>();
+        values.add(param.getDefaultValue());
+        values.addAll(param.getDefaultValues());
+        return values.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     /**
@@ -213,13 +238,19 @@ public class BashCompletion {
                 URI.class,
                 URL.class,
                 Byte.class,
+                Byte.TYPE,
                 Character.class,
+                Character.TYPE,
                 Short.class,
+                Short.TYPE,
                 Integer.class,
+                Integer.TYPE,
                 Long.class,
+                Long.TYPE,
                 Float.class,
+                Float.TYPE,
                 Double.class,
-                Integer.class
+                Double.TYPE
         };
 
         for (final Class<?> aClass : types) {
@@ -231,7 +262,11 @@ public class BashCompletion {
     }
 
     private String flag(String s) {
-        return String.format("--%s=", s);
+        if (s.length() == 1) {
+            return String.format("-%s=", s);
+        } else {
+            return String.format("--%s=", s);
+        }
     }
 
 

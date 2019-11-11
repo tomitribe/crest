@@ -247,4 +247,45 @@ public class CompleterTest extends TestCase {
 
 
     }
+
+    /**
+     * Dashes and colons mess with out completer
+     * TODO: Fix the issue and write a test
+     */
+    @Command("revision-control")
+    public static class Dashes {
+
+        @Command("commit-code")
+        public StreamingOutput commit(@Option("user-name") String username, @Option("pass-word") String password, String[] paths) {
+            throw new UnsupportedOperationException();
+        }
+
+    }
+
+    /**
+     * Dashes and colons mess with out completer
+     * TODO: Fix the issue and write a test
+     */
+    @Command("revision_control")
+    public static class Underscores {
+
+        @Command("commit_code")
+        public StreamingOutput commit(@Option("user_name") String username, @Option("pass_word") String password, String[] paths) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Dashes and colons mess with out completer
+     * TODO: Fix the issue and write a test
+     */
+    @Command("revision:control")
+    public static class Colons {
+
+        @Command("commit:code")
+        public StreamingOutput commit(@Option("user:name") String username, @Option("pass:word") String password, String[] paths) {
+            throw new UnsupportedOperationException();
+        }
+
+    }
 }

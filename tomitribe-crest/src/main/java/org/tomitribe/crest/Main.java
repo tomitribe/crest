@@ -131,25 +131,31 @@ public class Main implements Completer {
         } catch (final CommandFailedException e) {
 
             final Throwable cause = e.getCause();
-            final Exit exit = cause.getClass().getAnnotation(Exit.class);
-            if (exit != null) {
 
-                env.getError().println(cause.getMessage());
-                onExit.accept(exit.value());
+            handle(env, onExit, cause);
 
-            } else {
-
-                cause.printStackTrace(env.getError());
-                onExit.accept(-1);
-
-            }
-
-        } catch (final Exception alreadyHandled) {
-            onExit.accept(-1);
+        } catch (final Throwable throwable) {
+            
+            handle(env, onExit, throwable);
         }
     }
 
-    public void main(final Environment env, final String[] args) throws Exception {
+    private static void handle(final Environment env, final Consumer<Integer> onExit, final Throwable cause) {
+        final Exit exit = cause.getClass().getAnnotation(Exit.class);
+        if (exit != null) {
+
+            env.getError().println(cause.getMessage());
+            onExit.accept(exit.value());
+
+        } else {
+
+            cause.printStackTrace(env.getError());
+            onExit.accept(-1);
+
+        }
+    }
+
+    public void main(final Environment env, final String... args) throws Exception {
         final Environment old = Environment.ENVIRONMENT_THREAD_LOCAL.get();
         Environment.ENVIRONMENT_THREAD_LOCAL.set(env);
 
@@ -190,6 +196,7 @@ public class Main implements Completer {
                 out.println(string);
 
                 if (!string.endsWith("\n")) out.println();
+                
             } else {
 
                 out.println(result);

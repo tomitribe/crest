@@ -500,6 +500,8 @@ public class CmdMethod implements Cmd {
             err.println(e.getMessage());
         }
         help(err);
+        
+        throw new HelpPrintedException(e);
     }
 
     public static RuntimeException toRuntimeException(final Throwable e) {
@@ -602,7 +604,7 @@ public class CmdMethod implements Cmd {
                         needed.count--;
                         converted.add(fillPlainParameter(args, needed, parameter));
                     } else {
-                        throw new IllegalArgumentException("Missing argument: " + parameter.getDisplayType().replace("[]", "...") + "");
+                        throw new MissingArgumentException(parameter.getDisplayType().replace("[]", "..."));
                     }
                     break;
                 case BEAN_OPTION:

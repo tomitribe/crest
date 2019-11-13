@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.HelpPrintedException;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.val.Directory;
 
@@ -44,7 +45,8 @@ public class BeanValidationTest extends Assert {
         try {
             check.exec(null, new File("/this/does/not/exist/we/hope").getAbsolutePath());
             fail();
-        } catch (final ConstraintViolationException e) {
+        } catch (final HelpPrintedException e) {
+            Assert.assertEquals(ConstraintViolationException.class, e.getCause().getClass());
         }
     }
 

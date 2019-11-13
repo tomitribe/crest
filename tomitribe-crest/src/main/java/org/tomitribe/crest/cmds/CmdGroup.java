@@ -77,11 +77,11 @@ public class CmdGroup implements Cmd {
         return cmd.exec(globalInterceptors, newArgs);
     }
 
-    private <E extends RuntimeException> E report(E e) {
+    private <E extends RuntimeException> HelpPrintedException report(E e) {
         final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
         err.println(e.getMessage());
         help(err);
-        return e;
+        return new HelpPrintedException(e);
     }
 
     @Override

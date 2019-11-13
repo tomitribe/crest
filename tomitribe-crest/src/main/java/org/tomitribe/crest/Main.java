@@ -23,6 +23,7 @@ import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CommandFailedException;
 import org.tomitribe.crest.cmds.Completer;
+import org.tomitribe.crest.cmds.HelpPrintedException;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.targets.SimpleBean;
@@ -135,14 +136,21 @@ public class Main implements Completer {
             handle(env, onExit, cause);
 
         } catch (final Throwable throwable) {
-            
+
             handle(env, onExit, throwable);
         }
     }
 
     private static void handle(final Environment env, final Consumer<Integer> onExit, final Throwable cause) {
         final Exit exit = cause.getClass().getAnnotation(Exit.class);
-        if (exit != null) {
+        final int code = (exit != null) ? exit.value() : -1;
+
+        if (cause instanceof HelpPrintedException) {
+
+            // these are already handled via message + help
+            onExit.accept(code);
+            
+        } else if (exit != null) {
 
             env.getError().println(cause.getMessage());
             onExit.accept(exit.value());
@@ -196,7 +204,7 @@ public class Main implements Completer {
                 out.println(string);
 
                 if (!string.endsWith("\n")) out.println();
-                
+
             } else {
 
                 out.println(result);

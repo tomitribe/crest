@@ -18,10 +18,12 @@ package org.tomitribe.crest;
 
 import junit.framework.TestCase;
 import org.apache.bval.constraints.NotEmpty;
+import org.junit.Assert;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.HelpPrintedException;
 
 import javax.validation.ConstraintViolationException;
 import java.net.URI;
@@ -39,13 +41,15 @@ public class OptionsObjectValidationTest extends TestCase {
         try {
             validation.exec(null, "--key=color", "--value=orange", "", "blue://foo");
             fail();
-        } catch (final ConstraintViolationException e) {
+        } catch (final HelpPrintedException e) {
+            Assert.assertEquals(ConstraintViolationException.class, e.getCause().getClass());
         }
 
         try {
             validation.exec(null, "--key=color", "--value=", "red", "blue://foo");
             fail();
-        } catch (final ConstraintViolationException e) {
+        } catch (final HelpPrintedException e) {
+            Assert.assertEquals(ConstraintViolationException.class, e.getCause().getClass());
         }
     }
 

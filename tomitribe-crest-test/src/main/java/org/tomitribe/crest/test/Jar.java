@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -106,10 +107,20 @@ public class Jar<T extends Jar<T>> {
             final String name = clazz.getName().replace('.', '/') + ".class";
 
             final URL resource = this.getClass().getClassLoader().getResource(name);
-
             if (resource == null) throw new IllegalStateException("Cannot find class file for " + clazz.getName());
+            add(name, resource);
 
-            return add(name, resource);
+            // Add any parent classes needed
+            if (!clazz.isAnonymousClass() && clazz.getDeclaringClass() != null) {
+                add(clazz.getDeclaringClass());
+            }
+
+            // Add any anonymous nested classes
+            Stream.of(clazz.getDeclaredClasses())
+                    .filter(Class::isAnonymousClass)
+                    .forEach(this::add);
+
+            return (T) this;
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

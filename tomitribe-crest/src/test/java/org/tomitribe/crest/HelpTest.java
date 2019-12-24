@@ -61,6 +61,12 @@ public class HelpTest extends Assert {
     @Command
     public static class Git {
 
+        /**
+         * This is awesome
+         * @param verbose
+         * @param repo
+         * @return
+         */
         @Command
         public String push(@Option("verbose") boolean verbose, String repo) {
             return "cmd:push repo:" + repo;

@@ -14,7 +14,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit tests for Wrap class.
  */
-@Deprecated
 public class WrapTest {
 
     //-----------------------------------------------------------------------

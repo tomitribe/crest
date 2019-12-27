@@ -1,0 +1,126 @@
+NAME
+       rsync - faster, flexible replacement for rcp
+
+SYNOPSIS
+       rsync [OPTION]... SRC [SRC]... DEST
+
+       rsync [OPTION]... SRC [SRC]... [USER@]HOST:DEST
+
+       rsync [OPTION]... SRC [SRC]... [USER@]HOST::DEST
+
+       rsync [OPTION]... SRC [SRC]... rsync://[USER@]HOST[:PORT]/DEST
+
+       rsync [OPTION]... SRC
+
+       rsync [OPTION]... [USER@]HOST:SRC [DEST]
+
+       rsync [OPTION]... [USER@]HOST::SRC [DEST]
+
+       rsync [OPTION]... rsync://[USER@]HOST[:PORT]/SRC [DEST]
+
+DESCRIPTION
+       rsync  is a program that behaves in much the same way that rcp does, but
+       has many more options and  uses  the  rsync  remote-update  protocol  to
+       greatly  speed  up  file  transfers  when  the destination file is being
+       updated.
+
+       The  rsync  remote-update  protocol  allows  rsync  to transfer just the
+       differences between two sets of files  across  the  network  connection,
+       using  an efficient checksum-search algorithm described in the technical
+       report that accompanies this package.
+
+       Some of the additional features of rsync are:
+
+       o      support for copying links, devices, owners, groups, and
+              permissions
+
+       o      exclude and exclude-from options similar to GNU tar
+
+       o      a CVS exclude mode for ignoring the same files that CVS would
+              ignore
+
+       o      can use any transparent remote shell, including ssh or rsh
+
+       o      does not require super-user privileges
+
+       o      pipelining of file transfers to minimize latency costs
+
+       o      support for anonymous or authenticated rsync daemons (ideal for
+              mirroring)
+
+GENERAL
+       Rsync  copies  files  either to or from a remote host, or locally on the
+       current host (it does not  support  copying  files  between  two  remote
+       hosts).
+
+       There are two different ways for rsync to contact a remote system: using
+       a remote-shell program  as  the  transport  (such  as  ssh  or  rsh)  or
+       contacting an rsync daemon directly via TCP.  The remote-shell transport
+       is used whenever the source or destination path contains a single  colon
+       (:)  separator  after  a host specification.  Contacting an rsync daemon
+       directly happens when the source or destination path contains  a  double
+       colon (::) separator after a host specification, OR when an rsync:// URL
+       is specified (see also the "USING RSYNC-DAEMON FEATURES VIA A
+       REMOTE-SHELL  CONNECTION" section for an exception to this latter rule).
+
+       As  a  special  case,  if  a  single  source  arg is specified without a
+       destination, the files are listed in an output  format  similar  to  "ls
+       -l".
+
+       As  expected, if neither the source or destination path specify a remote
+       host, the  copy  occurs  locally  (see  also  the  --list-only  option).
+
+SETUP
+       See the file README for installation instructions.
+
+       Once installed, you can use rsync to any machine that you can access via
+       a remote shell (as well as some that you  can  access  using  the  rsync
+       daemon-mode protocol). For remote transfers, a modern rsync uses ssh for
+       its communications, but it may have been configured to use  a  different
+       remote shell by default, such as rsh or remsh.
+
+       You  can  also specify any remote shell you like, either by using the -e
+       command line option, or by setting the RSYNC_RSH  environment  variable.
+
+       Note  that  rsync  must  be installed on both the source and destination
+       machines.
+
+USAGE
+       You use rsync in the same way you use rcp. You must specify a source and
+       a destination, one of which may be remote.
+
+       Perhaps  the  best  way  to  explain  the  syntax is with some examples:
+
+              rsync -t *.c foo:src/
+
+       This  would transfer all files matching the pattern *.c from the current
+       directory to the directory src on the machine foo.  If any of the  files
+       already exist on the remote system then the rsync remote-update protocol
+       is used to update the file by sending only the differences. See the tech
+       report for details.
+
+              rsync -avz foo:src/bar /data/tmp
+
+       This  would recursively transfer all files from the directory src/bar on
+       the machine foo into the /data/tmp/bar directory on the  local  machine.
+       The files are transferred in "archive" mode, which ensures that symbolic
+       links, devices, attributes, permissions, ownerships, etc.  are preserved
+       in  the  transfer.  Additionally, compression will be used to reduce the
+       size of data portions of the transfer.
+
+       rsync -avz foo:src/bar/ /data/tmp
+
+       A  trailing  slash on the source changes this behavior to avoid creating
+       an additional directory level at the destination.  You can  think  of  a
+       trailing  / on a source as meaning "copy the contents of this directory"
+       as opposed to "copy the directory  by  name",  but  in  both  cases  the
+       attributes of the containing directory are transferred to the containing
+       directory on the destination.  In other words,  each  of  the  following
+       commands  copies  the  files in the same way, including their setting of
+       the attributes of /dest/foo:
+
+              rsync -av /src/foo /dest
+              rsync -av /src/foo/ /dest/foo
+
+       Note also that host and module references don't require a trailing slash
+       to copy the contents of the default directory.

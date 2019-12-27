@@ -27,7 +27,7 @@ public class Justify {
 
     public Justify(final int width) {
         this.width = width;
-        this.padding = this::fromRight;
+        this.padding = this::fromLeft;
     }
 
     public static String wrapAndJustify(final String text, final int width) {

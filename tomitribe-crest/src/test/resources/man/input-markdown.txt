@@ -1,0 +1,41 @@
+# General
+
+
+Rsync  copies  files either to or from a remote host, or locally on the current
+host (it does not support copying files between two remote hosts).
+
+There are two different ways for rsync to contact a remote system: using a
+remote-shell program as the transport (such as ssh or rsh) or contacting an rsync
+daemon directly via TCP.  The remote-shell transport is used whenever the source or
+destination  path  contains a single colon (:) separator after a host specification.
+Contacting an rsync daemon directly happens when the source or destination
+path contains a  double  colon  (::) separator after a host specification, OR when
+an rsync:// URL is specified (see also the "USING RSYNC-DAEMON FEATURES VIA A REMOTE-SHELL
+CONNECTION" section for an exception  to this latter rule).
+
+As  a special case, if a single source arg is specified without a
+destination, the files are listed in an output format similar to "ls -l".
+
+As expected, if neither the source or destination path specify a remote
+ host,  the copy occurs locally (see also the --list-only option).
+
+# Setup
+
+See the file README for installation instructions.
+
+Once  installed, you can use rsync to any machine that you can access via a remote shell (as well as
+ some that you can access using the rsync daemon-mode protocol).  For  remote transfers,
+ a modern rsync uses ssh for its communications, but it may have been configured to
+use a different remote shell by default, such as rsh or remsh.
+
+
+You can also specify any remote shell you like, either by  using  the  -e  command
+line option, or by setting the RSYNC_RSH environment variable.
+
+Note that rsync must be installed on both the source and destination machines.
+
+# usage
+
+You  use rsync in the same way you use rcp. You must specify a source and a destination, one of which may be remote.
+
+Perhaps the best way to explain the syntax is with some examples:

@@ -21,6 +21,9 @@ import java.util.regex.Pattern;
 
 public class Wrap {
 
+    private Wrap() {
+    }
+
     public static int length(final CharSequence cs) {
         return cs == null ? 0 : cs.length();
     }

@@ -34,11 +34,11 @@ public class JustifyTest {
         final String justified = Justify.wrapAndJustify(source, 120);
 
         final String expected = "" +
-                "There are two different ways for rsync to contact a remote system: using a remote-shell program as the  transport  (such\n" +
+                "There  are  two different ways for rsync to contact a remote system: using a remote-shell program as the transport (such\n" +
                 "as ssh or rsh) or contacting an rsync daemon directly via TCP. The remote-shell transport is used whenever the source or\n" +
-                "destination path contains a single colon (:) separator after a host specification.  Contacting an rsync daemon  directly\n" +
-                "happens  when  the source or destination path contains a double colon (::) separator after a host specification, OR when\n" +
-                "an rsync:// URL is specified (see also the \"USING RSYNC-DAEMON FEATURES VIA A REMOTE-SHELL CONNECTION\"  section  for  an\n" +
+                "destination  path contains a single colon (:) separator after a host specification.  Contacting an rsync daemon directly\n" +
+                "happens when the source or destination path contains a double colon (::) separator after a host specification,  OR  when\n" +
+                "an  rsync://  URL  is specified (see also the \"USING RSYNC-DAEMON FEATURES VIA A REMOTE-SHELL CONNECTION\" section for an\n" +
                 "exception to this latter rule).";
         Assert.assertEquals(expected, justified);
 
@@ -48,14 +48,14 @@ public class JustifyTest {
         final String justified = Justify.wrapAndJustify(source, 79);
 
         final String expected = "" +
-                "There are two different ways for rsync to contact  a  remote  system:  using  a\n" +
-                "remote-shell  program  as  the  transport (such as ssh or rsh) or contacting an\n" +
+                "There  are  two  different  ways  for rsync to contact a remote system: using a\n" +
+                "remote-shell program as the transport (such as ssh or  rsh)  or  contacting  an\n" +
                 "rsync daemon directly via TCP.  The remote-shell transport is used whenever the\n" +
-                "source  or  destination path contains a single colon (:) separator after a host\n" +
-                "specification.  Contacting an rsync daemon directly happens when the source  or\n" +
+                "source or destination path contains a single colon (:) separator after  a  host\n" +
+                "specification.   Contacting an rsync daemon directly happens when the source or\n" +
                 "destination path contains a double colon (::) separator after a host\n" +
-                "specification, OR when an rsync://  URL  is  specified  (see  also  the  \"USING\n" +
-                "RSYNC-DAEMON  FEATURES  VIA A REMOTE-SHELL CONNECTION\" section for an exception\n" +
+                "specification,  OR  when  an  rsync://  URL  is  specified (see also the \"USING\n" +
+                "RSYNC-DAEMON FEATURES VIA A REMOTE-SHELL CONNECTION\" section for  an  exception\n" +
                 "to this latter rule).";
         Assert.assertEquals(expected, justified);
 

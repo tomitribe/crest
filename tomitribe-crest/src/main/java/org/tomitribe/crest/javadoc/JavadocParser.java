@@ -196,6 +196,7 @@ public class JavadocParser {
      */
     private ArrayList<String> splitParts() {
         final String[] parts = content
+                .replaceFirst("^ *@", "@")
                 .replaceAll("\n *@", "\n\000@")
                 .split("\n\000");
 

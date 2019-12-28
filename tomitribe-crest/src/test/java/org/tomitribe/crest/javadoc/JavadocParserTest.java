@@ -29,6 +29,18 @@ import static org.junit.Assert.assertTrue;
 public class JavadocParserTest {
 
     @Test
+    public void parseOnlyTags() {
+        final String javadocText = " @param foo Is very important";
+        final Javadoc actual = JavadocParser.parse(javadocText);
+
+        final Javadoc expected = Javadoc.builder()
+                .param(new Javadoc.Param("foo", "Is very important"))
+                .build();
+
+        assertJavadoc(expected, actual);
+    }
+
+    @Test
     public void parseMethod() {
         final String javadocText = "" +
                 " This is javadoc text as it\n" +

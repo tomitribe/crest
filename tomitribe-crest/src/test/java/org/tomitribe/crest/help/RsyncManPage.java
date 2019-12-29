@@ -75,12 +75,12 @@ public class RsyncManPage {
                 .paragraph("You use rsync in the same way you use rcp. You must specify a source and a de" +
                         "stination, one of which may be remote.")
                 .paragraph("Perhaps the best way to explain the syntax is with some examples:")
-                .indentedContent("       rsync -t *.c foo:src/")
+                .preformatted("       rsync -t *.c foo:src/")
                 .paragraph("This would transfer all files matching the pattern *.c from the current direc" +
                         "tory to the directory src on the machine foo. If any of the files already exist " +
                         "on the remote system then the rsync remote-update protocol is used to update the" +
                         " file by sending only the differences. See the tech report for details.")
-                .indentedContent("       rsync -avz foo:src/bar /data/tmp")
+                .preformatted("       rsync -avz foo:src/bar /data/tmp")
                 .paragraph("This would recursively transfer all files from the directory src/bar on the m" +
                         "achine foo into the /data/tmp/bar directory on the local machine. The files are " +
                         "transferred in \"archive\" mode, which ensures that symbolic links, devices, att" +
@@ -94,7 +94,7 @@ public class RsyncManPage {
                         "ory are transferred to the containing directory on the destination. In other wor" +
                         "ds, each of the following commands copies the files in the same way, including t" +
                         "heir setting of the attributes of /dest/foo:")
-                .indentedContent("       rsync -av /src/foo /dest\n       rsync -av /src/foo/ /dest/foo")
+                .preformatted("       rsync -av /src/foo /dest\n       rsync -av /src/foo/ /dest/foo")
                 .paragraph("Note also that host and module references don't require a trailing slash to c" +
                         "opy the contents of the default directory.")
                 .build();

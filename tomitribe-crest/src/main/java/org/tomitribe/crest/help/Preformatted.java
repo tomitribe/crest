@@ -16,15 +16,22 @@
  */
 package org.tomitribe.crest.help;
 
-public class IndentedContent implements Element {
+public class Preformatted implements Element {
     private final String content;
 
-    public IndentedContent(final String content) {
+    public Preformatted(final String content) {
         this.content = content;
     }
 
     @Override
     public String getContent() {
         return content;
+    }
+
+    @Override
+    public String toString() {
+        return "Preformatted{" +
+                "content='" + content + '\'' +
+                '}';
     }
 }

@@ -27,4 +27,11 @@ public class Bullet implements Element {
     public String getContent() {
         return content;
     }
+
+    @Override
+    public String toString() {
+        return "Bullet{" +
+                "content='" + content + '\'' +
+                '}';
+    }
 }

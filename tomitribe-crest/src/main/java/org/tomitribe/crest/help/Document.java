@@ -48,8 +48,8 @@ public class Document {
             return this;
         }
 
-        public Builder indentedContent(final String content) {
-            elements.add(new IndentedContent(content));
+        public Builder preformatted(final String content) {
+            elements.add(new Preformatted(content));
             return this;
         }
 

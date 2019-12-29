@@ -16,22 +16,25 @@
  */
 package org.tomitribe.crest.help;
 
-public class Heading implements Element {
-    private final String content;
+public class HtmlDocumentParser {
 
-    public Heading(final String content) {
-        this.content = content;
+    public static Document parse(final String content) {
+        return null;
     }
 
-    @Override
-    public String getContent() {
-        return content;
+    private HtmlDocumentParser() {
     }
 
-    @Override
-    public String toString() {
-        return "Heading{" +
-                "content='" + content + '\'' +
-                '}';
+    static boolean isHtml(final String content) {
+        if (content.contains("<br>")) return true;
+        if (content.contains("<br/>")) return true;
+        if (content.contains("</br>")) return true;
+        if (content.contains("<p>")) return true;
+        if (content.contains("<p/>")) return true;
+        if (content.contains("</p>")) return true;
+        if (content.contains("<h1>")) return true;
+        if (content.contains("<h2>")) return true;
+        if (content.contains("<h3>")) return true;
+        return false;
     }
 }

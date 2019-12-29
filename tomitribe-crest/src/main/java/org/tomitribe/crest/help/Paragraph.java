@@ -28,4 +28,10 @@ public class Paragraph implements Element {
         this.content = content;
     }
 
+    @Override
+    public String toString() {
+        return "Paragraph{" +
+                "content='" + content + '\'' +
+                '}';
+    }
 }

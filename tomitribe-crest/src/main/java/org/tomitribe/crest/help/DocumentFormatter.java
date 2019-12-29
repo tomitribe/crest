@@ -75,9 +75,9 @@ public class DocumentFormatter {
 
                 if (iterator.hasNext()) out.println();
 
-            } else if (element instanceof IndentedContent) {
-                final IndentedContent indentedContent = (IndentedContent) element;
-                Stream.of(indentedContent.getContent().split("\n"))
+            } else if (element instanceof Preformatted) {
+                final Preformatted preformatted = (Preformatted) element;
+                Stream.of(preformatted.getContent().split("\n"))
                         .forEach(s -> out.format("       %s%n", s));
 
                 if (iterator.hasNext()) out.println();

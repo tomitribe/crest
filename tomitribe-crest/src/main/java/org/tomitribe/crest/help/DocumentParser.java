@@ -28,7 +28,7 @@ public class DocumentParser {
 
     private final String content;
     private final Pattern leadingSpaces = Pattern.compile("^( *)");
-    private final Pattern bullet = Pattern.compile("^ *- *(.+)");
+    private final Pattern bullet = Pattern.compile("^( *-) *(.+)");
     private final Pattern heading = Pattern.compile("^[=#]+ *(.+)|^([A-Z]+[^a-z]+)");
     private final Pattern preformatted = Pattern.compile("^    (.+)");
     private final Document.Builder doc = Document.builder();
@@ -133,14 +133,33 @@ public class DocumentParser {
     }
 
     private boolean processBullet(final String line) {
-        final Matcher matcher = bullet.matcher(line);
-        if (!matcher.find()) return false;
+        { // Is this line the start of a bullet?
+            final Matcher matcher = bullet.matcher(line);
+            if (matcher.find()) {
+                terminate();
 
-        terminate();
+                final String prefix = matcher.group(1);
+                final String text = matcher.group(2);
 
-        final String text = matcher.group(1);
-        doc.bullet(text);
-        return true;
+                this.state = new ReadingBullet(prefix);
+                this.state.process(text);
+
+                return true;
+            }
+        }
+
+        // Is this line a continuation of a bullet?
+        if (state instanceof ReadingBullet){
+            final ReadingBullet readingBullet = (ReadingBullet) this.state;
+            final Matcher matcher = readingBullet.continued.matcher(line);
+            if (!matcher.find()) return false;
+
+            final String text = matcher.group(1);
+            readingBullet.process(text);
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -186,6 +205,29 @@ public class DocumentParser {
         @Override
         public void terminate() {
             doc.preformatted(Join.join("\n", lines));
+        }
+    }
+
+    private class ReadingBullet implements State {
+        private final List<String> lines = new ArrayList<>();
+        private final Pattern continued;
+
+        public ReadingBullet(final String bullet) {
+            final String spaces = bullet.replaceAll(".", " ");
+            this.continued = Pattern.compile(String.format("^%s(.+)", spaces));
+        }
+
+        @Override
+        public void process(final String line) {
+            lines.add(line);
+        }
+
+        @Override
+        public void terminate() {
+            final String content = Join.join(" ", lines)
+                    .replaceAll("  +", " ");
+
+            doc.bullet(content);
         }
     }
 

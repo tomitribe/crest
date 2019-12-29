@@ -129,7 +129,6 @@ public class DocumentParserTest {
     }
 
     @Test
-    @Ignore
     public void multilineBullets() {
         final String content = "" +
                 "This option causes rsync to set the group of the destination file to be the\n" +
@@ -145,7 +144,18 @@ public class DocumentParserTest {
                 "option for a full discussion).";
         final Document document = DocumentParser.parser(content);
         final String actual = Join.join("\n", document.elements);
-        assertEquals("", actual);
+        assertEquals("" +
+                "Paragraph{content='This option causes rsync to set the group " +
+                "of the destination file to be the same as the source file. - If " +
+                "the receiving program is not running as the super-user only groups" +
+                " that the invoking user on the receiving side is a member of will " +
+                "be preserved.'}\n" +
+                "Bullet{content='Without this option, the group is set to the default " +
+                "group of the invok- ing user on the receiving side.'}\n" +
+                "Paragraph{content='The preservation of group information will associate " +
+                "matching names by default, but may fall back to using the ID number in " +
+                "some circumstances (see also the --numeric-ids option for a full " +
+                "discussion).'}", actual);
     }
 
     @Test

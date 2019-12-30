@@ -38,6 +38,7 @@ public class DocumentParser {
     }
 
     public static Document parser(String content) {
+        if (content == null || content.length() == 0) return Document.builder().build();
         if (HtmlDocumentParser.isHtml(content)) {
             return HtmlDocumentParser.parse(content);
         } else {

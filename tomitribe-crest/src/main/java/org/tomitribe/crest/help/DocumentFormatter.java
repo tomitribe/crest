@@ -21,6 +21,7 @@ import org.tomitribe.util.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,8 +63,14 @@ public class DocumentFormatter {
 
                 final DocumentFormatter formatter = new DocumentFormatter(column);
                 final String content = formatter.format(option.getDocument());
-                final ArrayList<String> lines = new ArrayList<>(Arrays.asList(content.split("\n")));
 
+                final List<String> lines;
+                if (content == null || content.length() == 0) {
+                    lines = Collections.EMPTY_LIST;
+                } else {
+                    lines = new ArrayList<>(Arrays.asList(content.split("\n")));
+                }
+                
                 if (option.getFlag().length() < 7 && lines.size() > 0) {
                     out.format("       %-6s %s%n", option.getFlag(), lines.remove(0).trim());
                     lines.forEach(s -> out.format("       %s%n", s));

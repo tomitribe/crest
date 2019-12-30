@@ -549,15 +549,26 @@ public class CmdMethod implements Cmd {
                 .heading("NAME")
                 .paragraph(name)
                 .heading("SYNOPSIS")
-                .paragraph(getUsage())
-                .heading("DESCRIPTION")
-                .inline(DocumentParser.parser(javadoc.getContent()));
+                .paragraph(getUsage());
+
+        {
+            final Document description = DocumentParser.parser(javadoc.getContent());
+            if (description.getElements().size() > 0) {
+                manual.heading("DESCRIPTION")
+                        .inline(description);
+            }
+        }
 
         if (spec.getOptions().size() > 0) {
             manual.heading("OPTIONS");
 
-            final Map<String, Javadoc.Param> params = javadoc.getParams().stream()
-                    .collect(Collectors.toMap(Javadoc.Param::getName, Function.identity()));
+            final Map<String, Javadoc.Param> params;
+            if (javadoc.getParams() != null) {
+                params = javadoc.getParams().stream()
+                        .collect(Collectors.toMap(Javadoc.Param::getName, Function.identity()));
+            } else {
+                params = new HashMap<>();
+            }
 
             final List<Item> items = Help.getItems(method.getDeclaringClass(), name, spec.options.values());
 
@@ -591,7 +602,7 @@ public class CmdMethod implements Cmd {
                 manual.paragraph(deprecated.getContent());
             }
         }
-        
+
         if (has(javadoc.getSees())) {
             manual.heading("SEE ALSO");
             javadoc.getSees().forEach(see -> manual.paragraph(see.getContent()));

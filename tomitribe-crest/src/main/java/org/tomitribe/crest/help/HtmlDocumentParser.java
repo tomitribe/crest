@@ -26,6 +26,7 @@ public class HtmlDocumentParser {
     }
 
     static boolean isHtml(final String content) {
+        if (content == null) return false;
         if (content.contains("<br>")) return true;
         if (content.contains("<br/>")) return true;
         if (content.contains("</br>")) return true;

@@ -102,7 +102,7 @@ public class DocumentFormatter {
             } else if (element instanceof Preformatted) {
                 final Preformatted preformatted = (Preformatted) element;
                 Stream.of(preformatted.getContent().split("\n"))
-                        .forEach(s -> out.format("       %s%n", s));
+                        .forEach(s -> out.format("           %s%n", s));
 
                 if (iterator.hasNext()) out.println();
             }

@@ -80,14 +80,14 @@ USAGE
 
        Perhaps the best way to explain the syntax is with some examples:
 
-              rsync -t *.c foo:src/
+           rsync -t *.c foo:src/
 
        This  would  transfer  all  files matching the pattern *.c from the current directory to the
        directory src on the machine foo.  If any of the files already exist on  the  remote  system
        then  the  rsync  remote-update  protocol  is  used  to  update the file by sending only the
        differences. See the tech report for details.
 
-              rsync -avz foo:src/bar /data/tmp
+           rsync -avz foo:src/bar /data/tmp
 
        This would recursively transfer all files from the directory src/bar on the machine foo into
        the /data/tmp/bar directory on the local machine.  The files are  transferred  in  "archive"
@@ -95,7 +95,7 @@ USAGE
        are preserved in the transfer.  Additionally, compression will be used to reduce the size of
        data portions of the transfer.
 
-       rsync -avz foo:src/bar/ /data/tmp
+           rsync -avz foo:src/bar/ /data/tmp
 
        A  trailing  slash  on  the  source  changes  this  behavior to avoid creating an additional
        directory level at the destination.  You can think of a trailing / on a  source  as  meaning
@@ -104,8 +104,8 @@ USAGE
        directory  on  the  destination.   In other words, each of the following commands copies the
        files in the same way, including their setting of the attributes of /dest/foo:
 
-              rsync -av /src/foo /dest
-              rsync -av /src/foo/ /dest/foo
+           rsync -av /src/foo /dest
+           rsync -av /src/foo/ /dest/foo
 
        Note  also  that  host  and  module  references  don't  require a trailing slash to copy the
        contents of the default directory.

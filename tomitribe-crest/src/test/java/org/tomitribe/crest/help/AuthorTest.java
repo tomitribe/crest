@@ -30,7 +30,7 @@ import java.io.PrintStream;
 
 import static org.junit.Assert.assertEquals;
 
-public class SeeAlsoTest {
+public class AuthorTest {
 
     @Test
     public void justSeeAlso() throws Exception {
@@ -52,8 +52,8 @@ public class SeeAlsoTest {
                         "\n" +
                         "       --message=<String>\n" +
                         "\n" +
-                        "SEE ALSO\n" +
-                        "       https://github.com/tomitribe/crest\n" +
+                        "AUTHORS\n" +
+                        "       Gonzo the Great\n" +
                         "\n",
                 out.toString());
     }
@@ -90,10 +90,10 @@ public class SeeAlsoTest {
                         "       --message=<String>\n" +
                         "              a message detailing the commit\n" +
                         "\n" +
-                        "SEE ALSO\n" +
-                        "       https://github.com/tomitribe/crest\n" +
+                        "AUTHORS\n" +
+                        "       Gonzo the Great\n" +
                         "\n" +
-                        "       This is text\n" +
+                        "       Kermit the Frog <kermit@frog.com>\n" +
                         "\n",
                 out.toString());
     }
@@ -101,7 +101,7 @@ public class SeeAlsoTest {
     public static class Commands {
 
         /**
-         * @see https://github.com/tomitribe/crest
+         * @author Gonzo the Great
          */
         @Command("update")
         public void update(@Option("all") final boolean everything, @Required @Option("message") final String text, @Directory final File repo) {
@@ -121,9 +121,8 @@ public class SeeAlsoTest {
          *
          * @param everything indicates all changes should be committed, including deleted files
          * @param text a message detailing the commit
-         * @param repo the git repository cloned to the local system where changes should be committed
-         * @see https://github.com/tomitribe/crest
-         * @see This is text
+         * @author Gonzo the Great
+         * @author Kermit the Frog <kermit@frog.com>
          */
         @Command("commit")
         public void commit(@Option("all") final boolean everything, @Required @Option("message") final String text, @Directory final File repo) {

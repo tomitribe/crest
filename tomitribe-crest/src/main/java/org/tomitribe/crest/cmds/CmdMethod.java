@@ -30,6 +30,7 @@ import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.api.interceptor.ParameterMetadata;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
+import org.tomitribe.crest.cmds.processors.Item;
 import org.tomitribe.crest.cmds.processors.OptionParam;
 import org.tomitribe.crest.cmds.processors.Param;
 import org.tomitribe.crest.cmds.targets.SimpleBean;
@@ -39,8 +40,14 @@ import org.tomitribe.crest.cmds.utils.CommandLine;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.help.CommandJavadoc;
+import org.tomitribe.crest.help.Document;
+import org.tomitribe.crest.help.DocumentFormatter;
+import org.tomitribe.crest.help.DocumentParser;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptorInvocationContext;
+import org.tomitribe.crest.javadoc.Javadoc;
+import org.tomitribe.crest.javadoc.JavadocParser;
 import org.tomitribe.crest.val.BeanValidation;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.editor.Converter;
@@ -73,12 +80,15 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.unmodifiableList;
 import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.BEAN_OPTION;
 import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.INTERNAL;
 import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.OPTION;
 import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.SERVICE;
+import static org.tomitribe.crest.help.DocumentParser.parseOptionDescription;
 
 /**
  * @version $Revision$ $Date$
@@ -312,8 +322,8 @@ public class CmdMethod implements Cmd {
     public String getUsage() {
         String commandName = name;
 
-        Class<?> declaringClass = method.getDeclaringClass();
-        Map<String, Cmd> commands = Commands.get(declaringClass);
+        final Class<?> declaringClass = method.getDeclaringClass();
+        final Map<String, Cmd> commands = Commands.get(declaringClass);
         if (commands.size() == 1 && commands.values().iterator().next() instanceof CmdGroup) {
             final CmdGroup cmdGroup = (CmdGroup) commands.values().iterator().next();
             commandName = cmdGroup.getName() + " " + name;
@@ -500,7 +510,7 @@ public class CmdMethod implements Cmd {
             err.println(e.getMessage());
         }
         help(err);
-        
+
         throw new HelpPrintedException(e);
     }
 
@@ -517,6 +527,87 @@ public class CmdMethod implements Cmd {
 
     public Spec getSpec() {
         return spec;
+    }
+
+    @Override
+    public void manual(final PrintStream out) {
+        final List<CommandJavadoc> javadocs = CommandJavadoc.loadJavadoc(method.getDeclaringClass(), name);
+
+        final List<CommandJavadoc> matches = javadocs.stream()
+                .filter(commandJavadoc -> commandJavadoc.matches(method.getParameterTypes()))
+                .collect(Collectors.toList());
+
+        if (matches.size() == 0) {
+            help(out);
+            return;
+        }
+
+        final CommandJavadoc commandJavadoc = matches.get(0);
+        final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
+
+        final Document.Builder manual = Document.builder()
+                .heading("NAME")
+                .paragraph(name)
+                .heading("SYNOPSIS")
+                .paragraph(getUsage())
+                .heading("DESCRIPTION")
+                .inline(DocumentParser.parser(javadoc.getContent()));
+
+        if (spec.getOptions().size() > 0) {
+            manual.heading("OPTIONS");
+
+            final Map<String, Javadoc.Param> params = javadoc.getParams().stream()
+                    .collect(Collectors.toMap(Javadoc.Param::getName, Function.identity()));
+
+            final List<Item> items = Help.getItems(method.getDeclaringClass(), name, spec.options.values());
+
+            for (final Item item : items) {
+                final String optionName = item.getParam().getName();
+                final String javadocParameterName = commandJavadoc.getProperties().getProperty(optionName);
+                final Javadoc.Param param = params.get(javadocParameterName);
+
+                final Document.Builder description = Document.builder();
+                if (item.getDescription() != null) {
+                    description.inline(parseOptionDescription(item.getDescription()));
+                } else if (param != null) {
+                    description.inline(parseOptionDescription(param.getDescription()));
+                }
+
+                if (has(item.getNote())) {
+                    final String notes = Join.join(". ", item.getNote());
+                    description.paragraph(notes);
+                }
+
+                manual.element(new org.tomitribe.crest.help.Option(item.getFlag(), description.build()));
+            }
+        }
+
+        if (javadoc.getDeprecated() != null) {
+            manual.heading("Deprecated");
+            final Javadoc.Deprecated deprecated = javadoc.getDeprecated();
+            if (deprecated.getContent() == null || deprecated.getContent().length() == 0) {
+                manual.paragraph("Command has been marked deprecated.");
+            } else {
+                manual.paragraph(deprecated.getContent());
+            }
+        }
+        
+        if (has(javadoc.getSees())) {
+            manual.heading("SEE ALSO");
+            javadoc.getSees().forEach(see -> manual.paragraph(see.getContent()));
+        }
+
+        if (has(javadoc.getAuthors())) {
+            manual.heading("AUTHORS");
+            javadoc.getAuthors().forEach(author -> manual.paragraph(author.getContent()));
+        }
+
+        final DocumentFormatter formatter = new DocumentFormatter(100);
+        out.print(formatter.format(manual.build()));
+    }
+
+    public static boolean has(final List<?> list) {
+        return list != null && list.size() > 0;
     }
 
     @Override

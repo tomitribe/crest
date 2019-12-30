@@ -17,10 +17,8 @@
 package org.tomitribe.crest.cmds.processors;
 
 import org.tomitribe.crest.api.Command;
-import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
-import org.tomitribe.util.Join;
 import org.tomitribe.util.PrintString;
 import org.tomitribe.util.reflect.Classes;
 
@@ -28,8 +26,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -51,11 +47,43 @@ public class Help {
             return;
         }
 
+        final List<Item> items = getItems(clazz, commandName, optionParams);
+
+        int width = 20;
+        for (final Item item : items) {
+            width = Math.max(width, item.getFlag().length());
+        }
+
+        final String format = "  %-" + width + "s     %s%n";
+
+        out.println("Options: ");
+
+        for (final Item item : items) {
+            final List<String> lines = new ArrayList<>();
+
+            if (item.getDescription() != null) {
+                lines.add(item.getDescription());
+            }
+
+            lines.addAll(item.getNote());
+            if (lines.isEmpty()) {
+                lines.add("");
+            }
+
+            out.printf(format, item.getFlag(), lines.remove(0));
+            for (final String line : lines) {
+                out.printf(format, "", String.format("(%s)", line));
+            }
+
+//            out.println();
+        }
+    }
+
+    public static List<Item> getItems(final Class<?> clazz, final String commandName, final Collection<OptionParam> optionParams) {
         ResourceBundle general = null; // lazily loaded cause breaks the annotation driven API so not considered as default
 
         final List<Item> items = new ArrayList<>(optionParams.size());
 
-        int width = 20;
         for (final OptionParam optionParam : optionParams) {
             String description = optionParam.getDescription();
             if (description == null || description.isEmpty()) {
@@ -66,33 +94,8 @@ public class Help {
             }
             final Item item = new Item(optionParam, description);
             items.add(item);
-
-            width = Math.max(width, item.flag.length());
         }
-
-        final String format = "  %-" + width + "s     %s%n";
-
-        out.println("Options: ");
-
-        for (final Item item : items) {
-            final List<String> lines = new ArrayList<>();
-
-            if (item.description != null) {
-                lines.add(item.description);
-            }
-
-            lines.addAll(item.note);
-            if (lines.isEmpty()) {
-                lines.add("");
-            }
-
-            out.printf(format, item.flag, lines.remove(0));
-            for (final String line : lines) {
-                out.printf(format, "", String.format("(%s)", line));
-            }
-
-//            out.println();
-        }
+        return items;
     }
 
     public static ResourceBundle getResourceBundle(final Class<?> clazz) {
@@ -125,89 +128,6 @@ public class Help {
         }
     }
 
-
-    private static class Item {
-
-        private final String flag;
-        private final List<String> note = new LinkedList<>();
-        private final String description;
-
-        private Item(final OptionParam p, final String description) {
-            this.description = description;
-            final String prefix = p.getName().length() > 1 ? "--" : "-";
-            
-            final List<String> alias = new ArrayList<>();
-
-            Option option = p.getAnnotation(Option.class);
-            for (int i = 1; i < option.value().length; i++) {
-                final String aliasName = option.value()[i];
-                alias.add(aliasName);
-            }
-
-            final boolean hasAlias = !alias.isEmpty();
-            final Class<?> type = p.getType();
-
-            String defaultValue = p.getDefaultValue();
-
-            final String name = p.getName();
-            if (boolean.class.equals(type) || (Boolean.class.equals(type) && defaultValue != null)) {
-
-                if ("true".equals(defaultValue)) {
-                    this.flag = hasAlias ? Join.join(", ", "--no-" + name, getAlias(alias, false, true)) : "--no-" + name;
-                } else {
-                    final String optName = name.startsWith("-")? name : prefix + name;
-                    this.flag = hasAlias ? Join.join(", ", optName, getAlias(alias, true, false)) : optName;
-                }
-
-                defaultValue = null;
-
-            } else {
-                final String optName = name.startsWith("-")? name : prefix + name;
-                this.flag = hasAlias ? String.format("%s, %s=<%s>", optName, getAlias(alias, true, false), p.getDisplayType())
-                            : String.format("%s=<%s>", optName, p.getDisplayType());
-            }
-
-            if (defaultValue != null) {
-
-                if (p.isListable()) {
-                    final List<String> defaultValues = p.getDefaultValues();
-
-                    if (!defaultValues.isEmpty()) {
-                        this.note.add(String.format("default: %s", Join.join(", ", defaultValues)));
-                    }
-
-                } else {
-
-                    this.note.add(String.format("default: %s", p.getDefaultValue()));
-
-                }
-            }
-
-            if (Enum.class.isAssignableFrom(type)) {
-                final Class<? extends Enum> enumType = (Class<? extends Enum>) type;
-                final EnumSet<? extends Enum> enums = EnumSet.allOf(enumType);
-                final String join = Join.join(", ", enums);
-                this.note.add(String.format("enum: %s", join));
-            }
-
-        }
-
-        private String getAlias(List<String> aliasList, boolean withDemiliter, boolean isBooleanValue) {
-           StringBuilder sb = new StringBuilder();
-           for (String alias : aliasList) {
-               if (isBooleanValue) {
-                   sb.append(", --no-" + alias);
-               } else {
-                   if (alias.length() > 1) {
-                       sb.append(withDemiliter ? ", --" + alias : alias);
-                   } else {
-                       sb.append(withDemiliter ? ", -" + alias : alias);
-                   }
-               }
-           }
-           return sb.length() > 0 ? sb.toString().replaceFirst(", ","") : "";
-        }
-    }
 
     @Command
     public String help() {
@@ -243,7 +163,7 @@ public class Help {
         }
 
         final PrintString out = new PrintString();
-        cmd.help(out);
+        cmd.manual(out);
         return out.toString();
     }
 

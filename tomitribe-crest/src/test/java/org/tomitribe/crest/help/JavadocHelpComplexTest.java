@@ -24,7 +24,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.regex.Pattern;
 
-public class JavadocHelpTest {
+public class JavadocHelpComplexTest {
 
 
     public static class Rsync {

@@ -45,6 +45,31 @@ public class DocumentParser {
         }
     }
 
+    /**
+     * Item descriptions are allowed to have only a subset of the element types
+     * a complete manual would get.
+     */
+    public static Document parseOptionDescription(final String description) {
+        final Document.Builder document = Document.builder();
+
+        DocumentParser.parser(description).getElements().stream()
+                .filter(element -> !(element instanceof Option))
+                .map(DocumentParser::convertHeaders)
+                .forEach(document::element);
+
+        return document.build();
+    }
+
+    /**
+     * Item Descriptions aren't allowed to have headings.  We will convert them to paragraphs
+     */
+    private static Element convertHeaders(final Element element) {
+        if (element instanceof Heading) {
+            return new Paragraph(element.getContent());
+        }
+        return element;
+    }
+
     private Document parse() {
 
         final List<String> lines = normalizeAndSplitContent();
@@ -149,7 +174,7 @@ public class DocumentParser {
         }
 
         // Is this line a continuation of a bullet?
-        if (state instanceof ReadingBullet){
+        if (state instanceof ReadingBullet) {
             final ReadingBullet readingBullet = (ReadingBullet) this.state;
             final Matcher matcher = readingBullet.continued.matcher(line);
             if (!matcher.find()) return false;

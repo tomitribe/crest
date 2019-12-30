@@ -23,7 +23,7 @@ import org.tomitribe.util.IO;
 import java.io.IOException;
 import java.net.URL;
 
-public class ManPageFormatTest {
+public class DocumentFormatterTest {
 
 
     @Test

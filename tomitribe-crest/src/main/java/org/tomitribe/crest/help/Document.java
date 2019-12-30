@@ -58,6 +58,16 @@ public class Document {
             return this;
         }
 
+        public Builder inline(final Document document) {
+            elements.addAll(document.elements);
+            return this;
+        }
+
+        public Builder element(final Element element) {
+            elements.add(element);
+            return this;
+        }
+
         public Document build() {
             return new Document(elements);
         }

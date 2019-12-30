@@ -19,7 +19,8 @@ package org.tomitribe.crest.help;
 import org.tomitribe.util.PrintString;
 import org.tomitribe.util.Strings;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class DocumentFormatter {
         this.column = width - indent - indent;
     }
 
-    public String format(final Document document) throws IOException {
+    public String format(final Document document) {
         final PrintString out = new PrintString();
 
         final Iterator<Element> iterator = document.getElements().iterator();
@@ -49,11 +50,27 @@ public class DocumentFormatter {
                 out.println(Strings.uppercase(heading.getContent()));
 
             } else if (element instanceof Paragraph) {
-
                 final Paragraph paragraph = (Paragraph) element;
-                final String content = Justify.wrapAndJustify(paragraph.getContent(), column);
+                final String content = Justify.wrapAndJustify(paragraph.getContent() + "", column);
                 Stream.of(content.split("\n"))
                         .forEach(s -> out.format("       %s%n", s));
+
+                if (iterator.hasNext()) out.println();
+
+            } else if (element instanceof Option) {
+                final Option option = (Option) element;
+
+                final DocumentFormatter formatter = new DocumentFormatter(column);
+                final String content = formatter.format(option.getDocument());
+                final ArrayList<String> lines = new ArrayList<>(Arrays.asList(content.split("\n")));
+
+                if (option.getFlag().length() < 7 && lines.size() > 0) {
+                    out.format("       %-6s %s%n", option.getFlag(), lines.remove(0).trim());
+                    lines.forEach(s -> out.format("       %s%n", s));
+                } else {
+                    out.format("       %s%n", option.getFlag());
+                    lines.forEach(s -> out.format("       %s%n", s));
+                }
 
                 if (iterator.hasNext()) out.println();
 

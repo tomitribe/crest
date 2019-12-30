@@ -20,7 +20,6 @@ package org.tomitribe.crest.help;
 import com.google.auto.service.AutoService;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
-import org.tomitribe.util.Join;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -74,26 +73,7 @@ public class HelpProcessor extends AbstractProcessor {
     private void writeAll(final List<CommandJavadoc> list) {
         for (int i = 0; i < list.size(); i++) {
             final CommandJavadoc commandJavadoc = list.get(i);
-            storeProperties(commandJavadoc.getResourceFileName(i), commandJavadoc.properties);
-        }
-    }
-
-    public static class CommandJavadoc {
-        private final String clazzName;
-        private final String commandName;
-        private final Properties properties = new Properties();
-
-        public CommandJavadoc(final String clazzName, final String commandName) {
-            this.clazzName = clazzName;
-            this.commandName = commandName;
-        }
-
-        public String getName() {
-            return String.format("%s/%s", clazzName, commandName);
-        }
-
-        public String getResourceFileName(final int i) {
-            return String.format("META-INF/crest/%s/%s.%s.properties", clazzName, commandName, i);
+            storeProperties(commandJavadoc.getResourceFileName(i), commandJavadoc.getProperties());
         }
     }
 
@@ -106,7 +86,7 @@ public class HelpProcessor extends AbstractProcessor {
         { // write method javadoc
             final String javadoc = processingEnv.getElementUtils().getDocComment(executableElement);
             if (javadoc != null) {
-                commandJavadoc.properties.put("@javadoc", javadoc);
+                commandJavadoc.setJavadoc(javadoc);
             }
         }
 
@@ -114,7 +94,9 @@ public class HelpProcessor extends AbstractProcessor {
         for (final VariableElement parameter : executableElement.getParameters()) {
             final Option option = parameter.getAnnotation(Option.class);
             if (option == null) continue;
-            commandJavadoc.properties.put(parameter.getSimpleName() + "", option.value()[0]);
+            for (final String optionName : option.value()) {
+                commandJavadoc.getProperties().put(optionName, parameter.getSimpleName() + "");
+            }
         }
 
         { // Record the arg names
@@ -123,7 +105,7 @@ public class HelpProcessor extends AbstractProcessor {
                     .map(Objects::toString)
                     .collect(Collectors.toList());
 
-            commandJavadoc.properties.put("@arg.names", Join.join(", ", argNames));
+            commandJavadoc.setArgNames(argNames);
         }
 
         { // Record the arg types
@@ -133,7 +115,7 @@ public class HelpProcessor extends AbstractProcessor {
                     .map(TypeMirror::toString)
                     .collect(Collectors.toList());
 
-            commandJavadoc.properties.put("@arg.types", Join.join(", ", argTypes));
+            commandJavadoc.setArgTypes(argTypes);
         }
 
         return commandJavadoc;

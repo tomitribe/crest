@@ -58,7 +58,11 @@ public class CommandJavadoc {
     }
 
     public void setArgTypes(final List<String> argTypes) {
-        this.getProperties().put("@arg.types", Join.join(", ", argTypes));
+
+        final List<String> normalized = argTypes.stream()
+                .map(s -> s.replaceAll("<[^<>]+>", ""))
+                .collect(Collectors.toList());
+        this.getProperties().put("@arg.types", Join.join(", ", normalized));
     }
 
     public boolean matches(final Class<?>[] types) {
@@ -66,7 +70,8 @@ public class CommandJavadoc {
                 .map(Class::getName)
                 .collect(Collectors.toList());
         final String expected = Join.join(", ", list);
-        return expected.equals(getProperties().getProperty("@arg.types"));
+        final String argtypes = getProperties().getProperty("@arg.types");
+        return expected.equals(argtypes);
     }
 
     public String getClazzName() {

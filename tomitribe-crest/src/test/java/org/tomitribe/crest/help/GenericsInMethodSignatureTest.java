@@ -27,14 +27,11 @@ import org.tomitribe.util.PrintString;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- *
- *
- */
-public class ParamWithPreformattedTextTest {
+public class GenericsInMethodSignatureTest {
 
     @Test
     public void test() throws Exception {
@@ -55,7 +52,7 @@ public class ParamWithPreformattedTextTest {
                         "       Commit the changes from the directory into the repository specified.\n" +
                         "\n" +
                         "OPTIONS\n" +
-                        "       --all  indicates  all  changes  should  be  committed,  including deleted files\n" +
+                        "       --all\n" +
                         "\n" +
                         "       --message=<String>\n" +
                         "              Note also that host and module references don't require a trailing slash\n" +
@@ -68,6 +65,8 @@ public class ParamWithPreformattedTextTest {
                         "              You  can  also  use  rsync in local-only mode, where both the source and\n" +
                         "              destination don't have a ':' in the name.  In this case it behaves  like\n" +
                         "              an improved copy command.\n" +
+                        "\n" +
+                        "       --strings=<String[]>\n" +
                         "\n",
                 out.toString());
     }
@@ -76,7 +75,6 @@ public class ParamWithPreformattedTextTest {
         /**
          * Commit the changes from the directory into the repository specified.
          *
-         * @param everything indicates all changes should be committed, including deleted files
          * @param text Note also that host and module references don't require a trailing slash
          *             to copy the contents of the default directory. For example, both of these
          *             copy the remote directory's contents into "/dest":
@@ -91,7 +89,10 @@ public class ParamWithPreformattedTextTest {
          * @param repo the git repository cloned to the local system where changes should be committed
          */
         @Command("commit")
-        public void commit(@Option("all") final boolean everything, @Required @Option("message") final String text, @Directory final File repo) {
+        public void commit(@Option("all") final boolean everything,
+                           @Option("strings") final List<String> strings,
+                           @Required @Option("message") final String text,
+                           @Directory final File repo) {
 
         }
     }

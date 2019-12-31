@@ -179,9 +179,9 @@ public class Help {
         
         if (cmd instanceof CmdGroup) {
             CmdGroup cmdGroup = (CmdGroup) cmd;
-            cmdGroup.help(subCommand, out);
+            cmdGroup.manual(subCommand, out);
         } else {
-            cmd.help(out);
+            cmd.manual(out);
         }
         
         return out.toString();

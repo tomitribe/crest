@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,15 +32,26 @@ public class DocumentFormatter {
 
     private final int indent = 7;
     private final int width;
-    private int column;
+    private final int column;
+    private final boolean color;
 
     public DocumentFormatter(final int width) {
+        this(width, true);
+    }
+
+    public DocumentFormatter(final int width, final boolean color) {
         this.width = width;
         this.column = width - indent - indent;
+        this.color = color;
     }
 
     public String format(final Document document) {
         final PrintString out = new PrintString();
+
+        final Highlight highlighter = new Highlight(getFlagss(document));
+
+        final Function<String, String> highlight = color ? highlighter::highlight : Function.identity();
+        final Function<String, String> highlightKeywords = color ? highlighter::matches : Function.identity();
 
         final Iterator<Element> iterator = document.getElements().iterator();
         while (iterator.hasNext()) {
@@ -48,12 +60,15 @@ public class DocumentFormatter {
             if (element instanceof Heading) {
 
                 final Heading heading = (Heading) element;
-                out.println(Strings.uppercase(heading.getContent()));
+                final String text = Strings.uppercase(heading.getContent());
+
+                out.println(highlight.apply(text));
 
             } else if (element instanceof Paragraph) {
                 final Paragraph paragraph = (Paragraph) element;
                 final String content = Justify.wrapAndJustify(paragraph.getContent() + "", column);
                 Stream.of(content.split("\n"))
+                        .map(highlightKeywords)
                         .forEach(s -> out.format("       %s%n", s));
 
                 if (iterator.hasNext()) out.println();
@@ -61,7 +76,7 @@ public class DocumentFormatter {
             } else if (element instanceof Option) {
                 final Option option = (Option) element;
 
-                final DocumentFormatter formatter = new DocumentFormatter(column);
+                final DocumentFormatter formatter = new DocumentFormatter(column, false);
                 final String content = formatter.format(option.getDocument());
 
                 final List<String> lines;
@@ -70,13 +85,26 @@ public class DocumentFormatter {
                 } else {
                     lines = new ArrayList<>(Arrays.asList(content.split("\n")));
                 }
-                
+
+
                 if (option.getFlag().length() < 7 && lines.size() > 0) {
-                    out.format("       %-6s %s%n", option.getFlag(), lines.remove(0).trim());
-                    lines.forEach(s -> out.format("       %s%n", s));
+                    final String firstLine = lines.remove(0).trim();
+                    if (color) {
+                        out.format("       \033[0m\033[1m%-6s\033[0m %s%n",
+                                option.getFlag(),
+                                highlightKeywords.apply(firstLine));
+                    } else {
+                        out.format("       %-6s %s%n", option.getFlag(), firstLine);
+                    }
+                    lines.stream()
+                            .map(highlightKeywords)
+                            .forEach(s -> out.format("       %s%n", s));
                 } else {
-                    out.format("       %s%n", option.getFlag());
-                    lines.forEach(s -> out.format("       %s%n", s));
+                    final String flag = highlight.apply(option.getFlag());
+                    out.format("       %s%n", flag);
+                    lines.stream()
+                            .map(highlightKeywords)
+                            .forEach(s -> out.format("       %s%n", s));
                 }
 
                 if (iterator.hasNext()) out.println();
@@ -87,6 +115,7 @@ public class DocumentFormatter {
                 final String content = Wrap.wrap(bullet.getContent(), column - indent);
                 final List<String> lines = Stream.of(content.split("\n"))
                         .map(s -> String.format("       %s", s))
+                        .map(highlightKeywords)
                         .collect(Collectors.toList());
 
 
@@ -108,5 +137,17 @@ public class DocumentFormatter {
             }
         }
         return out.toString();
+    }
+
+    public static List<String> getFlags(final Document document) {
+        final List<Option> flagss = getFlagss(document);
+        return Highlight.flags(flagss);
+    }
+
+    public static List<Option> getFlagss(final Document document) {
+        return document.getElements().stream()
+                .filter(element -> element instanceof Option)
+                .map(Option.class::cast)
+                .collect(Collectors.toList());
     }
 }

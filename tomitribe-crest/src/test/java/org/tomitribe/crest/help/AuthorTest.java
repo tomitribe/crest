@@ -34,13 +34,10 @@ public class AuthorTest {
 
     @Test
     public void justSeeAlso() throws Exception {
-        final PrintString out = new PrintString();
-        new Main(Commands.class).main(new SystemEnvironment() {
-            @Override
-            public PrintStream getOutput() {
-                return out;
-            }
-        }, new String[]{"help", "update"});
+        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        new Main(Commands.class).main(env, new String[]{"help", "update"});
+        final String actual = env.getOut().toString();
+
         assertEquals("NAME\n" +
                         "       update\n" +
                         "\n" +
@@ -55,18 +52,13 @@ public class AuthorTest {
                         "AUTHORS\n" +
                         "       Gonzo the Great\n" +
                         "\n",
-                out.toString());
+                actual);
     }
 
     @Test
     public void full() throws Exception {
-        final PrintString out = new PrintString();
-        new Main(Commands.class).main(new SystemEnvironment() {
-            @Override
-            public PrintStream getOutput() {
-                return out;
-            }
-        }, new String[]{"help", "commit"});
+        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        new Main(Commands.class).main(env, new String[]{"help", "commit"});
         assertEquals("NAME\n" +
                         "       commit\n" +
                         "\n" +
@@ -95,7 +87,7 @@ public class AuthorTest {
                         "\n" +
                         "       Kermit the Frog <kermit@frog.com>\n" +
                         "\n",
-                out.toString());
+                env.getOut().toString());
     }
 
     public static class Commands {

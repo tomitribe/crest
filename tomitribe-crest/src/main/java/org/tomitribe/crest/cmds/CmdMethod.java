@@ -613,8 +613,12 @@ public class CmdMethod implements Cmd {
             javadoc.getAuthors().forEach(author -> manual.paragraph(author.getContent()));
         }
 
-        final DocumentFormatter formatter = new DocumentFormatter(100);
-        out.print(formatter.format(manual.build()));
+        final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+        final boolean color = !environment.getEnv().containsKey("NOCOLOR");
+        final DocumentFormatter formatter = new DocumentFormatter(100, color);
+        final String format = formatter.format(manual.build());
+
+        out.print(format);
     }
 
     public static boolean has(final List<?> list) {

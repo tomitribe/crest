@@ -34,13 +34,8 @@ public class SeeAlsoTest {
 
     @Test
     public void justSeeAlso() throws Exception {
-        final PrintString out = new PrintString();
-        new Main(Commands.class).main(new SystemEnvironment() {
-            @Override
-            public PrintStream getOutput() {
-                return out;
-            }
-        }, new String[]{"help", "update"});
+        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        new Main(Commands.class).main(env, new String[]{"help", "update"});
         assertEquals("NAME\n" +
                         "       update\n" +
                         "\n" +
@@ -55,18 +50,13 @@ public class SeeAlsoTest {
                         "SEE ALSO\n" +
                         "       https://github.com/tomitribe/crest\n" +
                         "\n",
-                out.toString());
+                env.getOut().toString());
     }
 
     @Test
     public void full() throws Exception {
-        final PrintString out = new PrintString();
-        new Main(Commands.class).main(new SystemEnvironment() {
-            @Override
-            public PrintStream getOutput() {
-                return out;
-            }
-        }, new String[]{"help", "commit"});
+        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        new Main(Commands.class).main(env, new String[]{"help", "commit"});
         assertEquals("NAME\n" +
                         "       commit\n" +
                         "\n" +
@@ -95,7 +85,7 @@ public class SeeAlsoTest {
                         "\n" +
                         "       This is text\n" +
                         "\n",
-                out.toString());
+                env.getOut().toString());
     }
 
     public static class Commands {

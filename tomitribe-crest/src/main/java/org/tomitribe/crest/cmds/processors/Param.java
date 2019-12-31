@@ -26,7 +26,7 @@ public class Param extends Parameter {
     private volatile ParameterMetadata apiView;
 
     public Param(final Parameter parameter) {
-        super(parameter.getAnnotations(), parameter.getType(), parameter.getGenericType());
+        super(parameter.getAnnotations(), parameter.getType(), parameter.getGenericType(), parameter.getIndex());
     }
 
     public String getDisplayType() {

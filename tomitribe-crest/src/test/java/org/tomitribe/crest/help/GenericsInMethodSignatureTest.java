@@ -35,13 +35,8 @@ public class GenericsInMethodSignatureTest {
 
     @Test
     public void test() throws Exception {
-        final PrintString out = new PrintString();
-        new Main(Commands.class).main(new SystemEnvironment() {
-            @Override
-            public PrintStream getOutput() {
-                return out;
-            }
-        }, new String[]{"help", "commit"});
+        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        new Main(Commands.class).main(env, new String[]{"help", "commit"});
         assertEquals("NAME\n" +
                         "       commit\n" +
                         "\n" +
@@ -68,7 +63,7 @@ public class GenericsInMethodSignatureTest {
                         "\n" +
                         "       --strings=<String[]>\n" +
                         "\n",
-                out.toString());
+                env.getOut().toString());
     }
 
     public static class Commands {

@@ -33,14 +33,9 @@ import static org.junit.Assert.assertEquals;
 public class ManualTest {
 
     @Test
-    public void annotatedParamDescription() throws Exception {
-        final PrintString out = new PrintString();
-        new Main(Commands.class).main(new SystemEnvironment() {
-            @Override
-            public PrintStream getOutput() {
-                return out;
-            }
-        }, new String[]{"help", "commit"});
+    public void test() throws Exception {
+        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        new Main(Commands.class).main(env, new String[]{"help", "commit"});
         assertEquals("NAME\n" +
                         "       commit\n" +
                         "\n" +
@@ -64,7 +59,7 @@ public class ManualTest {
                         "       --message=<String>\n" +
                         "              a message detailing the commit\n" +
                         "\n",
-                out.toString());
+                env.getOut().toString());
     }
 
     public static class Commands {

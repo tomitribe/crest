@@ -30,59 +30,54 @@ import java.io.PrintStream;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- *
- *
- */
-public class ParamWithPreformattedTextTest {
+public class SubcommandTest {
 
     @Test
     public void test() throws Exception {
         final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
-        new Main(Commands.class).main(env, new String[]{"help", "commit"});
+        new Main(Commands.class).main(env, new String[]{"help", "git", "commit"});
         assertEquals("NAME\n" +
                         "       commit\n" +
                         "\n" +
                         "SYNOPSIS\n" +
-                        "       commit [options] File\n" +
+                        "       git commit [options] File\n" +
                         "\n" +
                         "DESCRIPTION\n" +
                         "       Commit the changes from the directory into the repository specified.\n" +
+                        "\n" +
+                        "       Stores the current contents of the index in a new commit along with a log message from\n" +
+                        "       the user describing the changes.  The --dry-run option can be used to obtain a summary\n" +
+                        "       of  what is included by any of the above for the next commit by giving the same set of\n" +
+                        "       parameters (options and paths).\n" +
+                        "\n" +
+                        "       If  you  make a commit and then find a mistake immediately after that, you can recover\n" +
+                        "       from it with git reset.\n" +
                         "\n" +
                         "OPTIONS\n" +
                         "       --all  indicates  all  changes  should  be  committed,  including deleted files\n" +
                         "\n" +
                         "       --message=<String>\n" +
-                        "              Note also that host and module references don't require a trailing slash\n" +
-                        "              to copy the contents of the default directory.   For  example,  both  of\n" +
-                        "              these copy the remote directory's contents into \"/dest\":\n" +
-                        "       \n" +
-                        "                  rsync -av host: /dest\n" +
-                        "                  rsync -av host::module /dest\n" +
-                        "       \n" +
-                        "              You  can  also  use  rsync in local-only mode, where both the source and\n" +
-                        "              destination don't have a ':' in the name.  In this case it behaves  like\n" +
-                        "              an improved copy command.\n" +
+                        "              a message detailing the commit\n" +
                         "\n",
                 env.getOut().toString());
     }
 
+    @Command("git")
     public static class Commands {
+
         /**
          * Commit the changes from the directory into the repository specified.
          *
+         * Stores the current contents of the index in a new commit along with a log
+         * message from the user describing the changes. The --dry-run option can be
+         * used to obtain a summary of what is included by any of the above for the
+         * next commit by giving the same set of parameters (options and paths).
+         *
+         * If you make a commit and then find a mistake immediately after that, you can
+         * recover from it with git reset.
+         *
          * @param everything indicates all changes should be committed, including deleted files
-         * @param text Note also that host and module references don't require a trailing slash
-         *             to copy the contents of the default directory. For example, both of these
-         *             copy the remote directory's contents into "/dest":
-         *
-         *                 rsync -av host: /dest
-         *                 rsync -av host::module /dest
-         *
-         *             You can also use rsync in local-only mode, where both the source and
-         *             destination don't have a ':' in the name. In this case it behaves
-         *             like an improved copy command.
-         *
+         * @param text a message detailing the commit
          * @param repo the git repository cloned to the local system where changes should be committed
          */
         @Command("commit")

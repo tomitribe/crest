@@ -118,6 +118,15 @@ public class CmdGroup implements Cmd {
         }
     }
 
+    public void manual(String subCommand, PrintStream out) {
+        final Cmd subCmd = commands.get(subCommand);
+        if (subCmd == null) {
+            help(out);
+        } else {
+            subCmd.manual(out);
+        }
+    }
+
     @Override
     public Collection<String> complete(final String buffer, final int cursorPosition) {
 

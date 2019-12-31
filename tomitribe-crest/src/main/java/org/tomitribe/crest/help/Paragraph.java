@@ -25,7 +25,7 @@ public class Paragraph implements Element {
     }
 
     public Paragraph(final String content) {
-        this.content = content;
+        this.content = content.trim();
     }
 
     @Override

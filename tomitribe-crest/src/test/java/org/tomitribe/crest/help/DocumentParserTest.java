@@ -57,7 +57,7 @@ public class DocumentParserTest {
                 "              (or if --no-super was specified), only groups that the invoking user on the receiving\n" +
                 "\n" +
                 "              SECTION 2\n" +
-                "              May fall back to using the ID number in some circumstances (see also the --numeric-ids\n" +
+                "              A    fall back to using the ID number in some circumstances (see also the --numeric-ids\n" +
                 "              option for a full discussion).\n" +
                 "              #   section 3\n" +
                 "              The preservation of group information will associate matching\n";
@@ -70,7 +70,7 @@ public class DocumentParserTest {
                 " program is not running as the super-user (or if --no-super " +
                 "was specified), only groups that the invoking user on the receiving'}\n" +
                 "Heading{content='SECTION 2'}\n" +
-                "Paragraph{content='May fall back to using the ID number in " +
+                "Paragraph{content='A fall back to using the ID number in " +
                 "some circumstances (see also the --numeric-ids option for a full discussion).'}\n" +
                 "Heading{content='section 3'}\n" +
                 "Paragraph{content='The preservation of group information will associate matching'}", actual);
@@ -95,6 +95,7 @@ public class DocumentParserTest {
         assertHeading("DUNGEONS + DRAGONS", "DUNGEONS + DRAGONS");
         assertHeading("I LOVE `CODE`", "I LOVE `CODE`");
         assertHeading("AROUND 300~ SPARTANS", "AROUND 300~ SPARTANS");
+        assertHeading("AROUND 300~ SPARTANS               ", "AROUND 300~ SPARTANS");
     }
 
 

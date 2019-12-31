@@ -20,7 +20,7 @@ public class Heading implements Element {
     private final String content;
 
     public Heading(final String content) {
-        this.content = content;
+        this.content = content.trim();
     }
 
     @Override

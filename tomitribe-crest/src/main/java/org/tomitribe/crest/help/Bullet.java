@@ -20,7 +20,7 @@ public class Bullet implements Element {
     private final String content;
 
     public Bullet(final String content) {
-        this.content = content;
+        this.content = content.trim();
     }
 
     @Override

@@ -29,7 +29,7 @@ public class DocumentParser {
     private final String content;
     private final Pattern leadingSpaces = Pattern.compile("^( *)");
     private final Pattern bullet = Pattern.compile("^( *-) *(.+)");
-    private final Pattern heading = Pattern.compile("^[=#]+ *(.+)|^([A-Z]+[^a-z]+)");
+    private final Pattern heading = Pattern.compile("^[=#]+ *(.+)|^([A-Z]+[^a-z]+)$");
     private final Pattern preformatted = Pattern.compile("^    (.+)");
     private final Document.Builder doc = Document.builder();
 
@@ -53,7 +53,8 @@ public class DocumentParser {
     public static Document parseOptionDescription(final String description) {
         final Document.Builder document = Document.builder();
 
-        DocumentParser.parser(description).getElements().stream()
+        final Document parser = DocumentParser.parser(description);
+        parser.getElements().stream()
                 .filter(element -> !(element instanceof Option))
                 .map(DocumentParser::convertHeaders)
                 .forEach(document::element);

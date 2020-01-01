@@ -21,12 +21,9 @@ import org.tomitribe.crest.Main;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Required;
-import org.tomitribe.crest.environments.SystemEnvironment;
 import org.tomitribe.crest.val.Directory;
-import org.tomitribe.util.PrintString;
 
 import java.io.File;
-import java.io.PrintStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -50,19 +47,19 @@ public class ParamWithPreformattedTextTest {
                         "       Commit the changes from the directory into the repository specified.\n" +
                         "\n" +
                         "OPTIONS\n" +
-                        "       --all  indicates  all  changes  should  be  committed,  including deleted files\n" +
+                        "       --all  indicates all changes should be committed, including deleted files\n" +
                         "\n" +
                         "       --message=<String>\n" +
-                        "              Note also that host and module references don't require a trailing slash\n" +
-                        "              to copy the contents of the default directory.   For  example,  both  of\n" +
-                        "              these copy the remote directory's contents into \"/dest\":\n" +
+                        "              Note  also  that  host  and module references don't require a trailing slash to\n" +
+                        "              copy the contents of the default directory. For example, both of these copy the\n" +
+                        "              remote directory's contents into \"/dest\":\n" +
                         "       \n" +
                         "                  rsync -av host: /dest\n" +
                         "                  rsync -av host::module /dest\n" +
                         "       \n" +
-                        "              You  can  also  use  rsync in local-only mode, where both the source and\n" +
-                        "              destination don't have a ':' in the name.  In this case it behaves  like\n" +
-                        "              an improved copy command.\n" +
+                        "              You  can  also  use  rsync  in  local-only  mode,  where  both  the  source and\n" +
+                        "              destination don't have a ':' in the name.  In this  case  it  behaves  like  an\n" +
+                        "              improved copy command.\n" +
                         "\n",
                 env.getOut().toString());
     }

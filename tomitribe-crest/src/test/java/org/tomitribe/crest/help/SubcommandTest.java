@@ -21,12 +21,9 @@ import org.tomitribe.crest.Main;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Required;
-import org.tomitribe.crest.environments.SystemEnvironment;
 import org.tomitribe.crest.val.Directory;
-import org.tomitribe.util.PrintString;
 
 import java.io.File;
-import java.io.PrintStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -54,7 +51,7 @@ public class SubcommandTest {
                         "       from it with git reset.\n" +
                         "\n" +
                         "OPTIONS\n" +
-                        "       --all  indicates  all  changes  should  be  committed,  including deleted files\n" +
+                        "       --all  indicates all changes should be committed, including deleted files\n" +
                         "\n" +
                         "       --message=<String>\n" +
                         "              a message detailing the commit\n" +

@@ -19,11 +19,9 @@ package org.tomitribe.crest.help;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.util.IO;
-import org.tomitribe.util.Join;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 
 public class DocumentFormatterTest {
 

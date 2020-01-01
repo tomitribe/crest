@@ -43,6 +43,7 @@ public class JustifyTest {
         Assert.assertEquals(expected, justified);
 
     }
+
     @Test
     public void test79() throws Exception {
         final String justified = Justify.wrapAndJustify(source, 79);

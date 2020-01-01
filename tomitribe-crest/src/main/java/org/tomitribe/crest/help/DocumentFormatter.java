@@ -29,8 +29,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DocumentFormatter {
-
-    private final int indent = 7;
+    /**
+     * Specifies the padding on the left and right
+     * of paragraphs and other indented content
+     */
+    private final String margin = "       ";
     private final int width;
     private final int column;
     private final boolean color;
@@ -41,14 +44,15 @@ public class DocumentFormatter {
 
     public DocumentFormatter(final int width, final boolean color) {
         this.width = width;
-        this.column = width - indent - indent;
+        // Add padding to the left and right
+        this.column = width - margin.length() - margin.length();
         this.color = color;
     }
 
     public String format(final Document document) {
         final PrintString out = new PrintString();
 
-        final Highlight highlighter = new Highlight(getFlagss(document));
+        final Highlight highlighter = new Highlight(getOptions(document));
 
         final Function<String, String> highlight = color ? highlighter::highlight : Function.identity();
         final Function<String, String> highlightKeywords = color ? highlighter::matches : Function.identity();
@@ -69,14 +73,17 @@ public class DocumentFormatter {
                 final String content = Justify.wrapAndJustify(paragraph.getContent() + "", column);
                 Stream.of(content.split("\n"))
                         .map(highlightKeywords)
-                        .forEach(s -> out.format("       %s%n", s));
+                        .forEach(s -> out.format("%s%s%n", margin, s));
 
                 if (iterator.hasNext()) out.println();
 
             } else if (element instanceof Option) {
                 final Option option = (Option) element;
-
-                final DocumentFormatter formatter = new DocumentFormatter(column, false);
+                /**
+                 * Construct a document formatter for the option's content.  We want it to fill the same
+                 * width  with just one additional indent on the left.
+                 */
+                final DocumentFormatter formatter = new DocumentFormatter(width - margin.length(), false);
                 final String content = formatter.format(option.getDocument());
 
                 final List<String> lines;
@@ -90,7 +97,8 @@ public class DocumentFormatter {
                 if (option.getFlag().length() < 7 && lines.size() > 0) {
                     final String firstLine = lines.remove(0).trim();
                     if (color) {
-                        out.format("       \033[0m\033[1m%-6s\033[0m %s%n",
+                        out.format("%s\033[0m\033[1m%-6s\033[0m %s%n",
+                                margin,
                                 option.getFlag(),
                                 highlightKeywords.apply(firstLine));
                     } else {
@@ -98,13 +106,13 @@ public class DocumentFormatter {
                     }
                     lines.stream()
                             .map(highlightKeywords)
-                            .forEach(s -> out.format("       %s%n", s));
+                            .forEach(s -> out.format("%s%s%n", margin, s));
                 } else {
                     final String flag = highlight.apply(option.getFlag());
-                    out.format("       %s%n", flag);
+                    out.format("%s%s%n", margin, flag);
                     lines.stream()
                             .map(highlightKeywords)
-                            .forEach(s -> out.format("       %s%n", s));
+                            .forEach(s -> out.format("%s%s%n", margin, s));
                 }
 
                 if (iterator.hasNext()) out.println();
@@ -112,9 +120,9 @@ public class DocumentFormatter {
             } else if (element instanceof Bullet) {
                 final Bullet bullet = (Bullet) element;
 
-                final String content = Wrap.wrap(bullet.getContent(), column - indent);
+                final String content = Wrap.wrap(bullet.getContent(), column - margin.length());
                 final List<String> lines = Stream.of(content.split("\n"))
-                        .map(s -> String.format("       %s", s))
+                        .map(s -> String.format("%s%s", margin, s))
                         .map(highlightKeywords)
                         .collect(Collectors.toList());
 
@@ -124,14 +132,14 @@ public class DocumentFormatter {
                     lines.set(0, "o" + first);
                 }
 
-                lines.forEach(s -> out.format("       %s%n", s));
+                lines.forEach(s -> out.format("%s%s%n", margin, s));
 
                 if (iterator.hasNext()) out.println();
 
             } else if (element instanceof Preformatted) {
                 final Preformatted preformatted = (Preformatted) element;
                 Stream.of(preformatted.getContent().split("\n"))
-                        .forEach(s -> out.format("           %s%n", s));
+                        .forEach(s -> out.format("%s    %s%n", margin, s));
 
                 if (iterator.hasNext()) out.println();
             }
@@ -139,12 +147,7 @@ public class DocumentFormatter {
         return out.toString();
     }
 
-    public static List<String> getFlags(final Document document) {
-        final List<Option> flagss = getFlagss(document);
-        return Highlight.flags(flagss);
-    }
-
-    public static List<Option> getFlagss(final Document document) {
+    public static List<Option> getOptions(final Document document) {
         return document.getElements().stream()
                 .filter(element -> element instanceof Option)
                 .map(Option.class::cast)

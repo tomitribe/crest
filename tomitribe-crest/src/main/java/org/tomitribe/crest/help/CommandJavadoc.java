@@ -67,11 +67,19 @@ public class CommandJavadoc {
 
     public boolean matches(final Class<?>[] types) {
         final List<String> list = Stream.of(types)
-                .map(Class::getName)
+                .map(this::classSignature)
                 .collect(Collectors.toList());
         final String expected = Join.join(", ", list);
         final String argtypes = getProperties().getProperty("@arg.types");
         return expected.equals(argtypes);
+    }
+
+    public String classSignature(final Class<?> aClass) {
+        if (aClass.isArray()) {
+            return String.format("%s[]", aClass.getComponentType().getName());
+        } else {
+            return aClass.getName();
+        }
     }
 
     public String getClazzName() {

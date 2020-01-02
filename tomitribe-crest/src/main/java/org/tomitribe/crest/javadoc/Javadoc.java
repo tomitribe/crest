@@ -17,7 +17,11 @@
 package org.tomitribe.crest.javadoc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Javadoc {
 
@@ -56,6 +60,13 @@ public class Javadoc {
 
     public static Builder builder() {
         return new Javadoc.Builder();
+    }
+
+    public Map<String, Param> getParametersByName() {
+        if (this.getParams() == null) return new HashMap<>();
+
+        return this.getParams().stream()
+                .collect(Collectors.toMap(Param::getName, Function.identity()));
     }
 
     public List<Tag> getUnknown() {

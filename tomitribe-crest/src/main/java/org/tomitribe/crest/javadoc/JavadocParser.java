@@ -195,6 +195,7 @@ public class JavadocParser {
      * contain the individual tags.
      */
     private ArrayList<String> splitParts() {
+        if (content == null) return new ArrayList<>();
         final String[] parts = content
                 .replaceFirst("^ *@", "@")
                 .replaceAll("\n *@", "\n\000@")

@@ -80,8 +80,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.unmodifiableList;
 import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.BEAN_OPTION;
@@ -531,18 +529,13 @@ public class CmdMethod implements Cmd {
 
     @Override
     public void manual(final PrintStream out) {
-        final List<CommandJavadoc> javadocs = CommandJavadoc.loadJavadoc(method.getDeclaringClass(), name);
+        final CommandJavadoc commandJavadoc = CommandJavadoc.getCommandJavadocs(method, name);
 
-        final List<CommandJavadoc> matches = javadocs.stream()
-                .filter(commandJavadoc -> commandJavadoc.matches(method.getParameterTypes()))
-                .collect(Collectors.toList());
-
-        if (matches.size() == 0) {
+        if (commandJavadoc == null) {
             help(out);
             return;
         }
 
-        final CommandJavadoc commandJavadoc = matches.get(0);
         final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
 
         final Document.Builder manual = Document.builder()
@@ -562,26 +555,13 @@ public class CmdMethod implements Cmd {
         if (spec.getOptions().size() > 0) {
             manual.heading("OPTIONS");
 
-            final Map<String, Javadoc.Param> params;
-            if (javadoc.getParams() != null) {
-                params = javadoc.getParams().stream()
-                        .collect(Collectors.toMap(Javadoc.Param::getName, Function.identity()));
-            } else {
-                params = new HashMap<>();
-            }
-
-            final List<Item> items = Help.getItems(method.getDeclaringClass(), name, spec.options.values());
+            final List<Item> items = Help.getItems(method, name, spec.options.values(), commandJavadoc);
 
             for (final Item item : items) {
-                final String optionName = item.getParam().getName();
-                final String javadocParameterName = commandJavadoc.getProperties().getProperty(optionName);
-                final Javadoc.Param param = params.get(javadocParameterName);
 
                 final Document.Builder description = Document.builder();
                 if (item.getDescription() != null) {
                     description.inline(parseOptionDescription(item.getDescription()));
-                } else if (param != null) {
-                    description.inline(parseOptionDescription(param.getDescription()));
                 }
 
                 if (has(item.getNote())) {
@@ -632,7 +612,7 @@ public class CmdMethod implements Cmd {
         out.println(getUsage());
         out.println();
 
-        Help.optionHelp(method.getDeclaringClass(), getName(), spec.options.values(), out);
+        Help.optionHelp(method, getName(), spec.options.values(), out);
     }
 
     public List<Object> parse(final String... rawArgs) {

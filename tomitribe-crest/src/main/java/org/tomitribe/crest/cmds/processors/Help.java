@@ -19,19 +19,29 @@ package org.tomitribe.crest.cmds.processors;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
+import org.tomitribe.crest.help.CommandJavadoc;
+import org.tomitribe.crest.help.Document;
+import org.tomitribe.crest.help.DocumentParser;
+import org.tomitribe.crest.help.Element;
+import org.tomitribe.crest.help.Paragraph;
+import org.tomitribe.crest.javadoc.Javadoc;
+import org.tomitribe.crest.javadoc.JavadocParser;
 import org.tomitribe.util.PrintString;
 import org.tomitribe.util.reflect.Classes;
 
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class Help {
 
@@ -41,13 +51,13 @@ public class Help {
         commands = commands1;
     }
 
-    public static void optionHelp(final Class<?> clazz, final String commandName,
+    public static void optionHelp(final Method method, final String commandName,
                                   final Collection<OptionParam> optionParams, final PrintStream out) {
         if (optionParams.isEmpty()) {
             return;
         }
 
-        final List<Item> items = getItems(clazz, commandName, optionParams);
+        final List<Item> items = getItems(method, commandName, optionParams);
 
         int width = 20;
         for (final Item item : items) {
@@ -77,6 +87,68 @@ public class Help {
 
 //            out.println();
         }
+    }
+
+    public static List<Item> getItems(final Method method, final String commandName, final Collection<OptionParam> optionParams) {
+        final CommandJavadoc commandJavadoc = CommandJavadoc.getCommandJavadocs(method, commandName);
+
+        final List<Item> items = getItems(method, commandName, optionParams, commandJavadoc);
+
+        return items.stream()
+                .map(Help::trimDescriptions)
+                .collect(Collectors.toList());
+    }
+
+    private static Item trimDescriptions(final Item item) {
+        if (item.getDescription() == null) return item;
+
+        final Document document = DocumentParser.parser(item.getDescription());
+
+        if (document.getElements().size() == 0) return item;
+
+        final Element element = document.getElements().get(0);
+
+        if (!(element instanceof Paragraph)) return item;
+
+        final String content = element.getContent();
+        final String[] sentences = content.split("\\. ");
+
+        if (sentences.length == 0) return item;
+
+        return new Item(item.getFlag(), sentences[0], item.getParam(), item.getNote());
+    }
+
+    public static List<Item> getItems(final Method method, final String commandName, final Collection<OptionParam> optionParams, final CommandJavadoc commandJavadoc) {
+        final Class<?> clazz = method.getDeclaringClass();
+        final List<Item> items = getItems(clazz, commandName, optionParams);
+
+        if (commandJavadoc == null || commandJavadoc.getJavadoc() == null) return items;
+
+        final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
+
+        final Map<String, Javadoc.Param> params = javadoc.getParametersByName();
+
+        final ListIterator<Item> iterator = items.listIterator();
+        while (iterator.hasNext()) {
+            final Item item = iterator.next();
+
+            if (item.getDescription() != null) continue;
+
+            final String optionName = item.getParam().getName();
+            final String javadocParameterName = commandJavadoc.getProperties().getProperty(optionName);
+
+            if (javadocParameterName == null) continue;
+
+            final Javadoc.Param param = params.get(javadocParameterName);
+
+            if (param == null || param.getDescription() == null) continue;
+
+            final Item updated = new Item(item.getFlag(), param.getDescription(), item.getParam(), item.getNote());
+
+            iterator.set(updated);
+        }
+
+        return items;
     }
 
     public static List<Item> getItems(final Class<?> clazz, final String commandName, final Collection<OptionParam> optionParams) {
@@ -176,14 +248,14 @@ public class Help {
         }
 
         final PrintString out = new PrintString();
-        
+
         if (cmd instanceof CmdGroup) {
             CmdGroup cmdGroup = (CmdGroup) cmd;
             cmdGroup.manual(subCommand, out);
         } else {
             cmd.manual(out);
         }
-        
+
         return out.toString();
     }
 

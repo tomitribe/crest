@@ -31,6 +31,13 @@ public class Item {
     private final String description;
     private final OptionParam param;
 
+    public Item(final String flag, final String description, final OptionParam param, final List<String> notes) {
+        this.flag = flag;
+        this.description = description;
+        this.param = param;
+        this.note.addAll(notes);
+    }
+
     Item(final OptionParam p, final String description) {
         this.description = description;
         this.param = p;

@@ -21,6 +21,7 @@ import org.tomitribe.util.Join;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,5 +130,13 @@ public class CommandJavadoc {
         }
 
         return javadocs;
+    }
+
+    public static CommandJavadoc getCommandJavadocs(final Method method, final String name) {
+        final List<CommandJavadoc> javadocs = loadJavadoc(method.getDeclaringClass(), name);
+
+        return javadocs.stream()
+                .filter(commandJavadoc -> commandJavadoc.matches(method.getParameterTypes()))
+                .findFirst().orElse(null);
     }
 }

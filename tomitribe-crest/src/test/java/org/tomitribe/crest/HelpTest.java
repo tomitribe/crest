@@ -63,9 +63,10 @@ public class HelpTest extends Assert {
 
         /**
          * This is awesome
-         * @param verbose
-         * @param repo
-         * @return
+         * @param verbose Output debug information
+         * @param repo The remote name to where changes
+         *             should be pushed.  We should only use the first paragraph.
+         *             So these extra lines will be ignored.
          */
         @Command
         public String push(@Option("verbose") boolean verbose, String repo) {
@@ -208,13 +209,11 @@ public class HelpTest extends Assert {
 
     @Test
     public void testOptionLists() throws Exception {
-        generateHelp(getHelpBase(), OptionLists.class);
         assertCommandHelp(OptionLists.class, "test");
     }
     
     @Test
     public void testSubCommandHelp() throws Exception {
-        generateHelp(getHelpBase(), Git.class);
         assertCommandHelp(Git.class, "git");
         assertSubCommandHelp(Git.class, "pull");
         assertSubCommandHelp(Git.class, "push");

@@ -122,7 +122,7 @@ public class OverloadedCmdMethod implements Cmd {
         }
 
         final CmdMethod first = methods.iterator().next();
-        Help.optionHelp(first.getMethod().getDeclaringClass(), getName(), options.values(), out);
+        Help.optionHelp(first.getMethod(), getName(), options.values(), out);
     }
 
     public void add(final CmdMethod cmd) {

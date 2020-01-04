@@ -36,6 +36,8 @@ public class TestEnvironment implements Environment {
 
     public TestEnvironment() {
         in = new ByteArrayInputStream(new byte[0]);
+        env("NOCOLOR", "");
+        env("NOLESS", "");
     }
 
     public PrintString getOut() {

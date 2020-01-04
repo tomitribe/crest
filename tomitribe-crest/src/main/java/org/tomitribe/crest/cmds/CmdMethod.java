@@ -49,13 +49,17 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptorInvocationCon
 import org.tomitribe.crest.javadoc.Javadoc;
 import org.tomitribe.crest.javadoc.JavadocParser;
 import org.tomitribe.crest.val.BeanValidation;
+import org.tomitribe.util.IO;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.editor.Converter;
 import org.tomitribe.util.reflect.Parameter;
 import org.tomitribe.util.reflect.Reflection;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -598,7 +602,28 @@ public class CmdMethod implements Cmd {
         final DocumentFormatter formatter = new DocumentFormatter(100, color);
         final String format = formatter.format(manual.build());
 
-        out.print(format);
+        final boolean less = !environment.getEnv().containsKey("NOLESS");
+        if (!less) {
+            out.print(format);
+        } else {
+            try {
+                final File tempFile = File.createTempFile("help-", ".txt");
+                tempFile.deleteOnExit();
+                IO.copy(IO.read(format), tempFile);
+
+                final Process process = new ProcessBuilder("less", "-r")
+                        .inheritIO()
+                        .redirectInput(tempFile)
+                        .start();
+                final int exit = process.waitFor();
+
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } catch (InterruptedException e) {
+                Thread.interrupted();
+                throw new IllegalStateException(e);
+            }
+        }
     }
 
     public static boolean has(final List<?> list) {

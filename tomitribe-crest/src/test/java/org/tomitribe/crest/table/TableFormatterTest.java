@@ -14,13 +14,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.tomitribe.crest.help;
+package org.tomitribe.crest.table;
 
 import org.junit.Test;
-import org.tomitribe.crest.table.Border;
-import org.tomitribe.crest.table.Table;
-import org.tomitribe.crest.table.TableFormatter;
-import org.tomitribe.crest.table.Width;
 
 import static org.junit.Assert.assertEquals;
 
@@ -102,6 +98,7 @@ public class TableFormatterTest {
             assertEquals(9, width.getMax());
         }
     }
+
     @Test
     public void getWidth() {
         {

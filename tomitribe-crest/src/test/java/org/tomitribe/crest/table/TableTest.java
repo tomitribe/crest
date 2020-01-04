@@ -14,11 +14,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.tomitribe.crest.help;
+package org.tomitribe.crest.table;
 
 import org.junit.Test;
-import org.tomitribe.crest.table.Table;
-import org.tomitribe.crest.table.Width;
 import org.tomitribe.util.Join;
 
 import java.util.List;
@@ -143,14 +141,15 @@ public class TableTest {
         assertTrue(isNumeric.test("-$987,654.321"));
         assertTrue(isNumeric.test(""));
     }
+
     @Test
     public void isNumericWithHeader() {
         final Table table = Table.builder().headings(true)
-                    .row("Col1", "Col2", "Col3", "Numeric Column")
-                    .row("Value 1", "Value 2", "123", "10.0")
-                    .row("Separate", "cols", "with a tab or 4 spaces", "-2,027.1")
-                    .row("This is a row with only one cell")
-                    .build();
+                .row("Col1", "Col2", "Col3", "Numeric Column")
+                .row("Value 1", "Value 2", "123", "10.0")
+                .row("Separate", "cols", "with a tab or 4 spaces", "-2,027.1")
+                .row("This is a row with only one cell")
+                .build();
 
         assertFalse(table.getColumn(0).isNumeric());
         assertFalse(table.getColumn(1).isNumeric());

@@ -17,7 +17,6 @@
 package org.tomitribe.crest.table;
 
 import org.junit.Test;
-import org.tomitribe.crest.table.Width;
 
 import static org.junit.Assert.assertEquals;
 

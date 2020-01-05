@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 /**
  * Tests the formatting of our out-of-the-box table formats
  */
-public class TableFormatsTest {
+public class TableTest {
 
     private final Data data = Data.builder().headings(true)
             .row("Col1", "Col2", "Col3", "Numeric Column")

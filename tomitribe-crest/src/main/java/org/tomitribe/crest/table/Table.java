@@ -55,12 +55,6 @@ public class Table {
         final List<Data.Row> rows = new ArrayList<>(data.getRows());
 
         /*
-         * Stream all but the very last row which we will treat
-         * separately as we don't want to print a row separator
-         * after it.
-         */
-
-        /*
          * Print the top border
          */
         if (border.getFirst() != null) out.println(getLine(border.getFirst()));

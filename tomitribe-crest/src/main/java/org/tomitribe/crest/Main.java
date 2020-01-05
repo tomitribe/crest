@@ -32,6 +32,9 @@ import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
+import org.tomitribe.crest.table.Border;
+import org.tomitribe.crest.table.Data;
+import org.tomitribe.crest.table.Table;
 
 import java.io.PrintStream;
 import java.lang.reflect.Method;
@@ -204,6 +207,13 @@ public class Main implements Completer {
                 out.println(string);
 
                 if (!string.endsWith("\n")) out.println();
+
+            } else if (result instanceof String[][]) {
+
+                final Data data = new Data((String[][]) result, true);
+                final Table table = new Table(data, Border.asciiCompact().build(), 150);
+
+                table.format(out);
 
             } else {
 

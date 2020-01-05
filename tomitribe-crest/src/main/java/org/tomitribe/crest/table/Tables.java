@@ -38,6 +38,7 @@ public class Tables {
     static int getMaxWidth(final String[][] data) {
         int max = 0;
         for (final String[] row : data) {
+            if (row == null) continue;
             max = Math.max(max, row.length);
         }
         return max;

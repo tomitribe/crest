@@ -21,6 +21,7 @@ import org.tomitribe.crest.help.Wrap;
 import java.util.stream.Stream;
 
 public class Width {
+    public static final Width ZERO = new Width(0, 0);
     private final int min;
     private final int max;
 
@@ -29,11 +30,24 @@ public class Width {
         this.max = max;
     }
 
+    public Width toMin() {
+        return new Width(min, min);
+    }
+
+    public Width toMax() {
+        return new Width(max, max);
+    }
+
+
+    public int getFlex() {
+        return max - min;
+    }
+
     public static Width ofString(final String string) {
         final String wrapped = Wrap.wrap(string, 1);
 
         final int maximum = string.length();
-        final int minimum = Stream.of(wrapped.split("\n"))
+        final int minimum = Stream.of(wrapped.split(System.lineSeparator()))
                 .map(String::length)
                 .reduce(Math::max)
                 .orElse(0);
@@ -55,6 +69,13 @@ public class Width {
         return new Width(min, max);
     }
 
+    public Width subtract(final Width that) {
+        final int min = this.min - that.min;
+        final int max = this.max - that.max;
+
+        return new Width(min, max);
+    }
+
     public int getMin() {
         return min;
     }
@@ -68,6 +89,7 @@ public class Width {
         return "Width{" +
                 "min=" + min +
                 ", max=" + max +
+                ", flex=" + getFlex() +
                 '}';
     }
 }

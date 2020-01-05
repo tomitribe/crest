@@ -49,6 +49,12 @@ public class TableFormatter {
                 .collect(Collectors.toList());
 
 
+        { // hack - this should be dynamically identified
+            final Integer remove = this.widths.remove(this.widths.size() - 1);
+            this.widths.add(remove-286-(300-160));
+        }
+
+
         line(border.getFirst());
         int i = 0;
 

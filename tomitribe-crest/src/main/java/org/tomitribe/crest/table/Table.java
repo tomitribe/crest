@@ -26,12 +26,12 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Taable {
+public class Table {
 
     private final Data data;
     private final Border border;
 
-    public Taable(final Data data, final Border border, final int width) {
+    public Table(final Data data, final Border border, final int width) {
         final int available = width - border.getWidth(data.getColumns().size()).getMax();
         this.data = Resize.resize(data, available);
         this.border = border;

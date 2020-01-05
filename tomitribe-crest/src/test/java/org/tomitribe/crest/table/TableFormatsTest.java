@@ -186,8 +186,8 @@ public class TableFormatsTest {
     }
 
     public void assertTable(final Supplier<Border.Builder> border, final String expected) {
-        final Taable taable = new Taable(data, border.get().build(), 300);
-        final String actual = taable.format();
+        final Table table = new Table(data, border.get().build(), 300);
+        final String actual = table.format();
         Assert.assertEquals(expected, actual);
     }
 }

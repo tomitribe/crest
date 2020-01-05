@@ -17,11 +17,7 @@
 package org.tomitribe.crest.table;
 
 import org.junit.Test;
-import org.tomitribe.util.Join;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ResizeDataTest {
@@ -54,29 +50,9 @@ public class ResizeDataTest {
 
     @Test
     public void test() throws Exception {
-        final Data resize = Resize.resize(data, 150);
 
-        final List<String> formats = resize.getColumns().stream()
-                .map(Data.Column::getWidth)
-                .map(Width::getMax)
-                .map(integer -> "%-" + integer + "s   ")
-                .collect(Collectors.toList());
-
-        // The last one should have a newline
-        final int last = formats.size() - 1;
-        formats.set(last, formats.get(last) + "%n");
-
-        final List<String[]> lines = resize.getRows().stream()
-                .map(Data.Row::toLines)
-                .flatMap(Stream::of)
-                .collect(Collectors.toList());
-
-        for (final String[] line : lines) {
-            final Iterator<String> iterator = formats.iterator();
-            Stream.of(line)
-                    .map(s -> String.format(iterator.next(), s))
-                    .forEach(System.out::print);
-        }
+        final Taable taable = new Taable(data, Border.unicodeSingleSeparated().build(), 150);
+        taable.format(System.out);
     }
 
 }

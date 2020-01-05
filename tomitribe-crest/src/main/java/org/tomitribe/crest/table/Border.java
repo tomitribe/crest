@@ -16,8 +16,11 @@
  */
 package org.tomitribe.crest.table;
 
+import org.tomitribe.util.Join;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Border {
     /**
@@ -53,6 +56,19 @@ public class Border {
         this.header = header;
         this.inner = inner;
         this.row = row;
+    }
+
+    public String getRowFormat(final List<Data.Column> columns) {
+        final List<String> formats = columns.stream().map(column -> {
+            final int width = column.getWidth().getMax();
+            return column.isNumeric() ? "%" + width + "s" : "%-" + width + "s";
+        }).collect(Collectors.toList());
+
+        final Line row = this.getRow();
+
+        return row.getLeft() +
+                Join.join(row.getInner(), formats) +
+                row.getRight();
     }
 
     public Line getFirst() {

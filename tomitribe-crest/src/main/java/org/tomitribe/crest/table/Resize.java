@@ -59,7 +59,7 @@ public class Resize {
         /*
          * Create a new Data instance with the new cells
          */
-        return new Data(resized);
+        return new Data(resized, data);
     }
 
     private static boolean expand(final List<Column> columns) {

@@ -94,8 +94,10 @@ public class Tables {
 
     private static Data.Column createColumn(final Data table, final Data.Cell[][] cells, final int column) {
 
+        final Predicate<Data.Cell> isHeading = cell -> table.hasHeading() && cell.getRow() == 0;
         final Predicate<String> isNumeric = Pattern.compile("^-?[$£€¥₴]?[0-9]+[0-9,.]*%?$|^$").asPredicate();
         final Boolean numeric = cellsInColumn(cells, column)
+                .filter(isHeading.negate())
                 .map(Data.Cell::getData)
                 .map(isNumeric::test)
                 .reduce((aBoolean, aBoolean2) -> aBoolean && aBoolean2)

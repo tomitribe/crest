@@ -49,8 +49,10 @@ public class Data {
 
     private final Width width;
     private final int height;
-
+    private final boolean heading;
+    
     public Data(final String[][] data) {
+        this.heading = true;
         this.cells = createCells(this, data);
         this.rows = createRows(this, this.cells);
         this.columns = createColumns(this, this.cells);
@@ -64,7 +66,8 @@ public class Data {
                 .orElse(0);
     }
 
-    Data(final Cell[][] cells) {
+    Data(final Cell[][] cells, final Data previous) {
+        this.heading = previous.heading;
         this.cells = cells;
         this.rows = createRows(this, this.cells);
         this.columns = createColumns(this, this.cells);
@@ -76,6 +79,10 @@ public class Data {
                 .mapToInt(Row::getHeight)
                 .reduce(Integer::sum)
                 .orElse(0);
+    }
+
+    public boolean hasHeading() {
+        return heading;
     }
 
     public Width getWidth() {

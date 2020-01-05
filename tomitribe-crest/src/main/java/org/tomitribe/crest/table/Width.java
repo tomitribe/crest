@@ -38,11 +38,6 @@ public class Width {
         return new Width(max, max);
     }
 
-
-    public int getFlex() {
-        return max - min;
-    }
-
     public static Width ofString(final String string) {
         final String wrapped = Wrap.wrap(string, 1);
 
@@ -89,7 +84,6 @@ public class Width {
         return "Width{" +
                 "min=" + min +
                 ", max=" + max +
-                ", flex=" + getFlex() +
                 '}';
     }
 }

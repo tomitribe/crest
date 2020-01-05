@@ -17,6 +17,7 @@
 package org.tomitribe.crest.table;
 
 import org.tomitribe.util.Join;
+import org.tomitribe.util.PrintString;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -29,13 +30,18 @@ public class Taable {
 
     private final Data data;
     private final Border border;
-    private final int width;
 
     public Taable(final Data data, final Border border, final int width) {
         final int available = width - border.getWidth(data.getColumns().size()).getMax();
         this.data = Resize.resize(data, available);
         this.border = border;
-        this.width = width;
+    }
+
+
+    public String format() {
+        final PrintString out = new PrintString();
+        format(out);
+        return out.toString();
     }
 
     public void format(final PrintStream out) {
@@ -67,6 +73,7 @@ public class Taable {
             Stream.of(rows.remove(0))
                     .map(Data.Row::toLines)
                     .flatMap(Stream::of)
+                    .map(this::center)
                     .forEach(printRow);
 
             if (border.getHeader() != null) out.println(getLine(border.getHeader()));
@@ -97,6 +104,14 @@ public class Taable {
         if (border.getLast() != null) out.println(getLine(border.getLast()));
     }
 
+    private String[] center(final String[] strings) {
+        for (int column = 0; column < strings.length; column++) {
+            final int width = data.getColumns().get(column).getWidth().getMax();
+            strings[column] = Lines.center(strings[column], width);
+        }
+        return strings;
+    }
+
     public String getFormat(final Line line) {
         final List<Data.Column> columns = this.data.getColumns();
         final List<String> formats = columns.stream().map(column -> {
@@ -110,6 +125,7 @@ public class Taable {
     }
 
     public String getLine(final Line line) {
+        if (line == null) return null;
         final String format = getFormat(line);
         return String.format(format, (Object[]) rowOf(line.getMiddle()));
     }

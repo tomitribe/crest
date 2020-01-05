@@ -23,6 +23,9 @@ import java.util.stream.Stream;
 
 public class Resize {
 
+    private Resize() {
+    }
+
     public static Data resize(final Data data, final int width) {
         if (data.getWidth().getMax() < width) return data;
 
@@ -44,7 +47,9 @@ public class Resize {
                 .map(column -> new Column(column, remaining))
                 .collect(Collectors.toList());
 
-        while (expand(columns)) ;
+        while (expand(columns)) {
+            /* checkstyle */
+        }
 
         /*
          * Now actually resize the cells to fit in their new column size

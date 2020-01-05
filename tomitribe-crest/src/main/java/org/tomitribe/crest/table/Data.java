@@ -17,7 +17,6 @@
 package org.tomitribe.crest.table;
 
 import org.tomitribe.crest.help.Justify;
-import org.tomitribe.crest.help.Wrap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,9 +49,9 @@ public class Data {
     private final Width width;
     private final int height;
     private final boolean heading;
-    
-    public Data(final String[][] data) {
-        this.heading = true;
+
+    public Data(final String[][] data, final boolean headings) {
+        this.heading = headings;
         this.cells = createCells(this, data);
         this.rows = createRows(this, this.cells);
         this.columns = createColumns(this, this.cells);
@@ -99,6 +98,15 @@ public class Data {
 
     public List<Row> getRows() {
         return Arrays.asList(rows);
+    }
+
+    public Column getColumn(final int i) {
+        return this.columns[i];
+    }
+
+
+    public Row getRow(final int i) {
+        return this.rows[i];
     }
 
     public class Row {
@@ -238,15 +246,22 @@ public class Data {
 
     public static class Builder {
         private final List<String[]> rows = new ArrayList<String[]>();
+        private boolean headings;
 
         public Data.Builder row(final String... columns) {
             rows.add(columns);
             return this;
         }
 
+        public Data.Builder headings(final boolean headings) {
+            this.headings = headings;
+            return this;
+        }
+
         public Data build() {
             final String[][] data = rows.toArray(new String[0][]);
-            return new Data(data);
+            return new Data(data, headings);
         }
+
     }
 }

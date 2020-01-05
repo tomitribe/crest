@@ -32,6 +32,9 @@ import java.util.stream.Stream;
  */
 public class Tables {
 
+    private Tables() {
+    }
+
     static int getMaxWidth(final String[][] data) {
         int max = 0;
         for (final String[] row : data) {

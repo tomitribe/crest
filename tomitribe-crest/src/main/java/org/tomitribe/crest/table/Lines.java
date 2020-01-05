@@ -23,6 +23,9 @@ import java.util.regex.Pattern;
 
 public class Lines {
 
+    private Lines() {
+    }
+
     private static final Pattern separator = Pattern.compile(" *" + System.lineSeparator());
 
     public static String[] split(final String string) {
@@ -35,5 +38,18 @@ public class Lines {
 
     public static String join(final Object... list) {
         return Join.join(System.lineSeparator(), list);
+    }
+
+    public static String center(final String string, final int width) {
+        final StringBuilder builder = new StringBuilder(width);
+        builder.append(string);
+        while (builder.length() < width) {
+            builder.append(" ");
+
+            if (builder.length() < width) {
+                builder.insert(0, " ");
+            }
+        }
+        return builder.toString();
     }
 }

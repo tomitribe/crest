@@ -20,17 +20,15 @@ import org.junit.Test;
 import org.tomitribe.util.Join;
 
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class TableTest {
+public class DataTest {
 
-
-    private final Table table = Table.builder()
+    private final Data table = Data.builder()
             .row("id", "first_name", "last_name", "email", "slogan", "sentence")
 
             .row("1", "Wendie", "Marquet", "wmarquet0@blogspot.com", "unleash mission-critical experiences",
@@ -59,6 +57,7 @@ public class TableTest {
     @Test
     public void streamColumn() throws Exception {
         final List<String> column2 = table.getColumn(1).stream()
+                .map(Data.Cell::getData)
                 .collect(Collectors.toList());
 
         assertEquals("first_name\n" +
@@ -72,6 +71,7 @@ public class TableTest {
     @Test
     public void columns() throws Exception {
         final List<String> column2 = table.getColumn(1).stream()
+                .map(Data.Cell::getData)
                 .collect(Collectors.toList());
 
         assertEquals("first_name\n" +
@@ -90,28 +90,8 @@ public class TableTest {
         rows[2] = new String[]{"", "", "", ""};
         rows[3] = new String[]{"", "", ""};
 
-        final Table table = new Table(false, rows);
-        assertEquals(5, table.getColumnCount());
-    }
-
-    @Test
-    public void columnWidths() {
-        final String[][] rows = new String[4][];
-        rows[0] = new String[]{"aa bbb"};
-        rows[1] = new String[]{"a b c", "aa", "aa", "", "abcd ef"};
-        rows[2] = new String[]{"", "a b", "", "abc"};
-        rows[3] = new String[]{"a", "b", "cdefhijklmn opqrs"};
-
-        final Table table = new Table(false, rows);
-        final List<Width> widths = table.getColumnWidths();
-
-        final String actual = Join.join("\n", widths);
-        assertEquals("" +
-                "Width{min=3, max=6}\n" +
-                "Width{min=2, max=3}\n" +
-                "Width{min=11, max=17}\n" +
-                "Width{min=3, max=3}\n" +
-                "Width{min=4, max=7}", actual);
+        final Data table = new Data(rows, false);
+        assertEquals(5, table.getColumns().size());
     }
 
     @Test
@@ -122,7 +102,7 @@ public class TableTest {
         rows[2] = new String[]{"", "a b", "", "abc"};
         rows[3] = new String[]{"a", "b", "cdefhijklmn opqrs"};
 
-        final Table table = new Table(false, rows);
+        final Data table = new Data(rows, false);
         final Width width = table.getWidth();
         assertEquals(23, width.getMin());
         assertEquals(36, width.getMax());
@@ -130,21 +110,30 @@ public class TableTest {
 
     @Test
     public void isNumeric() {
-        final Predicate<String> isNumeric = Table.getIsNumeric();
-        assertTrue(isNumeric.test("1"));
-        assertFalse(isNumeric.test("a"));
-        assertTrue(isNumeric.test("1.0"));
-        assertFalse(isNumeric.test("1.0a"));
-        assertTrue(isNumeric.test("1037"));
-        assertTrue(isNumeric.test("1,024"));
-        assertTrue(isNumeric.test("-0,987,654.321"));
-        assertTrue(isNumeric.test("-$987,654.321"));
-        assertTrue(isNumeric.test(""));
+        assertNumeric("1");
+        assertNotNumeric("a");
+        assertNumeric("1.0");
+        assertNotNumeric("1.0a");
+        assertNumeric("1037");
+        assertNumeric("1,024");
+        assertNumeric("-0,987,654.321");
+        assertNumeric("-$987,654.321");
+        assertNumeric("");
+    }
+
+    public static void assertNotNumeric(final String s) {
+        final Data data = Data.builder().row(s).build();
+        assertFalse(data.getColumn(0).isNumeric());
+    }
+
+    public static void assertNumeric(final String s) {
+        final Data data = Data.builder().row(s).build();
+        assertTrue(data.getColumn(0).isNumeric());
     }
 
     @Test
     public void isNumericWithHeader() {
-        final Table table = Table.builder().headings(true)
+        final Data table = Data.builder().headings(true)
                 .row("Col1", "Col2", "Col3", "Numeric Column")
                 .row("Value 1", "Value 2", "123", "10.0")
                 .row("Separate", "cols", "with a tab or 4 spaces", "-2,027.1")

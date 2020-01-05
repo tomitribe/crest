@@ -16,7 +16,6 @@
  */
 package org.tomitribe.crest.help;
 
-import org.tomitribe.crest.table.Table;
 import org.tomitribe.util.PrintString;
 import org.tomitribe.util.Strings;
 
@@ -140,12 +139,6 @@ public class DocumentFormatter {
             } else if (element instanceof Preformatted) {
                 final Preformatted preformatted = (Preformatted) element;
                 Stream.of(preformatted.getContent().split("\n"))
-                        .forEach(s -> out.format("%s    %s%n", margin, s));
-
-                if (iterator.hasNext()) out.println();
-            } else if (element instanceof Table) {
-                final Table table = (Table) element;
-                Stream.of(table.getContent().split("\n"))
                         .forEach(s -> out.format("%s    %s%n", margin, s));
 
                 if (iterator.hasNext()) out.println();

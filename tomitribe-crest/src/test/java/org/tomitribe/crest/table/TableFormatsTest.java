@@ -26,7 +26,7 @@ import java.util.function.Supplier;
  */
 public class TableFormatsTest {
 
-    private final Table table = Table.builder().headings(true)
+    private final Data data = Data.builder().headings(true)
             .row("Col1", "Col2", "Col3", "Numeric Column")
             .row("Value 1", "Value 2", "123", "10.0")
             .row("Separate", "cols", "with a tab or 4 spaces", "-2,027.1")
@@ -186,8 +186,8 @@ public class TableFormatsTest {
     }
 
     public void assertTable(final Supplier<Border.Builder> border, final String expected) {
-        final TableFormatter formatter = new TableFormatter(300, table, border.get().build());
-        final String actual = formatter.format();
+        final Taable taable = new Taable(data, border.get().build(), 300);
+        final String actual = taable.format();
         Assert.assertEquals(expected, actual);
     }
 }

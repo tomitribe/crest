@@ -35,6 +35,7 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.table.Border;
 import org.tomitribe.crest.table.Data;
 import org.tomitribe.crest.table.Table;
+import org.tomitribe.crest.term.Screen;
 
 import java.io.PrintStream;
 import java.lang.reflect.Method;
@@ -152,7 +153,7 @@ public class Main implements Completer {
 
             // these are already handled via message + help
             onExit.accept(code);
-            
+
         } else if (exit != null) {
 
             env.getError().println(cause.getMessage());
@@ -210,8 +211,11 @@ public class Main implements Completer {
 
             } else if (result instanceof String[][]) {
 
+                final int guess = Screen.guessWidth();
+                final int width = guess > 0 ? guess : 150;
+
                 final Data data = new Data((String[][]) result, true);
-                final Table table = new Table(data, Border.asciiCompact().build(), 150);
+                final Table table = new Table(data, Border.asciiCompact().build(), width);
 
                 table.format(out);
 

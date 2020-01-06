@@ -48,6 +48,7 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptorInvocationContext;
 import org.tomitribe.crest.javadoc.Javadoc;
 import org.tomitribe.crest.javadoc.JavadocParser;
+import org.tomitribe.crest.term.Screen;
 import org.tomitribe.crest.val.BeanValidation;
 import org.tomitribe.util.IO;
 import org.tomitribe.util.Join;
@@ -599,7 +600,14 @@ public class CmdMethod implements Cmd {
 
         final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
         final boolean color = !environment.getEnv().containsKey("NOCOLOR");
-        final DocumentFormatter formatter = new DocumentFormatter(100, color);
+
+        final int guess = Screen.guessWidth();
+        int width = guess > 0 ? guess : 100;
+
+        // Man pages seem to look like this, it looks nice
+        if (width > 120) width -= 7;
+
+        final DocumentFormatter formatter = new DocumentFormatter(width, color);
         final String format = formatter.format(manual.build());
 
         final boolean less = !environment.getEnv().containsKey("NOLESS");

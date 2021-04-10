@@ -55,7 +55,7 @@ public class AuthorTest {
     @Test
     public void full() throws Exception {
         final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
-        new Main(Commands.class).main(env, new String[]{"help", "commit"});
+        new Main(Commands.class).main(env, "help", "commit");
         assertEquals("NAME\n" +
                         "       commit\n" +
                         "\n" +

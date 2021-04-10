@@ -18,7 +18,7 @@ package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.api.Exit;
 
-@Exit(400) // using http status codes because it's fun :)
+@Exit(value = 400, help = true) // using http status codes because it's fun :)
 public class MissingArgumentException extends IllegalArgumentException {
     public MissingArgumentException(final String s) {
         super("Missing argument: " + s + "");

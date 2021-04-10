@@ -57,7 +57,7 @@ public class Converter {
         final Class<? extends Object> actualType = value.getClass();
 
         if (targetType.isPrimitive()) {
-            targetType =  PrimitiveTypes.valueOf(targetType.toString().toUpperCase()).getWraper();
+            targetType = PrimitiveTypes.valueOf(targetType.toString().toUpperCase()).getWraper();
         }
 
         if (targetType.isAssignableFrom(actualType)) {
@@ -119,6 +119,8 @@ public class Converter {
             return constructor.newInstance(value);
         } catch (final NoSuchMethodException e) {
             // fine
+        } catch (final IllegalArgumentException e) {
+            throw e;
         } catch (final Exception e) {
             final String message = String.format("Cannot convert string '%s' to %s.", value, type);
             throw new IllegalArgumentException(message, e);
@@ -131,6 +133,8 @@ public class Converter {
 
             try {
                 return method.invoke(null, value);
+            } catch (final IllegalStateException e) {
+                throw e;
             } catch (final Exception e) {
                 final String message = String.format("Cannot convert string '%s' to %s.", value, type);
                 throw new IllegalStateException(message, e);
@@ -142,10 +146,10 @@ public class Converter {
 
     private static boolean isInvalidMethod(Class<?> type, Method method) {
         if (!Modifier.isStatic(method.getModifiers()) ||
-            !Modifier.isPublic(method.getModifiers()) ||
-            !method.getReturnType().equals(type) ||
-            !method.getParameterTypes()[0].equals(String.class) ||
-            method.getParameterTypes().length != 1) {
+                !Modifier.isPublic(method.getModifiers()) ||
+                !method.getReturnType().equals(type) ||
+                !method.getParameterTypes()[0].equals(String.class) ||
+                method.getParameterTypes().length != 1) {
             return true;
         }
         return false;

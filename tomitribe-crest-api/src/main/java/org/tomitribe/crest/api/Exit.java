@@ -33,4 +33,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Exit {
     int value();
+
+    boolean help() default false;
 }

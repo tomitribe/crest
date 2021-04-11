@@ -54,12 +54,10 @@ public class CrestCliTest {
             "   pretty              \n" +
             "   test                \n" +
             "   wc                  \n" +
-            "\n" +
             "prompt$test\n" +
             "line1\n" +
             "line 2\n" +
             "end\n" +
-            "\n" +
             "prompt$test | jgrep 2\n" +
             "line 2\n" +
             "prompt$exit"), portable(new String(out.toByteArray())));
@@ -150,7 +148,6 @@ public class CrestCliTest {
             "line1\n" +
             "line 2\n" +
             "end\n" +
-            "\n" +
             "prompt$exit", portable(new String(out.toByteArray())));
     }
 
@@ -165,7 +162,6 @@ public class CrestCliTest {
             "line1\n" +
             "line 2\n" +
             "end\n" +
-            "\n" +
             "Time 0s Xms\n" +
             "prompt$exit"), portable(new String(out.toByteArray()).replaceAll("[0-9]+ms", "Xms")));
     }

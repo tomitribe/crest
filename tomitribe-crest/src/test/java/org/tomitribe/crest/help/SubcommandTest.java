@@ -55,7 +55,7 @@ public class SubcommandTest {
                         "\n" +
                         "       --message=<String>\n" +
                         "              a message detailing the commit\n" +
-                        "\n",
+                        "",
                 env.getOut().toString());
     }
 

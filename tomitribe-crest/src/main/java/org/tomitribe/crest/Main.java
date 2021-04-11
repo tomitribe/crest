@@ -205,7 +205,7 @@ public class Main implements Completer {
 
                 final String string = (String) result;
 
-                out.println(string);
+                out.print(string);
 
                 if (!string.endsWith("\n")) out.println();
 

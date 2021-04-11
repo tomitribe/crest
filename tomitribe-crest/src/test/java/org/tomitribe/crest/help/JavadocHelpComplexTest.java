@@ -163,7 +163,7 @@ public class JavadocHelpComplexTest {
                         "              behave  as  if  it  used  -I, causing all files to be updated (though the rsync\n" +
                         "              algorithm will make the update fairly efficient if the files  haven't  actually\n" +
                         "              changed, you're much better off using -t).\n" +
-                        "\n",
+                        "",
                 env.getOut().toString());
     }
 

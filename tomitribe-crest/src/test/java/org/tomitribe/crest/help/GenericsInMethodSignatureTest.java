@@ -59,7 +59,7 @@ public class GenericsInMethodSignatureTest {
                         "              improved copy command.\n" +
                         "\n" +
                         "       --strings=<String[]>\n" +
-                        "\n",
+                        "",
                 env.getOut().toString());
     }
 

@@ -21,6 +21,7 @@ import org.tomitribe.crest.api.CrestAnnotation;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Defaults;
 import org.tomitribe.crest.api.Err;
+import org.tomitribe.crest.api.Exit;
 import org.tomitribe.crest.api.In;
 import org.tomitribe.crest.api.NotAService;
 import org.tomitribe.crest.api.Option;
@@ -390,11 +391,32 @@ public class CmdMethod implements Cmd {
         try {
             list = parse(rawArgs);
         } catch (final Exception e) {
+            /*
+             * If any exception in the chain was annotated with @Exit
+             * then we want to let that exception handle the error message
+             */
+            final RuntimeException handled = getExitCode(e);
+            if (handled != null) {
+                final Exit exit = handled.getClass().getAnnotation(Exit.class);
+                if (exit.help()) {
+                    reportWithHelp(e);
+                }
+                throw handled;
+            }
             reportWithHelp(e);
             throw toRuntimeException(e);
         }
 
         return exec(globalInterceptors, list);
+    }
+
+    private RuntimeException getExitCode(final Throwable e) {
+        if (e == null) return null;
+        if (e instanceof RuntimeException && e.getClass().isAnnotationPresent(Exit.class)) {
+            return (RuntimeException) e;
+        }
+
+        return getExitCode(e.getCause());
     }
 
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final List<Object> list) {
@@ -744,7 +766,22 @@ public class CmdMethod implements Cmd {
         if (parameter.isListable()) {
             return convert(parameter, OptionParam.getSeparatedValues(value), name);
         }
-        final Object convert = Converter.convert(value, parameter.getType(), name);
+        final Object convert;
+        try {
+            convert = Converter.convert(value, parameter.getType(), name);
+        } catch (final IllegalArgumentException e) {
+            /*
+             * If something we attempted to conver threw an exception that
+             * was annotated with @Exit, then we should unwrap it and throw
+             * that exact exception so the help system can handle it properly.
+             */
+            if (e.getCause() != null &&
+                    e.getCause() instanceof RuntimeException &&
+                    e.getCause().getClass().isAnnotationPresent(Exit.class)) {
+                throw (RuntimeException) e.getCause();
+            }
+            throw e;
+        }
         return new Value(convert, value != null && !value.equals(OptionParam.class.cast(parameter).getDefaultValue()));
     }
 

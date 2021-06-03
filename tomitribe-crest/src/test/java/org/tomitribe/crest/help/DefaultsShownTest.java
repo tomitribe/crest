@@ -61,7 +61,7 @@ public class DefaultsShownTest {
                         "              indicates all changes should be committed, including deleted files\n" +
                         "       \n" +
                         "              enum:  NANOSECONDS,  MICROSECONDS,  MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS\n" +
-                        "\n",
+                        "",
                 env.getOut().toString());
     }
 

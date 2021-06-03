@@ -60,7 +60,7 @@ public class ParamWithPreformattedTextTest {
                         "              You  can  also  use  rsync  in  local-only  mode,  where  both  the  source and\n" +
                         "              destination don't have a ':' in the name.  In this  case  it  behaves  like  an\n" +
                         "              improved copy command.\n" +
-                        "\n",
+                        "",
                 env.getOut().toString());
     }
 

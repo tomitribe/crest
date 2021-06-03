@@ -47,15 +47,14 @@ public class AuthorTest {
                         "       --message=<String>\n" +
                         "\n" +
                         "AUTHORS\n" +
-                        "       Gonzo the Great\n" +
-                        "\n",
+                        "       Gonzo the Great\n",
                 actual);
     }
 
     @Test
     public void full() throws Exception {
         final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
-        new Main(Commands.class).main(env, new String[]{"help", "commit"});
+        new Main(Commands.class).main(env, "help", "commit");
         assertEquals("NAME\n" +
                         "       commit\n" +
                         "\n" +
@@ -82,8 +81,7 @@ public class AuthorTest {
                         "AUTHORS\n" +
                         "       Gonzo the Great\n" +
                         "\n" +
-                        "       Kermit the Frog <kermit@frog.com>\n" +
-                        "\n",
+                        "       Kermit the Frog <kermit@frog.com>\n",
                 env.getOut().toString());
     }
 

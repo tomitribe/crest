@@ -68,7 +68,8 @@ public class BashCompletionTest {
         final String expected = IO.slurp(resource);
 
         final Main main = new Main(clazzes);
-        Assert.assertEquals(expected, BashCompletion.generate(main, cmd));
+        final String actual = BashCompletion.generate(main, cmd).replaceAll("\r\n", "\n");
+        Assert.assertEquals(expected, actual);
     }
 
     public static class Foo {

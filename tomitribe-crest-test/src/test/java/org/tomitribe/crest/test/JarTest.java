@@ -26,7 +26,7 @@ public class JarTest {
         final Java.Result result = Jar.mainClass(Hello.class).exec();
 
         Assert.assertEquals("", result.getErr());
-        Assert.assertEquals("Hello!\n", result.getOut());
+        Assert.assertEquals("Hello!" + System.lineSeparator(), result.getOut());
     }
 
     @Test
@@ -35,10 +35,10 @@ public class JarTest {
                 .exec("red", "green", "blue");
 
         Assert.assertEquals("", result.getErr());
-        Assert.assertEquals("Hello!\n" +
-                "arg: red\n" +
-                "arg: green\n" +
-                "arg: blue\n", result.getOut());
+        Assert.assertEquals("Hello!" + System.lineSeparator() +
+                "arg: red" + System.lineSeparator() +
+                "arg: green" + System.lineSeparator() +
+                "arg: blue" + System.lineSeparator(), result.getOut());
     }
 
 }

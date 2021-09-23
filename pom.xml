@@ -52,7 +52,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
-    <xbean.version>4.15</xbean.version>
+    <xbean.version>4.20</xbean.version>
     <crest.build.name>${project.groupId}</crest.build.name>
   </properties>
 
@@ -94,7 +94,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-asm7-shaded</artifactId>
+        <artifactId>xbean-asm9-shaded</artifactId>
         <version>${xbean.version}</version>
         <scope>compile</scope>
       </dependency>
@@ -123,6 +123,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>

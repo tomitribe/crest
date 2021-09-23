@@ -52,7 +52,7 @@ public class DocumentFormatterTest {
         final URL resource = loader.getResource("man/expected-" + width + ".txt");
         final String expected = IO.slurp(resource);
 
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expected, actual.replaceAll("\r\n","\n"));
     }
 
 }

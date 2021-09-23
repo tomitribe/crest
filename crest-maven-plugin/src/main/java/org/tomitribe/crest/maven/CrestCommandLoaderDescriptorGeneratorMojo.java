@@ -38,7 +38,7 @@ import java.util.TreeSet;
 import static org.objectweb.asm.ClassReader.SKIP_CODE;
 import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
 import static org.objectweb.asm.ClassReader.SKIP_FRAMES;
-import static org.objectweb.asm.Opcodes.ASM6;
+import static org.objectweb.asm.Opcodes.ASM9;
 
 @Mojo(name = "descriptor", defaultPhase = LifecyclePhase.PROCESS_CLASSES)
 public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
@@ -100,7 +100,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
     private String commandName(final File classFile) throws IOException {
         try (InputStream stream = new FileInputStream(classFile)) {
             final ClassReader reader = new ClassReader(stream);
-            reader.accept(new ClassVisitor(ASM6) {
+            reader.accept(new ClassVisitor(ASM9) {
                 private String className;
 
                 @Override
@@ -116,7 +116,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
 
                 @Override
                 public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
-                    return new MethodVisitor(ASM6) {
+                    return new MethodVisitor(ASM9) {
                         @Override
                         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                             checkAnnotation(desc);

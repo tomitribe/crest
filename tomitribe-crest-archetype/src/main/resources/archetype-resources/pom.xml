@@ -51,6 +51,18 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.tomitribe</groupId>
+        <version>${crest.version}</version>
+        <artifactId>crest-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>descriptor</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -65,12 +77,28 @@
     <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest</artifactId>
-      <version>0.3-SNAPSHOT</version>
+      <version>${crest.version}</version>
     </dependency>
     <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest-xbean</artifactId>
-      <version>0.3-SNAPSHOT</version>
+      <version>${crest.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-validation_2.0_spec</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.bval</groupId>
+      <artifactId>bval-jsr</artifactId>
+      <version>1.1.0</version>
     </dependency>
   </dependencies>
+
+  <properties>
+    <crest.version>0.16-SNAPSHOT</crest.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
 </project>

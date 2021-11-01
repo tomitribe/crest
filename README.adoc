@@ -965,3 +965,54 @@ cli.run();
 TIP: `CrestCli` also has a `main(String[])` so it can be used directly as well.
 
 NOTE: if you don't provide an `exit` command one is added by default.
+
+== GraalVM integration
+
+Tomitribe Crest works very smoothly with GraalVM enabling you to get a native binary from your CLI.
+
+You can do it writing manually your `reflections.json` but you can also do it through maven using `Apache Geronimo Arthur` plugin.
+In this last case, you can set up your CLI auto-configuration with this setup:
+
+IMPORTANT: requires Tomitribe Crest >= 0.17.
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.apache.geronimo.arthur</groupId>
+  <artifactId>arthur-maven-plugin</artifactId>
+  <version>1.0.3</version>
+  <configuration>
+    <graalVersion>21.3.0.r17</graalVersion> <1>
+    <main>org.tomitribe.crest.Main</main> <2>
+    <graalExtensions> <3>
+      <!-- enable crest auto registration for commands/interceptors -->
+      <graalExtension>org.tomitribe:tomitribe-crest-arthur-extension:${crest.version}</graalExtension>
+    </graalExtensions>
+    <extensionProperties> <4>
+      <!-- starts with, excludes exists too, don't forget help if you don't override it yourself -->
+      <tomitribe.crest.command.includes>
+        com.superbiz.command,
+        org.tomitribe.crest.cmds.processors.Help
+      </tomitribe.crest.command.includes>
+    </extensionProperties>
+    <enableAllSecurityServices>false</enableAllSecurityServices> <5>
+  </configuration>
+  <dependencies> <6>
+    <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-asm9-shaded</artifactId>
+      <version>4.20</version>
+    </dependency>
+  </dependencies>
+</plugin>
+----
+<.> Ensure to adjust the Graal and JVM base version (here Graal 21.3.0 in its Java 17 flavor),
+<.> Reuse default Crest main,
+<.> Enable crest extension for Arthur,
+<.> Customize the command scanning, note that you can tune the includes/excludes and the values are comma separated and use a "start with" matching logic,
+<.> This option is deprecated in recent graal versions so avoid a warning using a recent version, no direct link with crest itself,
+<.> Force arthur to support java 17 if it is what you picked, else (java 8/11) not needed.
+
+Then just run: `mvn install arthur:native-image` and you will get a `target/<artifctId>.graal.bin` binary you can share and execute on the built platform.
+
+IMPORTANT: if you use a custom property editor/converter, ensure to register it manually in `<reflection>` part of the plugin, see link:https://geronimo.apache.org/arthur/maven.html[Arthur Maven Plugin] documentation for details.

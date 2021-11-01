@@ -47,6 +47,7 @@
     <module>crest-maven-plugin</module>
     <module>tomitribe-crest-cli</module>
     <module>tomitribe-crest-generator</module>
+    <module>tomitribe-crest-arthur-extension</module>
   </modules>
 
   <properties>

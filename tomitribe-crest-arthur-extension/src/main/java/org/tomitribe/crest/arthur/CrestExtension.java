@@ -19,6 +19,7 @@ package org.tomitribe.crest.arthur;
 import org.apache.geronimo.arthur.spi.ArthurExtension;
 import org.apache.geronimo.arthur.spi.model.ClassReflectionModel;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Editor;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -39,14 +40,37 @@ public class CrestExtension implements ArthurExtension {
     @Override
     public void execute(final Context context) {
         final Predicate<String> extensionFilter = context.createIncludesExcludes("tomitribe.crest.command.", PredicateType.STARTS_WITH);
+        final Predicate<String> editorsFilter = context.createIncludesExcludes("tomitribe.crest.editors.", PredicateType.STARTS_WITH);
         final Collection<Method> commands = context.findAnnotatedMethods(Command.class);
 
-        final List<String> keptClasses = toClasses(context, commands)
-                .filter(extensionFilter::test)
+        final List<String> commandsAndInterceptors = toClasses(context, commands)
+                .filter(extensionFilter)
                 .collect(toList());
 
-        registerReflection(context, keptClasses);
-        registerCommandsLoader(context, keptClasses);
+        final List<String> editors = findEditors(context)
+                .filter(editorsFilter)
+                .collect(toList());
+
+        registerReflection(context, commandsAndInterceptors);
+        registerConstructorReflection(context, editors);
+        registerEditorsLoader(context, editors);
+        registerCommandsLoader(context, editors.isEmpty() ?
+                commandsAndInterceptors :
+                // ensure editors are loaded early add EditorLoader in this SPI registration
+                Stream.concat(Stream.of("org.tomitribe.crest.EditorLoader"), commandsAndInterceptors.stream())
+                        .collect(toList()));
+
+        if (!editors.isEmpty()) { // uses a static block so init at runtime
+            context.register(toClassReflection("org.tomitribe.crest.EditorLoader"));
+            context.initializeAtRunTime("org.tomitribe.crest.EditorLoader");
+        }
+    }
+
+    private void registerEditorsLoader(final Context context, final List<String> keptClasses) {
+        context.addNativeImageOption("-H:TomitribeCrestEditors=" + dump(
+                Paths.get(requireNonNull(context.getProperty("workingDirectory"), "workingDirectory property")),
+                "crest-editors.txt",
+                String.join("\n", keptClasses)));
     }
 
     private void registerCommandsLoader(final Context context, final List<String> keptClasses) {
@@ -56,8 +80,14 @@ public class CrestExtension implements ArthurExtension {
                 String.join("\n", keptClasses)));
     }
 
-    private void registerReflection(Context context, List<String> keptClasses) {
-        keptClasses.stream()
+    private void registerConstructorReflection(final Context context, final List<String> classes) {
+        classes.stream()
+                .map(this::toConstructorModel)
+                .forEach(context::register);
+    }
+
+    private void registerReflection(final Context context, final List<String> classes) {
+        classes.stream()
                 .map(this::toModel)
                 .forEach(context::register);
     }
@@ -81,14 +111,42 @@ public class CrestExtension implements ArthurExtension {
         return out.toAbsolutePath().toString();
     }
 
-    private Stream<String> toClasses(final Context context, final Collection<Method> commands) {
-        return commands.stream()
-                .flatMap(m -> Stream.concat(
-                        Stream.of(m.getAnnotation(Command.class).interceptedBy()),
-                        Stream.of(m.getDeclaringClass()).flatMap(context::findHierarchy)))
+    private Stream<String> findEditors(final Context context) {
+        // normally we would need context.findImplementations(Editor.class).stream() but since it is
+        // a standard SPI, graal can do it alone so don't do it twice
+        return context.findAnnotatedClasses(Editor.class).stream()
                 .distinct()
                 .map(Class::getName)
                 .sorted();
+    }
+
+    private Stream<String> toClasses(final Context context, final Collection<Method> commands) {
+        return commands.stream()
+                .flatMap(m -> Stream.concat(
+                        findInterceptors(m),
+                        Stream.of(m.getDeclaringClass())))
+                .distinct()
+                .flatMap(context::findHierarchy)
+                .distinct() // hierarchy can overlap but doing 2 distincts we have less classes to handle overall
+                .map(Class::getName)
+                .sorted();
+    }
+
+    private Stream<Class<?>> findInterceptors(final Method method) {
+        return Stream.of(method.getAnnotation(Command.class).interceptedBy());
+    }
+
+    private ClassReflectionModel toClassReflection(final String name) {
+        final ClassReflectionModel model = new ClassReflectionModel();
+        model.setName(name);
+        return model;
+    }
+
+    private ClassReflectionModel toConstructorModel(final String name) {
+        final ClassReflectionModel model = new ClassReflectionModel();
+        model.setName(name);
+        model.setAllPublicConstructors(true);
+        return model;
     }
 
     private ClassReflectionModel toModel(final String name) {

@@ -1132,3 +1132,52 @@ public class Cat {
 
 Once this project created, you can run `mvn clean install arthur:native-image`.
 This creates a `./target/demo-crest-arthur.graal.bin` binary and you can execute `cat` command using: `./target/demo-crest-arthur.graal.bin cat <some file>`.
+
+=== Use Crest Maven Plugin Scanning
+
+it is also possible to make Arthur extension use `crest-maven-plugin` scan goal (`descriptor`).
+Just set extension property `tomitribe.crest.useInPlaceRegistrations` to `true`:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.tomitribe</groupId>
+  <artifactId>crest-maven-plugin</artifactId>
+  <version>${crest.version}</version>
+  <executions>
+    <execution>
+      <id>scan</id>
+      <phase>process-classes</phase>
+      <goals>
+        <goal>descriptor</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+<plugin>
+  <groupId>org.apache.geronimo.arthur</groupId>
+  <artifactId>arthur-maven-plugin</artifactId>
+  <version>1.0.3</version>
+  <configuration>
+    <graalVersion>21.3.0.r17</graalVersion>
+    <main>org.tomitribe.crest.Main</main>
+    <graalExtensions>
+      <graalExtension>org.tomitribe:tomitribe-crest-arthur-extension:0.17-SNAPSHOT</graalExtension>
+    </graalExtensions>
+    <extensionProperties>
+      <!-- reuse crest maven plugin scanning -->
+      <tomitribe.crest.useInPlaceRegistrations>true</tomitribe.crest.useInPlaceRegistrations>
+    </extensionProperties>
+    <enableAllSecurityServices>false</enableAllSecurityServices>
+  </configuration>
+  <dependencies>
+    <dependency> <!-- force arthur to support java 17 -->
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-asm9-shaded</artifactId>
+      <version>4.20</version>
+    </dependency>
+  </dependencies>
+</plugin>
+----
+
+This enables to use the same scanning for both tasks and therefore to have a common and unified scanning for java and native runs.

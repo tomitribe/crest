@@ -21,7 +21,9 @@ import org.apache.geronimo.arthur.spi.model.ClassReflectionModel;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Editor;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,15 +32,24 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.list;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 public class CrestExtension implements ArthurExtension {
     @Override
     public void execute(final Context context) {
+        final boolean alreadyScanned = Boolean.parseBoolean(context.getProperty("tomitribe.crest.useInPlaceRegistrations"));
+        if (alreadyScanned) {
+            doRegisters(context, doLoadCrestTxt("crest-commands.txt"), doLoadCrestTxt("crest-editors.txt"));
+            return;
+        }
+
         final Predicate<String> extensionFilter = context.createIncludesExcludes("tomitribe.crest.command.", PredicateType.STARTS_WITH);
         final Predicate<String> editorsFilter = context.createIncludesExcludes("tomitribe.crest.editors.", PredicateType.STARTS_WITH);
         final Collection<Method> commands = context.findAnnotatedMethods(Command.class);
@@ -51,18 +62,23 @@ public class CrestExtension implements ArthurExtension {
                 .filter(editorsFilter)
                 .collect(toList());
 
+        doRegisters(context, commandsAndInterceptors, editors);
+    }
+
+    private void doRegisters(final Context context, final List<String> commandsAndInterceptors, final List<String> editors) {
         registerReflection(context, commandsAndInterceptors);
         registerConstructorReflection(context, editors);
-        registerEditorsLoader(context, editors);
-        registerCommandsLoader(context, editors.isEmpty() ?
-                commandsAndInterceptors :
-                // ensure editors are loaded early add EditorLoader in this SPI registration
-                Stream.concat(Stream.of("org.tomitribe.crest.EditorLoader"), commandsAndInterceptors.stream())
-                        .collect(toList()));
 
         if (!editors.isEmpty()) { // uses a static block so init at runtime
+            registerEditorsLoader(context, editors);
+            registerCommandsLoader(context,
+                    // ensure editors are loaded early add EditorLoader in this SPI registration
+                    Stream.concat(Stream.of("org.tomitribe.crest.EditorLoader"), commandsAndInterceptors.stream())
+                            .collect(toList()));
+
             context.register(toClassReflection("org.tomitribe.crest.EditorLoader"));
-            context.initializeAtRunTime("org.tomitribe.crest.EditorLoader");
+        } else {
+            registerCommandsLoader(context, commandsAndInterceptors);
         }
     }
 
@@ -155,5 +171,34 @@ public class CrestExtension implements ArthurExtension {
         model.setAllPublicMethods(true);
         model.setAllPublicConstructors(true);
         return model;
+    }
+
+
+    private List<String> doLoadCrestTxt(final String name) {
+        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        try {
+            return list(loader.getResources(name)).stream()
+                    .flatMap(url -> {
+                        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
+                            return reader.lines()
+                                    .filter(it -> !it.isEmpty() && !it.startsWith("#"))
+                                    .map(it -> {
+                                        try {
+                                            return loader.loadClass(it).getName();
+                                        } catch (final Error | Exception e) {
+                                            return null;
+                                        }
+                                    })
+                                    .filter(Objects::nonNull)
+                                    .collect(toList()) // materialize before we close the stream
+                                    .stream();
+                        } catch (final IOException ioe) {
+                            return Stream.empty();
+                        }
+                    })
+                    .collect(toList());
+        } catch (final IOException e) {
+            return emptyList();
+        }
     }
 }

@@ -27,10 +27,17 @@ import org.tomitribe.crest.api.Editor;
 import org.tomitribe.util.JarLocation;
 
 import java.beans.PropertyEditorManager;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.ServiceLoader;
+
+import static java.util.Arrays.asList;
 
 public class EditorLoader {
 
@@ -39,18 +46,7 @@ public class EditorLoader {
     }
 
     static {
-        try {
-            new XBeanLoader().load();
-        } catch (final Throwable skip) {
-            // no-op
-        }
-        for (final Editor editor : ServiceLoader.load(Editor.class)) { // class MyEditor extends AbstractConverter
-            try {
-                PropertyEditorManager.registerEditor(editor.value(), editor.getClass());
-            } catch (final Exception e) {
-                // no-op
-            }
-        }
+        Lazy.init();
     }
 
     public static void load() {
@@ -85,6 +81,66 @@ public class EditorLoader {
             final AnnotationFinder finder = new AnnotationFinder(new CompositeArchive(thisArchive(), cpArchive())).enableFindSubclasses();
             for (final Annotated<Class<?>> clazz : finder.findMetaAnnotatedClasses(Editor.class)) {
                 PropertyEditorManager.registerEditor(clazz.getAnnotation(Editor.class).value(), clazz.get());
+            }
+        }
+    }
+
+    public static class Lazy {
+        private Lazy() {
+            // no-op
+        }
+
+        public static void init() {
+            try {
+                new XBeanLoader().load();
+            } catch (final Throwable skip) {
+                // no-op
+            }
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            for (final Editor editor : ServiceLoader.load(Editor.class)) { // class MyEditor extends AbstractConverter
+                try {
+                    PropertyEditorManager.registerEditor(editor.value(), editor.getClass());
+                } catch (final Exception e) {
+                    // no-op
+                }
+            }
+            lightInit(loader);
+        }
+
+        public static void lightInit(final ClassLoader loader) {
+            for (final String prefix : asList("", "/")) {
+                try {
+                    final Enumeration<URL> urls = loader.getResources(prefix + "crest-editors.txt");
+                    final boolean done = urls.hasMoreElements();
+                    while (urls.hasMoreElements()) {
+                        final URL url = urls.nextElement();
+                        try (final InputStream stream = url.openStream();
+                             final BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                if (line.trim().isEmpty()) {
+                                    continue;
+                                }
+                                try {
+                                    final Class<?> clazz = loader.loadClass(line);
+                                    final Editor target = clazz.getAnnotation(Editor.class);
+                                    if (target != null) {
+                                        PropertyEditorManager.registerEditor(target.value(), clazz);
+                                    }
+                                } catch (final Exception e) {
+                                    // no-op
+                                }
+                            }
+                        } catch (final IOException ioe) {
+                            // no-op
+                        }
+                    }
+                    if (done) {
+                        break;
+                    }
+                } catch (final IOException e) {
+                    // no-op
+                }
             }
         }
     }

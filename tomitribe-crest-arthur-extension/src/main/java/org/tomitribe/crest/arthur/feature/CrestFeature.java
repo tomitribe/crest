@@ -35,9 +35,11 @@ import java.util.stream.Stream;
 @AutomaticFeature
 public class CrestFeature implements Feature {
     public static final class Options {
-        @Option(help = "Crest commands list file.", type = OptionType.User)
         // CHECKSTYLE:OFF
+        @Option(help = "Crest commands list file.", type = OptionType.User)
         static final HostedOptionKey<String> TomitribeCrestCommands = new HostedOptionKey<>(null);
+        @Option(help = "Crest editors list file.", type = OptionType.User)
+        static final HostedOptionKey<String> TomitribeCrestEditors = new HostedOptionKey<>(null);
         // CHECKSTYLE:ON
     }
 
@@ -52,6 +54,12 @@ public class CrestFeature implements Feature {
                             "Crest commands.",
                             Options.class, value,
                             Options.TomitribeCrestCommands);
+                case "TomitribeCrestEditors":
+                    return OptionDescriptor.create(
+                            value, OptionType.User, String.class,
+                            "Crest editors.",
+                            Options.class, value,
+                            Options.TomitribeCrestEditors);
                 default:
                     return null;
             }
@@ -59,7 +67,7 @@ public class CrestFeature implements Feature {
 
         @Override
         public Iterator<OptionDescriptor> iterator() {
-            return Stream.of("TomitribeCrestCommands").map(this::get).iterator();
+            return Stream.of("TomitribeCrestCommands", "TomitribeCrestEditors").map(this::get).iterator();
         }
     }
 
@@ -67,6 +75,9 @@ public class CrestFeature implements Feature {
     public void beforeAnalysis(final BeforeAnalysisAccess access) {
         if (Options.TomitribeCrestCommands.hasBeenSet()) {
             register(Options.TomitribeCrestCommands.getValue(), "crest-commands.txt");
+        }
+        if (Options.TomitribeCrestEditors.hasBeenSet()) {
+            register(Options.TomitribeCrestEditors.getValue(), "crest-editors.txt");
         }
     }
 

@@ -29,9 +29,10 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.TreeSet;
 
@@ -44,12 +45,16 @@ import static org.objectweb.asm.Opcodes.ASM9;
 public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
     private static final String COMMAND_MARKER = "Lorg/tomitribe/crest/api/Command;";
     private static final String INTERCEPTOR_MARKER = "Lorg/tomitribe/crest/api/interceptor/CrestInterceptor;";
+    private static final String EDITOR_MARKER = "Lorg/tomitribe/crest/api/Editor;";
 
     @Parameter(property = "crest.descriptor.classes", defaultValue = "${project.build.outputDirectory}")
     protected File classes;
 
     @Parameter(property = "crest.descriptor.output", defaultValue = "${project.build.outputDirectory}/crest-commands.txt")
     protected File output;
+
+    @Parameter(property = "crest.descriptor.editors.output", defaultValue = "${project.build.outputDirectory}/crest-editors.txt")
+    protected File editorsOutput;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -60,8 +65,9 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
 
         // find commands
         final Collection<String> commands = new TreeSet<>(); // sorted if a human wants to check it
+        final Collection<String> editors = new TreeSet<>(); // sorted if a human wants to check it
         try {
-            scan(commands, classes);
+            scan(editors, commands, classes);
         } catch (final IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
@@ -70,34 +76,51 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
         if (!output.getParentFile().isDirectory() && !output.getParentFile().mkdirs()) {
             throw new MojoExecutionException("Can't create " + output.getAbsolutePath());
         }
-        try (FileWriter writer = new FileWriter(output)){
-            for (final String cmd : commands) {
-                writer.write(cmd + '\n');
-            }
+        try {
+            Files.write(output.toPath(), ((editors.isEmpty() ?
+                    "" : "org.tomitribe.crest.EditorLoader\n") +
+                    String.join("\n", commands)).getBytes(StandardCharsets.UTF_8));
+            getLog().info("Wrote " + output);
         } catch (final IOException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
+            throw new MojoFailureException(e.getMessage(), e);
+        }
+        if (!editors.isEmpty()) {
+            try {
+                Files.write(editorsOutput.toPath(), String.join("\n", editors).getBytes(StandardCharsets.UTF_8));
+                getLog().info("Wrote " + editorsOutput);
+            } catch (final IOException e) {
+                throw new MojoFailureException(e.getMessage(), e);
+            }
         }
     }
 
-    private void scan(final Collection<String> commands, final File file) throws IOException {
+    private void scan(final Collection<String> editors, final Collection<String> commands, final File file) throws IOException {
         if (file.isFile()) {
             if (file.getName().endsWith(".class")) {
-                final String command = commandName(file);
-                if (command != null) {
-                    commands.add(command);
+                final ScanResult result = scanClass(file);
+                switch (result.type) {
+                    case EDITOR:
+                        editors.add(result.name);
+                        break;
+                    case COMMAND:
+                    case INTERCEPTOR:
+                        commands.add(result.name);
+                        break;
+                    case NONE:
+                    default:
                 }
             } // else we don't care
         } else if (file.isDirectory()) {
             final File[] children = file.listFiles();
             if (children != null) {
                 for (final File child : children) {
-                    scan(commands, child);
+                    scan(editors, commands, child);
                 }
             }
         }
     }
 
-    private String commandName(final File classFile) throws IOException {
+    private ScanResult scanClass(final File classFile) throws IOException {
         try (InputStream stream = new FileInputStream(classFile)) {
             final ClassReader reader = new ClassReader(stream);
             reader.accept(new ClassVisitor(ASM9) {
@@ -110,7 +133,12 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
 
                 @Override
                 public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
-                    checkAnnotation(desc);
+                    if (COMMAND_MARKER.equals(desc)) {
+                        throw new CommandFoundException(new ScanResult(ScanResultType.COMMAND, className));
+                    }
+                    if (EDITOR_MARKER.equals(desc)) {
+                        throw new CommandFoundException(new ScanResult(ScanResultType.EDITOR, className));
+                    }
                     return super.visitAnnotation(desc, visible);
                 }
 
@@ -119,27 +147,48 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
                     return new MethodVisitor(ASM9) {
                         @Override
                         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                            checkAnnotation(desc);
+                            if (COMMAND_MARKER.equals(desc)) {
+                                throw new CommandFoundException(new ScanResult(ScanResultType.COMMAND, className));
+                            }
+                            if (INTERCEPTOR_MARKER.equals(desc)) {
+                                throw new CommandFoundException(new ScanResult(ScanResultType.INTERCEPTOR, className));
+                            }
                             return super.visitAnnotation(desc, visible);
                         }
                     };
                 }
-
-                private void checkAnnotation(final String desc) {
-                    if (COMMAND_MARKER.equals(desc) || INTERCEPTOR_MARKER.equals(desc)) {
-                        throw new CommandFoundException(className);
-                    }
-                }
             }, SKIP_CODE + SKIP_DEBUG + SKIP_FRAMES);
         } catch (final CommandFoundException cfe) {
-            return cfe.getMessage(); // class name
+            return cfe.result;
         }
-        return null;
+        return ScanResult.NONE;
     }
 
     private static class CommandFoundException extends RuntimeException {
-        public CommandFoundException(final String className) {
-            super(className);
+        private final ScanResult result;
+
+        public CommandFoundException(final ScanResult result) {
+            super(result.name);
+            this.result = result;
+        }
+    }
+
+    private enum ScanResultType {
+        NONE,
+        COMMAND,
+        INTERCEPTOR,
+        EDITOR
+    }
+
+    private static class ScanResult {
+        private static final ScanResult NONE = new ScanResult(ScanResultType.NONE, null);
+
+        private final ScanResultType type;
+        private final String name;
+
+        private ScanResult(final ScanResultType type, final String name) {
+            this.type = type;
+            this.name = name;
         }
     }
 }

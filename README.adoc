@@ -994,10 +994,11 @@ IMPORTANT: requires Tomitribe Crest >= 0.17.
         com.superbiz.command,
         org.tomitribe.crest.cmds.processors.Help
       </tomitribe.crest.command.includes>
+      <!-- <tomitribe.crest.editors.includes>....</tomitribe.crest.editors.includes> --> <5>
     </extensionProperties>
-    <enableAllSecurityServices>false</enableAllSecurityServices> <5>
+    <enableAllSecurityServices>false</enableAllSecurityServices> <6>
   </configuration>
-  <dependencies> <6>
+  <dependencies> <7>
     <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-asm9-shaded</artifactId>
@@ -1010,9 +1011,173 @@ IMPORTANT: requires Tomitribe Crest >= 0.17.
 <.> Reuse default Crest main,
 <.> Enable crest extension for Arthur,
 <.> Customize the command scanning, note that you can tune the includes/excludes and the values are comma separated and use a "start with" matching logic,
+<.> If you are using `@Editor`, you can control the scanning there too similarly to commands,
 <.> This option is deprecated in recent graal versions so avoid a warning using a recent version, no direct link with crest itself,
 <.> Force arthur to support java 17 if it is what you picked, else (java 8/11) not needed.
 
 Then just run: `mvn install arthur:native-image` and you will get a `target/<artifctId>.graal.bin` binary you can share and execute on the built platform.
 
-IMPORTANT: if you use a custom property editor/converter, ensure to register it manually in `<reflection>` part of the plugin, see link:https://geronimo.apache.org/arthur/maven.html[Arthur Maven Plugin] documentation for details.
+IMPORTANT: only scanned editors (`@Editor`) are handled by the extension, SPI ones (`META-INF/services/org.tomitribe.crest.api.Editor`) can be used if you register them within GraalVM configuration and enable `ServiceLoader`.
+
+=== GraalVM example
+
+[source,java]
+.Cat.java
+----
+package org.superbiz.crest.demo;
+
+import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Editor;
+import org.tomitribe.util.editor.AbstractConverter;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class Cat {
+    @Command(usage = "Cat a file.")
+    public String cat(final Path file) throws IOException {
+        return Files.readString(file);
+    }
+
+    @Editor(Path.class)
+    public static class PathEditor extends AbstractConverter {
+        @Override
+        protected Object toObjectImpl(final String text) {
+            return Paths.get(text);
+        }
+    }
+}
+----
+
+[source,xml]
+.pom.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.superbiz.demo</groupId>
+  <artifactId>demo-crest-arthur</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <properties>
+    <crest.version>...</crest.version> <!-- >= 0.17 -->
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.tomitribe</groupId>
+      <artifactId>tomitribe-crest</artifactId>
+      <version>${crest.vesion}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <release>17</release>
+          <source>17</source>
+          <target>17</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.geronimo.arthur</groupId>
+        <artifactId>arthur-maven-plugin</artifactId>
+        <version>1.0.3</version>
+        <configuration>
+          <graalVersion>21.3.0.r17</graalVersion>
+          <main>org.tomitribe.crest.Main</main>
+          <graalExtensions>
+            <!-- enable crest auto registration for commands/interceptors -->
+            <graalExtension>org.tomitribe:tomitribe-crest-arthur-extension:0.17-SNAPSHOT</graalExtension>
+          </graalExtensions>
+          <extensionProperties>
+            <!-- starts with, excludes exists too -->
+            <tomitribe.crest.command.includes>
+              ${project.groupId}.,
+              org.tomitribe.crest.cmds.processors.Help
+            </tomitribe.crest.command.includes>
+          </extensionProperties>
+          <!-- this option is deprecated in recent graal versions -->
+          <enableAllSecurityServices>false</enableAllSecurityServices>
+        </configuration>
+        <dependencies>
+          <dependency> <!-- force arthur to support java 17 -->
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-asm9-shaded</artifactId>
+            <version>4.20</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+----
+
+Once this project created, you can run `mvn clean install arthur:native-image`.
+This creates a `./target/demo-crest-arthur.graal.bin` binary and you can execute `cat` command using: `./target/demo-crest-arthur.graal.bin cat <some file>`.
+
+=== Use Crest Maven Plugin Scanning
+
+it is also possible to make Arthur extension use `crest-maven-plugin` scan goal (`descriptor`).
+Just set extension property `tomitribe.crest.useInPlaceRegistrations` to `true`:
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.tomitribe</groupId>
+  <artifactId>crest-maven-plugin</artifactId>
+  <version>${crest.version}</version>
+  <executions>
+    <execution>
+      <id>scan</id>
+      <phase>process-classes</phase>
+      <goals>
+        <goal>descriptor</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+<plugin>
+  <groupId>org.apache.geronimo.arthur</groupId>
+  <artifactId>arthur-maven-plugin</artifactId>
+  <version>1.0.3</version>
+  <configuration>
+    <graalVersion>21.3.0.r17</graalVersion>
+    <main>org.tomitribe.crest.Main</main>
+    <graalExtensions>
+      <graalExtension>org.tomitribe:tomitribe-crest-arthur-extension:0.17-SNAPSHOT</graalExtension>
+    </graalExtensions>
+    <extensionProperties>
+      <!-- reuse crest maven plugin scanning -->
+      <tomitribe.crest.useInPlaceRegistrations>true</tomitribe.crest.useInPlaceRegistrations>
+    </extensionProperties>
+    <enableAllSecurityServices>false</enableAllSecurityServices>
+  </configuration>
+  <dependencies>
+    <dependency> <!-- force arthur to support java 17 -->
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-asm9-shaded</artifactId>
+      <version>4.20</version>
+    </dependency>
+  </dependencies>
+</plugin>
+----
+
+This enables to use the same scanning for both tasks and therefore to have a common and unified scanning for java and native runs.

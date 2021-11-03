@@ -23,12 +23,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Editor;
 
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
@@ -47,9 +49,7 @@ public class CrestExtensionTest {
         final ArthurNativeImageConfiguration configuration = new ArthurNativeImageConfiguration();
         final DefautContext context = new DefautContext(
                 configuration,
-                annot -> {
-                    throw new UnsupportedOperationException();
-                },
+                annot -> singleton(MyEditor.class),
                 annot -> singleton(foo),
                 annot -> {
                     throw new UnsupportedOperationException();
@@ -61,13 +61,25 @@ public class CrestExtensionTest {
         extension.execute(context);
 
         final Collection<ClassReflectionModel> reflections = context.getReflections();
-        assertEquals(1, reflections.size());
+        assertEquals(3, reflections.size());
 
         final Path spiFile = temp.getRoot().toPath().resolve("crest-commands.txt");
         assertTrue(Files.exists(spiFile));
-        assertEquals(singletonList(Enclosing.class.getName()), Files.readAllLines(spiFile));
+        assertEquals(asList("org.tomitribe.crest.EditorLoader", Enclosing.class.getName()), Files.readAllLines(spiFile));
 
-        assertEquals(singletonList("-H:TomitribeCrestCommands=" + spiFile), configuration.getCustomOptions());
+        final Path spi2File = temp.getRoot().toPath().resolve("crest-editors.txt");
+        assertTrue(Files.exists(spi2File));
+        assertEquals(singletonList(MyEditor.class.getName()), Files.readAllLines(spi2File));
+
+        assertEquals(
+                asList(
+                        "-H:TomitribeCrestEditors=" + spi2File,
+                        "-H:TomitribeCrestCommands=" + spiFile),
+                configuration.getCustomOptions());
+    }
+
+    @Editor(String.class)
+    public static class MyEditor {
     }
 
     public static class Enclosing {

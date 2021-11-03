@@ -30,13 +30,12 @@
 
   <properties>
     <crest.build.name>${project.groupId}.crest.arthur</crest.build.name>
-    <arthur.version>1.0.3</arthur.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>tomitribe-crest-api</artifactId>
+      <artifactId>tomitribe-crest</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

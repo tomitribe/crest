@@ -420,14 +420,16 @@ public class CmdMethod implements Cmd {
     }
 
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final List<Object> list) {
-        return interceptors == null || interceptors.length == 0 ?
-                doInvoke(list) :
-                new InternalInterceptorInvocationContext(globalInterceptors, interceptors, name, parameterMetadatas, method, list) {
-                    @Override
-                    protected Object doInvoke(final List<Object> parameters) {
-                        return CmdMethod.this.doInvoke(parameters);
-                    }
-                }.proceed();
+        if (interceptors == null || interceptors.length == 0) {
+            return doInvoke(list);
+        }
+        
+        return new InternalInterceptorInvocationContext(globalInterceptors, interceptors, name, parameterMetadatas, method, list) {
+            @Override
+            protected Object doInvoke(final List<Object> parameters) {
+                return CmdMethod.this.doInvoke(parameters);
+            }
+        }.proceed();
     }
 
     private List<ParameterMetadata> buildApiParameterViews(final List<Param> parameters) {

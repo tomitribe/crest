@@ -16,8 +16,8 @@
  */
 package org.tomitribe.crest.interceptor.internal;
 
-import org.tomitribe.crest.api.interceptor.ParameterMetadata;
 import org.tomitribe.crest.api.interceptor.CrestContext;
+import org.tomitribe.crest.api.interceptor.ParameterMetadata;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -70,9 +70,11 @@ public abstract class InternalInterceptorInvocationContext {
 
     public Object proceed() {
         if (index < interceptorKeys.length) {
-            final InternalInterceptor internalInterceptor = interceptors.get(interceptorKeys[index]);
+            final Class<?> interceptorClass = interceptorKeys[index];
+            InternalInterceptor internalInterceptor = interceptors.get(interceptorClass);
+
             if (internalInterceptor == null) {
-                throw new IllegalArgumentException("No interceptor for " + interceptorKeys[index].getName());
+                internalInterceptor = InternalInterceptor.from(interceptorClass);
             }
             index++;
             return internalInterceptor.intercept(context);

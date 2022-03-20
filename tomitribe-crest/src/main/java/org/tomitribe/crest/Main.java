@@ -83,20 +83,12 @@ public class Main implements Completer {
         if (!m.isEmpty()) {
             this.commands.putAll(m);
         } else {
-            for (final Method method : clazz.getMethods()) {
-                if (Object.class == method.getDeclaringClass()) {
-                    continue;
-                }
 
-                final CrestInterceptor interceptor = method.getAnnotation(CrestInterceptor.class);
-                if (interceptor != null) {
-                    final InternalInterceptor value = new InternalInterceptor(new SimpleBean(null), method);
-
-                    final Class<?> key = clazz;
-                    if (interceptors.put(key, value) != null) {
-                        throw new IllegalArgumentException(key + " interceptor is conflicting");
-                    }
-                }
+            final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz);
+            // DMB The original contribution from 9cc3fc328f4406fe7821fbad6669fd170a9186a9
+            // on 2015-09-13 contained this check so leaving it in for now.
+            if (interceptors.put(clazz, internalInterceptor) != null) {
+                throw new IllegalArgumentException(clazz + " interceptor is conflicting");
             }
         }
     }

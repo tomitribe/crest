@@ -49,6 +49,18 @@ public class InterceptorTest {
             new Main(InterceptMe.class, In1.class, In2.class, In3.class).exec("test1", "--o1=1", "--o2=2", "--o3=p3", "http://localhost:1253"));
     }
 
+    /**
+     * In this test the interceptors In1.class, In2.class, and In3.class
+     * are not passed into the Main, but discovered via the @CrestInterceptor
+     * annotation declaration
+     */
+    @Test
+    public void intercept2() throws Exception {
+        assertEquals(
+            "replaced2truetruefalsep3http://localhost:1253",
+            new Main(InterceptMe.class).exec("test1", "--o1=1", "--o2=2", "--o3=p3", "http://localhost:1253"));
+    }
+
     @Test
     public void noProceed() throws Exception {
         assertEquals(

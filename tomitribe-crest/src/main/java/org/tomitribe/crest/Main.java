@@ -90,8 +90,10 @@ public class Main implements Completer {
 
                 final CrestInterceptor interceptor = method.getAnnotation(CrestInterceptor.class);
                 if (interceptor != null) {
-                    final Class<?> key = interceptor.value() == Object.class ? clazz : interceptor.value();
-                    if (interceptors.put(key, new InternalInterceptor(new SimpleBean(null), method)) != null) {
+                    final InternalInterceptor value = new InternalInterceptor(new SimpleBean(null), method);
+
+                    final Class<?> key = clazz;
+                    if (interceptors.put(key, value) != null) {
                         throw new IllegalArgumentException(key + " interceptor is conflicting");
                     }
                 }

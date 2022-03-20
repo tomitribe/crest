@@ -29,8 +29,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(METHOD)
 public @interface CrestInterceptor {
-    /**
-     * @return the type used in @Command(interceptedBy) to require the interceptor.
-     */
-    Class<?> value() default Object.class;
 }

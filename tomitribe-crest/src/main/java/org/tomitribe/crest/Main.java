@@ -34,6 +34,7 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.table.Border;
 import org.tomitribe.crest.table.Data;
 import org.tomitribe.crest.table.Table;
+import org.tomitribe.crest.table.TableInterceptor;
 import org.tomitribe.crest.term.Screen;
 
 import java.io.PrintStream;
@@ -74,6 +75,10 @@ public class Main implements Completer {
             processClass(defaultsContext, clazz);
         }
 
+        // Built-in formatters
+        processClass(defaultsContext, TableInterceptor.class);
+
+        // Built-in commands
         installHelp(defaultsContext);
     }
 

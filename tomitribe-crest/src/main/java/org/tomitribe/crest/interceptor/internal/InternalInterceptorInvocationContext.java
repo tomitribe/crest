@@ -18,6 +18,7 @@ package org.tomitribe.crest.interceptor.internal;
 
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.ParameterMetadata;
+import org.tomitribe.crest.interceptor.UnresolvedInterceptorAnnotationException;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -74,6 +75,11 @@ public abstract class InternalInterceptorInvocationContext {
             InternalInterceptor internalInterceptor = interceptors.get(interceptorClass);
 
             if (internalInterceptor == null) {
+
+                if (interceptorClass.isAnnotation()) {
+                    throw new UnresolvedInterceptorAnnotationException(interceptorClass);
+                }
+
                 internalInterceptor = InternalInterceptor.from(interceptorClass);
             }
             index++;

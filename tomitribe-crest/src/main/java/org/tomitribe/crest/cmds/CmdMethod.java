@@ -28,6 +28,7 @@ import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.Out;
 import org.tomitribe.crest.api.Required;
+import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.api.interceptor.ParameterMetadata;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
@@ -153,10 +154,51 @@ public class CmdMethod implements Cmd {
 
         this.parameters = Collections.unmodifiableList(parameters);
 
-        final Command cmdAnnotation = method.getAnnotation(Command.class);
-        this.interceptors = cmdAnnotation == null ? null : cmdAnnotation.interceptedBy();
+        this.interceptors = getInterceptors(method);
 
         validate();
+    }
+
+    private Class<?>[] getInterceptors(final Method method) {
+        final List<Class<?>> interceptors = new ArrayList<>();
+
+        /*
+         * We add the interceptors in the order we see them and ultimately reflection determines the order
+         */
+        for (final Annotation methodAnnotation : method.getDeclaredAnnotations()) {
+
+            if (methodAnnotation instanceof Command) {
+                final Command command = (Command) methodAnnotation;
+                if (command.interceptedBy() != null) {
+                    Collections.addAll(interceptors, command.interceptedBy());
+                }
+                continue;
+            }
+
+            if (methodAnnotation instanceof CrestInterceptor) {
+                final CrestInterceptor crestInterceptor = (CrestInterceptor) methodAnnotation;
+                if (crestInterceptor.value() != null && !crestInterceptor.value().equals(Object.class)) {
+                    interceptors.add(crestInterceptor.value());
+                } else {
+                    throw new IllegalArgumentException("Use of @CrestInterceptor on an @Command method " +
+                            "requires the class value to be supplied.  Please specify the interceptor class on method: " + method);
+                }
+            }
+
+            final Annotation[] annotations = methodAnnotation.annotationType().getAnnotations();
+            for (final Annotation annotation : annotations) {
+                if (annotation instanceof CrestInterceptor) {
+                    final CrestInterceptor crestInterceptor = (CrestInterceptor) annotation;
+                    if (crestInterceptor.value() != null && !crestInterceptor.value().equals(Object.class)) {
+                        interceptors.add(crestInterceptor.value());
+                    } else {
+                        interceptors.add(methodAnnotation.annotationType());
+                    }
+                }
+            }
+        }
+
+        return interceptors.toArray(new Class[0]);
     }
 
     private List<Param> buildParams(final String globalDescription, final String[] inPrefixes,
@@ -423,7 +465,7 @@ public class CmdMethod implements Cmd {
         if (interceptors == null || interceptors.length == 0) {
             return doInvoke(list);
         }
-        
+
         return new InternalInterceptorInvocationContext(globalInterceptors, interceptors, name, parameterMetadatas, method, list) {
             @Override
             protected Object doInvoke(final List<Object> parameters) {

@@ -1,6 +1,4 @@
 = CREST
-:showtitle:
-:toc:
 
 Command-line API styled after JAX-RS
 
@@ -18,7 +16,24 @@ CREST allows you to get to the real work as quickly as possible when writing com
 Simply annotate the parameters of any Java method so it can be invoked from a command-line interface
  with near-zero additional work.  Command-registration, help text and validation is taken care of for you.
 
-== Example
+== Start your project
+
+Use the Maven archetype and run your first command now
+
+----
+mvn archetype:generate -DarchetypeGroupId=org.tomitribe -DarchetypeArtifactId=tomitribe-crest-archetype -DarchetypeVersion=0.17 -DgroupId=org.example -DartifactId=mycommand
+cd mycommand/
+mvn clean install
+./target/mycommand hello
+----
+If all went well you should see the following output:
+
+----
+Hello, World!
+
+----
+
+== Example: rsync as a Crest command
 
 For example, to do something that might be similar to rsync in java, you could create the following
 method signature in any java object.

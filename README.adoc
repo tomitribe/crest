@@ -741,6 +741,147 @@ public void test1(
 }
 ----
 
+Crest supports 3 styles of declaring interceptors
+
+==== Via `@Command(interceptedBy)`
+
+The `@Command` declaration uses the `interceptedBy` attribute to name the interceptor class.
+
+[source,java]
+----
+public static class Foo {
+
+    @Command(interceptedBy = GreenInterceptor.class)
+    public String fighters(final String arg) {
+        return arg;
+    }
+----
+
+The `GreenInterceptor` definition is as usual
+
+[source,java]
+----
+public class GreenInterceptor {
+
+    @CrestInterceptor
+    public Object intercept(final CrestContext crestContext) {
+        return crestContext.proceed();
+    }
+}
+----
+
+==== Custom annotation containing `@CrestInterceptor(FooInterceptor.class)`
+
+In this style, we define our own custom annotation `@Red` that names `RedInterceptor` directly
+
+[source,java]
+----
+@CrestInterceptor(RedInterceptor.class)
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface Red {
+}
+----
+
+...and use it on our `@Command` method as follows
+
+[source,java]
+----
+public static class Foo {
+
+    @Red
+    @Command
+    public String fighters(final String arg) {
+        return arg;
+    }
+----
+
+The `RedInterceptor` definition is as usual
+
+[source,java]
+----
+public class RedInterceptor {
+
+    @CrestInterceptor
+    public Object intercept(final CrestContext crestContext) {
+        return crestContext.proceed();
+    }
+}
+----
+
+==== Custom annotation containing `@CrestInterceptor` loosely coupled to an implementation
+
+In this style, we define our own custom annotation `@Blue`, but it is not bound to a specific implementation.  The `@CrestInterceptor` does not mention the class.
+
+[source,java]
+----
+@CrestInterceptor
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface Blue {
+}
+----
+
+The `@Blue` is used on our `@Command` method as in the previous example
+
+[source,java]
+----
+public static class Foo {
+
+    @Blue
+    @Command
+    public String fighters(final String arg) {
+        return arg;
+    }
+----
+
+The `BlueInterceptor` definition identifies itself as the implementation of `@Blue` by using that annotation on its class
+
+[source,java]
+----
+@Blue
+public class BlueInterceptor {
+
+    @CrestInterceptor
+    public Object intercept(final CrestContext crestContext) {
+        return crestContext.proceed();
+    }
+}
+----
+
+This can be useful if you create an API jar where `@Blue` might be contained, but you want to put the implementation in a different jar.  Perhaps there are different implementations, each it it's own jar, and people choose the implementation they want by including the desired implementation jar in the classpath.
+
+In this approach, however, it is necessary to ensure `BlueInterceptor.class` is visible to Crest by creating a `Loader` implementation such as the following
+
+[source,java]
+----
+package org.example.myapp;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+public class Loader implements org.tomitribe.crest.api.Loader {
+
+    @Override
+    public Iterator<Class<?>> iterator() {
+        final List<Class<?>> classes = new ArrayList<>();
+        classes.add(BlueInterceptor.class);
+        return classes.listIterator();
+    }
+}
+----
+
+and declaring it in the jar at `META-INF/services/org.tomitribe.crest.api.Loader` with the following contents:
+
+[source]
+----
+org.example.myapp.Loader
+----
+
+
 ==== Example for security
 
 Crest provides a `org.tomitribe.crest.interceptor.security.SecurityInterceptor` which

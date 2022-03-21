@@ -17,7 +17,10 @@
 package org.tomitribe.crest.interceptor.internal;
 
 import org.tomitribe.crest.api.interceptor.CrestContext;
+import org.tomitribe.crest.api.interceptor.CrestInterceptor;
+import org.tomitribe.crest.cmds.targets.SimpleBean;
 import org.tomitribe.crest.cmds.targets.Target;
+import org.tomitribe.crest.interceptor.InterceptorAnnotationNotFoundException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -43,5 +46,20 @@ public class InternalInterceptor {
 
     private static Object throwRuntime(final Throwable cause) { // try to propagate if possible
         throw RuntimeException.class.isInstance(cause) ? RuntimeException.class.cast(cause) : new IllegalStateException(cause);
+    }
+
+    public static InternalInterceptor from(final Class<?> clazz){
+        for (final Method method : clazz.getMethods()) {
+            if (Object.class == method.getDeclaringClass()) {
+                continue;
+            }
+
+            final CrestInterceptor interceptor = method.getAnnotation(CrestInterceptor.class);
+            if (interceptor != null) {
+                return new InternalInterceptor(new SimpleBean(null), method);
+            }
+        }
+
+        throw new InterceptorAnnotationNotFoundException(clazz);
     }
 }

@@ -26,7 +26,6 @@ import org.tomitribe.crest.cmds.Completer;
 import org.tomitribe.crest.cmds.HelpPrintedException;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
-import org.tomitribe.crest.cmds.targets.SimpleBean;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
@@ -35,10 +34,11 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.table.Border;
 import org.tomitribe.crest.table.Data;
 import org.tomitribe.crest.table.Table;
+import org.tomitribe.crest.table.TableInterceptor;
 import org.tomitribe.crest.term.Screen;
 
 import java.io.PrintStream;
-import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -75,6 +75,7 @@ public class Main implements Completer {
             processClass(defaultsContext, clazz);
         }
 
+        processClass(defaultsContext, TableInterceptor.class);
         installHelp(defaultsContext);
     }
 
@@ -83,20 +84,29 @@ public class Main implements Completer {
         if (!m.isEmpty()) {
             this.commands.putAll(m);
         } else {
-            for (final Method method : clazz.getMethods()) {
-                if (Object.class == method.getDeclaringClass()) {
-                    continue;
-                }
 
-                final CrestInterceptor interceptor = method.getAnnotation(CrestInterceptor.class);
-                if (interceptor != null) {
-                    final Class<?> key = interceptor.value() == Object.class ? clazz : interceptor.value();
-                    if (interceptors.put(key, new InternalInterceptor(new SimpleBean(null), method)) != null) {
-                        throw new IllegalArgumentException(key + " interceptor is conflicting");
+            final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz);
+            if (interceptors.put(clazz, internalInterceptor) != null) {
+                throw new IllegalArgumentException(clazz + " interceptor is conflicting");
+            }
+
+            for (final Annotation annotation : clazz.getDeclaredAnnotations()) {
+                if (isCustomInterceptorAnnotation(annotation)){
+                    if (interceptors.put(annotation.annotationType(), internalInterceptor) != null) {
+                        throw new IllegalArgumentException(clazz + " interceptor is conflicting");
                     }
                 }
             }
         }
+    }
+
+    private static boolean isCustomInterceptorAnnotation(final Annotation annotation) {
+        for (final Annotation declaredAnnotation : annotation.annotationType().getDeclaredAnnotations()) {
+            if (declaredAnnotation instanceof CrestInterceptor) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Main(final Iterable<Class<?>> classes) {

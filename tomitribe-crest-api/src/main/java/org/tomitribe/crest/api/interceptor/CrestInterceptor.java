@@ -20,6 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -27,10 +28,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * The signature needs to be public Object &lt;name&gt;(CrestContext ctx);
  */
 @Retention(RUNTIME)
-@Target(METHOD)
+@Target({METHOD, ANNOTATION_TYPE})
 public @interface CrestInterceptor {
     /**
-     * @return the type used in @Command(interceptedBy) to require the interceptor.
+     * When used on an annotation, allows the interceptor class to be supplied.  This
+     * is an alternative to using @Command(interceptedBy) to supply the interceptor
+     * class.
      */
     Class<?> value() default Object.class;
 }

@@ -15,7 +15,8 @@
  */
 package org.tomitribe.crest.table;
 
-import org.tomitribe.crest.api.Table;
+import org.tomitribe.crest.api.table.Border;
+import org.tomitribe.crest.api.table.Table;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.ParameterMetadata;
 import org.tomitribe.util.collect.ObjectMap;
@@ -25,13 +26,13 @@ import java.util.List;
 
 import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.OPTION;
 
-public class Options implements org.tomitribe.crest.api.Table {
+public class Options implements Table {
     private Boolean header;
     private String fields;
     private String sort;
     //        private Orientation orientation;
 //        private Format format;
-    private Border border;
+    private org.tomitribe.crest.api.table.Border border;
 
     public Options() {
     }
@@ -52,7 +53,7 @@ public class Options implements org.tomitribe.crest.api.Table {
 //            return format;
 //        }
 
-    public Border getBorder() {
+    public org.tomitribe.crest.api.table.Border getBorder() {
         return border;
     }
 
@@ -72,7 +73,7 @@ public class Options implements org.tomitribe.crest.api.Table {
 //            this.format = format;
 //        }
 
-    public void setBorder(final Border border) {
+    public void setBorder(final org.tomitribe.crest.api.table.Border border) {
         this.border = border;
     }
 
@@ -119,7 +120,7 @@ public class Options implements org.tomitribe.crest.api.Table {
         return getClass();
     }
 
-    public static Options from(final org.tomitribe.crest.api.Table table) {
+    public static Options from(final Table table) {
         final Options options = new Options();
         options.setBorder(table.border());
         options.setFields(table.fields());

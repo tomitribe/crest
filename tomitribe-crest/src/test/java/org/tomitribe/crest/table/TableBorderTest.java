@@ -21,7 +21,8 @@ import org.tomitribe.crest.Main;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.PrintOutput;
-import org.tomitribe.crest.api.Table;
+import org.tomitribe.crest.api.table.Border;
+import org.tomitribe.crest.api.table.Table;
 import org.tomitribe.util.IO;
 import org.tomitribe.util.PrintString;
 
@@ -40,67 +41,67 @@ public class TableBorderTest {
 
     @Test
     public void whitespaceSeparated() {
-        assertBorder(Table.Border.whitespaceSeparated);
+        assertBorder(Border.whitespaceSeparated);
     }
 
     @Test
     public void whitespaceCompact() {
-        assertBorder(Table.Border.whitespaceCompact);
+        assertBorder(Border.whitespaceCompact);
     }
 
     @Test
     public void mysqlStyle() {
-        assertBorder(Table.Border.mysqlStyle);
+        assertBorder(Border.mysqlStyle);
     }
 
     @Test
     public void asciiSeparated() {
-        assertBorder(Table.Border.asciiSeparated);
+        assertBorder(Border.asciiSeparated);
     }
 
     @Test
     public void asciiCompact() {
-        assertBorder(Table.Border.asciiCompact);
+        assertBorder(Border.asciiCompact);
     }
 
     @Test
     public void githubMarkdown() {
-        assertBorder(Table.Border.githubMarkdown);
+        assertBorder(Border.githubMarkdown);
     }
 
     @Test
     public void redditMarkdown() {
-        assertBorder(Table.Border.redditMarkdown);
+        assertBorder(Border.redditMarkdown);
     }
 
     @Test
     public void reStructuredTextGrid() {
-        assertBorder(Table.Border.reStructuredTextGrid);
+        assertBorder(Border.reStructuredTextGrid);
     }
 
     @Test
     public void reStructuredTextSimple() {
-        assertBorder(Table.Border.reStructuredTextSimple);
+        assertBorder(Border.reStructuredTextSimple);
     }
 
     @Test
     public void asciiDots() {
-        assertBorder(Table.Border.asciiDots);
+        assertBorder(Border.asciiDots);
     }
 
     @Test
     public void unicodeDouble() {
-        assertBorder(Table.Border.unicodeDouble);
+        assertBorder(Border.unicodeDouble);
     }
 
     @Test
     public void unicodeSingle() {
-        assertBorder(Table.Border.unicodeSingle);
+        assertBorder(Border.unicodeSingle);
     }
 
     @Test
     public void unicodeSingleSeparated() {
-        assertBorder(Table.Border.unicodeSingleSeparated);
+        assertBorder(Border.unicodeSingleSeparated);
     }
 
     //    public static void main(String[] args) {
@@ -114,7 +115,7 @@ public class TableBorderTest {
 //                    "    }\n");
 //        }
 //    }
-    private void assertBorder(final Table.Border border) {
+    private void assertBorder(final Border border) {
 
         try {
 
@@ -158,7 +159,7 @@ public class TableBorderTest {
             return branches;
         }
 
-        @Table(border = Table.Border.githubMarkdown)
+        @Table(border = Border.githubMarkdown)
         @Command
         public List<Branch> annotation() {
             return branches;
@@ -166,7 +167,7 @@ public class TableBorderTest {
 
         @Command
         @Table
-        public List<Branch> override(@Option("table-border") final Table.Border border) {
+        public List<Branch> override(@Option("table-border") final Border border) {
             return branches;
         }
     }

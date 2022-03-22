@@ -16,7 +16,7 @@
 package org.tomitribe.crest.table;
 
 import org.tomitribe.crest.api.PrintOutput;
-import org.tomitribe.crest.api.Table;
+import org.tomitribe.crest.api.table.Table;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.term.Screen;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tomitribe.crest.api;
+package org.tomitribe.crest.api.table;
 
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 
@@ -92,19 +92,4 @@ public @interface Table {
 //        html
 //    }
 
-    enum Border {
-        whitespaceSeparated,
-        whitespaceCompact,
-        mysqlStyle,
-        asciiSeparated,
-        asciiCompact,
-        githubMarkdown,
-        redditMarkdown,
-        reStructuredTextGrid,
-        reStructuredTextSimple,
-        asciiDots,
-        unicodeDouble,
-        unicodeSingle,
-        unicodeSingleSeparated
-    }
 }

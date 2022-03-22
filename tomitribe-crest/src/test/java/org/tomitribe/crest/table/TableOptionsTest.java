@@ -19,7 +19,8 @@ import org.junit.Test;
 import org.tomitribe.crest.Main;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
-import org.tomitribe.crest.api.Table;
+import org.tomitribe.crest.api.table.Border;
+import org.tomitribe.crest.api.table.Table;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 
@@ -35,7 +36,7 @@ public class TableOptionsTest {
         final Table table = Data.class.getMethod("defaults").getAnnotation(Table.class);
         final Options options = Options.from(table);
 
-        assertEquals(Table.Border.asciiCompact, options.border());
+        assertEquals(Border.asciiCompact, options.border());
         assertEquals("", options.fields());
         assertEquals("", options.sort());
         assertTrue(options.header());
@@ -47,7 +48,7 @@ public class TableOptionsTest {
         final Table table = Data.class.getMethod("annotationOnly").getAnnotation(Table.class);
         final Options options = Options.from(table);
 
-        assertEquals(Table.Border.asciiDots, options.border());
+        assertEquals(Border.asciiDots, options.border());
         assertEquals("red green blue", options.fields());
         assertTrue(options.header());
 //        assertEquals(Table.Format.csv, options.format());
@@ -71,7 +72,7 @@ public class TableOptionsTest {
 
         final Options options = Options.from(crestContext.getParameterMetadata(), crestContext.getParameters());
 
-        assertEquals(Table.Border.mysqlStyle, options.border());
+        assertEquals(Border.mysqlStyle, options.border());
         assertEquals("blue red", options.fields());
         assertEquals("red", options.sort());
         assertTrue(options.header());
@@ -114,7 +115,7 @@ public class TableOptionsTest {
 
         final Options options = Options.from(crestContext);
 
-        assertEquals(Table.Border.asciiDots, options.border());
+        assertEquals(Border.asciiDots, options.border());
         assertEquals("blue red", options.fields());
         assertFalse(options.header());
 //        assertEquals(Table.Format.csv, options.format());
@@ -130,7 +131,7 @@ public class TableOptionsTest {
         overrides.setFields("red green");
 
         final Options actual = options.override(overrides);
-        assertEquals(Table.Border.asciiDots, actual.border());
+        assertEquals(Border.asciiDots, actual.border());
         assertEquals("red green", actual.fields());
         assertTrue(actual.header());
 //        assertEquals(Table.Format.csv, actual.format());
@@ -145,7 +146,7 @@ public class TableOptionsTest {
 
         @Table(fields = "red green blue",
 //                format = Table.Format.csv,
-                border = Table.Border.asciiDots,
+                border = Border.asciiDots,
                 sort = "green"
         )
         @Command
@@ -155,7 +156,7 @@ public class TableOptionsTest {
 
         @Command(interceptedBy = CrestContextInterceptor.class)
         public void optionsOnly(
-                @Option("table-border") final Table.Border border,
+                @Option("table-border") final Border border,
                 @Option("table-header") final Boolean header,
                 @Option("table-sort") final String sort,
                 @Option("table-fields") final String fields,
@@ -166,12 +167,12 @@ public class TableOptionsTest {
 
         @Table(fields = "red green blue",
 //                format = Table.Format.csv,
-                border = Table.Border.asciiDots,
+                border = Border.asciiDots,
                 sort = "green"
         )
         @Command(interceptedBy = CrestContextInterceptor.class)
         public void both(
-                @Option("table-border") final Table.Border border,
+                @Option("table-border") final Border border,
                 @Option("table-header") final Boolean header,
                 @Option("table-sort") final String sort,
                 @Option("table-fields") final String fields,

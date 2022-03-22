@@ -42,26 +42,26 @@ public class TableSortTest {
 
         final Main main = new Main(Foo.class);
         assertTable(main.exec("alldefaults"),
-                "                        class                           id   project   releaseDate   version \n" +
-                        "------------------------------------------------------ ---- --------- ------------- ---------\n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   13         2   2012-04-27    1.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    7         2   2019-09-13    8.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   12         2   2012-09-28    1.5.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    6         1   2021-02-01    10.0.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   18         3   2015-11-30    5.13.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   10         2   2014-08-09    1.7.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    4         1   2016-06-12    8.5.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   11         2   2013-11-17    1.6.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    8         2   2018-09-02    7.1.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    2         1   2011-01-13    7.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   15         3   2020-06-25    5.16.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   17         3   2016-08-02    5.14.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    1         1   2007-02-27    6.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    3         1   2014-06-24    8.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   16         3   2017-06-27    5.15.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    9         2   2016-05-17    7.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    5         1   2018-01-17    9.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   14         3   2022-03-09    5.17.x  \n");
+                " id   project   releaseDate   version \n" +
+                        "---- --------- ------------- ---------\n" +
+                        " 13         2   2012-04-27    1.0.x   \n" +
+                        "  7         2   2019-09-13    8.0.x   \n" +
+                        " 12         2   2012-09-28    1.5.x   \n" +
+                        "  6         1   2021-02-01    10.0.x  \n" +
+                        " 18         3   2015-11-30    5.13.x  \n" +
+                        " 10         2   2014-08-09    1.7.x   \n" +
+                        "  4         1   2016-06-12    8.5.x   \n" +
+                        " 11         2   2013-11-17    1.6.x   \n" +
+                        "  8         2   2018-09-02    7.1.x   \n" +
+                        "  2         1   2011-01-13    7.0.x   \n" +
+                        " 15         3   2020-06-25    5.16.x  \n" +
+                        " 17         3   2016-08-02    5.14.x  \n" +
+                        "  1         1   2007-02-27    6.0.x   \n" +
+                        "  3         1   2014-06-24    8.0.x   \n" +
+                        " 16         3   2017-06-27    5.15.x  \n" +
+                        "  9         2   2016-05-17    7.0.x   \n" +
+                        "  5         1   2018-01-17    9.0.x   \n" +
+                        " 14         3   2022-03-09    5.17.x  \n");
     }
 
     @Test
@@ -69,26 +69,26 @@ public class TableSortTest {
 
         final Main main = new Main(Foo.class);
         assertTable(main.exec("sortProject"),
-                "                        class                           id   project   releaseDate   version \n" +
-                        "------------------------------------------------------ ---- --------- ------------- ---------\n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    6         1   2021-02-01    10.0.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    4         1   2016-06-12    8.5.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    2         1   2011-01-13    7.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    1         1   2007-02-27    6.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    3         1   2014-06-24    8.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    5         1   2018-01-17    9.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   13         2   2012-04-27    1.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    7         2   2019-09-13    8.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   12         2   2012-09-28    1.5.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   10         2   2014-08-09    1.7.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   11         2   2013-11-17    1.6.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    8         2   2018-09-02    7.1.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    9         2   2016-05-17    7.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   18         3   2015-11-30    5.13.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   15         3   2020-06-25    5.16.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   17         3   2016-08-02    5.14.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   16         3   2017-06-27    5.15.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   14         3   2022-03-09    5.17.x  \n");
+                " id   project   releaseDate   version \n" +
+                        "---- --------- ------------- ---------\n" +
+                        "  6         1   2021-02-01    10.0.x  \n" +
+                        "  4         1   2016-06-12    8.5.x   \n" +
+                        "  2         1   2011-01-13    7.0.x   \n" +
+                        "  1         1   2007-02-27    6.0.x   \n" +
+                        "  3         1   2014-06-24    8.0.x   \n" +
+                        "  5         1   2018-01-17    9.0.x   \n" +
+                        " 13         2   2012-04-27    1.0.x   \n" +
+                        "  7         2   2019-09-13    8.0.x   \n" +
+                        " 12         2   2012-09-28    1.5.x   \n" +
+                        " 10         2   2014-08-09    1.7.x   \n" +
+                        " 11         2   2013-11-17    1.6.x   \n" +
+                        "  8         2   2018-09-02    7.1.x   \n" +
+                        "  9         2   2016-05-17    7.0.x   \n" +
+                        " 18         3   2015-11-30    5.13.x  \n" +
+                        " 15         3   2020-06-25    5.16.x  \n" +
+                        " 17         3   2016-08-02    5.14.x  \n" +
+                        " 16         3   2017-06-27    5.15.x  \n" +
+                        " 14         3   2022-03-09    5.17.x  \n");
     }
 
     @Test
@@ -96,26 +96,26 @@ public class TableSortTest {
 
         final Main main = new Main(Foo.class);
         assertTable(main.exec("sortProjectAndReleaseDate"),
-                "                        class                           id   project   releaseDate   version \n" +
-                        "------------------------------------------------------ ---- --------- ------------- ---------\n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    1         1   2007-02-27    6.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    2         1   2011-01-13    7.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    3         1   2014-06-24    8.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    4         1   2016-06-12    8.5.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    5         1   2018-01-17    9.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    6         1   2021-02-01    10.0.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   13         2   2012-04-27    1.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   12         2   2012-09-28    1.5.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   11         2   2013-11-17    1.6.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   10         2   2014-08-09    1.7.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    9         2   2016-05-17    7.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    8         2   2018-09-02    7.1.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    7         2   2019-09-13    8.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   18         3   2015-11-30    5.13.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   17         3   2016-08-02    5.14.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   16         3   2017-06-27    5.15.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   15         3   2020-06-25    5.16.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   14         3   2022-03-09    5.17.x  \n");
+                " id   project   releaseDate   version \n" +
+                        "---- --------- ------------- ---------\n" +
+                        "  1         1   2007-02-27    6.0.x   \n" +
+                        "  2         1   2011-01-13    7.0.x   \n" +
+                        "  3         1   2014-06-24    8.0.x   \n" +
+                        "  4         1   2016-06-12    8.5.x   \n" +
+                        "  5         1   2018-01-17    9.0.x   \n" +
+                        "  6         1   2021-02-01    10.0.x  \n" +
+                        " 13         2   2012-04-27    1.0.x   \n" +
+                        " 12         2   2012-09-28    1.5.x   \n" +
+                        " 11         2   2013-11-17    1.6.x   \n" +
+                        " 10         2   2014-08-09    1.7.x   \n" +
+                        "  9         2   2016-05-17    7.0.x   \n" +
+                        "  8         2   2018-09-02    7.1.x   \n" +
+                        "  7         2   2019-09-13    8.0.x   \n" +
+                        " 18         3   2015-11-30    5.13.x  \n" +
+                        " 17         3   2016-08-02    5.14.x  \n" +
+                        " 16         3   2017-06-27    5.15.x  \n" +
+                        " 15         3   2020-06-25    5.16.x  \n" +
+                        " 14         3   2022-03-09    5.17.x  \n");
     }
 
     @Test
@@ -123,26 +123,26 @@ public class TableSortTest {
 
         final Main main = new Main(Foo.class);
         assertTable(main.exec("sortOverride", "--table-sort=releaseDate"),
-                "                        class                           id   project   releaseDate   version \n" +
-                        "------------------------------------------------------ ---- --------- ------------- ---------\n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    1         1   2007-02-27    6.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    2         1   2011-01-13    7.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   13         2   2012-04-27    1.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   12         2   2012-09-28    1.5.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   11         2   2013-11-17    1.6.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    3         1   2014-06-24    8.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   10         2   2014-08-09    1.7.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   18         3   2015-11-30    5.13.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    9         2   2016-05-17    7.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    4         1   2016-06-12    8.5.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   17         3   2016-08-02    5.14.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   16         3   2017-06-27    5.15.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    5         1   2018-01-17    9.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    8         2   2018-09-02    7.1.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    7         2   2019-09-13    8.0.x   \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   15         3   2020-06-25    5.16.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch    6         1   2021-02-01    10.0.x  \n" +
-                        " class org.tomitribe.crest.table.TableSortTest$Branch   14         3   2022-03-09    5.17.x  \n");
+                " id   project   releaseDate   version \n" +
+                        "---- --------- ------------- ---------\n" +
+                        "  1         1   2007-02-27    6.0.x   \n" +
+                        "  2         1   2011-01-13    7.0.x   \n" +
+                        " 13         2   2012-04-27    1.0.x   \n" +
+                        " 12         2   2012-09-28    1.5.x   \n" +
+                        " 11         2   2013-11-17    1.6.x   \n" +
+                        "  3         1   2014-06-24    8.0.x   \n" +
+                        " 10         2   2014-08-09    1.7.x   \n" +
+                        " 18         3   2015-11-30    5.13.x  \n" +
+                        "  9         2   2016-05-17    7.0.x   \n" +
+                        "  4         1   2016-06-12    8.5.x   \n" +
+                        " 17         3   2016-08-02    5.14.x  \n" +
+                        " 16         3   2017-06-27    5.15.x  \n" +
+                        "  5         1   2018-01-17    9.0.x   \n" +
+                        "  8         2   2018-09-02    7.1.x   \n" +
+                        "  7         2   2019-09-13    8.0.x   \n" +
+                        " 15         3   2020-06-25    5.16.x  \n" +
+                        "  6         1   2021-02-01    10.0.x  \n" +
+                        " 14         3   2022-03-09    5.17.x  \n");
     }
 
     /**

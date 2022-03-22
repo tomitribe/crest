@@ -23,15 +23,13 @@ import org.tomitribe.util.collect.ObjectMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Formatting {
 
     private Formatting() {
-    }
-
-    public static void asTable(final String[][] data) {
-
     }
 
     public static <T> String[][] asTable(final Iterable<T> items, final String fields, final String sort) {
@@ -60,7 +58,11 @@ public class Formatting {
             final ObjectMap map = new ObjectMap(item);
 
             if (fields == null) {
-                fields = map.keySet().toArray(new String[0]);
+                final Set<String> keys = new HashSet<>(map.keySet());
+                // Do not show class in any default contexts
+                // People can select it explicitly if they want it
+                keys.remove("class");
+                fields = keys.toArray(new String[0]);
                 Arrays.sort(fields);
             }
 
@@ -109,46 +111,6 @@ public class Formatting {
 
         return comparator;
     }
-
-//    public static <T> String[][] asTable(final Iterable<T> items) {
-//        final List<List<String>> rows = new ArrayList<>();
-//
-//        int columns = 0;
-//        List<String> keys = null;
-//        for (final T item : items) {
-//            final List<String> row = new ArrayList<>();
-//
-//            final ObjectMap map = new ObjectMap(item);
-//
-//            keys = new ArrayList<>(map.keySet());
-//            Collections.sort(keys);
-//
-//            columns = Math.max(columns, keys.size());
-//
-//            for (final String field : keys) {
-//                row.add(resolve(map, field));
-//            }
-//
-//            rows.add(row);
-//        }
-//
-//        // sort the rows
-////        Collections.sort(rows,(a, b) -> {
-////            a.
-////        });
-//
-//        final String[][] data = new String[rows.size() + 1][columns];
-//        int rowCount = 0;
-//
-//        // Add the headers
-//        data[rowCount++] = keys.toArray(new String[columns]);
-//
-//        for (final List<String> row : rows) {
-//            data[rowCount++] = row.toArray(new String[columns]);
-//        }
-//
-//        return data;
-//    }
 
     private static Item resolve(final ObjectMap map, final String field) {
         final List<String> parts = new ArrayList<>(Arrays.asList(field.split("\\.")));

@@ -70,23 +70,23 @@ public @interface Table {
      */
     String sort() default "";
 
-    Orientation orientation() default Orientation.horizontal;
-
-    Format format() default Format.text;
+//    Orientation orientation() default Orientation.horizontal;
+//
+//    Format format() default Format.text;
 
     Border border() default Border.asciiCompact;
 
-    enum Orientation {
-        horizontal,
-        vertical
-    }
-
-    enum Format {
-        text,
-        csv,
-        tsv,
-        html
-    }
+//    enum Orientation {
+//        horizontal,
+//        vertical
+//    }
+//
+//    enum Format {
+//        text,
+//        csv,
+//        tsv,
+//        html
+//    }
 
     enum Border {
         whitespaceSeparated,

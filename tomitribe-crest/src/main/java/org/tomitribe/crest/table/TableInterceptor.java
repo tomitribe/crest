@@ -95,8 +95,8 @@ public class TableInterceptor {
     public static class Options implements Table {
         private String fields;
         private String sort;
-        private Orientation orientation;
-        private Format format;
+        //        private Orientation orientation;
+//        private Format format;
         private Border border;
 
         public String getFields() {
@@ -107,13 +107,13 @@ public class TableInterceptor {
             return sort;
         }
 
-        public Orientation getOrientation() {
-            return orientation;
-        }
-
-        public Format getFormat() {
-            return format;
-        }
+//        public Orientation getOrientation() {
+//            return orientation;
+//        }
+//
+//        public Format getFormat() {
+//            return format;
+//        }
 
         public Border getBorder() {
             return border;
@@ -127,13 +127,13 @@ public class TableInterceptor {
             this.sort = sort;
         }
 
-        public void setOrientation(final Orientation orientation) {
-            this.orientation = orientation;
-        }
-
-        public void setFormat(final Format format) {
-            this.format = format;
-        }
+//        public void setOrientation(final Orientation orientation) {
+//            this.orientation = orientation;
+//        }
+//
+//        public void setFormat(final Format format) {
+//            this.format = format;
+//        }
 
         public void setBorder(final Border border) {
             this.border = border;
@@ -149,15 +149,15 @@ public class TableInterceptor {
             return sort;
         }
 
-        @Override
-        public Orientation orientation() {
-            return orientation;
-        }
-
-        @Override
-        public Format format() {
-            return format;
-        }
+//        @Override
+//        public Orientation orientation() {
+//            return orientation;
+//        }
+//
+//        @Override
+//        public Format format() {
+//            return format;
+//        }
 
         @Override
         public Border border() {
@@ -173,8 +173,8 @@ public class TableInterceptor {
             final Options options = new Options();
             options.setBorder(table.border());
             options.setFields(table.fields());
-            options.setFormat(table.format());
-            options.setOrientation(table.orientation());
+//            options.setFormat(table.format());
+//            options.setOrientation(table.orientation());
             options.setSort(table.sort());
             return options;
         }
@@ -182,10 +182,10 @@ public class TableInterceptor {
         public Options override(final Options overrides) {
             final Options options = from(this);
             if (overrides.border() != null) options.setBorder(overrides.border());
-            if (overrides.orientation() != null) options.setOrientation(overrides.orientation());
+//            if (overrides.orientation() != null) options.setOrientation(overrides.orientation());
             if (overrides.sort() != null) options.setSort(overrides.sort());
             if (overrides.fields() != null) options.setFields(overrides.fields());
-            if (overrides.format() != null) options.setFormat(overrides.format());
+//            if (overrides.format() != null) options.setFormat(overrides.format());
             return options;
         }
 

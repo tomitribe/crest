@@ -20,7 +20,6 @@ import org.tomitribe.util.collect.ObjectMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -29,37 +28,47 @@ public class Formatting {
     private Formatting() {
     }
 
-    public static <T> String[][] asTable(final Iterable<T> items, final String fields) {
-        return asTable(items, fields, "");
-    }
-
     public static <T> String[][] asTable(final Iterable<T> items, final String fields, final String sort) {
-        if ("all".equalsIgnoreCase(fields)) {
-            return asTable(items);
+        final String[] sortArray;
+        final String[] fieldsArray;
+
+        if (sort == null || sort.length() == 0) {
+            sortArray = null;
+        } else {
+            sortArray = sort.split("[ ,]+");
         }
-        
-        return asTable(items, fields.split("[ ,]+"), sort.split("[ ,]+"));
+
+        if (fields == null || fields.length() == 0 || "all".equals(fields)) {
+            fieldsArray = null;
+        } else {
+            fieldsArray = fields.split("[ ,]+");
+        }
+
+        return asTable(items, fieldsArray, sortArray);
     }
 
-    public static <T> String[][] asTable(final Iterable<T> items, final String[] fields, final String[] sort) {
-        final List<List<String>> rows = new ArrayList<>();
+    private static <T> String[][] asTable(final Iterable<T> items, String[] fields, final String[] sort) {
+        final List<List<Item>> rows = new ArrayList<>();
 
         for (final T item : items) {
-            final List<String> row = new ArrayList<>();
-
             final ObjectMap map = new ObjectMap(item);
+
+            if (fields == null) {
+                fields = map.keySet().toArray(new String[0]);
+                Arrays.sort(fields);
+            }
+
+            final List<Item> row = new ArrayList<>();
+
             for (final String field : fields) {
                 row.add(resolve(map, field));
             }
             rows.add(row);
         }
 
-        rows.sort(compareFields(fields, sort));
-
-        // sort the rows
-//        Collections.sort(rows,(a, b) -> {
-//            a.
-//        });
+        if (sort != null && sort.length > 0) {
+            rows.sort(compareFields(fields, sort));
+        }
 
         final String[][] data = new String[rows.size() + 1][fields.length];
         int rowCount = 0;
@@ -67,21 +76,24 @@ public class Formatting {
         // Add the headers
         data[rowCount++] = fields;
 
-        for (final List<String> row : rows) {
-            data[rowCount++] = row.toArray(new String[fields.length]);
+        for (final List<Item> row : rows) {
+            final String[] a = new String[fields.length];
+            for (int i = 0; i < a.length; i++) {
+                a[i] = row.get(i).getString();
+            }
+            data[rowCount++] = a;
         }
-
 
         return data;
     }
 
-    public static Comparator<List<String>> compareFields(final String[] fields, final String[] sort) {
+    public static Comparator<List<Item>> compareFields(final String[] fields, final String[] sort) {
         return compareFields(Arrays.asList(fields), Arrays.asList(sort));
     }
 
-    public static Comparator<List<String>> compareFields(final List<String> fields, final List<String> sort) {
+    public static Comparator<List<Item>> compareFields(final List<String> fields, final List<String> sort) {
 
-        Comparator<List<String>> comparator = (o1, o2) -> 0;
+        Comparator<List<Item>> comparator = (o1, o2) -> 0;
 
         for (final String field : sort) {
             final int i = fields.indexOf(field);
@@ -92,47 +104,47 @@ public class Formatting {
         return comparator;
     }
 
-    public static <T> String[][] asTable(final Iterable<T> items) {
-        final List<List<String>> rows = new ArrayList<>();
+//    public static <T> String[][] asTable(final Iterable<T> items) {
+//        final List<List<String>> rows = new ArrayList<>();
+//
+//        int columns = 0;
+//        List<String> keys = null;
+//        for (final T item : items) {
+//            final List<String> row = new ArrayList<>();
+//
+//            final ObjectMap map = new ObjectMap(item);
+//
+//            keys = new ArrayList<>(map.keySet());
+//            Collections.sort(keys);
+//
+//            columns = Math.max(columns, keys.size());
+//
+//            for (final String field : keys) {
+//                row.add(resolve(map, field));
+//            }
+//
+//            rows.add(row);
+//        }
+//
+//        // sort the rows
+////        Collections.sort(rows,(a, b) -> {
+////            a.
+////        });
+//
+//        final String[][] data = new String[rows.size() + 1][columns];
+//        int rowCount = 0;
+//
+//        // Add the headers
+//        data[rowCount++] = keys.toArray(new String[columns]);
+//
+//        for (final List<String> row : rows) {
+//            data[rowCount++] = row.toArray(new String[columns]);
+//        }
+//
+//        return data;
+//    }
 
-        int columns = 0;
-        List<String> keys = null;
-        for (final T item : items) {
-            final List<String> row = new ArrayList<>();
-
-            final ObjectMap map = new ObjectMap(item);
-
-            keys = new ArrayList<>(map.keySet());
-            Collections.sort(keys);
-
-            columns = Math.max(columns, keys.size());
-
-            for (final String field : keys) {
-                row.add(resolve(map, field));
-            }
-
-            rows.add(row);
-        }
-
-        // sort the rows
-//        Collections.sort(rows,(a, b) -> {
-//            a.
-//        });
-
-        final String[][] data = new String[rows.size() + 1][columns];
-        int rowCount = 0;
-
-        // Add the headers
-        data[rowCount++] = keys.toArray(new String[columns]);
-
-        for (final List<String> row : rows) {
-            data[rowCount++] = row.toArray(new String[columns]);
-        }
-
-        return data;
-    }
-
-    private static String resolve(final ObjectMap map, final String field) {
+    private static Item resolve(final ObjectMap map, final String field) {
         final List<String> parts = new ArrayList<>(Arrays.asList(field.split("\\.")));
 
         if (parts.size() > 1) {
@@ -142,6 +154,31 @@ public class Formatting {
         }
 
         final Object o = map.get(field);
-        return o != null ? o.toString() : "null";
+        return new Item(o);
+    }
+
+    public static class Item implements Comparable<Item> {
+        private final Comparable object;
+        private final String string;
+
+        public Item(final Object value) {
+            this.object = value instanceof Comparable ? (Comparable) value : null;
+            this.string = value != null ? value.toString() : "";
+        }
+
+        public String getString() {
+            return string;
+        }
+
+        @Override
+        public int compareTo(final Item that) {
+            if (this.object != null || that.object != null) {
+                if (that.object == null) return 1;
+                if (this.object == null) return -1;
+                return this.object.compareTo(that.object);
+            } else {
+                return this.string.compareTo(that.string);
+            }
+        }
     }
 }

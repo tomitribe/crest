@@ -31,10 +31,43 @@ public @interface Table {
      * individual fields or attributes in the return objects to be selected as
      * columns for the table.  This also dictates the order in which the columns
      * appear.
-     * @return
      */
-    String fields() default "all";
+    String fields() default "";
 
+    /**
+     * <p>
+     * A space-delimited list of fields to use for sorting the table output.  The
+     * first field name listed will be the primary sort, the second field will be
+     * the secondary sort and so on.
+     * </p>
+     * <p>
+     * Sorts are always ascending.
+     * </p>
+     * <p>
+     * For example, imagine the following data structure
+     * </p>
+     * <pre>
+     * public class Person {
+     *     private String firstName;
+     *     private String lastName;
+     *     private Address address;
+     * }
+     *
+     * public class Address {
+     *     private String street;
+     *     private String city;
+     *     private String state;
+     *     private int zipCode;
+     * }
+     * </pre>
+     * <p>
+     * To sort by last name with a secondary sort by zip code, you can use the
+     * following sort string
+     * </p>
+     * <pre>    @Table(sort = "lastName address.zipCode")
+     * </pre>
+     *
+     */
     String sort() default "";
 
     Orientation orientation() default Orientation.horizontal;

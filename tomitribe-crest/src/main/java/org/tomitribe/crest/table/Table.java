@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Table {
+class Table {
 
     private final Data data;
     private final Border border;

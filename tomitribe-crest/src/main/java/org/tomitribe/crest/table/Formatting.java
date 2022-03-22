@@ -15,6 +15,8 @@
  */
 package org.tomitribe.crest.table;
 
+import org.tomitribe.crest.api.PrintOutput;
+import org.tomitribe.crest.term.Screen;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.collect.ObjectMap;
 
@@ -26,6 +28,10 @@ import java.util.List;
 public class Formatting {
 
     private Formatting() {
+    }
+
+    public static void asTable(final String[][] data) {
+
     }
 
     public static <T> String[][] asTable(final Iterable<T> items, final String fields, final String sort) {
@@ -155,6 +161,16 @@ public class Formatting {
 
         final Object o = map.get(field);
         return new Item(o);
+    }
+
+    public static PrintOutput asPrintStream(final String[][] strings) {
+        final int guess = Screen.guessWidth();
+        final int width = guess > 0 ? guess : 150;
+
+        final Data data = new Data(strings, true);
+        final Table table = new Table(data, Border.asciiCompact().build(), width);
+
+        return table::format;
     }
 
     public static class Item implements Comparable<Item> {

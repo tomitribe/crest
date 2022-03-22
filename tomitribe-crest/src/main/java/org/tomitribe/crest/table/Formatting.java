@@ -32,29 +32,13 @@ public class Formatting {
     private Formatting() {
     }
 
-    public static <T> String[][] asTable(final Iterable<T> items, final String fields, final String sort) {
-        final String[] sortArray;
-        final String[] fieldsArray;
+    static Data asTable(final Iterable<?> iterable, final Options options) {
+        final String[] sort = getSortArray(options);
+        String[] fields = getFieldsArray(options);
 
-        if (sort == null || sort.length() == 0) {
-            sortArray = null;
-        } else {
-            sortArray = sort.split("[ ,]+");
-        }
-
-        if (fields == null || fields.length() == 0 || "all".equals(fields)) {
-            fieldsArray = null;
-        } else {
-            fieldsArray = fields.split("[ ,]+");
-        }
-
-        return asTable(items, fieldsArray, sortArray);
-    }
-
-    private static <T> String[][] asTable(final Iterable<T> items, String[] fields, final String[] sort) {
         final List<List<Item>> rows = new ArrayList<>();
 
-        for (final T item : items) {
+        for (final Object item : iterable) {
             final ObjectMap map = new ObjectMap(item);
 
             if (fields == null) {
@@ -78,21 +62,46 @@ public class Formatting {
             rows.sort(compareFields(fields, sort));
         }
 
-        final String[][] data = new String[rows.size() + 1][fields.length];
-        int rowCount = 0;
+        final Data.Builder data = Data.builder();
 
-        // Add the headers
-        data[rowCount++] = fields;
+        if (options.header()) {
+            // Add the headers
+            data.headings(true);
+            data.row(fields);
+        }
 
         for (final List<Item> row : rows) {
             final String[] a = new String[fields.length];
             for (int i = 0; i < a.length; i++) {
                 a[i] = row.get(i).getString();
             }
-            data[rowCount++] = a;
+            data.row(a);
         }
 
-        return data;
+        return data.build();
+    }
+
+    private static String[] getSortArray(final Options options) {
+        final String sort = options.getSort();
+        final String[] sortArray;
+
+        if (sort == null || sort.length() == 0) {
+            sortArray = null;
+        } else {
+            sortArray = sort.split("[ ,]+");
+        }
+        return sortArray;
+    }
+
+    private static String[] getFieldsArray(final Options options) {
+        final String[] fieldsArray;
+        final String fields = options.getFields();
+        if (fields == null || fields.length() == 0 || "all".equals(fields)) {
+            fieldsArray = null;
+        } else {
+            fieldsArray = fields.split("[ ,]+");
+        }
+        return fieldsArray;
     }
 
     public static Comparator<List<Item>> compareFields(final String[] fields, final String[] sort) {

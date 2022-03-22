@@ -27,10 +27,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Table {
     /**
-     * When a collection or stream of objects is returned, this setting allows
-     * individual fields or attributes in the return objects to be selected as
-     * columns for the table.  This also dictates the order in which the columns
-     * appear.
+     * A space-delimited list of fields to be selected as columns for the table.
+     * This also dictates the order in which the columns appear.
      */
     String fields() default "";
 
@@ -69,6 +67,12 @@ public @interface Table {
      *
      */
     String sort() default "";
+
+    /**
+     * 
+     * @return
+     */
+    boolean header() default true;
 
 //    Orientation orientation() default Orientation.horizontal;
 //

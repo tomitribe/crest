@@ -24,18 +24,32 @@ import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TableOptionsTest {
 
     @Test
+    public void defaults() throws Exception {
+        final Table table = Data.class.getMethod("defaults").getAnnotation(Table.class);
+        final Options options = Options.from(table);
+
+        assertEquals(Table.Border.asciiCompact, options.border());
+        assertEquals("", options.fields());
+        assertEquals("", options.sort());
+        assertTrue(options.header());
+//        assertEquals(Table.Format.csv, options.format());
+    }
+
+    @Test
     public void from() throws Exception {
         final Table table = Data.class.getMethod("annotationOnly").getAnnotation(Table.class);
-        final TableInterceptor.Options options = TableInterceptor.Options.from(table);
+        final Options options = Options.from(table);
 
-//        assertEquals(Table.Orientation.vertical, options.orientation());
         assertEquals(Table.Border.asciiDots, options.border());
         assertEquals("red green blue", options.fields());
+        assertTrue(options.header());
 //        assertEquals(Table.Format.csv, options.format());
         assertEquals("green", options.sort());
     }
@@ -46,8 +60,8 @@ public class TableOptionsTest {
         final Main main = new Main(Data.class, CrestContextInterceptor.class);
         main.exec("optionsOnly",
                 "--table-border=mysqlStyle",
-//                "--table-orientation=vertical",
                 "--table-sort=red",
+                "--table-header=true",
                 "--table-fields=blue red",
 //                "--table-format=tsv",
                 "--unrelated=opt"
@@ -55,13 +69,13 @@ public class TableOptionsTest {
 
         final CrestContext crestContext = CrestContextInterceptor.context;
 
-        final TableInterceptor.Options options = TableInterceptor.Options.from(crestContext.getParameterMetadata(), crestContext.getParameters());
+        final Options options = Options.from(crestContext.getParameterMetadata(), crestContext.getParameters());
 
-//        assertEquals(Table.Orientation.vertical, options.orientation());
         assertEquals(Table.Border.mysqlStyle, options.border());
         assertEquals("blue red", options.fields());
-//        assertEquals(Table.Format.tsv, options.format());
         assertEquals("red", options.sort());
+        assertTrue(options.header());
+//        assertEquals(Table.Format.tsv, options.format());
     }
 
     @Test
@@ -76,11 +90,11 @@ public class TableOptionsTest {
 
         final CrestContext crestContext = CrestContextInterceptor.context;
 
-        final TableInterceptor.Options options = TableInterceptor.Options.from(crestContext.getParameterMetadata(), crestContext.getParameters());
+        final Options options = Options.from(crestContext.getParameterMetadata(), crestContext.getParameters());
 
-//        assertNull(options.orientation());
         assertNull(options.border());
         assertEquals("blue red", options.fields());
+        assertNull(options.isHeader());
 //        assertNull(options.format());
         assertEquals("red", options.sort());
     }
@@ -91,17 +105,18 @@ public class TableOptionsTest {
         final Main main = new Main(Data.class, CrestContextInterceptor.class);
         main.exec("both",
                 "--table-sort=red",
+                "--no-table-header",
                 "--table-fields=blue red",
                 "--unrelated=opt"
         );
 
         final CrestContext crestContext = CrestContextInterceptor.context;
 
-        final TableInterceptor.Options options = TableInterceptor.Options.from(crestContext);
+        final Options options = Options.from(crestContext);
 
-//        assertEquals(Table.Orientation.vertical, options.orientation());
         assertEquals(Table.Border.asciiDots, options.border());
         assertEquals("blue red", options.fields());
+        assertFalse(options.header());
 //        assertEquals(Table.Format.csv, options.format());
         assertEquals("red", options.sort());
     }
@@ -109,25 +124,28 @@ public class TableOptionsTest {
     @Test
     public void override() throws Exception {
         final Table table = Data.class.getMethod("annotationOnly").getAnnotation(Table.class);
-        final TableInterceptor.Options options = TableInterceptor.Options.from(table);
+        final Options options = Options.from(table);
 
-        final TableInterceptor.Options overrides = new TableInterceptor.Options();
-//        overrides.setOrientation(Table.Orientation.horizontal);
+        final Options overrides = new Options();
         overrides.setFields("red green");
 
-        final TableInterceptor.Options actual = options.override(overrides);
-//        assertEquals(Table.Orientation.horizontal, actual.orientation());
+        final Options actual = options.override(overrides);
         assertEquals(Table.Border.asciiDots, actual.border());
         assertEquals("red green", actual.fields());
+        assertTrue(actual.header());
 //        assertEquals(Table.Format.csv, actual.format());
         assertEquals("green", actual.sort());
     }
 
     public static class Data {
+        @Table
+        @Command
+        public void defaults() {
+        }
+
         @Table(fields = "red green blue",
 //                format = Table.Format.csv,
                 border = Table.Border.asciiDots,
-//                orientation = Table.Orientation.vertical,
                 sort = "green"
         )
         @Command
@@ -138,7 +156,7 @@ public class TableOptionsTest {
         @Command(interceptedBy = CrestContextInterceptor.class)
         public void optionsOnly(
                 @Option("table-border") final Table.Border border,
-//                @Option("table-orientation") final Table.Orientation orientation,
+                @Option("table-header") final Boolean header,
                 @Option("table-sort") final String sort,
                 @Option("table-fields") final String fields,
 //                @Option("table-format") final Table.Format format,
@@ -149,13 +167,12 @@ public class TableOptionsTest {
         @Table(fields = "red green blue",
 //                format = Table.Format.csv,
                 border = Table.Border.asciiDots,
-//                orientation = Table.Orientation.vertical,
                 sort = "green"
         )
         @Command(interceptedBy = CrestContextInterceptor.class)
         public void both(
                 @Option("table-border") final Table.Border border,
-//                @Option("table-orientation") final Table.Orientation orientation,
+                @Option("table-header") final Boolean header,
                 @Option("table-sort") final String sort,
                 @Option("table-fields") final String fields,
 //                @Option("table-format") final Table.Format format,

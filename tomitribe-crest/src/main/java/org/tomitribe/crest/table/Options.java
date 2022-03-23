@@ -15,15 +15,17 @@
  */
 package org.tomitribe.crest.table;
 
-import org.tomitribe.crest.api.table.Border;
-import org.tomitribe.crest.api.table.Table;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.ParameterMetadata;
+import org.tomitribe.crest.api.table.Border;
+import org.tomitribe.crest.api.table.Table;
+import org.tomitribe.crest.api.table.TableOptions;
 import org.tomitribe.util.collect.ObjectMap;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 
+import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.BEAN_OPTION;
 import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.OPTION;
 
 public class Options implements Table {
@@ -126,19 +128,35 @@ public class Options implements Table {
         options.setFields(table.fields());
         options.setHeader(table.header());
 //            options.setFormat(table.format());
-//            options.setOrientation(table.orientation());
         options.setSort(table.sort());
         return options;
     }
 
+    public Options copy() {
+        final Options options = new Options();
+        options.setBorder(this.border);
+        options.setFields(this.fields);
+        options.setHeader(this.header);
+//            options.setFormat(table.format());
+        options.setSort(this.sort);
+        return options;
+    }
+
+    public static Options from(final TableOptions table) {
+        final Options options = new Options();
+        options.setBorder(table.getBorder());
+        options.setFields(table.getFields());
+        options.setHeader(table.isHeader());
+        options.setSort(table.getSort());
+        return options;
+    }
+
     public Options override(final Options overrides) {
-        final Options options = from(this);
+        final Options options = copy();
         if (overrides.border() != null) options.setBorder(overrides.border());
-//            if (overrides.orientation() != null) options.setOrientation(overrides.orientation());
         if (overrides.sort() != null) options.setSort(overrides.sort());
         if (overrides.fields() != null) options.setFields(overrides.fields());
         if (overrides.isHeader() != null) options.setHeader(overrides.isHeader());
-//            if (overrides.format() != null) options.setFormat(overrides.format());
         return options;
     }
 
@@ -149,16 +167,27 @@ public class Options implements Table {
     }
 
     public static Options from(final List<ParameterMetadata> parameterMetadata, final List<Object> parameters) {
-        final Options options = new Options();
+        Options options = new Options();
         final ObjectMap map = new ObjectMap(options);
         for (int i = 0; i < parameterMetadata.size(); i++) {
             final ParameterMetadata metadata = parameterMetadata.get(i);
-            if (!metadata.getType().equals(OPTION)) continue;
-            if (!metadata.getName().startsWith("table-")) continue;
 
-            final String key = metadata.getName().replace("table-", "");
-            final Object value = parameters.get(i);
-            map.put(key, value);
+            if (metadata.getType().equals(BEAN_OPTION)) {
+                final Object value = parameters.get(i);
+                if (value instanceof TableOptions) {
+                    final TableOptions tableOptions = (TableOptions) value;
+                    final Options overrides = Options.from(tableOptions);
+                    options = options.override(overrides);
+                }
+            }
+
+            if (metadata.getType().equals(OPTION)) {
+                if (!metadata.getName().startsWith("table-")) continue;
+
+                final String key = metadata.getName().replace("table-", "");
+                final Object value = parameters.get(i);
+                map.put(key, value);
+            }
         }
         return options;
     }

@@ -19,10 +19,11 @@ import org.junit.Test;
 import org.tomitribe.crest.Main;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
-import org.tomitribe.crest.api.table.Border;
-import org.tomitribe.crest.api.table.Table;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
+import org.tomitribe.crest.api.table.Border;
+import org.tomitribe.crest.api.table.Table;
+import org.tomitribe.crest.api.table.TableOptions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -65,6 +66,29 @@ public class TableOptionsTest {
                 "--table-header=true",
                 "--table-fields=blue red",
 //                "--table-format=tsv",
+                "--unrelated=opt"
+        );
+
+        final CrestContext crestContext = CrestContextInterceptor.context;
+
+        final Options options = Options.from(crestContext.getParameterMetadata(), crestContext.getParameters());
+
+        assertEquals(Border.mysqlStyle, options.border());
+        assertEquals("blue red", options.fields());
+        assertEquals("red", options.sort());
+        assertTrue(options.header());
+//        assertEquals(Table.Format.tsv, options.format());
+    }
+
+    @Test
+    public void fromParametersTableOptions() throws Exception {
+
+        final Main main = new Main(Data.class, CrestContextInterceptor.class);
+        main.exec("tableOptions",
+                "--table-border=mysqlStyle",
+                "--table-sort=red",
+                "--table-header=true",
+                "--table-fields=blue red",
                 "--unrelated=opt"
         );
 
@@ -123,6 +147,51 @@ public class TableOptionsTest {
     }
 
     @Test
+    public void fromCrestContextBeanOptions() throws Exception {
+
+        final Main main = new Main(Data.class, CrestContextInterceptor.class);
+        main.exec("both2",
+                "--table-sort=red",
+                "--no-table-header",
+                "--table-fields=blue red",
+                "--unrelated=opt"
+        );
+
+        final CrestContext crestContext = CrestContextInterceptor.context;
+
+        final Options options = Options.from(crestContext);
+
+        assertEquals(Border.asciiDots, options.border());
+        assertEquals("blue red", options.fields());
+        assertFalse(options.header());
+//        assertEquals(Table.Format.csv, options.format());
+        assertEquals("red", options.sort());
+    }
+
+    @Test
+    public void fromTableOptions() throws Exception {
+        { // ensure if nothing is supplied to TableOptions that it doesn't set defaults
+            final TableOptions tableOptions = new TableOptions(null, null, null, null);
+            final Options options = Options.from(tableOptions);
+
+            assertNull(options.getBorder());
+            assertNull(options.getFields());
+            assertNull(options.getSort());
+            assertNull(options.isHeader());
+        }
+
+        { // ensure if nothing is supplied to TableOptions that it doesn't set defaults
+            final TableOptions tableOptions = new TableOptions(Border.unicodeDouble, true, "lastName firstname", "firstName lastName address.zipCode");
+            final Options options = Options.from(tableOptions);
+
+            assertEquals(Border.unicodeDouble, options.border());
+            assertEquals("lastName firstname", options.sort());
+            assertEquals("firstName lastName address.zipCode", options.fields());
+            assertTrue(options.header());
+        }
+    }
+
+    @Test
     public void override() throws Exception {
         final Table table = Data.class.getMethod("annotationOnly").getAnnotation(Table.class);
         final Options options = Options.from(table);
@@ -165,6 +234,10 @@ public class TableOptionsTest {
         ) {
         }
 
+        @Command(interceptedBy = CrestContextInterceptor.class)
+        public void tableOptions(final TableOptions tableOptions, @Option("unrelated") final String unrelated) {
+        }
+
         @Table(fields = "red green blue",
 //                format = Table.Format.csv,
                 border = Border.asciiDots,
@@ -178,6 +251,17 @@ public class TableOptionsTest {
                 @Option("table-fields") final String fields,
 //                @Option("table-format") final Table.Format format,
                 @Option("unrelated") final String unrelated
+        ) {
+        }
+
+        @Table(fields = "red green blue",
+//                format = Table.Format.csv,
+                border = Border.asciiDots,
+                sort = "green"
+        )
+        @Command(interceptedBy = CrestContextInterceptor.class)
+        public void both2(final TableOptions tableOptions,
+                          @Option("unrelated") final String unrelated
         ) {
         }
 

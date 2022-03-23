@@ -18,6 +18,7 @@ package org.tomitribe.crest.xbean;
 
 import org.apache.xbean.finder.UrlSet;
 import org.apache.xbean.finder.archive.Archive;
+import org.apache.xbean.finder.archive.ClassesArchive;
 import org.apache.xbean.finder.archive.ClasspathArchive;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ import java.io.IOException;
 public class ClasspathScanner extends XbeanScanningLoader {
 
     public ClasspathScanner() {
-        super(ClasspathScanner.defaultArchive());
+        super(System.getProperty("java.home") == null ? new ClassesArchive() : ClasspathScanner.defaultArchive());
     }
 
     private static Archive defaultArchive() {

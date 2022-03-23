@@ -73,7 +73,7 @@
         <configuration>
           <!-- value of flags will be interpolated into the java invocation -->
           <!-- as "java $flags -jar ..." -->
-          <flags>$JAVA_OPTS -Xmx1G</flags>
+          <flags>-Dcmd="$0" $JAVA_OPTS -Xmx1G</flags>
           <programFile>${project.artifactId}</programFile>
         </configuration>
 

@@ -31,10 +31,8 @@ import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
-import org.tomitribe.crest.table.Border;
-import org.tomitribe.crest.table.Data;
-import org.tomitribe.crest.table.Table;
-import org.tomitribe.crest.term.Screen;
+import org.tomitribe.crest.table.Formatting;
+import org.tomitribe.crest.table.TableInterceptor;
 
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
@@ -74,6 +72,10 @@ public class Main implements Completer {
             processClass(defaultsContext, clazz);
         }
 
+        // Built-in formatters
+        processClass(defaultsContext, TableInterceptor.class);
+
+        // Built-in commands
         installHelp(defaultsContext);
     }
 
@@ -219,13 +221,9 @@ public class Main implements Completer {
 
             } else if (result instanceof String[][]) {
 
-                final int guess = Screen.guessWidth();
-                final int width = guess > 0 ? guess : 150;
+                final String[][] data = (String[][]) result;
 
-                final Data data = new Data((String[][]) result, true);
-                final Table table = new Table(data, Border.asciiCompact().build(), width);
-
-                table.format(out);
+                Formatting.asPrintStream(data).write(out);
 
             } else {
 

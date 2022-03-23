@@ -20,10 +20,12 @@ import org.apache.geronimo.arthur.spi.ArthurExtension;
 import org.apache.geronimo.arthur.spi.model.ClassReflectionModel;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Editor;
+import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -139,7 +141,7 @@ public class CrestExtension implements ArthurExtension {
     private Stream<String> toClasses(final Context context, final Collection<Method> commands) {
         return commands.stream()
                 .flatMap(m -> Stream.concat(
-                        findInterceptors(m),
+                        findInterceptors(context, m),
                         Stream.of(m.getDeclaringClass())))
                 .distinct()
                 .flatMap(context::findHierarchy)
@@ -148,8 +150,18 @@ public class CrestExtension implements ArthurExtension {
                 .sorted();
     }
 
-    private Stream<Class<?>> findInterceptors(final Method method) {
-        return Stream.of(method.getAnnotation(Command.class).interceptedBy());
+    private Stream<Class<?>> findInterceptors(final Context context, final Method method) {
+        return Stream.concat(
+                findBindingInterceptors(context, method),
+                Stream.of(method.getAnnotation(Command.class).interceptedBy()));
+    }
+
+    private Stream<Class<?>> findBindingInterceptors(final Context context, final Method method) {
+        return Stream.of(method.getAnnotations())
+                .map(Annotation::annotationType)
+                .filter(it -> it.isAnnotationPresent(CrestInterceptor.class))
+                .flatMap(marker -> context.findAnnotatedClasses(marker).stream()
+                        .filter(it -> Stream.of(it.getMethods()).anyMatch(m -> m.isAnnotationPresent(CrestInterceptor.class))));
     }
 
     private ClassReflectionModel toClassReflection(final String name) {

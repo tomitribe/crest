@@ -5,7 +5,7 @@ Command-line API styled after JAX-RS
 CREST allows you to get to the real work as quickly as possible when writing command line tools in Java.
 
  * 100% annotation based
- * Use Bean Validation on use input
+ * Use Bean Validation or custom validators on use input
  * Contains Several builtin validations
  * Generates help from annotations
  * Supports default values
@@ -548,6 +548,38 @@ bite the bullet and proactively invest in creating a reusable set of validation 
 types.
 
 Pull requests are *very* strongly encouraged for any annotations that might be useful to others.
+
+=== Bean Validation-less validations
+
+You can also use the built-in crest validator style, it enables to lighten the dependencies by not requiring bean validation.
+To do that you must:
+
+. define a custom validation annotation
+. implementation the validation as a `Consumer<ParamType>` or `BiConsumer<AnnotationDefinedIn1, ParamType>`
+
+If the validation fails, the implementation just throws an exception with a meaningful error message.
+
+Here is a trivial example to check a `Path` is a directory:
+
+[source,java]
+----
+ @Target(PARAMETER)
+ @Retention(RUNTIME)
+ @Validation(CrestDirectory.Impl.class)
+ public @interface CrestDirectory {
+ }
+
+ public class Impl implements Consumer<Path> {
+   @Override
+   public void accept(final Path file) {
+       if (!Files.isDirectory(file)) {
+           throw new IllegalStateException("'" + file + "' is not a directory");
+       }
+   }
+}
+----
+
+TIP: the instances of the implementation are looked up by class in the `Environment` and if none matches a plain `new` is done calling the default constructor.
 
 == Maven pom.xml setup
 

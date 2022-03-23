@@ -26,6 +26,8 @@ import org.tomitribe.crest.cmds.targets.SimpleBean;
 import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
+import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.val.BeanValidationImpl;
 import org.tomitribe.util.Strings;
 import org.tomitribe.util.collect.FilteredIterable;
 import org.tomitribe.util.collect.FilteredIterator;
@@ -46,6 +48,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
 
 public class Commands {
 
@@ -89,7 +92,11 @@ public class Commands {
 
         for (final Method method : commands(clazz)) {
 
-            final CmdMethod cmd = new CmdMethod(method, target, dc);
+            final CmdMethod cmd = new CmdMethod(
+                    method, target, dc,
+                    ofNullable(Environment.ENVIRONMENT_THREAD_LOCAL.get())
+                            .map(e -> e.findService(BeanValidationImpl.class))
+                            .orElse(null));
 
             final Cmd existing = map.get(cmd.getName());
 

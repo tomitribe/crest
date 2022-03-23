@@ -25,7 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-public class BeanValidation11 implements BeanValidation.BeanValidationImpl {
+class BeanValidation11 extends BeanValidationMessages {
     private final ValidatorFactory validatorFactory;
 
     public BeanValidation11() {

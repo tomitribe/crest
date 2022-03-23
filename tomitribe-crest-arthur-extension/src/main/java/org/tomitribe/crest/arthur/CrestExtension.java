@@ -20,6 +20,7 @@ import org.apache.geronimo.arthur.spi.ArthurExtension;
 import org.apache.geronimo.arthur.spi.model.ClassReflectionModel;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Editor;
+import org.tomitribe.crest.api.validation.Validation;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 
 import java.io.BufferedReader;
@@ -141,7 +142,7 @@ public class CrestExtension implements ArthurExtension {
     private Stream<String> toClasses(final Context context, final Collection<Method> commands) {
         return commands.stream()
                 .flatMap(m -> Stream.concat(
-                        findInterceptors(context, m),
+                        Stream.concat(findInterceptors(context, m), findValidators(m)),
                         Stream.of(m.getDeclaringClass())))
                 .distinct()
                 .flatMap(context::findHierarchy)
@@ -162,6 +163,14 @@ public class CrestExtension implements ArthurExtension {
                 .filter(it -> it.isAnnotationPresent(CrestInterceptor.class))
                 .flatMap(marker -> context.findAnnotatedClasses(marker).stream()
                         .filter(it -> Stream.of(it.getMethods()).anyMatch(m -> m.isAnnotationPresent(CrestInterceptor.class))));
+    }
+
+    private Stream<Class<?>> findValidators(final Method method) {
+        return Stream.of(method.getParameters())
+                .flatMap(it -> Stream.of(it.getAnnotations()))
+                .map(Annotation::annotationType)
+                .filter(it -> it.isAnnotationPresent(Validation.class))
+                .map(it -> it.getAnnotation(Validation.class).value());
     }
 
     private ClassReflectionModel toClassReflection(final String name) {

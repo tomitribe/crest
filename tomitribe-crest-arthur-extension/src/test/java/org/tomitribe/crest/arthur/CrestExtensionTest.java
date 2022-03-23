@@ -24,11 +24,14 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Editor;
+import org.tomitribe.crest.api.table.Table;
+import org.tomitribe.crest.table.TableInterceptor;
 
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
@@ -49,7 +52,15 @@ public class CrestExtensionTest {
         final ArthurNativeImageConfiguration configuration = new ArthurNativeImageConfiguration();
         final DefautContext context = new DefautContext(
                 configuration,
-                annot -> singleton(MyEditor.class),
+                annot -> {
+                    if (Editor.class == annot) {
+                        return singleton(MyEditor.class);
+                    }
+                    if (Table.class == annot) {
+                        return singleton(TableInterceptor.class);
+                    }
+                    return Collections.emptySet();
+                },
                 annot -> singleton(foo),
                 annot -> {
                     throw new UnsupportedOperationException();
@@ -61,11 +72,11 @@ public class CrestExtensionTest {
         extension.execute(context);
 
         final Collection<ClassReflectionModel> reflections = context.getReflections();
-        assertEquals(3, reflections.size());
+        assertEquals(4, reflections.size());
 
         final Path spiFile = temp.getRoot().toPath().resolve("crest-commands.txt");
         assertTrue(Files.exists(spiFile));
-        assertEquals(asList("org.tomitribe.crest.EditorLoader", Enclosing.class.getName()), Files.readAllLines(spiFile));
+        assertEquals(asList("org.tomitribe.crest.EditorLoader", Enclosing.class.getName(), TableInterceptor.class.getName()), Files.readAllLines(spiFile));
 
         final Path spi2File = temp.getRoot().toPath().resolve("crest-editors.txt");
         assertTrue(Files.exists(spi2File));
@@ -84,6 +95,7 @@ public class CrestExtensionTest {
 
     public static class Enclosing {
         @Command
+        @Table
         public static void foo() {
         }
     }

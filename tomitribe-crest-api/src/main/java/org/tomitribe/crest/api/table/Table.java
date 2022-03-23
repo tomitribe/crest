@@ -62,12 +62,23 @@ import java.lang.annotation.Target;
  * <h2>Table Features</h2>
  *
  * <ul>
- *     <li><b>Alignment</b>: Numeric values will always be right-aligned.  Text values will be left-aligned</li>
- *     <li><b>Word Wrap</b>: The table will observe the size of the screen.  If the number of columns allows, the data will be word-wrapped in an attempt to keep large blocks of text like descriptions contained.</li>
- *     <li><b>Columns</b>: Public Fields or non-static get methods of items in the collection can be referenced to create columns.  A method such as {@code getReleaseDate()} would result in a {@code releaseDate} column in the table</li>
- *     <li><b>Types</b>: It is best if the instances returned by the {@code Iterable} are of the same class.  It is possible to return a mix of different class, however the columns will be influenced based on which type is seen first.</li>
- *     <li><b>Type Conversion</b>: Any type returned from a getter or public field can be included in the table.  At this time the {@code toString()} method is used to create the text output for each column.  PropertyEditor support is planned for future releases.</li>
- *     <li><b>Memory</b>: At this time the entire table contents are read from the returned {@code Iterable} before printing to the console, so all data must fit in memory even when being streamed from an external source.</li>
+ *     <li><b>Alignment</b>: Numeric values will always be right-aligned.  Text values will be
+ *     left-aligned</li>
+ *     <li><b>Word Wrap</b>: The table will observe the size of the screen.  If the number of
+ *     columns allows, the data will be word-wrapped in an attempt to keep large blocks of text
+ *     like descriptions contained.</li>
+ *     <li><b>Columns</b>: Public Fields or non-static get methods of items in the collection
+ *     can be referenced to create columns.  A method such as {@code getReleaseDate()} would
+ *     result in a {@code releaseDate} column in the table</li>
+ *     <li><b>Types</b>: It is best if the instances returned by the {@code Iterable} are of
+ *     the same class.  It is possible to return a mix of different class, however the columns
+ *     will be influenced based on which type is seen first.</li>
+ *     <li><b>Type Conversion</b>: Any type returned from a getter or public field can be included
+ *     in the table.  At this time the {@code toString()} method is used to create the text output
+ *     for each column.  PropertyEditor support is planned for future releases.</li>
+ *     <li><b>Memory</b>: At this time the entire table contents are read from the returned
+ *     {@code Iterable} before printing to the console, so all data must fit in memory even when
+ *     being streamed from an external source.</li>
  * </ul>
  *
  * <h2>Overriding via @Table</h2>

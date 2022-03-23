@@ -72,11 +72,13 @@ public class CrestExtensionTest {
         extension.execute(context);
 
         final Collection<ClassReflectionModel> reflections = context.getReflections();
-        assertEquals(4, reflections.size());
+        assertEquals(6, reflections.size());
 
         final Path spiFile = temp.getRoot().toPath().resolve("crest-commands.txt");
         assertTrue(Files.exists(spiFile));
-        assertEquals(asList("org.tomitribe.crest.EditorLoader", Enclosing.class.getName(), TableInterceptor.class.getName()), Files.readAllLines(spiFile));
+        assertEquals(
+                asList("org.tomitribe.crest.EditorLoader", Enclosing.class.getName()),
+                Files.readAllLines(spiFile));
 
         final Path spi2File = temp.getRoot().toPath().resolve("crest-editors.txt");
         assertTrue(Files.exists(spi2File));

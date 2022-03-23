@@ -2,13 +2,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>${groupId}</groupId>
-  <artifactId>${artifactId}</artifactId>
-  <version>${version}</version>
+  <groupId>$groupId</groupId>
+  <artifactId>$artifactId</artifactId>
+  <version>$version</version>
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <crest.version>${project.version}</crest.version>
   </properties>
 
   <dependencies>
@@ -22,13 +26,17 @@
     <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest</artifactId>
-      <version>${project.version}</version>
+      <version>${crest.version}</version>
     </dependency>
+
+    <!-- to get scanning in java mode (optional, you can use crest-commands.txt or SPI loading) -->
     <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest-xbean</artifactId>
-      <version>${project.version}</version>
+      <version>${crest.version}</version>
     </dependency>
+
+    <!-- to get bean validation (optional) -->
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-validation_2.0_spec</artifactId>
@@ -39,6 +47,11 @@
       <artifactId>bval-jsr</artifactId>
       <version>1.1.0</version>
     </dependency>
+    <dependency> <!-- force because transitive one (bval-jsr) is too old for recent JVM -->
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.12.0</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -48,14 +61,18 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>2.1</version>
+        <version>3.2.4</version>
         <executions>
           <execution>
+            <id>all</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
             <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>all</shadedClassifierName>
+              <dependencyReducedPomLocation>${project.build.directory}/reduced-pom.xml</dependencyReducedPomLocation>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>org.tomitribe.crest.Main</mainClass>
@@ -74,9 +91,8 @@
           <!-- value of flags will be interpolated into the java invocation -->
           <!-- as "java $flags -jar ..." -->
           <flags>-Dcmd="$0" $JAVA_OPTS -Xmx1G</flags>
-          <programFile>${project.artifactId}</programFile>
+          <programFile>$artifactId</programFile>
         </configuration>
-
         <executions>
           <execution>
             <phase>package</phase>
@@ -88,8 +104,8 @@
       </plugin>
       <plugin>
         <groupId>org.tomitribe</groupId>
-        <version>0.17-SNAPSHOT</version>
         <artifactId>crest-maven-plugin</artifactId>
+        <version>${crest.version}</version>
         <executions>
           <execution>
             <goals>
@@ -101,5 +117,29 @@
     </plugins>
   </build>
 
-
+  <profiles>
+    <profile>
+      <id>native</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.geronimo.arthur</groupId>
+            <artifactId>arthur-maven-plugin</artifactId>
+            <version>1.0.5</version>
+            <configuration>
+              <main>org.tomitribe.crest.Main</main>
+              <graalVersion>22.0.0.2.r11</graalVersion>
+              <enableAllSecurityServices>false</enableAllSecurityServices>
+              <graalExtensions>
+                <graalExtension>org.tomitribe:tomitribe-crest-arthur-extension:${crest.version}</graalExtension>
+              </graalExtensions>
+              <extensionProperties>
+                <tomitribe.crest.command.includes>$groupId</tomitribe.crest.command.includes>
+              </extensionProperties>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

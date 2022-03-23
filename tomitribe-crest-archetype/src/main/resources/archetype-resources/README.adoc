@@ -1,0 +1,16 @@
+= $artifactId Crest Project
+
+This project was created using Crest Archetype.
+
+== Build
+
+`mvn package` builds the project and creates an executable uberjar (all in one) which means you can then run your CLI with:
+
+[source,bash]
+----
+java -jar target/<artifact>-all.jar
+----
+
+== Build a native binary with GraalVM
+
+To build your command as a native binary you can use `mvn package arthur:native-image -Pnative`.

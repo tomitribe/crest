@@ -20,21 +20,14 @@ import java.util.stream.Stream;
 public class App {
 
     /**
-     * NAME
-     *      cat -- concatenate and print files
+     * The cat utility reads a file and writes it  to the standard output.  The file operands are processed in command-line
+     * order.  Files must be readable by the user and cannot be a directorie.  Unlike the UNIX or Linux version of `cat`
+     * the use of a single dash (`-') to read the standard input is not supported, nor is the ability read UNIX domain sockets.
      *
-     * SYNOPSIS
-     *      cat [file]
+     * In fact, this javadoc is here just to show you that javadoc can be used create nice help that looks like a man page.
+     * The formatting is similar to Markdown.  To see how this looks when output, run this command
      *
-     * DESCRIPTION
-     *      The cat utility reads a file and writes it  to the standard output.  The file operands are processed in command-line
-     *      order.  Files must be readable by the user and cannot be a directorie.  Unlike the UNIX or Linux version of `cat`
-     *      the use of a single dash (`-') to read the standard input is not supported, nor is the ability read UNIX domain sockets.
-     *
-     *      In fact, this javadoc is here just to show you that javadoc can be used create nice help that looks like a man page.
-     *      The formatting is similar to Markdown.  To see how this looks when output, run this command
-     *
-     *          $artifactId help cat
+     *     help cat
      *
      * @param file the path of a file on the local system
      * @return
@@ -66,10 +59,6 @@ public class App {
 
     /**
      * Prints hello to the specified name and in one of the supported languages.
-     *
-     * Help text can still be generated from javadoc even if it doesn't really
-     * follow the typical `NAME`, `SYNOPSIS`, `DESCRIPTION` format.  It just
-     * looks better (more official) when it does.
      *
      * @param name The name of the person, place or thing
      * @param language Indicates what language in which to say hello

@@ -70,9 +70,34 @@ public class CommandJavadoc {
         final List<String> list = Stream.of(types)
                 .map(this::classSignature)
                 .collect(Collectors.toList());
-        final String expected = Join.join(", ", list);
-        final String argtypes = getProperties().getProperty("@arg.types");
+        final String expected = normalize(Join.join(", ", list));
+        final String argtypes = normalize(getProperties().getProperty("@arg.types"));
         return expected.equals(argtypes);
+    }
+
+    /**
+     * The javax.lang.model.element.Element.getSimpleName() method is used to
+     * get the class name of each argument type.  This method will use a dot (.)
+     * before inner class names.  The string it provides will
+     * be in the format of {@code org.example.Outter.Inner}.  This is the way
+     * these classes are referred to in source, so it is correct from that
+     * perspective.
+     *
+     * However, java.lang.Class.getName() will use the dollar sign ($) before
+     * inner class names.  The string it provides will
+     * be in the format of {@code org.example.Outter$Inner}.  This is the way
+     * these classes are referred to by classloaders, so it is correct from that
+     * perspective.
+     *
+     * This method just says to heck with it and replaces all $ signs with dots.
+     *
+     * Though you can legally use a dollar sign in a class name, you will get a
+     * duplicate class error by the compiler if you do so in a way that could
+     * class with an inner class of the same name.  So this approach should be
+     * fairly safe.
+     */
+    private String normalize(final String signature) {
+        return signature.replace("$", ".");
     }
 
     public String classSignature(final Class<?> aClass) {

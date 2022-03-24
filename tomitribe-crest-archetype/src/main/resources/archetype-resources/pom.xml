@@ -2,9 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>${groupId}</groupId>
-  <artifactId>${artifactId}</artifactId>
-  <version>${version}</version>
+  <groupId>\${groupId}</groupId>
+  <artifactId>\${artifactId}</artifactId>
+  <version>\${version}</version>
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -74,7 +74,7 @@
           <!-- value of flags will be interpolated into the java invocation -->
           <!-- as "java $flags -jar ..." -->
           <flags>-Dcmd="$0" $JAVA_OPTS -Xmx1G</flags>
-          <programFile>${project.artifactId}</programFile>
+          <programFile>\${project.artifactId}</programFile>
         </configuration>
 
         <executions>
@@ -88,7 +88,7 @@
       </plugin>
       <plugin>
         <groupId>org.tomitribe</groupId>
-        <version>0.17-SNAPSHOT</version>
+        <version>${project.version}</version>
         <artifactId>crest-maven-plugin</artifactId>
         <executions>
           <execution>

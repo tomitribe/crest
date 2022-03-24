@@ -1,9 +1,10 @@
-package $groupId;
+package \$groupId;
 
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.StreamingOutput;
+import org.tomitribe.crest.api.table.Table;
 import org.tomitribe.crest.val.Readable;
 import org.tomitribe.util.Files;
 import org.tomitribe.util.IO;

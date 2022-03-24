@@ -1,4 +1,4 @@
-package $groupId;
+package \$groupId;
 
 import org.tomitribe.crest.val.Exists;
 

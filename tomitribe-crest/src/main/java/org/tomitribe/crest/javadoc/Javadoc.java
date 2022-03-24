@@ -58,6 +58,19 @@ public class Javadoc {
         this.deprecated = deprecated;
     }
 
+    public boolean isEmpty() {
+        return content == null &&
+                params == null &&
+                throwing == null &&
+                authors == null &&
+                sees == null &&
+                unknown == null &&
+                aReturn == null &&
+                since == null &&
+                version == null &&
+                deprecated == null;
+    }
+
     public static Builder builder() {
         return new Javadoc.Builder();
     }

@@ -609,6 +609,11 @@ public class CmdMethod implements Cmd {
 
         final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
 
+        if (javadoc.isEmpty()){
+            help(out);
+            return;
+        }
+        
         final Document.Builder manual = Document.builder()
                 .heading("NAME")
                 .paragraph(name)

@@ -1,4 +1,4 @@
-package \$groupId;
+package $package;
 
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;

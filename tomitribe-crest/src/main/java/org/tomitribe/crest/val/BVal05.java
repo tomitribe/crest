@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-public class BVal05 implements BeanValidation.BeanValidationImpl {
+public class BVal05 extends BeanValidationMessages {
     private static final Class<?>[] NO_GROUP = new Class<?>[0];
 
     private final Class<?> unwrapClass;

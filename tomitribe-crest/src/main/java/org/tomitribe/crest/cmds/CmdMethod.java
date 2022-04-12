@@ -51,7 +51,7 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptorInvocationCon
 import org.tomitribe.crest.javadoc.Javadoc;
 import org.tomitribe.crest.javadoc.JavadocParser;
 import org.tomitribe.crest.term.Screen;
-import org.tomitribe.crest.val.BeanValidation;
+import org.tomitribe.crest.val.BeanValidationImpl;
 import org.tomitribe.util.IO;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.editor.Converter;
@@ -88,6 +88,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.BEAN_OPTION;
 import static org.tomitribe.crest.api.interceptor.ParameterMetadata.ParamType.INTERNAL;
@@ -120,6 +121,7 @@ public class CmdMethod implements Cmd {
     private final Class<?>[] interceptors;
     private final DefaultsContext defaultsFinder;
     private final Spec spec = new Spec();
+    private final BeanValidationImpl beanValidation;
     private volatile List<ParameterMetadata> parameterMetadatas;
 
     public class Spec {
@@ -140,15 +142,18 @@ public class CmdMethod implements Cmd {
         }
     }
 
-    public CmdMethod(final Method method, final DefaultsContext defaultsFinder) {
-        this(method, new SimpleBean(null), defaultsFinder);
+    public CmdMethod(final Method method, final DefaultsContext defaultsFinder,
+                     final BeanValidationImpl beanValidation) {
+        this(method, new SimpleBean(null), defaultsFinder, beanValidation);
     }
 
-    public CmdMethod(final Method method, final Target target, final DefaultsContext defaultsFinder) {
+    public CmdMethod(final Method method, final Target target, final DefaultsContext defaultsFinder,
+                     final BeanValidationImpl beanValidation) {
         this.target = target;
         this.method = method;
         this.defaultsFinder = defaultsFinder;
         this.name = Commands.name(method);
+        this.beanValidation = beanValidation;
 
         final List<Param> parameters = buildParams(null, NO_PREFIX, null, Reflection.params(method));
 
@@ -324,7 +329,9 @@ public class CmdMethod implements Cmd {
 
             try {
                 final Object[] args = toArgs(converted).toArray(new Object[converted.size()]);
-                BeanValidation.validateParameters(constructor, args);
+                if (beanValidation != null) {
+                    beanValidation.validateParameters(constructor, args);
+                }
                 return new Value(constructor.newInstance(args), true);
 
             } catch (InvocationTargetException e) {
@@ -338,8 +345,8 @@ public class CmdMethod implements Cmd {
         }
     }
 
-    public CmdMethod(final Method method, final Target target) {
-        this(method, target, new SystemPropertiesDefaultsContext());
+    public CmdMethod(final Method method, final Target target, final BeanValidationImpl beanValidation) {
+        this(method, target, new SystemPropertiesDefaultsContext(), beanValidation);
     }
 
     public Method getMethod() {
@@ -549,7 +556,9 @@ public class CmdMethod implements Cmd {
         final Object[] args;
         try {
             args = list.toArray();
-            BeanValidation.validateParameters(target.getInstance(method), method, args);
+            if (beanValidation != null) {
+                beanValidation.validateParameters(target.getInstance(method), method, args);
+            }
         } catch (final Exception e) {
             reportWithHelp(e);
             throw toRuntimeException(e);
@@ -570,13 +579,12 @@ public class CmdMethod implements Cmd {
 
     private void reportWithHelp(final Exception e) {
         final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
-
-        if (BeanValidation.isActive()) {
-            for (final String message : BeanValidation.messages(e)) {
+        if (beanValidation == null) {
+            err.println(e.getMessage());
+        } else {
+            for (final String message : beanValidation.messages(e).orElseGet(() -> singletonList(e.getMessage()))) {
                 err.println(message);
             }
-        } else {
-            err.println(e.getMessage());
         }
         help(err);
 

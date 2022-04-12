@@ -230,7 +230,7 @@ public class HelpTest extends Assert {
                 continue;
             }
             
-            CmdMethod cmd = new CmdMethod(method, new SimpleBean(null));
+            CmdMethod cmd = new CmdMethod(method, new SimpleBean(null), null);
             assertCommandHelp(clazz, cmd, helpFileName(Git.class, "git", methodName));
         }
     }

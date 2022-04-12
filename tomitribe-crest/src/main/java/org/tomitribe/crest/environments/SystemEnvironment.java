@@ -17,9 +17,12 @@
 package org.tomitribe.crest.environments;
 
 
+import org.tomitribe.crest.val.BeanValidation;
+import org.tomitribe.crest.val.BeanValidationImpl;
+
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -27,11 +30,13 @@ public class SystemEnvironment implements Environment {
     private final Map<Class<?>, Object> services;
 
     public SystemEnvironment(final Map<Class<?>, Object> services) {
-        this.services = services;
+        this.services = new HashMap<>(services);
+        init();
     }
 
     public SystemEnvironment() {
-        this.services = Collections.emptyMap();
+        this.services = new HashMap<>();
+        init();
     }
 
     @Override
@@ -56,5 +61,9 @@ public class SystemEnvironment implements Environment {
     @Override
     public <T> T findService(Class<T> type) {
         return type.cast(services.get(type));
+    }
+
+    protected void init() {
+        services.put(BeanValidationImpl.class, BeanValidation.create(this::findService));
     }
 }

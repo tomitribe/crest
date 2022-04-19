@@ -10,7 +10,3 @@ This project was created using Crest Archetype.
 ----
 java -jar target/<artifact>-all.jar
 ----
-
-== Build a native binary with GraalVM
-
-To build your command as a native binary you can use `mvn package arthur:native-image -Pnative`.

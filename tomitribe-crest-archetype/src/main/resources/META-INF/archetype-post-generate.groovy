@@ -72,6 +72,17 @@ if (useArthur) {
     </profile>
   </profiles>
 </project>""").getBytes(UTF_8))
+
+    Path readme = projectPath.resolve("README.adoc")
+    Files.write(
+            readme,
+            (new String(Files.readAllBytes(readme), UTF_8).trim() +
+                    """
+
+== Build a native binary with GraalVM
+
+To build your command as a native binary you can use `mvn package arthur:native-image -Pnative`.
+""").getBytes(UTF_8))
 }
 if (useBeanValidation) {
     Files.write(

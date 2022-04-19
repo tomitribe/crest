@@ -2,9 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>${groupId}</groupId>
-  <artifactId>${artifactId}</artifactId>
-  <version>${version}</version>
+  <groupId>\${groupId}</groupId>
+  <artifactId>\${artifactId}</artifactId>
+  <version>\${version}</version>
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -35,27 +35,11 @@
       <artifactId>tomitribe-crest-xbean</artifactId>
       <version>${crest.version}</version>
     </dependency>
-
-    <!-- to get bean validation (optional) -->
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-validation_2.0_spec</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.bval</groupId>
-      <artifactId>bval-jsr</artifactId>
-      <version>1.1.0</version>
-    </dependency>
-    <dependency> <!-- force because transitive one (bval-jsr) is too old for recent JVM -->
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.12.0</version>
-    </dependency>
   </dependencies>
 
   <build>
-    <defaultGoal>install</defaultGoal>
+    <defaultGoal>package</defaultGoal>
+
     <plugins>
       <!-- make an uber jar with all deps -->
       <plugin>
@@ -91,7 +75,7 @@
           <!-- value of flags will be interpolated into the java invocation -->
           <!-- as "java $flags -jar ..." -->
           <flags>-Dcmd="$0" $JAVA_OPTS -Xmx1G</flags>
-          <programFile>$artifactId</programFile>
+          <programFile>\${project.artifactId}</programFile>
         </configuration>
         <executions>
           <execution>

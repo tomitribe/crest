@@ -26,10 +26,12 @@ import org.tomitribe.crest.cmds.Completer;
 import org.tomitribe.crest.cmds.HelpPrintedException;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
+import org.tomitribe.crest.compiler.SimpleCompiler;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
+import org.tomitribe.crest.interceptor.InterceptorAnnotationNotFoundException;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.table.Formatting;
 import org.tomitribe.crest.table.TableInterceptor;
@@ -50,10 +52,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class Main implements Completer {
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
-    protected final Map<String, Cmd> commands = new ConcurrentHashMap<>();
-    protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<>();
+public class Main implements Completer {
+    // this is "exposed" so we don't type them as ContextualizableMap for children
+    protected final Map<String, Cmd> commands = new ContextualizableMap<>();
+    protected final Map<Class<?>, InternalInterceptor> interceptors = new ContextualizableMap<>();
+    protected final DefaultsContext defaultsContext;
 
     public Main() {
         this(new SystemPropertiesDefaultsContext(), Commands.load());
@@ -68,6 +74,8 @@ public class Main implements Completer {
     }
 
     public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes) {
+        this.defaultsContext = defaultsContext;
+
         for (final Class clazz : classes) {
             processClass(defaultsContext, clazz);
         }
@@ -84,29 +92,14 @@ public class Main implements Completer {
         if (!m.isEmpty()) {
             this.commands.putAll(m);
         } else {
-
-            final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz);
-            if (interceptors.put(clazz, internalInterceptor) != null) {
-                throw new IllegalArgumentException(clazz + " interceptor is conflicting");
-            }
-
-            for (final Annotation annotation : clazz.getDeclaredAnnotations()) {
-                if (isCustomInterceptorAnnotation(annotation)) {
-                    if (interceptors.put(annotation.annotationType(), internalInterceptor) != null) {
-                        throw new IllegalArgumentException(clazz + " interceptor is conflicting");
-                    }
-                }
-            }
+            storeInterceptors(interceptors, clazz);
         }
     }
 
     private static boolean isCustomInterceptorAnnotation(final Annotation annotation) {
-        for (final Annotation declaredAnnotation : annotation.annotationType().getDeclaredAnnotations()) {
-            if (declaredAnnotation instanceof CrestInterceptor) {
-                return true;
-            }
-        }
-        return false;
+        return Stream.of(annotation.annotationType().getDeclaredAnnotations())
+                .map(Annotation::annotationType)
+                .anyMatch(it -> it == CrestInterceptor.class);
     }
 
     public Main(final Iterable<Class<?>> classes) {
@@ -238,25 +231,118 @@ public class Main implements Completer {
     public Object exec(String... args) throws Exception {
         final List<String> list = processSystemProperties(args);
 
-        final String command = (list.isEmpty()) ? "help" : list.remove(0);
-        args = list.toArray(new String[list.size()]);
-
+        String command = (list.isEmpty()) ? "help" : list.remove(0);
         if (command.equals("_completion")) {
             return BashCompletion.generate(this, args);
         }
 
-        final Cmd cmd = commands.get(command);
-
-        if (cmd == null) {
-
-            final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
-            err.println("Unknown command: " + command);
-            err.println();
-            commands.get("help").exec(interceptors);
-            throw new IllegalArgumentException();
+        final Runnable cleanup;
+        if (command.startsWith("--crest.source=")) {
+            // todo: support multiple? for now all commands can be in a single file
+            cleanup = handleSource(command);
+            command = (list.isEmpty()) ? "help" : list.remove(0);
+            args = list.toArray(new String[0]);
+        } else {
+            args = list.toArray(new String[0]);
+            cleanup = null;
         }
 
-        return cmd.exec(interceptors, args);
+        try {
+            final Cmd cmd = commands.get(command);
+
+            if (cmd == null) {
+
+                final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
+                err.println("Unknown command: " + command);
+                err.println();
+                commands.get("help").exec(interceptors);
+                throw new IllegalArgumentException();
+            }
+
+            return cmd.exec(interceptors, args);
+        } finally {
+            if (cleanup != null) {
+                cleanup.run();
+            }
+        }
+    }
+
+    // DON'T MODIFY WITHOUT FIXING org.tomitribe.crest.arthur.svm.DropCompilerSupport
+    private Runnable handleSource(final String command) {
+        final List<Class<?>> additionalClasses = SimpleCompiler
+                .compile(command.substring("--crest.source=".length()))
+                .ownedClasses()
+                .collect(toList());
+
+        final Map<String, Cmd> tempCommands = new HashMap<>();
+        final Map<Class<?>, InternalInterceptor> tempInterceptors = new HashMap<>();
+        final ThreadLocal<Map<String, Cmd>> commandTL = ((ContextualizableMap<String, Cmd>) commands).current;
+        final ThreadLocal<Map<Class<?>, InternalInterceptor>> interceptorTL =
+                ((ContextualizableMap<Class<?>, InternalInterceptor>) interceptors).current;
+        final Map<String, Cmd> oldCommands = commandTL.get();
+        final Map<Class<?>, InternalInterceptor> oldInterceptors = interceptorTL.get();
+        commandTL.set(tempCommands);
+        interceptorTL.set(tempInterceptors);
+
+        additionalClasses.forEach(clazz -> {
+            final Map<String, Cmd> m = Commands.get(clazz, defaultsContext);
+            if (!m.isEmpty()) {
+                tempCommands.putAll(m);
+            } else if (!interceptors.containsKey(clazz)) { // we don't want to override global config
+                try {
+                    storeInterceptors(tempInterceptors, clazz);
+                } catch (final InterceptorAnnotationNotFoundException ignore) {
+                    // no-op
+                }
+            }
+        });
+
+        if (!tempCommands.isEmpty()) {
+            // override help to reflect actual state
+            final Map<String, Cmd> commandsWithHelp = Stream.concat(
+                            commands.entrySet().stream()
+                                    .filter(it -> !"help".equals(it.getKey())),
+                            tempCommands.entrySet().stream())
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            Commands.get(new Help(commandsWithHelp), defaultsContext)
+                    .values()
+                    .forEach(c -> {
+                        tempCommands.put(c.getName(), c);
+                        commandsWithHelp.put(c.getName(), c);
+                    });
+        }
+
+        return () -> {
+            if (oldCommands == null) {
+                commandTL.remove();
+            } else {
+                commandTL.set(oldCommands);
+            }
+            if (oldInterceptors == null) {
+                interceptorTL.remove();
+            } else {
+                interceptorTL.set(oldInterceptors);
+            }
+        };
+    }
+
+    private boolean isCrestAnnotation(final Annotation a) {
+        return a.annotationType().getName().startsWith("org.tomitribe.crest.api");
+    }
+
+    private void storeInterceptors(final Map<Class<?>, InternalInterceptor> tempInterceptors, final Class<?> clazz) {
+        final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz);
+        if (tempInterceptors.put(clazz, internalInterceptor) != null) {
+            throw new IllegalArgumentException(clazz + " interceptor is conflicting");
+        }
+
+        for (final Annotation annotation : clazz.getDeclaredAnnotations()) {
+            if (isCustomInterceptorAnnotation(annotation)) {
+                if (tempInterceptors.put(annotation.annotationType(), internalInterceptor) != null) {
+                    throw new IllegalArgumentException(clazz + " interceptor is conflicting");
+                }
+            }
+        }
     }
 
     public static List<String> processSystemProperties(final String[] args) {
@@ -324,5 +410,23 @@ public class Main implements Completer {
         }
 
         return null;
+    }
+
+    private static class ContextualizableMap<A, B> extends ConcurrentHashMap<A, B> {
+        private final ThreadLocal<Map<A, B>> current = new ThreadLocal<>();
+
+        @Override
+        public B get(final Object key) {
+            final Map<A, B> local = current.get();
+            if (local == null) {
+                current.remove();
+            } else {
+                final B value = local.get(key);
+                if (value != null) {
+                    return value;
+                }
+            }
+            return super.get(key);
+        }
     }
 }

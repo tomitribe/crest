@@ -44,15 +44,26 @@ public class SimpleBean implements Target {
             return bean;
         }
         if (Modifier.isStatic(method.getModifiers())) {
-            return bean;
+            return null;
         }
 
         try {
             final Class<?> declaringClass = method.getDeclaringClass();
             final Constructor<?> constructor = declaringClass.getConstructor();
             return constructor.newInstance();
-        } catch (final NoSuchMethodException e) {
-            return null;
+        } catch (final NoSuchMethodException | IllegalAccessException e) {
+            try {
+                final Class<?> declaringClass = method.getDeclaringClass();
+                final Constructor<?> constructor = declaringClass.getDeclaredConstructor();
+                if (!constructor.isAccessible()) {
+                    constructor.setAccessible(true);
+                }
+                return constructor.newInstance();
+            } catch (final NoSuchMethodException e2) {
+                return null;
+            } catch (final Throwable e2) {
+                throw new IllegalStateException(e);
+            }
         } catch (final InvocationTargetException e) {
             throw new IllegalStateException(e.getCause());
         } catch (final Throwable e) {

@@ -30,8 +30,6 @@ import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.val.BeanValidationImpl;
 import org.tomitribe.util.Strings;
 import org.tomitribe.util.collect.FilteredIterable;
-import org.tomitribe.util.collect.FilteredIterator;
-import org.tomitribe.util.reflect.Reflection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,9 +44,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 public class Commands {
 
@@ -57,12 +57,15 @@ public class Commands {
     }
 
     public static Iterable<Method> commands(final Class<?> clazz) {
-        return new FilteredIterable<>(Reflection.methods(clazz),
-                new FilteredIterator.Filter<Method>() {
-                    @Override
-                    public boolean accept(final Method method) {
-                        return method.isAnnotationPresent(Command.class);
+        return new FilteredIterable<>(
+                new FilteredIterable<>(
+                        methods(clazz).collect(toList()),
+                        method -> method.isAnnotationPresent(Command.class)),
+                method -> {
+                    if (!method.isAccessible()) {
+                        method.setAccessible(true);
                     }
+                    return true;
                 }
         );
     }
@@ -240,5 +243,13 @@ public class Commands {
         } else {
             classes.add(clazz);
         }
+    }
+
+    // not only public since we want to ease code encapsulation and script like style
+    private static Stream<Method> methods(final Class<?>clazz) {
+        if (clazz == null || clazz == Object.class) {
+            return Stream.empty();
+        }
+        return Stream.concat(Stream.of(clazz.getDeclaredMethods()), methods(clazz.getSuperclass()));
     }
 }

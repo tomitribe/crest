@@ -32,10 +32,10 @@ import org.tomitribe.crest.api.Options;
  */
 @Options
 public class TableOptions {
-    private final Boolean header;
-    private final String fields;
-    private final String sort;
-    private final Border border;
+    private Boolean header;
+    private String fields;
+    private String sort;
+    private Border border;
 
     public TableOptions(@Option("table-border") final Border border,
                         @Option("table-header") final Boolean header,
@@ -62,5 +62,21 @@ public class TableOptions {
 
     public Border getBorder() {
         return border;
+    }
+
+    public void setHeader(final Boolean header) {
+        this.header = header;
+    }
+
+    public void setFields(final String fields) {
+        this.fields = fields;
+    }
+
+    public void setSort(final String sort) {
+        this.sort = sort;
+    }
+
+    public void setBorder(final Border border) {
+        this.border = border;
     }
 }

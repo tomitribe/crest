@@ -50,11 +50,11 @@ public class TableInterceptor {
             return new TableOutput(list, options);
         }
 
-        if (result.getClass().isArray()) {
+        if (result != null && result.getClass().isArray()) {
             final List<Object> list = Arrays.asList((Object[]) result);
             return new TableOutput(list, options);
         }
-        
+
         return result;
     }
 

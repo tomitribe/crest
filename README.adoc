@@ -21,7 +21,7 @@ Simply annotate the parameters of any Java method so it can be invoked from a co
 Use the Maven archetype and run your first command now.  Copy the following commands and paste them into your terminal.
 
 ----
-mvn archetype:generate -DarchetypeGroupId=org.tomitribe -DarchetypeArtifactId=tomitribe-crest-archetype -DarchetypeVersion=0.19 -DgroupId=org.example -DartifactId=mycommand
+mvn archetype:generate -DarchetypeGroupId=org.tomitribe -DarchetypeArtifactId=tomitribe-crest-archetype -DarchetypeVersion=0.22 -DgroupId=org.example -DartifactId=mycommand
 cd mycommand/
 mvn clean install
 ./target/mycommand hello

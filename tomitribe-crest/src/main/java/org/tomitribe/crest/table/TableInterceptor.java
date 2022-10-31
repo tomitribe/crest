@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,9 +35,9 @@ public class TableInterceptor {
 
     @CrestInterceptor
     public Object intercept(final CrestContext crestContext) {
-        final Options options = Options.from(crestContext);
-
         final Object result = crestContext.proceed();
+
+        final Options options = Options.from(crestContext);
 
         if (result instanceof Iterable) {
             final Iterable<?> list = (Iterable<?>) result;
@@ -46,6 +47,11 @@ public class TableInterceptor {
         if (result instanceof Stream) {
             final Stream<?> stream = (Stream<?>) result;
             final List<?> list = stream.collect(Collectors.toList());
+            return new TableOutput(list, options);
+        }
+
+        if (result != null && result.getClass().isArray()) {
+            final List<Object> list = Arrays.asList((Object[]) result);
             return new TableOutput(list, options);
         }
 

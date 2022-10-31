@@ -17,7 +17,8 @@ package org.tomitribe.crest.interceptor;
 
 public class InterceptorAnnotationNotFoundException extends IllegalStateException {
     public InterceptorAnnotationNotFoundException(final Class<?> clazz) {
-        super("@CrestInterceptor not found on any methods of class " + clazz.getName()+".  Expecting a method declaration like the following:" +
+        super("@CrestInterceptor not found on any methods of class " + clazz.getName() + ". " +
+                "Expecting a method declaration like the following:\n" +
                 "        @CrestInterceptor\n" +
                 "        public Object intercept(final CrestContext crestContext) {\n" +
                 "            // do something fun\n" +

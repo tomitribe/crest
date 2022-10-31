@@ -71,8 +71,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -307,9 +309,44 @@ public class CmdMethod implements Cmd {
                              final Defaults.DefaultMapping[] defaults, final Parameter parent, final boolean nullable) {
             super(parent);
 
-            this.constructor = parent.getType().getConstructors()[0];
+            this.constructor = selectConstructor(parent);
             this.parameters = Collections.unmodifiableList(buildParams(globalDescription, prefixes, defaults, Reflection.params(constructor)));
             this.nullable = nullable;
+        }
+
+        private Constructor<?> selectConstructor(final Parameter parent) {
+            final List<Constructor<?>> constructors = Arrays.asList(parent.getType().getConstructors());
+            constructors.sort(Comparator.comparing(Object::toString));
+
+            if (constructors.size() == 1) {
+                return constructors.get(0);
+            }
+
+            final Constructor<?> annotatedConstructor = constructors.stream()
+                    .filter(this::isAnnotated)
+                    .findFirst()
+                    .orElse(null);
+
+            if (annotatedConstructor != null) {
+                return annotatedConstructor;
+            }
+
+            return constructors.get(0);
+        }
+
+        private boolean isAnnotated(final Constructor<?> constructor) {
+            for (final Annotation[] annotations : constructor.getParameterAnnotations()) {
+                for (final Annotation annotation : annotations) {
+                    final Class<? extends Annotation> type = annotation.annotationType();
+                    if (Option.class.equals(type)) return true;
+                    if (Default.class.equals(type)) return true;
+                    if (Required.class.equals(type)) return true;
+                    if (Out.class.equals(type)) return true;
+                    if (In.class.equals(type)) return true;
+                    if (Err.class.equals(type)) return true;
+                }
+            }
+            return false;
         }
 
         public Value convert(final Arguments arguments, final Needed needed) {

@@ -605,8 +605,9 @@ public class CmdMethod implements Cmd {
             return target.invoke(method, args);
         } catch (final InvocationTargetException e) {
             final Throwable cause = e.getCause();
-            if (cause instanceof IllegalArgumentException) {
-                reportWithHelp(e);
+            final Exit exit = cause.getClass().getAnnotation(Exit.class);
+            if (exit != null && exit.help()) {
+                reportWithHelp(cause);
             }
             throw new CommandFailedException(cause, getName());
         } catch (final Throwable e) {
@@ -614,7 +615,7 @@ public class CmdMethod implements Cmd {
         }
     }
 
-    private void reportWithHelp(final Exception e) {
+    private void reportWithHelp(final Throwable e) {
         final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
         if (beanValidation == null) {
             err.println(e.getMessage());

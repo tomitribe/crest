@@ -61,6 +61,24 @@ public class FormattingTest {
                 "                                           Dave Filoni \n", out.toString());
     }
 
+    @Test
+    public void caseInsensitiveFields() throws IOException {
+        final Options options = new Options();
+        options.setFields("Director.Id director.nAme wriTer.iD writer.namE");
+        options.setHeader(true);
+        options.setBorder(Border.asciiCompact);
+
+        final List<Movie> movies = new ArrayList<>();
+        movies.add(new Movie(new Person(123L, "Jon Favreau"), new Person(435L, "Dave Filoni")));
+
+        final PrintString out = new PrintString();
+        new TableInterceptor.TableOutput(movies, options).write(out);
+
+        assertEquals(" Director.Id   director.nAme   wriTer.iD   writer.namE \n" +
+                "------------- --------------- ----------- -------------\n" +
+                "         123   Jon Favreau           435   Dave Filoni \n", out.toString());
+    }
+
     public static class Movie {
         private final Person director;
         private final Person writer;

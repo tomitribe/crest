@@ -18,13 +18,14 @@ package org.tomitribe.crest.table;
 import org.tomitribe.crest.api.PrintOutput;
 import org.tomitribe.crest.term.Screen;
 import org.tomitribe.util.Join;
-import org.tomitribe.util.collect.ObjectMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Formatting {
@@ -79,6 +80,42 @@ public class Formatting {
         }
 
         return data.build();
+    }
+
+    public static class ObjectMap {
+        private final org.tomitribe.util.collect.ObjectMap map;
+        private final Map<String, String> caseInsensitive;
+
+        public ObjectMap(final Object object) {
+            this.map = new org.tomitribe.util.collect.ObjectMap(object);
+            this.caseInsensitive = caseInsensitiveMapping(this.map);
+        }
+
+        public Object get(final String name) {
+            final Object value = map.get(name);
+            if (value != null) return value;
+
+            final String alternateCaseName = caseInsensitive.get(name.toLowerCase());
+            if (alternateCaseName == null) return null;
+            return map.get(alternateCaseName);
+        }
+
+        public Set<String> keySet() {
+            return map.keySet();
+        }
+
+        private static Map<String, String> caseInsensitiveMapping(final org.tomitribe.util.collect.ObjectMap map) {
+            /*
+             * To enable case-insensitive field names, create a
+             * map of the field names in lower case form as the
+             * key and the case-sensitive field name as the value
+             */
+            final Map<String, String> fieldMappings = new HashMap<>();
+            for (final String field : map.keySet()) {
+                fieldMappings.put(field.toLowerCase(), field);
+            }
+            return fieldMappings;
+        }
     }
 
     private static String[] getSortArray(final Options options) {

@@ -127,6 +127,7 @@ public class Formatting {
         if (parts.size() > 1) {
             final String part = parts.remove(0);
             final Object object = map.get(part);
+            if (object == null) return new Item("");
             return resolve(new ObjectMap(object), Join.join(".", parts));
         }
 

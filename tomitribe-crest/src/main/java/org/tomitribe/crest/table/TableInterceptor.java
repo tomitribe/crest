@@ -15,16 +15,10 @@
  */
 package org.tomitribe.crest.table;
 
-import org.tomitribe.crest.api.PrintOutput;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.api.table.Table;
-import org.tomitribe.crest.term.Screen;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,49 +50,6 @@ public class TableInterceptor {
         }
 
         return result;
-    }
-
-    public static class TableOutput implements PrintOutput {
-        private final Data data;
-        private final Options options;
-
-        public TableOutput(final Iterable<?> iterable, final Options options) {
-            this.data = Formatting.asTable(iterable, options);
-            this.options = options;
-        }
-
-        @Override
-        public void write(final PrintStream out) throws IOException {
-
-            final int guess = Screen.guessWidth();
-            final int width = guess > 0 ? guess : 150;
-
-            final Border.Builder builder = getBuilder();
-            final org.tomitribe.crest.table.Table table = new org.tomitribe.crest.table.Table(data, builder.build(), width);
-
-            table.format(out);
-        }
-
-        private Border.Builder getBuilder() {
-            final String borderName = options.getBorder().name();
-
-            final Method method;
-            try {
-                method = Border.class.getMethod(borderName);
-            } catch (NoSuchMethodException e) {
-                throw new IllegalStateException("Border not found: " + borderName);
-            }
-
-            final Border.Builder builder;
-            try {
-                builder = (Border.Builder) method.invoke(null);
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException("Unable to access method Border." + borderName);
-            } catch (InvocationTargetException e) {
-                throw new IllegalStateException("Unable to call method Border." + borderName, e);
-            }
-            return builder;
-        }
     }
 
 }

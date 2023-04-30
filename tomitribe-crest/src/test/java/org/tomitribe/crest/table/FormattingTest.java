@@ -36,7 +36,7 @@ public class FormattingTest {
         movies.add(new Movie(new Person(123L, "Jon Favreau"), new Person(435L, "Dave Filoni")));
 
         final PrintString out = new PrintString();
-        new TableInterceptor.TableOutput(movies, options).write(out);
+        new TableOutput(movies, options).write(out);
 
         assertEquals(" director.id   director.name   writer.id   writer.name \n" +
                 "------------- --------------- ----------- -------------\n" +
@@ -54,7 +54,7 @@ public class FormattingTest {
         movies.add(new Movie(null, new Person(null, "Dave Filoni")));
 
         final PrintString out = new PrintString();
-        new TableInterceptor.TableOutput(movies, options).write(out);
+        new TableOutput(movies, options).write(out);
 
         assertEquals(" director.id   director.name   writer.id   writer.name \n" +
                 "------------- --------------- ----------- -------------\n" +
@@ -72,7 +72,7 @@ public class FormattingTest {
         movies.add(new Movie(new Person(123L, "Jon Favreau"), new Person(435L, "Dave Filoni")));
 
         final PrintString out = new PrintString();
-        new TableInterceptor.TableOutput(movies, options).write(out);
+        new TableOutput(movies, options).write(out);
 
         assertEquals(" Director.Id   director.nAme   wriTer.iD   writer.namE \n" +
                 "------------- --------------- ----------- -------------\n" +

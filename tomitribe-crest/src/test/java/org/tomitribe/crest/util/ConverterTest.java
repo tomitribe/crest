@@ -18,7 +18,7 @@ package org.tomitribe.crest.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.tomitribe.crest.converters.Converter;
+import org.tomitribe.util.editor.Converter;
 
 import java.net.URI;
 
@@ -47,7 +47,7 @@ public class ConverterTest extends Assert {
         assertEquals('c', Converter.convert('c', char.class, null));
 
         //test null value
-        assertEquals(null, Converter.convert(null,Integer.class, null));
+        assertEquals(null, Converter.convert(null, Integer.class, null));
         assertEquals(null, Converter.convert(null, Boolean.class, null));
         assertEquals(false, Converter.convert(null, boolean.class, null));
 

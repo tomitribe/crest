@@ -7,6 +7,7 @@ import org.tomitribe.util.PrintString;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -111,6 +112,32 @@ public class FormattingTest {
                 "         123   Jon Favreau           435   Dave Filoni \n", out.toString());
     }
 
+    /**
+     * If the datasource is a map, we retain the order in the map (if any)
+     */
+    @Test
+    public void mapsOfMapsKeyOrder() throws Exception {
+        final Options options = new Options();
+        options.setHeader(true);
+        options.setBorder(Border.asciiCompact);
+
+        final Map<String, Object> show = new LinkedHashMap<>();
+        show.put("name", "The Mandalorian");
+        show.put("directorId", 123L);
+        show.put("directorName", "Jon Favreau");
+        show.put("writerId", 435L);
+        show.put("writerName", "Dave Filoni");
+
+        final List<Map<String, Object>> shows = new ArrayList<>();
+        shows.add(show);
+
+        final PrintString out = new PrintString();
+        new TableOutput(shows, options).write(out);
+
+        assertEquals("      name         directorId   directorName   writerId   writerName  \n" +
+                "----------------- ------------ -------------- ---------- -------------\n" +
+                " The Mandalorian          123   Jon Favreau         435   Dave Filoni \n", out.toString());
+    }
 
     public static class Movie {
         private final Person director;

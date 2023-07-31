@@ -18,13 +18,14 @@ package org.tomitribe.crest.table;
 import org.tomitribe.crest.api.PrintOutput;
 import org.tomitribe.crest.term.Screen;
 import org.tomitribe.util.Join;
+import org.tomitribe.util.collect.ObjectMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,12 +45,11 @@ public class Formatting {
             final Map<String, ?> map = asMap(item);
 
             if (fields == null) {
-                final Set<String> keys = new HashSet<>(map.keySet());
+                final Set<String> keys = new LinkedHashSet<>(map.keySet());
                 // Do not show class in any default contexts
                 // People can select it explicitly if they want it
                 keys.remove("class");
                 fields = keys.toArray(new String[0]);
-                Arrays.sort(fields);
             }
 
             final List<Item> row = new ArrayList<>();
@@ -96,11 +96,16 @@ public class Formatting {
         /*
          * Convert the object to a map
          */
-        return new CaseInsensitiveMap(new org.tomitribe.util.collect.ObjectMap(item));
+        final LinkedHashMap<Object, Object> sorted = new LinkedHashMap<>();
+        new ObjectMap(item).entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> sorted.put(entry.getKey(), entry.getValue()));
+
+        return new CaseInsensitiveMap(sorted);
     }
 
     private static Map<String, Object> toStringKeys(final Map<?, ?> map) {
-        final Map<String, Object> dest = new HashMap<>();
+        final Map<String, Object> dest = new LinkedHashMap<>();
         for (final Map.Entry<?, ?> entry : map.entrySet()) {
             dest.put(entry.getKey().toString(), entry.getValue());
         }
@@ -136,7 +141,7 @@ public class Formatting {
              * map of the field names in lower case form as the
              * key and the case-sensitive field name as the value
              */
-            final Map<String, String> fieldMappings = new HashMap<>();
+            final Map<String, String> fieldMappings = new LinkedHashMap<>();
             for (final String field : map.keySet()) {
                 fieldMappings.put(field.toLowerCase(), field);
             }

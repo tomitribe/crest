@@ -21,6 +21,7 @@ import org.tomitribe.util.Join;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +41,7 @@ public class Formatting {
         final List<List<Item>> rows = new ArrayList<>();
 
         for (final Object item : iterable) {
-            final ObjectMap map = new ObjectMap(item);
+            final Map<String, ?> map = asMap(item);
 
             if (fields == null) {
                 final Set<String> keys = new HashSet<>(map.keySet());
@@ -82,14 +83,39 @@ public class Formatting {
         return data.build();
     }
 
-    public static class ObjectMap {
-        private final org.tomitribe.util.collect.ObjectMap map;
+    private static Map<String, ?> asMap(final Object item) {
+        if (item instanceof CaseInsensitiveMap) {
+            return (CaseInsensitiveMap) item;
+        }
+
+        if (item instanceof Map) {
+            final Map<?, ?> map = (Map<?, ?>) item;
+            return new CaseInsensitiveMap(map);
+        }
+
+        /*
+         * Convert the object to a map
+         */
+        return new CaseInsensitiveMap(new org.tomitribe.util.collect.ObjectMap(item));
+    }
+
+    private static Map<String, Object> toStringKeys(final Map<?, ?> map) {
+        final Map<String, Object> dest = new HashMap<>();
+        for (final Map.Entry<?, ?> entry : map.entrySet()) {
+            dest.put(entry.getKey().toString(), entry.getValue());
+        }
+        return dest;
+    }
+
+    static class CaseInsensitiveMap implements Map<String, Object> {
+        final Map<String, Object> map;
         private final Map<String, String> caseInsensitive;
 
-        public ObjectMap(final Object object) {
-            this.map = new org.tomitribe.util.collect.ObjectMap(object);
+        public CaseInsensitiveMap(final Map<?, ?> map) {
+            this.map = toStringKeys(map);
             this.caseInsensitive = caseInsensitiveMapping(this.map);
         }
+
 
         public Object get(final String name) {
             final Object value = map.get(name);
@@ -104,7 +130,7 @@ public class Formatting {
             return map.keySet();
         }
 
-        private static Map<String, String> caseInsensitiveMapping(final org.tomitribe.util.collect.ObjectMap map) {
+        private static Map<String, String> caseInsensitiveMapping(final Map<String, Object> map) {
             /*
              * To enable case-insensitive field names, create a
              * map of the field names in lower case form as the
@@ -116,6 +142,63 @@ public class Formatting {
             }
             return fieldMappings;
         }
+
+
+        @Override
+        public int size() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean containsKey(final Object key) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean containsValue(final Object value) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object get(final Object key) {
+            return get(key.toString());
+        }
+
+        @Override
+        public Object put(final String key, final Object value) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object remove(final Object key) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void putAll(final Map<? extends String, ?> m) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void clear() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Collection<Object> values() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Set<Entry<String, Object>> entrySet() {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
     private static String[] getSortArray(final Options options) {
@@ -158,14 +241,14 @@ public class Formatting {
         return comparator;
     }
 
-    private static Item resolve(final ObjectMap map, final String field) {
+    private static Item resolve(final Map<?, ?> map, final String field) {
         final List<String> parts = new ArrayList<>(Arrays.asList(field.split("\\.")));
 
         if (parts.size() > 1) {
             final String part = parts.remove(0);
             final Object object = map.get(part);
             if (object == null) return new Item("");
-            return resolve(new ObjectMap(object), Join.join(".", parts));
+            return resolve(asMap(object), Join.join(".", parts));
         }
 
         final Object o = map.get(field);

@@ -6,7 +6,9 @@ import org.tomitribe.util.PrintString;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -78,6 +80,37 @@ public class FormattingTest {
                 "------------- --------------- ----------- -------------\n" +
                 "         123   Jon Favreau           435   Dave Filoni \n", out.toString());
     }
+
+    @Test
+    public void mapsOfMaps() throws Exception {
+        final Options options = new Options();
+        options.setFields("Director.Id director.nAme wriTer.iD writer.namE");
+        options.setHeader(true);
+        options.setBorder(Border.asciiCompact);
+
+        final Map<String, Object> director = new HashMap<>();
+        director.put("name", "Jon Favreau");
+        director.put("id", 123L);
+
+        final Map<String, Object> writer = new HashMap<>();
+        writer.put("name", "Dave Filoni");
+        writer.put("id", 435L);
+
+        final Map<String, Object> movie = new HashMap<>();
+        movie.put("writer", writer);
+        movie.put("director", director);
+
+        final List<Map<String, Object>> movies = new ArrayList<>();
+        movies.add(movie);
+
+        final PrintString out = new PrintString();
+        new TableOutput(movies, options).write(out);
+
+        assertEquals(" Director.Id   director.nAme   wriTer.iD   writer.namE \n" +
+                "------------- --------------- ----------- -------------\n" +
+                "         123   Jon Favreau           435   Dave Filoni \n", out.toString());
+    }
+
 
     public static class Movie {
         private final Person director;

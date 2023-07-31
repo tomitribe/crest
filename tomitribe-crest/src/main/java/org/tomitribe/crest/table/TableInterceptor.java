@@ -29,6 +29,7 @@ public class TableInterceptor {
 
     @CrestInterceptor
     public Object intercept(final CrestContext crestContext) {
+
         final Object result = crestContext.proceed();
 
         final Options options = Options.from(crestContext);

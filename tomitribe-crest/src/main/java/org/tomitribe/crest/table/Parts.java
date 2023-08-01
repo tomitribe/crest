@@ -46,6 +46,10 @@ public class Parts {
         return Join.join(".", parts);
     }
 
+    public static String escape(final String key) {
+        return key.replace(".", "\\.");
+    }
+
     class ReadingToken implements Mode {
         private final StringBuilder token = new StringBuilder();
 

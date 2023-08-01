@@ -41,14 +41,22 @@ public class Formatting {
         final List<List<Item>> rows = new ArrayList<>();
 
         for (final Object item : iterable) {
-            final Map<String, ?> map = asMap(item);
+            final CaseInsensitiveMap map = asMap(item);
 
             if (fields == null) {
                 final Set<String> keys = new LinkedHashSet<>(map.keySet());
-                // Do not show class in any default contexts
-                // People can select it explicitly if they want it
-                keys.remove("class");
-                fields = keys.toArray(new String[0]);
+
+                if (map.isObject()) {
+                    // Do not show class in any default contexts
+                    // People can select it explicitly if they want it
+                    keys.remove("class");
+                    fields = keys.toArray(new String[0]);
+
+                } else {
+                    fields = keys.stream()
+                            .map(Parts::escape)
+                            .toArray(String[]::new);
+                }
             }
 
             final List<Item> row = new ArrayList<>();
@@ -90,7 +98,7 @@ public class Formatting {
         return headings;
     }
 
-    private static Map<String, ?> asMap(final Object item) {
+    private static CaseInsensitiveMap asMap(final Object item) {
         if (item instanceof CaseInsensitiveMap) {
             return (CaseInsensitiveMap) item;
         }
@@ -122,12 +130,17 @@ public class Formatting {
     static class CaseInsensitiveMap implements Map<String, Object> {
         final Map<String, Object> map;
         private final Map<String, String> caseInsensitive;
+        private final boolean object;
 
         public CaseInsensitiveMap(final Map<?, ?> map) {
             this.map = toStringKeys(map);
             this.caseInsensitive = caseInsensitiveMapping(this.map);
+            this.object = map instanceof ObjectMap;
         }
 
+        public boolean isObject() {
+            return object;
+        }
 
         public Object get(final String name) {
             final Object value = map.get(name);

@@ -105,7 +105,7 @@ public class Formatting {
 
         if (item instanceof Map) {
             final Map<?, ?> map = (Map<?, ?>) item;
-            return new CaseInsensitiveMap(map);
+            return new CaseInsensitiveMap(map, false);
         }
 
         /*
@@ -116,7 +116,7 @@ public class Formatting {
                 .sorted(Map.Entry.comparingByKey())
                 .forEach(entry -> sorted.put(entry.getKey(), entry.getValue()));
 
-        return new CaseInsensitiveMap(sorted);
+        return new CaseInsensitiveMap(sorted, true);
     }
 
     private static Map<String, Object> toStringKeys(final Map<?, ?> map) {
@@ -132,10 +132,10 @@ public class Formatting {
         private final Map<String, String> caseInsensitive;
         private final boolean object;
 
-        public CaseInsensitiveMap(final Map<?, ?> map) {
+        public CaseInsensitiveMap(final Map<?, ?> map, final boolean object) {
             this.map = toStringKeys(map);
             this.caseInsensitive = caseInsensitiveMapping(this.map);
-            this.object = map instanceof ObjectMap;
+            this.object = object;
         }
 
         public boolean isObject() {

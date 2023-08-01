@@ -17,7 +17,6 @@ package org.tomitribe.crest.table;
 
 import org.tomitribe.crest.api.PrintOutput;
 import org.tomitribe.crest.term.Screen;
-import org.tomitribe.util.Join;
 import org.tomitribe.util.collect.ObjectMap;
 
 import java.util.ArrayList;
@@ -69,7 +68,7 @@ public class Formatting {
         if (options.header()) {
             // Add the headers
             data.headings(true);
-            data.row(fields);
+            data.row(unescape(fields));
         }
 
         for (final List<Item> row : rows) {
@@ -81,6 +80,14 @@ public class Formatting {
         }
 
         return data.build();
+    }
+
+    private static String[] unescape(final String[] fields) {
+        final String[] headings = new String[fields.length];
+        for (int i = 0; i < fields.length; i++) {
+            headings[i] = Parts.unescape(fields[i]);
+        }
+        return headings;
     }
 
     private static Map<String, ?> asMap(final Object item) {
@@ -247,17 +254,31 @@ public class Formatting {
     }
 
     private static Item resolve(final Map<?, ?> map, final String field) {
-        final List<String> parts = new ArrayList<>(Arrays.asList(field.split("\\.")));
+        return resolve(map, parts(field));
+    }
 
-        if (parts.size() > 1) {
-            final String part = parts.remove(0);
-            final Object object = map.get(part);
-            if (object == null) return new Item("");
-            return resolve(asMap(object), Join.join(".", parts));
+    private static Item resolve(final Map<?, ?> map, final List<String> parts) {
+
+        if (parts.size() == 0) {
+            return new Item("");
         }
 
-        final Object o = map.get(field);
-        return new Item(o);
+        final String part = parts.remove(0);
+        final Object object = map.get(part);
+
+        if (object == null) {
+            return new Item("");
+        }
+
+        if (parts.size() == 0) {
+            return new Item(object);
+        }
+
+        return resolve(asMap(object), parts);
+    }
+
+    static List<String> parts(final String field) {
+        return Parts.from(field);
     }
 
     public static PrintOutput asPrintStream(final String[][] strings) {

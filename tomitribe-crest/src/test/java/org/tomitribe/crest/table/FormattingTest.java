@@ -2,6 +2,7 @@ package org.tomitribe.crest.table;
 
 import org.junit.Test;
 import org.tomitribe.crest.api.table.Border;
+import org.tomitribe.util.Join;
 import org.tomitribe.util.PrintString;
 
 import java.io.IOException;
@@ -138,6 +139,35 @@ public class FormattingTest {
                 "----------------- ------------ -------------- ---------- -------------\n" +
                 " The Mandalorian          123   Jon Favreau         435   Dave Filoni \n", out.toString());
     }
+
+    /**
+     * If the datasource is a map and has dots, they can be escaped
+     */
+    @Test
+    public void escapeDots() throws Exception {
+        final Options options = new Options();
+        options.setHeader(true);
+        options.setBorder(Border.asciiCompact);
+        options.setFields("name director\\.id director\\.name writer\\.id writer\\.name");
+
+        final Map<String, Object> show = new LinkedHashMap<>();
+        show.put("name", "The Mandalorian");
+        show.put("director.id", 123L);
+        show.put("director.name", "Jon Favreau");
+        show.put("writer.id", 435L);
+        show.put("writer.name", "Dave Filoni");
+
+        final List<Map<String, Object>> shows = new ArrayList<>();
+        shows.add(show);
+
+        final PrintString out = new PrintString();
+        new TableOutput(shows, options).write(out);
+
+        assertEquals("      name         director.id   director.name   writer.id   writer.name \n" +
+                "----------------- ------------- --------------- ----------- -------------\n" +
+                " The Mandalorian           123   Jon Favreau           435   Dave Filoni \n", out.toString());
+    }
+
 
     public static class Movie {
         private final Person director;

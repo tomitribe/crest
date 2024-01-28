@@ -179,6 +179,30 @@ Options:
   --times                   preserve times
 ----
 
+== Bash Completion
+
+For those that use Bash as their shell, command completion can be added to your environment as follows:
+
+[listing]
+----
+source $(yourcommand _completion -f)
+----
+
+Using the example "toolz" cli created above, this could work like so:
+
+[listing]
+----
+source $(java -jar target/toolz-1.0.0-SNAPSHOT.jar _completion -f)
+----
+
+If the toolz-1.0.0-SNAPSHOT.jar was turned into an executable file called `toolz` via the `really-executable-jar` maven plugin and `toolz` is in the system `PATH`, this would also work:
+
+[listing]
+----
+source $(toolz _completion -f)
+----
+
+
 == @Default values
 
 Setting defaults to the `@Option` parameters of our `@Command` method can be done via the `@Default` annotation.  Using as

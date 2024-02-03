@@ -20,6 +20,7 @@ import org.tomitribe.util.Join;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Border {
@@ -50,12 +51,19 @@ public class Border {
      */
     private final Line row;
 
-    public Border(final Line first, final Line last, final Line header, final Line inner, final Line row) {
+    private final Function<String, String> escape;
+
+    public Border(final Line first, final Line last, final Line header, final Line inner, final Line row, final Function<String, String> escape) {
         this.first = first;
         this.last = last;
         this.header = header;
         this.inner = inner;
         this.row = row;
+        this.escape = escape;
+    }
+
+    public String escape(final String value) {
+        return escape.apply(value);
     }
 
     public String getRowFormat(final List<Data.Column> columns) {
@@ -372,7 +380,7 @@ public class Border {
                 .inner(null)
                 .row(Line.builder().left("").inner("\t").right("").padded(false))
                 .last(null)
-                ;
+                .escape(s -> s.replace("\t", "    "));
     }
 
     public static Builder builder() {
@@ -385,6 +393,8 @@ public class Border {
         private Line.Builder header = Line.builder();
         private Line.Builder inner = Line.builder();
         private Line.Builder middle = Line.builder();
+
+        private Function<String, String> escape = Function.identity();
 
         private Builder() {
         }
@@ -470,13 +480,19 @@ public class Border {
             return this;
         }
 
+        public Builder escape(final Function<String, String> escape) {
+            this.escape = escape;
+            return this;
+        }
+
         public Border build() {
             return new Border(
                     first != null ? first.build() : null,
                     last != null ? last.build() : null,
                     header != null ? header.build() : null,
                     inner != null ? inner.build() : null,
-                    middle != null ? middle.build() : null);
+                    middle != null ? middle.build() : null,
+                    escape);
         }
     }
 }

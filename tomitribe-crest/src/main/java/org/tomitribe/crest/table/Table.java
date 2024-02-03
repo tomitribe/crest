@@ -50,7 +50,11 @@ class Table {
 
         final Consumer<Object> printSeparator = rowSeparator != null ? o -> out.println(rowSeparator) : o -> {
         };
-        final Consumer<String[]> printRow = strings -> out.println(String.format(rowFormat, (Object[]) strings));
+        final Consumer<String[]> printRow = strings -> {
+            out.printf((rowFormat) + "%n", Stream.of(strings)
+                    .map(border::escape)
+                    .toArray());
+        };
 
         final List<Data.Row> rows = new ArrayList<>(data.getRows());
 

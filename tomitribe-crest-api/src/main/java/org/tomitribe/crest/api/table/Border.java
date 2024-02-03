@@ -205,4 +205,12 @@ public enum Border {
      * </pre>
      */
     tsv,
+
+    /**
+     * id,project,releaseDate,version
+     * 9,Apache TomEE,A2016-05-17,A7.0.x
+     * 523456789,ATomcat,A2018-01-17,A9.0.x
+     * 14,AApache ActiveMQ Classic,A2022-03-09,A5.17.x
+     */
+    csv,
 }

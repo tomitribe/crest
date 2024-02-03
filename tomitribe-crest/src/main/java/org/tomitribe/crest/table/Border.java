@@ -383,6 +383,35 @@ public class Border {
                 .escape(s -> s.replace("\t", "    "));
     }
 
+    public static Border.Builder csv() {
+        return builder()
+                .first(null)
+                .header(null)
+                .inner(null)
+                .row(Line.builder().left("").inner(",").right("").padded(false))
+                .last(null)
+                .escape(string -> {
+                    /*
+                     * Check if input contains commas, double quotes, or newlines
+                     */
+                    if (string.contains(",") || string.contains("\"") || string.contains("\n")) {
+
+                        /* Double any internal double quotes */
+                        final String escapedInput = string.replace("\"", "\"\"");
+
+                        /* Enclose in double quotes */
+                        return "\"" + escapedInput + "\"";
+
+                    } else {
+
+                        return string;
+                    }
+                });
+    }
+
+
+
+
     public static Builder builder() {
         return new Builder();
     }

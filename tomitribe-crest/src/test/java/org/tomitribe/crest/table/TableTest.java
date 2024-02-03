@@ -212,6 +212,33 @@ public class TableTest {
                 "This is a row with only one cell\t\t\t\n", actual);
     }
 
+    @Test
+    public void csv() {
+        assertTable(Border::csv, "" +
+                "Col1,Col2,Col3,Numeric Column\n" +
+                "Value 1,Value 2,123,10.0\n" +
+                "Separate,cols,with a tab or 4 spaces,\"-2,027.1\"\n" +
+                "This is a row with only one cell,,,\n");
+    }
+
+    @Test
+    public void csvEscaping() {
+        final Data data = Data.builder().headings(true)
+                .row("Col1", "Col2", "Col3", "Numeric Column")
+                .row("Value,1", "Value \"2", "123", "10.0")
+                .row("Separate", "cols", "with a \"tab\" or, 4 spaces", "-2,027.1")
+                .row("This is a row with only one cell")
+                .build();
+
+        final Table table = new Table(data, ((Supplier<Border.Builder>) Border::csv).get().build(), 300);
+        final String actual = table.format();
+        Assert.assertEquals("" +
+                "Col1,Col2,Col3,Numeric Column\n" +
+                "\"Value,1\",\"Value \"\"2\",123,10.0\n" +
+                "Separate,cols,\"with a \"\"tab\"\" or, 4 spaces\",\"-2,027.1\"\n" +
+                "This is a row with only one cell,,,\n", actual);
+    }
+
 
     public void assertTable(final Supplier<Border.Builder> border, final String expected) {
         final Table table = new Table(data, border.get().build(), 300);

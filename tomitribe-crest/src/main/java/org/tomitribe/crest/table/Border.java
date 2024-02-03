@@ -365,6 +365,16 @@ public class Border {
                 ;
     }
 
+    public static Border.Builder tsv() {
+        return builder()
+                .first(null)
+                .header(null)
+                .inner(null)
+                .row(Line.builder().left("").inner("\t").right("").padded(false))
+                .last(null)
+                ;
+    }
+
     public static Builder builder() {
         return new Builder();
     }

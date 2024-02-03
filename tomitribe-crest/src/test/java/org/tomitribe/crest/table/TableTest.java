@@ -185,6 +185,16 @@ public class TableTest {
                 "This is a row with only one cell                                                    \n");
     }
 
+    @Test
+    public void tsv() {
+        assertTable(Border::tsv, "" +
+                "Col1\tCol2\tCol3\tNumeric Column\n" +
+                "Value 1\tValue 2\t123\t10.0\n" +
+                "Separate\tcols\twith a tab or 4 spaces\t-2,027.1\n" +
+                "This is a row with only one cell\t\t\t\n");
+    }
+
+
     public void assertTable(final Supplier<Border.Builder> border, final String expected) {
         final Table table = new Table(data, border.get().build(), 300);
         final String actual = table.format();

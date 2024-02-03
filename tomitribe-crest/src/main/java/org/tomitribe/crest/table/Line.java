@@ -22,11 +22,14 @@ public class Line {
     private final String inner;
     private final String middle;
 
-    public Line(final String left, final String right, final String inner, final String middle) {
+    private final boolean padded;
+
+    public Line(final String left, final String right, final String inner, final String middle, final boolean padded) {
         this.left = left;
         this.right = right;
         this.inner = inner;
         this.middle = middle;
+        this.padded = padded;
     }
 
     public String getLeft() {
@@ -45,6 +48,10 @@ public class Line {
         return inner;
     }
 
+    public boolean isPadded() {
+        return padded;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -54,6 +61,7 @@ public class Line {
         private String right;
         private String inner;
         private String middle;
+        private boolean padded = true;
 
         private Builder() {
         }
@@ -87,8 +95,14 @@ public class Line {
             return this;
         }
 
+        public Builder padded(final boolean padded) {
+            this.padded = padded;
+            return this;
+        }
+
+
         public Line build() {
-            return new Line(left, right, inner, middle);
+            return new Line(left, right, inner, middle, padded);
         }
     }
 }

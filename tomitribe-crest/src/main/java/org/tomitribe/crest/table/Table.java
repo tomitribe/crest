@@ -64,11 +64,25 @@ class Table {
          */
 
         if (data.hasHeading()) {
-            Stream.of(rows.remove(0))
-                    .map(Data.Row::toLines)
-                    .flatMap(Stream::of)
-                    .map(this::center)
-                    .forEach(printRow);
+
+            /*
+             * Some formats like tsv do not pad or center the heading
+             * Check to see if padding is enabled
+             */
+            if (border.getHeader() != null && border.getHeader().isPadded()) {
+
+                Stream.of(rows.remove(0))
+                        .map(Data.Row::toLines)
+                        .flatMap(Stream::of)
+                        .map(this::center) // this is the line that adds padding
+                        .forEach(printRow);
+            } else {
+
+                Stream.of(rows.remove(0))
+                        .map(Data.Row::toLines)
+                        .flatMap(Stream::of)
+                        .forEach(printRow);
+            }
 
             if (border.getHeader() != null) out.println(getLine(border.getHeader()));
         }
@@ -108,10 +122,16 @@ class Table {
 
     public String getFormat(final Line line) {
         final List<Data.Column> columns = this.data.getColumns();
-        final List<String> formats = columns.stream().map(column -> {
-            final int width = column.getWidth().getMax();
-            return column.isNumeric() ? "%" + width + "s" : "%-" + width + "s";
-        }).collect(Collectors.toList());
+        final List<String> formats;
+
+        if (line.isPadded()) {
+            formats = columns.stream().map(column -> {
+                final int width = column.getWidth().getMax();
+                return column.isNumeric() ? "%" + width + "s" : "%-" + width + "s";
+            }).collect(Collectors.toList());
+        } else {
+            formats = columns.stream().map(column -> "%s").collect(Collectors.toList());
+        }
 
         return line.getLeft() +
                 Join.join(line.getInner(), formats) +

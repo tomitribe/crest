@@ -194,4 +194,15 @@ public enum Border {
      * </pre>
      */
     whitespaceSeparated,
+
+    /**
+     * Example:
+     * <pre>
+     * id[TAB]project[TAB]releaseDate[TAB]version
+     * 9[TAB]Apache TomEE[TAB]A2016-05-17[TAB]A7.0.x
+     * 523456789[TAB]ATomcat[TAB]A2018-01-17[TAB]A9.0.x
+     * 14[TAB]AApache ActiveMQ Classic[TAB]A2022-03-09[TAB]A5.17.x
+     * </pre>
+     */
+    tsv,
 }

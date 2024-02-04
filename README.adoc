@@ -1393,3 +1393,50 @@ Just set extension property `tomitribe.crest.useInPlaceRegistrations` to `true`:
 ----
 
 This enables to use the same scanning for both tasks and therefore to have a common and unified scanning for java and native runs.
+
+== Run commands from source
+
+There is an experimental mode in crest enabling you to write commands in a standalone `.java` and run it with `tomitribe-crest.jar` fatjar directly.
+The trick is to pass as first parameter `--crest.source=/path/to/file/with/commands.java`.
+
+[source,java]
+.commands.java
+----
+import org.tomitribe.crest.api.Command;
+import java.time.LocalDate;
+
+class Command1 {
+    @Command
+    String ok() {
+        return "ok";
+    }
+}
+
+@Command
+class Command2 {
+    @Command
+    String time() {
+        return LocalDate.now().toString();
+    }
+}
+----
+
+IMPORTANT: this mode has some limitation like not supporting (yet) a dynamic classpath so it just uses the script and the launching classpath.
+
+TIP: to ease writing scripts with completion the lines starting with `//-- ` will drop this prefix.
+It avoids compilations errors in general on classes no in the classpath (crest there).
+
+Usage example:
+
+[source,bash]
+----
+java \
+  -jar tomitribe-crest-0.20-fatjar.jar \
+  --crest.source=mycommands.java \
+  my-command \
+  --foo=bar
+----
+
+IMPORTANT: this requires to run with a *JDK* to work.
+
+TIP: you can also use it in a script easily.

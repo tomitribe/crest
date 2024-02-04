@@ -17,13 +17,11 @@
 package org.tomitribe.crest.help;
 
 
-import com.google.auto.service.AutoService;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -44,9 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@AutoService(Processor.class)
 public class HelpProcessor extends AbstractProcessor {
-
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         final Set<String> annotations = new LinkedHashSet<String>();

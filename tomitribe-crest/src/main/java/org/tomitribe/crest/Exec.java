@@ -16,8 +16,6 @@
  */
 package org.tomitribe.crest;
 
-import org.tomitribe.crest.environments.SystemEnvironment;
-
 /**
  * Flavor of Main that does not call System.exit making it
  * useful in server environments and exec-maven-plugin friendly
@@ -28,9 +26,9 @@ public class Exec {
     }
 
     public static void main(final String... args) throws Exception {
-        Main.main(new SystemEnvironment(), Exec::ignore, args);
-    }
-
-    private static void ignore(final int exitCode) {
+        Main.systemDefaults()
+                .noexit()
+                .build()
+                .run(args);
     }
 }

@@ -34,6 +34,7 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.table.Formatting;
 import org.tomitribe.crest.table.TableInterceptor;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -54,9 +56,11 @@ public class Main implements Completer {
 
     protected final Map<String, Cmd> commands = new ConcurrentHashMap<>();
     protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<>();
+    protected final Consumer<Integer> onExit;
+    protected final Environment environment;
 
     public Main() {
-        this(new SystemPropertiesDefaultsContext(), Commands.load());
+        this(new SystemPropertiesDefaultsContext(), Commands.load(), new SystemEnvironment(), System::exit);
     }
 
     public Main(final Class<?>... classes) {
@@ -64,10 +68,17 @@ public class Main implements Completer {
     }
 
     public Main(final DefaultsContext defaultsContext, final Class<?>... classes) {
-        this(defaultsContext, Arrays.asList(classes));
+        this(defaultsContext, Arrays.asList(classes), new SystemEnvironment(), System::exit);
     }
 
-    public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes) {
+    public Main(final Iterable<Class<?>> classes) {
+        this(new SystemPropertiesDefaultsContext(), classes, new SystemEnvironment(), System::exit);
+    }
+
+    public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes, final Environment environment, final Consumer<Integer> onExit) {
+        this.environment = environment;
+        this.onExit = onExit;
+
         for (final Class clazz : classes) {
             processClass(defaultsContext, clazz);
         }
@@ -109,16 +120,9 @@ public class Main implements Completer {
         return false;
     }
 
-    public Main(final Iterable<Class<?>> classes) {
-        this(new SystemPropertiesDefaultsContext(), classes);
-    }
 
     public void add(final Cmd cmd) {
         commands.put(cmd.getName(), cmd);
-    }
-
-    public void remove(final Cmd cmd) {
-        commands.remove(cmd.getName());
     }
 
     private void installHelp(final DefaultsContext dc) {
@@ -129,29 +133,23 @@ public class Main implements Completer {
     }
 
     public static void main(final String... args) throws Exception {
-        final Environment env = new SystemEnvironment();
-        final Consumer<Integer> onExit = System::exit;
-
-        main(env, onExit, args);
+        final Main main = new Main();
+        main.run(args);
     }
 
-    /**
-     * Added additional method for greater testability, including knowing if exit
-     * is properly called with the correct value.
-     */
-    public static void main(final Environment env, final Consumer<Integer> onExit, final String... args) {
+    public void run(final String... args) {
+
         try {
-            final Main main = new Main();
-            main.main(env, args);
+            main(this.environment, args);
         } catch (final CommandFailedException e) {
 
             final Throwable cause = e.getCause();
 
-            handle(env, onExit, cause);
+            handle(environment, onExit, cause);
 
         } catch (final Throwable throwable) {
 
-            handle(env, onExit, throwable);
+            handle(environment, onExit, throwable);
         }
     }
 
@@ -324,5 +322,176 @@ public class Main implements Completer {
         }
 
         return null;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * A convenience builder method that returns a builder populated with java.lang.System
+     * providing the default values for Env, Properties, Stdin, Stdout, Stderr
+     * and a call to System.exit() for any unsuccessful command executions.
+     *
+     * This builder method is equal to the following
+     * <pre>
+     *             Main.builder()
+     *                 .properties(System.getProperties())
+     *                 .env(System.getenv())
+     *                 .out(System.out)
+     *                 .err(System.err)
+     *                 .in(System.in)
+     *                 .exit(System::exit);
+     * </pre>
+     *
+     * This builder does not scan or search the classpath for commands.
+     * All commands still must be supplied to the builder directly.
+     *
+     * @return a builder with system defaults
+     */
+    public static Builder systemDefaults() {
+        return builder()
+                .properties(System.getProperties())
+                .env(System.getenv())
+                .out(System.out)
+                .err(System.err)
+                .in(System.in)
+                .exit(System::exit);
+    }
+
+    public static class Builder {
+
+        private Map<String, String> env = new LinkedHashMap<>();
+        private PrintStream out;
+        private PrintStream err;
+        private InputStream in;
+
+        private List<Class<?>> commands = new ArrayList<>();
+        private Consumer<Integer> exit;
+        private Properties properties;
+
+        /**
+         * Adds the name value pair to the existing environment,
+         * overwriting any previous entry with the same name.
+         */
+        public Builder env(final String name, final String value) {
+            env.put(name, value);
+            return this;
+        }
+
+        /**
+         * Entirely replaces all env entries previously added
+         * and with the Map instance supplied.  Updates to the
+         * map after builder.build() has been executed will be
+         * reflected in the environment commands see.
+         */
+        public Builder env(final Map<String, String> env) {
+            this.env = env;
+            return this;
+        }
+
+        /**
+         * Adds the name value pair to the existing properties,
+         * overwriting any previous entry with the same name.
+         */
+        public Builder property(final String name, final String value) {
+            properties.put(name, value);
+            return this;
+        }
+
+        /**
+         * Entirely replaces all env entries previously added
+         * and with the Map instance supplied.  Updates to the
+         * map after builder.build() has been executed will be
+         * reflected in the environment commands see.
+         */
+        public Builder properties(final Properties properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        public Builder out(final PrintStream out) {
+            this.out = out;
+            return this;
+        }
+
+        public Builder err(final PrintStream err) {
+            this.err = err;
+            return this;
+        }
+
+        public Builder in(final InputStream in) {
+            this.in = in;
+            return this;
+        }
+
+        /**
+         * Adds a @Command class or @CrestInterceptor to the
+         * environment.  If no classes are specified via this
+         * method then they will be discovered via the classpath.
+         * @param commandClass
+         * @return
+         */
+        public Builder command(final Class<?> commandClass) {
+            this.commands.add(commandClass);
+            return this;
+        }
+
+        public Builder exit(final Consumer<Integer> consumer) {
+            this.exit = consumer;
+            return this;
+        }
+
+        public Builder noexit() {
+            this.exit = integer -> {};
+            return this;
+        }
+
+        public Main build() {
+            try {
+                final Environment environment = new BuiltEnvironment();
+
+                final Iterable<Class<?>> commands = this.commands.size() == 0 ? Commands.load() : this.commands;
+
+                return new Main(new SystemPropertiesDefaultsContext(), commands, environment, exit);
+            } catch (final Exception e) {
+                throw new MainBuildException(e);
+            }
+        }
+
+        private class BuiltEnvironment implements Environment {
+            @Override
+            public PrintStream getOutput() {
+                return out;
+            }
+
+            @Override
+            public PrintStream getError() {
+                return err;
+            }
+
+            @Override
+            public InputStream getInput() {
+                return in;
+            }
+
+            @Override
+            public Properties getProperties() {
+                return properties;
+            }
+
+            @Override
+            public <T> T findService(final Class<T> type) {
+                return null;
+            }
+        }
+
+        @Exit(1)
+        public static class MainBuildException extends RuntimeException {
+            public MainBuildException(final Exception e) {
+                super(String.format("Unable to build Main. " + e.getMessage()));
+            }
+        }
     }
 }

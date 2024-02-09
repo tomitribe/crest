@@ -40,12 +40,22 @@ public class TableOptions {
     public TableOptions(@Option("table-border") final Border border,
                         @Option("table-header") final Boolean header,
                         @Option("table-sort") final String sort,
-                        @Option("table-fields") final String fields
+                        @Option("table-fields") final String fields,
+                        @Option("tsv") final Boolean tsv,
+                        @Option("csv") final Boolean csv
     ) {
         this.header = header;
         this.fields = fields;
         this.sort = sort;
         this.border = border;
+
+        if (tsv != null && tsv) {
+            this.border = Border.tsv;
+        }
+
+        if (csv != null && csv) {
+            this.border = Border.csv;
+        }
     }
 
     public Boolean isHeader() {

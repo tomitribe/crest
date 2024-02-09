@@ -171,7 +171,7 @@ public class TableOptionsTest {
     @Test
     public void fromTableOptions() throws Exception {
         { // ensure if nothing is supplied to TableOptions that it doesn't set defaults
-            final TableOptions tableOptions = new TableOptions(null, null, null, null);
+            final TableOptions tableOptions = new TableOptions(null, null, null, null, null, null);
             final Options options = Options.from(tableOptions);
 
             assertNull(options.getBorder());
@@ -181,7 +181,7 @@ public class TableOptionsTest {
         }
 
         { // ensure if nothing is supplied to TableOptions that it doesn't set defaults
-            final TableOptions tableOptions = new TableOptions(Border.unicodeDouble, true, "lastName firstname", "firstName lastName address.zipCode");
+            final TableOptions tableOptions = new TableOptions(Border.unicodeDouble, true, "lastName firstname", "firstName lastName address.zipCode", null, null);
             final Options options = Options.from(tableOptions);
 
             assertEquals(Border.unicodeDouble, options.border());

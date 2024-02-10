@@ -19,6 +19,7 @@ package org.tomitribe.crest.cmds.processors;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
+import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.help.CommandJavadoc;
 import org.tomitribe.crest.help.Document;
 import org.tomitribe.crest.help.DocumentParser;
@@ -91,6 +92,21 @@ public class Help {
 
 //            out.println();
         }
+
+        final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+        final String name = environment.getName();
+        final String version = environment.getVersion();
+
+        if (name == null && version == null) {
+            return;
+        }
+
+        if (name == null) {
+            out.printf("%nVersion %s%n", version);
+            return;
+        }
+
+        out.printf("%n%s %s%n", name, version);
     }
 
     public static List<Item> getItems(final Method method, final String commandName, final Collection<OptionParam> optionParams) {

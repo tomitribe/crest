@@ -31,6 +31,7 @@ import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.targets.SimpleBean;
+import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.environments.SystemEnvironment;
 import org.tomitribe.util.Files;
 import org.tomitribe.util.IO;
@@ -78,7 +79,7 @@ public class HelpTest extends Assert {
             return "cmd:pull repo:" + repo;
         }
     }
-    
+
     public static class Rsync {
 
         @Command
@@ -104,7 +105,16 @@ public class HelpTest extends Assert {
 
     @Test
     public void testRsync() throws Exception {
-        assertCommandHelp(Rsync.class, "rsync");
+        final Environment old = Environment.set(SystemEnvironment.builder()
+                .name("orange")
+                .version("0.12")
+                .build());
+
+        try {
+            assertCommandHelp(Rsync.class, "rsync");
+        } finally {
+            Environment.set(old);
+        }
     }
 
 
@@ -194,46 +204,52 @@ public class HelpTest extends Assert {
             public PrintStream getOutput() {
                 return out;
             }
-        }, new String[] {"help", "test"});
+        }, new String[]{"help", "test"});
         assertEquals(
-            "Usage: test [options]" +
-            "Options: " +
-            "  -a=<String>              a super parameter" +
-            "  --b-binded=<String>      a super parameteroverrided desc" +
-            "  --binded=<String>        overrided desc" +
-            "  --c.binded=<String>      pre description: overrided desc" +
-            "  -d=<String>              a parameter with default" +
-            "                           (default: otherwise)",
-            out.toString().replace(lineSeparator(), ""));
+                "Usage: test [options]" +
+                        "Options: " +
+                        "  -a=<String>              a super parameter" +
+                        "  --b-binded=<String>      a super parameteroverrided desc" +
+                        "  --binded=<String>        overrided desc" +
+                        "  --c.binded=<String>      pre description: overrided desc" +
+                        "  -d=<String>              a parameter with default" +
+                        "                           (default: otherwise)",
+                out.toString().replace(lineSeparator(), ""));
     }
 
     @Test
     public void name() throws Exception {
         final PrintString out = new PrintString();
+        final Main main = Main.builder()
+                .command(Descripted.class)
+                .name("red")
+                .version("23.5.6")
+                .out(out)
+                .build();
 
-        new Main(Descripted.class).main(new SystemEnvironment() {
-            @Override
-            public PrintStream getOutput() {
-                return out;
-            }
-        }, new String[] {"help", "test"});
+        main.run("help", "test");
+
         assertEquals(
-            "Usage: test [options]" +
-            "Options: " +
-            "  -a=<String>              a super parameter" +
-            "  --b-binded=<String>      a super parameteroverrided desc" +
-            "  --binded=<String>        overrided desc" +
-            "  --c.binded=<String>      pre description: overrided desc" +
-            "  -d=<String>              a parameter with default" +
-            "                           (default: otherwise)",
-            out.toString().replace(lineSeparator(), ""));
+                String.format("%n" +
+                        "Usage: red test [options]%n" +
+                        "%n" +
+                        "Options: %n" +
+                        "  -a=<String>              a super parameter%n" +
+                        "  --b-binded=<String>      a super parameteroverrided desc%n" +
+                        "  --binded=<String>        overrided desc%n" +
+                        "  --c.binded=<String>      pre description: overrided desc%n" +
+                        "  -d=<String>              a parameter with default%n" +
+                        "                           (default: otherwise)%n" +
+                        "%n" +
+                        "red 23.5.6%n"),
+                out.toString());
     }
 
     @Test
     public void testOptionLists() throws Exception {
         assertCommandHelp(OptionLists.class, "test");
     }
-    
+
     @Test
     public void testSubCommandHelp() throws Exception {
         assertCommandHelp(Git.class, "git");
@@ -244,14 +260,14 @@ public class HelpTest extends Assert {
     private void assertSubCommandHelp(final Class clazz, final String methodName) throws Exception {
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if (! methodName.equals(method.getName())) {
+            if (!methodName.equals(method.getName())) {
                 continue;
             }
-            
+
             if (method.getAnnotation(Command.class) == null) {
                 continue;
             }
-            
+
             CmdMethod cmd = new CmdMethod(method, new SimpleBean(null), null);
             assertCommandHelp(clazz, cmd, helpFileName(Git.class, "git", methodName));
         }
@@ -267,6 +283,12 @@ public class HelpTest extends Assert {
             final String[] split = file.getName().replace(".txt", "").split("_");
             final String className = split[0];
             final String commandName = split[1];
+
+            if (className.equals("org.tomitribe.crest.HelpTest$Rsync")) {
+                // Skip as this one is slightly different and explicitly
+                // tested by testRsync()
+                continue;
+            }
 
             final Class<?> clazz = load(className);
             final Map<String, Cmd> commands = getCommands(parsed, clazz);
@@ -288,7 +310,7 @@ public class HelpTest extends Assert {
         String helpFileName = helpFileName(clazz, cmd.getName());
         assertCommandHelp(clazz, cmd, helpFileName);
     }
-    
+
     private void assertCommandHelp(final Class clazz, final Cmd cmd, String helpFileName) throws IOException {
         final URL resource = clazz.getResource("/help/" + helpFileName);
         assertNotNull(resource);
@@ -323,7 +345,7 @@ public class HelpTest extends Assert {
         }
 
         for (final Cmd cmd : commands.values()) {
-            
+
             try {
                 final String name = cmd.getName();
                 writeHelp(helpBase, cmd, helpFileName(clazz, name));
@@ -332,14 +354,14 @@ public class HelpTest extends Assert {
                 if (cmd instanceof CmdGroup) {
                     final CmdGroup cmdGrp = (CmdGroup) cmd;
                     final Map<String, Cmd> subcommands = getSubCommands(cmdGrp);
-                    
-                    
+
+
                     for (final Cmd subCmd : subcommands.values()) {
                         final String subCmdName = subCmd.getName();
                         writeHelp(helpBase, subCmd, helpFileName(clazz, name, subCmdName));
                     }
                 }
-            
+
             } catch (final Exception e) {
                 continue;
             }
@@ -356,10 +378,10 @@ public class HelpTest extends Assert {
     private void writeHelp(final File helpBase, final Cmd cmd, final String helpFileName) throws FileNotFoundException {
         final File file = new File(helpBase, helpFileName);
         final PrintStream print = IO.print(file);
-        
+
         try {
             cmd.help(print);
-            
+
         } finally {
             print.close();
         }

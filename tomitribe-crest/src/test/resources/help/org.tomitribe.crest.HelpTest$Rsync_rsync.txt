@@ -1,5 +1,5 @@
 
-Usage: rsync [options] URI... URI
+Usage: orange rsync [options] URI... URI
 
 Options: 
   --devices                 preserve device files (super-user only)
@@ -15,3 +15,5 @@ Options:
   --recursive               recurse into directories
   --specials                preserve special files
   --times                   preserve times
+
+orange 0.12

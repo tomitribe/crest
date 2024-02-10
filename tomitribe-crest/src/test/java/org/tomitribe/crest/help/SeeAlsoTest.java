@@ -31,7 +31,7 @@ public class SeeAlsoTest {
 
     @Test
     public void justSeeAlso() throws Exception {
-        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        final TestEnvironment env = TestEnvironment.builder().build();
         new Main(Commands.class).main(env, new String[]{"help", "update"});
         assertEquals("NAME\n" +
                         "       update\n" +
@@ -52,7 +52,7 @@ public class SeeAlsoTest {
 
     @Test
     public void full() throws Exception {
-        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        final TestEnvironment env = TestEnvironment.builder().build();
         new Main(Commands.class).main(env, new String[]{"help", "commit"});
         assertEquals("NAME\n" +
                         "       commit\n" +

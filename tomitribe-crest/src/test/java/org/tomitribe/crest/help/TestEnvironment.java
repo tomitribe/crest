@@ -28,16 +28,28 @@ import java.util.Properties;
 
 public class TestEnvironment implements Environment {
 
-    private final PrintString out = new PrintString();
-    private final PrintString err = new PrintString();
-    private final Properties properties = new Properties();
-    private final HashMap<String, String> env = new HashMap<>();
+    private final PrintString out;
+    private final PrintString err;
+    private final Properties properties;
+    private final Map<String, String> env;
     private final InputStream in;
+    private final String name;
+    private final String version;
 
-    public TestEnvironment() {
-        in = new ByteArrayInputStream(new byte[0]);
-        env("NOCOLOR", "");
-        env("NOLESS", "");
+    public TestEnvironment(final PrintString out,
+                           final PrintString err,
+                           final Properties properties,
+                           final Map<String, String> env,
+                           final InputStream in,
+                           final String name,
+                           final String version) {
+        this.out = out;
+        this.err = err;
+        this.properties = properties;
+        this.env = env;
+        this.in = in;
+        this.name = name;
+        this.version = version;
     }
 
     public PrintString getOut() {
@@ -82,13 +94,85 @@ public class TestEnvironment implements Environment {
         return null;
     }
 
-    public TestEnvironment env(final String name, final String value) {
-        this.env.put(name, value);
-        return this;
+    @Override
+    public String getName() {
+        return name;
     }
 
-    public TestEnvironment property(final String name, final String value) {
-        this.properties.put(name, value);
-        return this;
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+
+    public static final class Builder {
+        private PrintString out = new PrintString();
+        private PrintString err = new PrintString();
+        private Properties properties = new Properties();
+        private Map<String, String> env = new HashMap<>();
+        private InputStream in;
+        private String name;
+        private String version;
+
+        private Builder() {
+            in = new ByteArrayInputStream(new byte[0]);
+            env("NOCOLOR", "");
+            env("NOLESS", "");
+        }
+
+
+        public Builder env(final String name, final String value) {
+            this.env.put(name, value);
+            return this;
+        }
+
+        public Builder property(final String name, final String value) {
+            this.properties.put(name, value);
+            return this;
+        }
+
+        public Builder out(PrintString out) {
+            this.out = out;
+            return this;
+        }
+
+        public Builder err(PrintString err) {
+            this.err = err;
+            return this;
+        }
+
+        public Builder properties(Properties properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        public Builder env(Map<String, String> env) {
+            this.env = env;
+            return this;
+        }
+
+        public Builder in(InputStream in) {
+            this.in = in;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder version(String version) {
+            this.version = version;
+            return this;
+        }
+
+        public TestEnvironment build() {
+
+            return new TestEnvironment(out, err, properties, env, in, name, version);
+        }
     }
 }

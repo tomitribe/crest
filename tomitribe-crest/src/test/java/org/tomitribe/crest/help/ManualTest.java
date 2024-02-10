@@ -31,7 +31,7 @@ public class ManualTest {
 
     @Test
     public void test() throws Exception {
-        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        final TestEnvironment env = TestEnvironment.builder().build();
         new Main(Commands.class).main(env, new String[]{"help", "commit"});
         assertEquals("NAME\n" +
                         "       commit\n" +

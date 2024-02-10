@@ -412,7 +412,7 @@ public class Main implements Completer {
          * and finally to System.getenv("CMD").
          */
         public Builder name(final String name) {
-            this.version = name;
+            this.name = name;
             return this;
         }
 
@@ -501,6 +501,8 @@ public class Main implements Completer {
                         .in(in)
                         .err(err)
                         .properties(properties)
+                        .name(name)
+                        .version(version)
                         .build();
 
                 final Iterable<Class<?>> commands = this.commands.size() == 0 ? Commands.load() : this.commands;

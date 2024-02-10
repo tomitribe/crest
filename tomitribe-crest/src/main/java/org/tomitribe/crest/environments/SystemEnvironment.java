@@ -32,26 +32,40 @@ public class SystemEnvironment implements Environment {
     private final PrintStream err;
     private final InputStream in;
     private final Properties properties;
+    private final String name;
+    private final String version;
 
     public SystemEnvironment(final Map<Class<?>, Object> services) {
-        this(services, System.out, System.err, System.in, System.getProperties());
+        this(services, System.out, System.err, System.in, System.getProperties(), null, null);
     }
 
     protected SystemEnvironment(final Map<Class<?>, Object> services,
                                 final PrintStream out,
                                 final PrintStream err,
                                 final InputStream in,
-                                final Properties properties) {
+                                final Properties properties, final String name, final String version) {
         this.services = new HashMap<>(services);
         this.out = out;
         this.err = err;
         this.in = in;
         this.properties = properties;
+        this.name = name;
+        this.version = version;
         init();
     }
 
     public SystemEnvironment() {
         this(new HashMap<>());
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
     }
 
     @Override
@@ -87,6 +101,8 @@ public class SystemEnvironment implements Environment {
     }
 
     public static final class Builder {
+        private String name;
+        private String version;
         private Map<Class<?>, Object> services = new HashMap<>();
         private PrintStream out;
         private PrintStream err;
@@ -95,6 +111,7 @@ public class SystemEnvironment implements Environment {
 
         private Builder() {
         }
+
 
         public Builder services(Map<Class<?>, Object> services) {
             this.services = services;
@@ -108,6 +125,16 @@ public class SystemEnvironment implements Environment {
 
         public Builder out(PrintStream out) {
             this.out = out;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder version(String version) {
+            this.version = version;
             return this;
         }
 
@@ -127,7 +154,7 @@ public class SystemEnvironment implements Environment {
         }
 
         public SystemEnvironment build() {
-            return new SystemEnvironment(services, out, err, in, properties);
+            return new SystemEnvironment(services, out, err, in, properties, name, version);
         }
     }
 }

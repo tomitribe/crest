@@ -35,7 +35,6 @@ import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.processors.Item;
 import org.tomitribe.crest.cmds.processors.OptionParam;
 import org.tomitribe.crest.cmds.processors.Param;
-import org.tomitribe.crest.cmds.targets.SimpleBean;
 import org.tomitribe.crest.cmds.targets.Substitution;
 import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.cmds.utils.CommandLine;
@@ -142,11 +141,6 @@ public class CmdMethod implements Cmd {
         public List<Param> getArguments() {
             return Collections.unmodifiableList(arguments);
         }
-    }
-
-    public CmdMethod(final Method method, final DefaultsContext defaultsFinder,
-                     final BeanValidationImpl beanValidation) {
-        this(method, new SimpleBean(null), defaultsFinder, beanValidation);
     }
 
     public CmdMethod(final Method method, final Target target, final DefaultsContext defaultsFinder,
@@ -410,7 +404,13 @@ public class CmdMethod implements Cmd {
      */
     @Override
     public String getUsage() {
+
         String commandName = name;
+
+        final String prefix = Environment.get().getName();
+        if (prefix != null && prefix.length() > 0) {
+            commandName = prefix + " " + commandName;
+        }
 
         final Class<?> declaringClass = method.getDeclaringClass();
         final Map<String, Cmd> commands = Commands.get(declaringClass);
@@ -655,11 +655,11 @@ public class CmdMethod implements Cmd {
 
         final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
 
-        if (javadoc.isEmpty()){
+        if (javadoc.isEmpty()) {
             help(out);
             return;
         }
-        
+
         final Document.Builder manual = Document.builder()
                 .heading("NAME")
                 .paragraph(name)

@@ -31,7 +31,7 @@ public class AuthorTest {
 
     @Test
     public void justSeeAlso() throws Exception {
-        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        final TestEnvironment env = TestEnvironment.builder().build();
         new Main(Commands.class).main(env, new String[]{"help", "update"});
         final String actual = env.getOut().toString();
 
@@ -53,7 +53,7 @@ public class AuthorTest {
 
     @Test
     public void full() throws Exception {
-        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        final TestEnvironment env = TestEnvironment.builder().build();
         new Main(Commands.class).main(env, "help", "commit");
         assertEquals("NAME\n" +
                         "       commit\n" +

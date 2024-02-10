@@ -21,7 +21,6 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.Properties;
 
-@Deprecated
 public interface Environment {
 
     ThreadLocal<Environment> ENVIRONMENT_THREAD_LOCAL = new ThreadLocal<Environment>() {
@@ -30,6 +29,16 @@ public interface Environment {
             return new SystemEnvironment();
         }
     };
+
+    static Environment get() {
+        return ENVIRONMENT_THREAD_LOCAL.get();
+    }
+
+    static Environment set(final Environment environment) {
+        final Environment old = ENVIRONMENT_THREAD_LOCAL.get();
+        ENVIRONMENT_THREAD_LOCAL.set(environment);
+        return old;
+    }
 
     PrintStream getOutput();
 
@@ -44,4 +53,12 @@ public interface Environment {
     }
 
     <T> T findService(Class<T> type);
+
+    default String getName() {
+        return null;
+    }
+
+    default String getVersion() {
+        return null;
+    }
 }

@@ -32,7 +32,7 @@ public class JavadocHelpComplexTest {
 
     @Test
     public void test() throws Exception {
-        final TestEnvironment env = new TestEnvironment().env("NOCOLOR", "");
+        final TestEnvironment env = TestEnvironment.builder().build();
         new Main(Rsync.class).main(env, new String[]{"help", "rsync"});
 
         assertEquals("NAME\n" +

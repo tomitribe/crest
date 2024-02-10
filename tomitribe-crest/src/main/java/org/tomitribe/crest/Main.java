@@ -34,6 +34,7 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.table.Formatting;
 import org.tomitribe.crest.table.TableInterceptor;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
@@ -58,6 +59,8 @@ public class Main implements Completer {
     protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<>();
     protected final Consumer<Integer> onExit;
     protected final Environment environment;
+    protected final String name;
+    protected final String version;
 
     public Main() {
         this(new SystemPropertiesDefaultsContext(), Commands.load(), new SystemEnvironment(), System::exit);
@@ -75,9 +78,17 @@ public class Main implements Completer {
         this(new SystemPropertiesDefaultsContext(), classes, new SystemEnvironment(), System::exit);
     }
 
-    public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes, final Environment environment, final Consumer<Integer> onExit) {
+    private Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes, final Environment environment,
+                 final Consumer<Integer> onExit) {
+        this(defaultsContext, classes, environment, onExit, null, null);
+    }
+
+    public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes, final Environment environment,
+                final Consumer<Integer> onExit, final String name, final String version) {
         this.environment = environment;
         this.onExit = onExit;
+        this.version = version;
+        this.name = name;
 
         for (final Class clazz : classes) {
             processClass(defaultsContext, clazz);
@@ -88,6 +99,14 @@ public class Main implements Completer {
 
         // Built-in commands
         installHelp(defaultsContext);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     public void processClass(final DefaultsContext defaultsContext, final Class<?> clazz) {
@@ -126,15 +145,14 @@ public class Main implements Completer {
     }
 
     private void installHelp(final DefaultsContext dc) {
-        final Map<String, Cmd> stringCmdMap = Commands.get(new Help(Main.this.commands), dc);
+        final Map<String, Cmd> stringCmdMap = Commands.get(new Help(Main.this.commands, Main.this.version, Main.this.name), dc);
         for (final Cmd cmd : stringCmdMap.values()) {
             add(cmd);
         }
     }
 
     public static void main(final String... args) throws Exception {
-        final Main main = new Main();
-        main.run(args);
+        Main.systemDefaults().build().run(args);
     }
 
     public void run(final String... args) {
@@ -370,6 +388,33 @@ public class Main implements Completer {
         private List<Class<?>> commands = new ArrayList<>();
         private Consumer<Integer> exit;
         private Properties properties;
+        private String version;
+
+        private String name;
+
+        /**
+         * Specifies a version that Crest will print with help messages
+         *
+         * If not specified, no version will be printed.
+         */
+        public Builder version(final String version) {
+            this.version = version;
+            return this;
+        }
+
+        /**
+         * Specifies the name crest will use as the root command name
+         * in help and options messages.  This should be the name
+         * of the executable file that users will execute on the
+         * command-line itself.
+         *
+         * If not specified will default to System.getProperty("cmd")
+         * and finally to System.getenv("CMD").
+         */
+        public Builder name(final String name) {
+            this.version = name;
+            return this;
+        }
 
         /**
          * Adds the name value pair to the existing environment,
@@ -444,47 +489,71 @@ public class Main implements Completer {
         }
 
         public Builder noexit() {
-            this.exit = integer -> {};
+            this.exit = integer -> {
+            };
             return this;
         }
 
         public Main build() {
             try {
-                final Environment environment = new BuiltEnvironment();
+                final Environment environment = SystemEnvironment.builder()
+                        .out(out)
+                        .in(in)
+                        .err(err)
+                        .properties(properties)
+                        .build();
 
                 final Iterable<Class<?>> commands = this.commands.size() == 0 ? Commands.load() : this.commands;
+                final String name = this.name == null ? lookupName() : this.name;
+                final String version = this.version == null ? lookupVersion() : this.version;
 
-                return new Main(new SystemPropertiesDefaultsContext(), commands, environment, exit);
+                return new Main(new SystemPropertiesDefaultsContext(), commands, environment, exit, name, version);
             } catch (final Exception e) {
                 throw new MainBuildException(e);
             }
         }
 
-        private class BuiltEnvironment implements Environment {
-            @Override
-            public PrintStream getOutput() {
-                return out;
+        private String lookupName() {
+            {
+                final String name = System.getProperty("cmd.name");
+                if (name != null) return asFilename(name);
             }
 
-            @Override
-            public PrintStream getError() {
-                return err;
+            {
+                final String name = System.getProperty("cmd");
+                if (name != null) return asFilename(name);
             }
 
-            @Override
-            public InputStream getInput() {
-                return in;
+            {
+                final String name = System.getenv("CMD_NAME");
+                if (name != null) return asFilename(name);
             }
 
-            @Override
-            public Properties getProperties() {
-                return properties;
+            {
+                final String name = System.getenv("CMD");
+                if (name != null) return asFilename(name);
             }
 
-            @Override
-            public <T> T findService(final Class<T> type) {
-                return null;
+            return null;
+        }
+
+        private String lookupVersion() {
+            {
+                final String version = System.getProperty("cmd.version");
+                if (version != null) return asFilename(version);
             }
+
+            {
+                final String version = System.getenv("CMD_VERSION");
+                if (version != null) return asFilename(version);
+            }
+
+            return null;
+        }
+
+        private String asFilename(String name) {
+            final File file = new File(name);
+            return file.getName();
         }
 
         @Exit(1)

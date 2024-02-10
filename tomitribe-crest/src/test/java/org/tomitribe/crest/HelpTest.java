@@ -208,6 +208,28 @@ public class HelpTest extends Assert {
     }
 
     @Test
+    public void name() throws Exception {
+        final PrintString out = new PrintString();
+
+        new Main(Descripted.class).main(new SystemEnvironment() {
+            @Override
+            public PrintStream getOutput() {
+                return out;
+            }
+        }, new String[] {"help", "test"});
+        assertEquals(
+            "Usage: test [options]" +
+            "Options: " +
+            "  -a=<String>              a super parameter" +
+            "  --b-binded=<String>      a super parameteroverrided desc" +
+            "  --binded=<String>        overrided desc" +
+            "  --c.binded=<String>      pre description: overrided desc" +
+            "  -d=<String>              a parameter with default" +
+            "                           (default: otherwise)",
+            out.toString().replace(lineSeparator(), ""));
+    }
+
+    @Test
     public void testOptionLists() throws Exception {
         assertCommandHelp(OptionLists.class, "test");
     }

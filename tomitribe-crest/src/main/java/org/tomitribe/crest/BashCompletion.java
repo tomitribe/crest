@@ -55,7 +55,7 @@ public class BashCompletion {
 
     @Command(COMPLETER)
     public String _completer(@Option("f") boolean toFile) {
-        return _completer(toFile, guessName());
+        return _completer(toFile, getName());
     }
     
     @Command(COMPLETER)
@@ -87,23 +87,11 @@ public class BashCompletion {
         }
     }
 
+    private String getName() {
 
-    private String getMainCommandName(String... args) {
-        // Specifying it explicitly wins
-        if (args.length == 1) return asFilename(args[0]);
-
-        return guessName();
-    }
-
-    private String guessName() {
-        { // Next look for a system property 'cmd'
-            final String name = System.getProperty("cmd");
-            if (name != null) return asFilename(name);
-        }
-
-        { // Next look for a system property 'cmd'
-            final String name = System.getenv("CMD");
-            if (name != null) return asFilename(name);
+        final String name = main.getName();
+        if (name != null) {
+            return name;
         }
 
         final Environment env = Environment.ENVIRONMENT_THREAD_LOCAL.get();
@@ -115,11 +103,6 @@ public class BashCompletion {
                 " 3. set as a $CMD environment variable (e.g. export CMD=$0, e.g. export CMD=wombat, e.g. export CMD=/some/path/wombat)");
 
         throw new IllegalStateException("The bash executable name was not found");
-    }
-
-    private String asFilename(String name) {
-        final File file = new File(name);
-        return file.getName();
     }
 
     public static String generate(final Main main, final String... args) {

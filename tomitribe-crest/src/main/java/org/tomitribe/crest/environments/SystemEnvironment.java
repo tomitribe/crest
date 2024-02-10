@@ -28,34 +28,49 @@ import java.util.Properties;
 
 public class SystemEnvironment implements Environment {
     private final Map<Class<?>, Object> services;
+    private final PrintStream out;
+    private final PrintStream err;
+    private final InputStream in;
+    private final Properties properties;
 
     public SystemEnvironment(final Map<Class<?>, Object> services) {
+        this(services, System.out, System.err, System.in, System.getProperties());
+    }
+
+    protected SystemEnvironment(final Map<Class<?>, Object> services,
+                                final PrintStream out,
+                                final PrintStream err,
+                                final InputStream in,
+                                final Properties properties) {
         this.services = new HashMap<>(services);
+        this.out = out;
+        this.err = err;
+        this.in = in;
+        this.properties = properties;
         init();
     }
 
     public SystemEnvironment() {
-        this.services = new HashMap<>();
-        init();
+        this(new HashMap<>());
     }
 
     @Override
     public PrintStream getOutput() {
-        return System.out;
+        return out;
     }
 
     @Override
     public PrintStream getError() {
-        return System.err;
+        return err;
     }
 
     @Override
     public InputStream getInput() {
-        return System.in;
+        return in;
     }
 
     public Properties getProperties() {
-        return System.getProperties();
+        return properties;
     }
 
     @Override
@@ -65,5 +80,54 @@ public class SystemEnvironment implements Environment {
 
     protected void init() {
         services.put(BeanValidationImpl.class, BeanValidation.create(this::findService));
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private Map<Class<?>, Object> services = new HashMap<>();
+        private PrintStream out;
+        private PrintStream err;
+        private InputStream in;
+        private Properties properties;
+
+        private Builder() {
+        }
+
+        public Builder services(Map<Class<?>, Object> services) {
+            this.services = services;
+            return this;
+        }
+
+        public Builder service(Class<?> type, Object service) {
+            this.services.put(type, service);
+            return this;
+        }
+
+        public Builder out(PrintStream out) {
+            this.out = out;
+            return this;
+        }
+
+        public Builder err(PrintStream err) {
+            this.err = err;
+            return this;
+        }
+
+        public Builder in(InputStream in) {
+            this.in = in;
+            return this;
+        }
+
+        public Builder properties(Properties properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        public SystemEnvironment build() {
+            return new SystemEnvironment(services, out, err, in, properties);
+        }
     }
 }

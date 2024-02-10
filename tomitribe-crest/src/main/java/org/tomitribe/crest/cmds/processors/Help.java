@@ -46,9 +46,13 @@ import java.util.stream.Collectors;
 public class Help {
 
     private final Map<String, Cmd> commands;
+    private final String version;
+    private final String name;
 
-    public Help(final Map<String, Cmd> commands1) {
-        commands = commands1;
+    public Help(final Map<String, Cmd> commands, final String version, final String name) {
+        this.commands = commands;
+        this.version = version;
+        this.name = name;
     }
 
     public static void optionHelp(final Method method, final String commandName,

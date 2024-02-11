@@ -54,11 +54,11 @@ public interface Environment {
 
     <T> T findService(Class<T> type);
 
-    default String getName() {
+    default String getCommandName() {
         return null;
     }
 
-    default String getVersion() {
+    default String getCommandVersion() {
         return null;
     }
 }

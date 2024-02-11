@@ -496,6 +496,11 @@ public class Main implements Completer {
 
         public Main build() {
             try {
+                final Iterable<Class<?>> commands = this.commands.size() == 0 ? Commands.load() : this.commands;
+
+                final String name = this.name == null ? lookupName() : this.name;
+                final String version = this.version == null ? lookupVersion() : this.version;
+
                 final Environment environment = SystemEnvironment.builder()
                         .out(out)
                         .in(in)
@@ -505,9 +510,6 @@ public class Main implements Completer {
                         .version(version)
                         .build();
 
-                final Iterable<Class<?>> commands = this.commands.size() == 0 ? Commands.load() : this.commands;
-                final String name = this.name == null ? lookupName() : this.name;
-                final String version = this.version == null ? lookupVersion() : this.version;
 
                 return new Main(new SystemPropertiesDefaultsContext(), commands, environment, exit, name, version);
             } catch (final Exception e) {
@@ -536,6 +538,14 @@ public class Main implements Completer {
                 if (name != null) return asFilename(name);
             }
 
+            final Manifest manifest = Manifest.get().orElse(null);
+            if (manifest == null) return null;
+
+            {
+                final String name = manifest.getCommandName();
+                if (name != null) return name;
+            }
+
             return null;
         }
 
@@ -548,6 +558,19 @@ public class Main implements Completer {
             {
                 final String version = System.getenv("CMD_VERSION");
                 if (version != null) return asFilename(version);
+            }
+
+            final Manifest manifest = Manifest.get().orElse(null);
+            if (manifest == null) return null;
+
+            {
+                final String name = manifest.getCommandVersion();
+                if (name != null) return name;
+            }
+
+            {
+                final String name = manifest.getImplementationVersion();
+                if (name != null) return name;
             }
 
             return null;

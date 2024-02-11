@@ -407,7 +407,7 @@ public class CmdMethod implements Cmd {
 
         String commandName = name;
 
-        final String prefix = Environment.get().getName();
+        final String prefix = Environment.get().getCommandName();
         if (prefix != null && prefix.length() > 0) {
             commandName = prefix + " " + commandName;
         }

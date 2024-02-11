@@ -17,6 +17,7 @@
 package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.cmds.processors.Commands;
+import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.utils.CommandLine;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
@@ -107,6 +108,8 @@ public class CmdGroup implements Cmd {
         for (final String command : strings) {
             out.printf("   %-20s%n", command);
         }
+
+        Help.printNameAndVersion(out);
     }
 
     public void help(String subCommand, PrintStream out) {

@@ -59,12 +59,12 @@ public class SystemEnvironment implements Environment {
     }
 
     @Override
-    public String getName() {
+    public String getCommandName() {
         return name;
     }
 
     @Override
-    public String getVersion() {
+    public String getCommandVersion() {
         return version;
     }
 

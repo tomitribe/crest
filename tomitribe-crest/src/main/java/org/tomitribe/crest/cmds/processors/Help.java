@@ -93,9 +93,13 @@ public class Help {
 //            out.println();
         }
 
-        final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
-        final String name = environment.getName();
-        final String version = environment.getVersion();
+        printNameAndVersion(out);
+    }
+
+    public static void printNameAndVersion(final PrintStream out) {
+        final Environment environment = Environment.get();
+        final String name = environment.getCommandName();
+        final String version = environment.getCommandVersion();
 
         if (name == null && version == null) {
             return;
@@ -242,6 +246,8 @@ public class Help {
         for (final String command : strings) {
             string.printf("   %-20s%n", command);
         }
+
+        printNameAndVersion(string);
 
         return string.toString();
     }

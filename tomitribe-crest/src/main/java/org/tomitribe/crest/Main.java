@@ -44,7 +44,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -152,7 +151,7 @@ public class Main implements Completer {
     }
 
     public static void main(final String... args) throws Exception {
-        Main.systemDefaults().build().run(args);
+        builder().build().run(args);
     }
 
     public void run(final String... args) {
@@ -343,10 +342,6 @@ public class Main implements Completer {
     }
 
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
      * A convenience builder method that returns a builder populated with java.lang.System
      * providing the default values for Env, Properties, Stdin, Stdout, Stderr
@@ -363,31 +358,25 @@ public class Main implements Completer {
      *                 .exit(System::exit);
      * </pre>
      *
-     * This builder does not scan or search the classpath for commands.
-     * All commands still must be supplied to the builder directly.
+     * If no commands are specified, commands will be discovered via the classic
+     * mechanisms: Loader; classpath scan.
      *
      * @return a builder with system defaults
      */
-    public static Builder systemDefaults() {
-        return builder()
-                .properties(System.getProperties())
-                .env(System.getenv())
-                .out(System.out)
-                .err(System.err)
-                .in(System.in)
-                .exit(System::exit);
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {
 
-        private Map<String, String> env = new LinkedHashMap<>();
-        private PrintStream out;
-        private PrintStream err;
-        private InputStream in;
+        private Map<String, String> env = System.getenv();
+        private PrintStream out = System.out;
+        private PrintStream err = System.err;
+        private InputStream in = System.in;
 
         private List<Class<?>> commands = new ArrayList<>();
-        private Consumer<Integer> exit;
-        private Properties properties;
+        private Consumer<Integer> exit = System::exit;
+        private Properties properties = System.getProperties();
         private String version;
 
         private String name;

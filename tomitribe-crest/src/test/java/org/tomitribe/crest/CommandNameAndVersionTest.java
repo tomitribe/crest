@@ -390,7 +390,7 @@ public class CommandNameAndVersionTest {
 
     public static class BuilderName {
         public static void main(String[] args) {
-            Main.systemDefaults()
+            Main.builder()
                     .command(ColorCommands.class)
                     .name("pink")
                     .version("3.12")
@@ -401,7 +401,7 @@ public class CommandNameAndVersionTest {
 
     public static class BuilderVersion {
         public static void main(String[] args) {
-            Main.systemDefaults()
+            Main.builder()
                     .command(ColorCommands.class)
                     .version("4.11")
                     .build()

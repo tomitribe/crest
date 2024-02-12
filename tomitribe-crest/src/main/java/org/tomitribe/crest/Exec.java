@@ -26,7 +26,7 @@ public class Exec {
     }
 
     public static void main(final String... args) throws Exception {
-        Main.systemDefaults()
+        Main.builder()
                 .noexit()
                 .build()
                 .run(args);

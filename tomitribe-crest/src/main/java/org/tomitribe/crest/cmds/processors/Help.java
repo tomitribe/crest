@@ -101,9 +101,7 @@ public class Help {
         final String name = environment.getCommandName();
         final String version = environment.getCommandVersion();
 
-        if (name == null && version == null) {
-            return;
-        }
+        if (version == null) return;
 
         if (name == null) {
             out.printf("%nVersion %s%n", version);

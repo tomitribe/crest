@@ -114,7 +114,10 @@ public class Java {
 
 
         public Builder debug() {
-            environment.put("JAVA_OPTS", "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005");
+            command.add("-Xdebug");
+            command.add("-Xnoagent");
+            command.add("-Djava.compiler=NONE");
+            command.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005");
             return this;
         }
 

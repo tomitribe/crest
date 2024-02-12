@@ -77,6 +77,16 @@ public class Cli {
             return this;
         }
 
+        public Builder addDir(final File dir) {
+            archive.addDir(dir);
+            return this;
+        }
+
+        public Builder addJar(final File file) {
+            archive.addJar(file);
+            return this;
+        }
+
         public Builder manifest(final Manifest manifest) {
             archive.add("META-INF/MANIFEST.MF", manifest.write());
             return this;
@@ -87,7 +97,7 @@ public class Cli {
         }
 
         public Builder loader(final Class<? extends Loader> loader) {
-            archive.add("META-INF/services/" + Loader.class.getName(), CommandNameAndVersionTest.ColorLoader.class.getName());
+            archive.add("META-INF/services/" + Loader.class.getName(), loader.getName());
             archive.add(loader);
             return this;
         }
@@ -126,6 +136,7 @@ public class Cli {
             archive.add(clazz);
             return this;
         }
+
 
         public Cli build() {
             final File jar = archive.asJar();

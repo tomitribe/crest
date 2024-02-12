@@ -28,14 +28,14 @@ import java.util.function.Supplier;
 
 public class Cli {
 
-    private final File jar;
+    private final Java java;
 
-    public Cli(final File jar) {
-        this.jar = jar;
+    private Cli(final Java java) {
+        this.java = java;
     }
 
     public Java.Result run(final String... args) throws Exception {
-        return Java.jar(jar, args);
+        return java.run(args);
     }
 
     public static Builder builder() {
@@ -44,6 +44,7 @@ public class Cli {
 
     public static class Builder {
         private final Archive archive = Archive.archive();
+        private final Java.Builder java = Java.builder();
 
         public Builder() {
             final List<Class<?>> required = Arrays.asList(Main.class, Command.class, Converter.class);
@@ -60,6 +61,20 @@ public class Cli {
             // Overwrite any Manifest entries from the above jars
             final Manifest manifest = Manifest.builder().build();
             manifest(manifest);
+        }
+
+        public Java.Builder arg(final String arg) {
+            return java.arg(arg);
+        }
+
+        public Builder env(final String name, final String value) {
+            java.env(name, value);
+            return this;
+        }
+
+        public Builder debug() {
+            java.debug();
+            return this;
         }
 
         public Builder manifest(final Manifest manifest) {
@@ -113,7 +128,8 @@ public class Cli {
         }
 
         public Cli build() {
-            return new Cli(archive.asJar());
+            final File jar = archive.asJar();
+            return new Cli(java.copy().jar(jar).build());
         }
     }
 }

@@ -13,6 +13,7 @@
  */
 package org.tomitribe.crest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Loader;
@@ -57,14 +58,74 @@ public class CommandNameAndVersionTest {
      */
     @Test
     public void manifestCommandName() throws Exception {
+        Java.Result result = Cli.builder()
+                .loader(ColorLoader.class)
+                .manifest(Manifest.builder()
+                        .mainClass(Main.class)
+                        .implementationVersion("5.16.1")
+                        .commandName("blue"))
+                .add(ColorCommands.class)
+                .add(ColorLoader.class)
+                .add(SystemPropertiesInLoader.class)
+                .build()
+                .run();
+
+        assertEquals(String.format("Commands: %n" +
+                "                       %n" +
+                "   color               %n" +
+                "   help                %n" +
+                "%n" +
+                "blue 5.16.1%n" +
+                ""), result.getOut());
     }
 
     @Test
     public void manifestCommandVersion() throws Exception {
+        Java.Result result = Cli.builder()
+                .loader(ColorLoader.class)
+                .manifest(Manifest.builder()
+                        .mainClass(Main.class)
+                        .implementationVersion("5.16.1")
+                        .commandName("orange")
+                        .commandVersion("2.4.6")
+                )
+                .add(ColorCommands.class)
+                .add(ColorLoader.class)
+                .add(SystemPropertiesInLoader.class)
+                .build()
+                .run();
+
+        assertEquals(String.format("Commands: %n" +
+                "                       %n" +
+                "   color               %n" +
+                "   help                %n" +
+                "%n" +
+                "orange 2.4.6%n" +
+                ""), result.getOut());
     }
 
     @Test
+    @Ignore
     public void systemPropertyCmd() throws Exception {
+        Java.Result result = Cli.builder()
+                .loader(SystemPropertiesInLoader.class)
+                .manifest(Manifest.builder()
+                        .mainClass(Main.class)
+                )
+                .add(ColorCommands.class)
+                .add(ColorLoader.class)
+                .add(SystemPropertiesInLoader.class)
+                .debug()
+                .build()
+                .run();
+
+        assertEquals(String.format("Commands: %n" +
+                "                       %n" +
+                "   color               %n" +
+                "   help                %n" +
+                "%n" +
+                "green 5.3.1%n" +
+                ""), result.getOut());
     }
 
     @Test

@@ -17,22 +17,47 @@
 package org.tomitribe.crest;
 
 import org.junit.Assert;
+import org.tomitribe.util.Join;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.stream.Stream;
 
 /**
  * @version $Revision$ $Date$
  */
 public class Java {
+
+    private final List<String> command = new ArrayList<>();
+    private final Map<String, String> environment = new HashMap<>();
+
+    private Java(final List<String> command, final Map<String, String> environment) {
+        this.command.addAll(command);
+        this.environment.putAll(environment);
+    }
+
+    public Result run(final String... args) {
+        final ProcessBuilder java = javaProcess();
+        try {
+            java.environment().putAll(environment);
+            java.command().addAll(command);
+            java.command().addAll(Arrays.asList(args));
+            return new Result(java.start());
+        } catch (final Exception e) {
+            throw new JavaExecutionException(java.command(), e);
+        }
+    }
 
     public static Result jar(final File jar, final String... args) throws IOException, ExecutionException, InterruptedException {
         final ProcessBuilder java = javaProcess();
@@ -48,6 +73,135 @@ public class Java {
         return new Result(java.start());
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final List<String> command = new ArrayList<>();
+        private final Map<String, String> environment = new HashMap<>();
+
+        public Builder env(final String name, final String value) {
+            environment.put(name, value);
+            return this;
+        }
+
+        public Builder jar(final File jar) {
+            command.add("-jar");
+            command.add(jar.getAbsolutePath());
+            return this;
+        }
+
+        public Builder arg(final String arg) {
+            command.add(arg);
+            return this;
+        }
+
+        public Builder classpath(final File... jars) {
+            if (jars == null || jars.length == 0) {
+                throw new IllegalArgumentException("No jars specified");
+            }
+
+            final String classpath = Stream.of(jars)
+                    .map(File::getAbsolutePath)
+                    .reduce((s, s2) -> s + File.pathSeparator + s2)
+                    .get();
+
+            command.add("-classpath");
+            command.add(classpath);
+            return this;
+        }
+
+
+        public Builder debug() {
+            environment.put("JAVA_OPTS", "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005");
+            return this;
+        }
+
+        public Builder enableAssertions() {
+            command.add("-ea");
+            return this;
+        }
+
+        public Builder disableAssertions() {
+            command.add("-da");
+            return this;
+        }
+
+        public Builder ms(final String initial) {
+            command.add("-Xms" + initial);
+            return this;
+        }
+
+        public Builder mx(final String max) {
+            command.add("-Xmx" + max);
+            return this;
+        }
+
+        public Builder client() {
+            command.add("-client");
+            return this;
+        }
+
+        public Builder server() {
+            command.add("-server");
+            return this;
+        }
+
+        // Example of adding a generic method for `-XX` options
+        public Builder xx(final String option, final String value) {
+            command.add("-XX:" + option + "=" + value);
+            return this;
+        }
+
+        public Builder agentlib(final String libName) {
+            command.add("-agentlib:" + libName);
+            return this;
+        }
+
+        public Builder agentlib(final String libName, final String options) {
+            command.add("-agentlib:" + libName + "=" + options);
+            return this;
+        }
+
+
+        public Builder agentpath(final String pathName) {
+            command.add("-agentpath:" + pathName);
+            return this;
+        }
+
+        public Builder agentpath(final String pathName, final String options) {
+            command.add("-agentpath:" + pathName + "=" + options);
+            return this;
+        }
+
+
+        public Builder javaagent(final String libName) {
+            command.add("-javaagent:" + libName);
+            return this;
+        }
+
+        public Builder javaagent(final String jarPath, final String options) {
+            command.add("-javaagent:" + jarPath + "=" + options);
+            return this;
+        }
+
+        public Builder d(final String name, final String value) {
+            command.add("-D:" + name + "=" + value);
+            return this;
+        }
+
+        public Builder copy() {
+            final Builder copy = new Builder();
+            copy.command.addAll(this.command);
+            copy.environment.putAll(this.environment);
+            return copy;
+        }
+
+        public Java build() {
+            return new Java(command, environment);
+        }
+    }
 
     private static ProcessBuilder javaProcess() {
         final File javaHome = new File(System.getenv("JAVA_HOME"));
@@ -146,4 +300,9 @@ public class Java {
         }
     }
 
+    public static class JavaExecutionException extends RuntimeException {
+        public JavaExecutionException(final List<String> command, final Exception e) {
+            super(String.format("Java command failed:%nargs:%s%nresult:%s", Join.join(" ", command), e));
+        }
+    }
 }

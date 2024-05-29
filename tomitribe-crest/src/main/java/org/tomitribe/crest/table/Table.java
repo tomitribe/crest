@@ -33,7 +33,7 @@ class Table {
 
     public Table(final Data data, final Border border, final int width) {
         final int available = width - border.getWidth(data.getColumns().size()).getMax();
-        this.data = Resize.resize(data, available);
+        this.data = border.getRow().isPadded() ? Resize.resize(data, available) : data;
         this.border = border;
     }
 

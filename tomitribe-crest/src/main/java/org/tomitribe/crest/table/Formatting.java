@@ -114,7 +114,13 @@ public class Formatting {
         final LinkedHashMap<Object, Object> sorted = new LinkedHashMap<>();
         new ObjectMap(item).entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
-                .forEach(entry -> sorted.put(entry.getKey(), entry.getValue()));
+                .forEach(entry -> {
+                    try {
+                        final Object value = entry.getValue();
+                        sorted.put(entry.getKey(), value);
+                    } catch (final Exception ignore) {
+                    }
+                });
 
         return new CaseInsensitiveMap(sorted, true);
     }

@@ -58,6 +58,10 @@ public class Help {
 
     public static void optionHelp(final Method method, final String commandName,
                                   final Collection<OptionParam> optionParams, final PrintStream out) {
+        optionHelp(method, commandName, optionParams, out, true);
+    }
+    public static void optionHelp(final Method method, final String commandName,
+                                  final Collection<OptionParam> optionParams, final PrintStream out, final boolean printVersion) {
         if (optionParams.isEmpty()) {
             return;
         }
@@ -93,7 +97,7 @@ public class Help {
 //            out.println();
         }
 
-        printNameAndVersion(out);
+        if (printVersion) printNameAndVersion(out);
     }
 
     public static void printNameAndVersion(final PrintStream out) {

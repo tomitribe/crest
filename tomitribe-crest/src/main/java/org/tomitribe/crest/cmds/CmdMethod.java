@@ -496,7 +496,7 @@ public class CmdMethod implements Cmd {
         return exec(globalInterceptors, list);
     }
 
-    private RuntimeException getExitCode(final Throwable e) {
+    protected static RuntimeException getExitCode(final Throwable e) {
         if (e == null) return null;
         if (e instanceof RuntimeException && e.getClass().isAnnotationPresent(Exit.class)) {
             return (RuntimeException) e;

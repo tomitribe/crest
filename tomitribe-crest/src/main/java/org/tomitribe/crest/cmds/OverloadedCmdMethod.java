@@ -16,12 +16,16 @@
  */
 package org.tomitribe.crest.cmds;
 
+import org.tomitribe.crest.api.Exit;
 import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.processors.OptionParam;
+import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.util.Join;
+import org.tomitribe.util.PrintString;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,21 +39,14 @@ import java.util.TreeSet;
 public class OverloadedCmdMethod implements Cmd {
 
     private final String name;
-    private final Set<CmdMethod> methods;
+    private final List<CmdMethod> methods = new ArrayList<>();
 
     public OverloadedCmdMethod(final String name) {
         this.name = name;
-
-        this.methods = new TreeSet<>(new Comparator<CmdMethod>() {
-            @Override
-            public int compare(final CmdMethod a, final CmdMethod b) {
-                return a.getArgumentParameters().size() - b.getArgumentParameters().size();
-            }
-        });
     }
 
-    public Set<CmdMethod> getMethods() {
-        return Collections.unmodifiableSet(methods);
+    public List<CmdMethod> getMethods() {
+        return Collections.unmodifiableList(methods);
     }
 
     @Override
@@ -86,6 +83,20 @@ public class OverloadedCmdMethod implements Cmd {
 
                 } else {
 
+                    /*
+                     * If any exception in the chain was annotated with @Exit
+                     * then we want to let that exception handle the error message
+                     */
+                    final RuntimeException handled = CmdMethod.getExitCode(e);
+                    if (handled != null) {
+                        final Exit exit = handled.getClass().getAnnotation(Exit.class);
+                        if (exit.help()) {
+                            reportWithHelp(e);
+                        }
+                        throw handled;
+                    }
+                    reportWithHelp(e);
+
                     throw CmdMethod.toRuntimeException(e);
 
                 }
@@ -99,6 +110,16 @@ public class OverloadedCmdMethod implements Cmd {
                 + "", rawArgs)));
     }
 
+    private void reportWithHelp(final Throwable e) {
+        final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
+        err.println(e.getMessage());
+
+        help(err);
+
+        throw new HelpPrintedException(e);
+    }
+
+
     @Override
     public void help(final PrintStream out) {
         if (methods.isEmpty()) {
@@ -109,24 +130,44 @@ public class OverloadedCmdMethod implements Cmd {
         { // usage
             final Iterator<CmdMethod> it = methods.iterator();
 
-            out.printf("Usage: %s%n", it.next().getUsage());
+            int i = 1;
+            out.printf("Usage: %s%n", it.next().getUsage().replace("[options]", "[options" + i + "]"));
             while (it.hasNext()) {
-                out.printf("       %s%n", it.next().getUsage());
+                i++;
+                out.printf("       %s%n", it.next().getUsage().replace("[options]", "[options" + i + "]"));
             }
         }
-        out.println();
 
-        final Map<String, OptionParam> options = new TreeMap<>();
-        for (final CmdMethod method : methods) {
-            options.putAll(method.getOptionParameters());
+
+        {
+            int i = 1;
+            for (final CmdMethod method : methods) {
+                out.println();
+                final Map<String, OptionParam> optionParameters = method.getOptionParameters();
+                final PrintString help = new PrintString();
+                Help.optionHelp(method.getMethod(), getName(), optionParameters.values(), help, false);
+                out.print(help.toString().replace("Options:", "Options" + i + ":"));
+                i++;
+            }
         }
 
-        final CmdMethod first = methods.iterator().next();
-        Help.optionHelp(first.getMethod(), getName(), options.values(), out);
+        Help.printNameAndVersion(out);
     }
 
     public void add(final CmdMethod cmd) {
+        Comparator<CmdMethod> cmdMethodComparator = Comparator
+                // First compare by argument length (More arguments first)
+                .comparingInt((CmdMethod c) -> c.getArgumentParameters().size()).reversed()
+                // Second compare by option length (More options first)
+                .thenComparingInt((CmdMethod c) -> c.getOptionParameters().size()).reversed()
+                // Third compare by concatenated option keys (Lexicographically)
+                .thenComparing(c -> c.getOptionParameters().keySet().stream()
+                        .reduce((s, s2) -> s + "\000" + s2)
+                        .orElse(""));
+
+        // Add and sort the list
         methods.add(cmd);
+        methods.sort(cmdMethodComparator);
     }
 
     @Override

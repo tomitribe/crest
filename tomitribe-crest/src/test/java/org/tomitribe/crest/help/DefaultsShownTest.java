@@ -48,6 +48,11 @@ public class DefaultsShownTest {
                         "       parameters (options and paths).\n" +
                         "\n" +
                         "OPTIONS\n" +
+                        "       --time=<TimeUnit>\n" +
+                        "              indicates all changes should be committed, including deleted files\n" +
+                        "       \n" +
+                        "              enum:  NANOSECONDS,  MICROSECONDS,  MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS\n" +
+                        "\n" +
                         "       --elapsed=<TimeUnit>\n" +
                         "              default:  MINUTES.    enum:  NANOSECONDS,  MICROSECONDS, MILLISECONDS, SECONDS,\n" +
                         "              MINUTES, HOURS, DAYS\n" +
@@ -55,13 +60,7 @@ public class DefaultsShownTest {
                         "       --message=<String>\n" +
                         "              a message detailing the commit\n" +
                         "       \n" +
-                        "              default: Updates and other fixes\n" +
-                        "\n" +
-                        "       --time=<TimeUnit>\n" +
-                        "              indicates all changes should be committed, including deleted files\n" +
-                        "       \n" +
-                        "              enum:  NANOSECONDS,  MICROSECONDS,  MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS\n" +
-                        "",
+                        "              default: Updates and other fixes\n",
                 env.getOut().toString());
     }
 

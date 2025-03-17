@@ -51,10 +51,58 @@ public class JavadocHelpComplexTest {
                         "       algorithm  described  in  the  technical  report  that  accompanies  this  pack-  age.\n" +
                         "\n" +
                         "OPTIONS\n" +
+                        "       --recursive\n" +
+                        "              This  tells  rsync  to  copy  directories  recursively.   See also --dirs (-d).\n" +
+                        "\n" +
+                        "       --links\n" +
+                        "              When  symlinks  are  encountered,  recreate  the  symlink  on  the destination.\n" +
+                        "\n" +
+                        "       --perms\n" +
+                        "              This option causes the receiving rsync to set the destination permissions to be\n" +
+                        "              the same as the source permissions.  (See also the --chmod option for a way  to\n" +
+                        "              modify what rsync considers to be the source permissions.)\n" +
+                        "\n" +
+                        "       --owner\n" +
+                        "              This  option  causes  rsync  to set the owner of the destination file to be the\n" +
+                        "              same as the source file, but only if the receiving rsync is being  run  as  the\n" +
+                        "              super-user  (see  also  the --super option to force rsync to attempt super-user\n" +
+                        "              activities).  Without this option, the owner is set to the invoking user on the\n" +
+                        "              receiving side.\n" +
+                        "       \n" +
+                        "              The preservation of ownership will associate matching names by default, but may\n" +
+                        "              fall back  to  using  the  ID  number  in  some  circumstances  (see  also  the\n" +
+                        "       \n" +
+                        "              o      -numeric-ids option for a full discussion).\n" +
+                        "\n" +
+                        "       --group\n" +
+                        "              This  option  causes  rsync  to set the group of the destination file to be the\n" +
+                        "              same as the source file.  If the  receiving  program  is  not  running  as  the\n" +
+                        "              super-user (or if --no-super was specified), only groups that the invoking user\n" +
+                        "              on the receiving side is a member of will be preserved.  Without  this  option,\n" +
+                        "              the  group  is set to the default group of the invok- ing user on the receiving\n" +
+                        "              side.\n" +
+                        "       \n" +
+                        "              The preservation of group information will associate matching names by default,\n" +
+                        "              but may fall back to using the ID number in some circumstances  (see  also  the\n" +
+                        "              --numeric-ids option for a full discussion).\n" +
+                        "\n" +
                         "       --devices\n" +
                         "              This  option  causes  rsync to transfer character and block device files to the\n" +
                         "              remote system to recreate these devices.  This option  has  no  effect  if  the\n" +
                         "              receiving  rsync  is  not  run  as the super-user and --super is not specified.\n" +
+                        "\n" +
+                        "       --specials\n" +
+                        "              This  option  causes  rsync to transfer special files such as named sockets and\n" +
+                        "              fifos.\n" +
+                        "\n" +
+                        "       --times\n" +
+                        "              This tells rsync to transfer modification times along with the files and update\n" +
+                        "              them on the remote system.    Note  that  if  this  option  is  not  used,  the\n" +
+                        "              optimization  that  excludes  files  that  have  not  been  modified  cannot be\n" +
+                        "              effective; in other words, a missing -t or -a will cause the next  transfer  to\n" +
+                        "              behave  as  if  it  used  -I, causing all files to be updated (though the rsync\n" +
+                        "              algorithm will make the update fairly efficient if the files  haven't  actually\n" +
+                        "              changed, you're much better off using -t).\n" +
                         "\n" +
                         "       --exclude=<Pattern>\n" +
                         "              This  option  is  a  simplified form of the --filter option that defaults to an\n" +
@@ -69,18 +117,6 @@ public class JavadocHelpComplexTest {
                         "              starting with ';' or '#' are ignored.  If FILE is -, the list will be read from\n" +
                         "              standard input.\n" +
                         "\n" +
-                        "       --group\n" +
-                        "              This  option  causes  rsync  to set the group of the destination file to be the\n" +
-                        "              same as the source file.  If the  receiving  program  is  not  running  as  the\n" +
-                        "              super-user (or if --no-super was specified), only groups that the invoking user\n" +
-                        "              on the receiving side is a member of will be preserved.  Without  this  option,\n" +
-                        "              the  group  is set to the default group of the invok- ing user on the receiving\n" +
-                        "              side.\n" +
-                        "       \n" +
-                        "              The preservation of group information will associate matching names by default,\n" +
-                        "              but may fall back to using the ID number in some circumstances  (see  also  the\n" +
-                        "              --numeric-ids option for a full discussion).\n" +
-                        "\n" +
                         "       --include=<Pattern>\n" +
                         "              This  option  is  a  simplified form of the --filter option that defaults to an\n" +
                         "              include rule and does not allow the full rule-parsing syntax of  normal  filter\n" +
@@ -93,26 +129,6 @@ public class JavadocHelpComplexTest {
                         "              contains include patterns (one per line).  Blank lines in the  file  and  lines\n" +
                         "              starting with ';' or '#' are ignored.  If FILE is -, the list will be read from\n" +
                         "              standard input.\n" +
-                        "\n" +
-                        "       --links\n" +
-                        "              When  symlinks  are  encountered,  recreate  the  symlink  on  the destination.\n" +
-                        "\n" +
-                        "       --owner\n" +
-                        "              This  option  causes  rsync  to set the owner of the destination file to be the\n" +
-                        "              same as the source file, but only if the receiving rsync is being  run  as  the\n" +
-                        "              super-user  (see  also  the --super option to force rsync to attempt super-user\n" +
-                        "              activities).  Without this option, the owner is set to the invoking user on the\n" +
-                        "              receiving side.\n" +
-                        "       \n" +
-                        "              The preservation of ownership will associate matching names by default, but may\n" +
-                        "              fall back  to  using  the  ID  number  in  some  circumstances  (see  also  the\n" +
-                        "       \n" +
-                        "              o      -numeric-ids option for a full discussion).\n" +
-                        "\n" +
-                        "       --perms\n" +
-                        "              This option causes the receiving rsync to set the destination permissions to be\n" +
-                        "              the same as the source permissions.  (See also the --chmod option for a way  to\n" +
-                        "              modify what rsync considers to be the source permissions.)\n" +
                         "\n" +
                         "       --no-progress, --no-p\n" +
                         "              This  option  tells  rsync  to  print  information  showing the progress of the\n" +
@@ -146,24 +162,7 @@ public class JavadocHelpComplexTest {
                         "              that  it took to complete, it was the 5th transfer of a regular file during the\n" +
                         "              current rsync session, and there are 169 more files for the receiver  to  check\n" +
                         "              (to  see if they are up-to-date or not) remaining out of the 396 total files in\n" +
-                        "              the file-list.\n" +
-                        "\n" +
-                        "       --recursive\n" +
-                        "              This  tells  rsync  to  copy  directories  recursively.   See also --dirs (-d).\n" +
-                        "\n" +
-                        "       --specials\n" +
-                        "              This  option  causes  rsync to transfer special files such as named sockets and\n" +
-                        "              fifos.\n" +
-                        "\n" +
-                        "       --times\n" +
-                        "              This tells rsync to transfer modification times along with the files and update\n" +
-                        "              them on the remote system.    Note  that  if  this  option  is  not  used,  the\n" +
-                        "              optimization  that  excludes  files  that  have  not  been  modified  cannot be\n" +
-                        "              effective; in other words, a missing -t or -a will cause the next  transfer  to\n" +
-                        "              behave  as  if  it  used  -I, causing all files to be updated (though the rsync\n" +
-                        "              algorithm will make the update fairly efficient if the files  haven't  actually\n" +
-                        "              changed, you're much better off using -t).\n" +
-                        "",
+                        "              the file-list.\n",
                 env.getOut().toString());
     }
 

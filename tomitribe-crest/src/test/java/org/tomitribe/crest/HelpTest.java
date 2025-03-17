@@ -206,15 +206,17 @@ public class HelpTest extends Assert {
             }
         }, new String[]{"help", "test"});
         assertEquals(
-                "Usage: test [options]" +
-                        "Options: " +
-                        "  -a=<String>              a super parameter" +
-                        "  --b-binded=<String>      a super parameteroverrided desc" +
-                        "  --binded=<String>        overrided desc" +
-                        "  --c.binded=<String>      pre description: overrided desc" +
-                        "  -d=<String>              a parameter with default" +
-                        "                           (default: otherwise)",
-                out.toString().replace(lineSeparator(), ""));
+                "\n" +
+                        "Usage: test [options]\n" +
+                        "\n" +
+                        "Options: \n" +
+                        "  -a=<String>              a super parameter\n" +
+                        "  --binded=<String>        overrided desc\n" +
+                        "  --b-binded=<String>      a super parameteroverrided desc\n" +
+                        "  --c.binded=<String>      pre description: overrided desc\n" +
+                        "  -d=<String>              a parameter with default\n" +
+                        "                           (default: otherwise)\n",
+                out.toString().replace(lineSeparator(), "\n"));
     }
 
     @Test
@@ -235,8 +237,8 @@ public class HelpTest extends Assert {
                         "%n" +
                         "Options: %n" +
                         "  -a=<String>              a super parameter%n" +
-                        "  --b-binded=<String>      a super parameteroverrided desc%n" +
                         "  --binded=<String>        overrided desc%n" +
+                        "  --b-binded=<String>      a super parameteroverrided desc%n" +
                         "  --c.binded=<String>      pre description: overrided desc%n" +
                         "  -d=<String>              a parameter with default%n" +
                         "                           (default: otherwise)%n" +
@@ -320,7 +322,7 @@ public class HelpTest extends Assert {
         final PrintString actual = new PrintString();
         cmd.help(actual);
 
-        assertEquals(expected.replace("\r\n", "\n"), actual.toString().replace("\r\n", "\n"));
+        assertEquals(helpFileName, expected.replace("\r\n", "\n"), actual.toString().replace("\r\n", "\n"));
     }
 
     @Test

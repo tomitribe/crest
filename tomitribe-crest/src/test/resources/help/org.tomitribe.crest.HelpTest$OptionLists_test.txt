@@ -2,21 +2,21 @@
 Usage: test [options] URI URI
 
 Options: 
-  --background=<Color[]>      color to use in the background
+  --recursive=<Boolean[]>     recurse into directories
+  --links=<boolean[]>         copy symlinks as symlinks
+  --perms                     preserve permissions
+  --owner=<String>            preserve owner (super-user only)
+                              (default: ${user.name})
+  --group                     preserve group
   --devices                   preserve device files (super-user only)
+  --specials                  preserve special files
+  --times                     preserve times
   --exclude=<Pattern[]>       exclude files matching PATTERN
   --exclude-from=<File>       read exclude patterns from FILE
-  --foreground=<Color[]>      color to use in the foreground
-                              (default: orange)
-  --group                     preserve group
-  --highlight=<Color[]>       default: orange, red
   --include=<Pattern>         don't exclude files matching PATTERN
                               (default: .*)
   --include-from=<File[]>     read include patterns from FILE
-  --links=<boolean[]>         copy symlinks as symlinks
-  --owner=<String>            preserve owner (super-user only)
-                              (default: ${user.name})
-  --perms                     preserve permissions
-  --recursive=<Boolean[]>     recurse into directories
-  --specials                  preserve special files
-  --times                     preserve times
+  --highlight=<Color[]>       default: orange, red
+  --foreground=<Color[]>      color to use in the foreground
+                              (default: orange)
+  --background=<Color[]>      color to use in the background

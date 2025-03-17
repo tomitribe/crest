@@ -81,15 +81,15 @@ function _defaults_primitives() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --oBoolean=*) _propose_flag_values "true" "false" ;;
   --oByte=*) _propose_flag_values "<byte>" ;;
+  --oBoolean=*) _propose_flag_values "true" "false" ;;
   --oCharacter=*) _propose_flag_values "<char>" ;;
-  --oDouble=*) _propose_flag_values "<double>" ;;
-  --oFloat=*) _propose_flag_values "<float>" ;;
+  --oShort=*) _propose_flag_values "<short>" ;;
   --oInteger=*) _propose_flag_values "<int>" ;;
   --oLong=*) _propose_flag_values "<long>" ;;
-  --oShort=*) _propose_flag_values "<short>" ;;
-  -*) _propose_flags "--oBoolean=" "--oByte=" "--oCharacter=" "--oDouble=" "--oFloat=" "--oInteger=" "--oLong=" "--oShort=";;
+  --oFloat=*) _propose_flag_values "<float>" ;;
+  --oDouble=*) _propose_flag_values "<double>" ;;
+  -*) _propose_flags "--oByte=" "--oBoolean=" "--oCharacter=" "--oShort=" "--oInteger=" "--oLong=" "--oFloat=" "--oDouble=";;
   *) _propose_files ;;
   esac
 
@@ -99,16 +99,16 @@ function _defaults_objects() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --oByte=*) _propose_flag_values "<Byte>" ;;
-  --oCharacter=*) _propose_flag_values "<Character>" ;;
-  --oDouble=*) _propose_flag_values "<Double>" ;;
-  --oFloat=*) _propose_flag_values "<Float>" ;;
-  --oInteger=*) _propose_flag_values "<Integer>" ;;
-  --oLong=*) _propose_flag_values "<Long>" ;;
-  --oShort=*) _propose_flag_values "<Short>" ;;
   --oURI=*) _propose_flag_values "<URI>" ;;
   --oURL=*) _propose_flag_values "<URL>" ;;
-  -*) _propose_flags "--oByte=" "--oCharacter=" "--oDouble=" "--oFloat=" "--oInteger=" "--oLong=" "--oShort=" "--oURI=" "--oURL=";;
+  --oByte=*) _propose_flag_values "<Byte>" ;;
+  --oCharacter=*) _propose_flag_values "<Character>" ;;
+  --oShort=*) _propose_flag_values "<Short>" ;;
+  --oInteger=*) _propose_flag_values "<Integer>" ;;
+  --oLong=*) _propose_flag_values "<Long>" ;;
+  --oFloat=*) _propose_flag_values "<Float>" ;;
+  --oDouble=*) _propose_flag_values "<Double>" ;;
+  -*) _propose_flags "--oURI=" "--oURL=" "--oByte=" "--oCharacter=" "--oShort=" "--oInteger=" "--oLong=" "--oFloat=" "--oDouble=";;
   *) _propose_files ;;
   esac
 

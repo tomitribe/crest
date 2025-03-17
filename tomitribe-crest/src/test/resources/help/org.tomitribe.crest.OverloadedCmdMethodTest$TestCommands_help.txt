@@ -1,9 +1,14 @@
 
-Usage: help [options]
-       help [options] String
-       help [options] String String
+Usage: help [options1]
+       help [options2] String
+       help [options3] String String
 
-Options: 
-  --colors                 
-  --lang=<String>          
+Options1: 
   --level=<int>            default: 0
+
+Options2: 
+  --lang=<String>          
+
+Options3: 
+  --lang=<String>          
+  --colors                 

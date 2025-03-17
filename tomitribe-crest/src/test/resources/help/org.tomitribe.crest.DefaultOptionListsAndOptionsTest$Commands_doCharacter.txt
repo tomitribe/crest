@@ -2,5 +2,5 @@
 Usage: doCharacter [options] Color
 
 Options: 
-  --color=<Color>          enum: red, green, blue, orange
   --foo=<Character[]>      default: 2, 3, 5
+  --color=<Color>          enum: red, green, blue, orange

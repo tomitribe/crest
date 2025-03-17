@@ -46,6 +46,8 @@ public class GenericsInMethodSignatureTest {
                         "OPTIONS\n" +
                         "       --all\n" +
                         "\n" +
+                        "       --strings=<String[]>\n" +
+                        "\n" +
                         "       --message=<String>\n" +
                         "              Note  also  that  host  and module references don't require a trailing slash to\n" +
                         "              copy the contents of the default directory. For example, both of these copy the\n" +
@@ -56,10 +58,7 @@ public class GenericsInMethodSignatureTest {
                         "       \n" +
                         "              You  can  also  use  rsync  in  local-only  mode,  where  both  the  source and\n" +
                         "              destination don't have a ':' in the name.  In this  case  it  behaves  like  an\n" +
-                        "              improved copy command.\n" +
-                        "\n" +
-                        "       --strings=<String[]>\n" +
-                        "",
+                        "              improved copy command.\n",
                 env.getOut().toString());
     }
 

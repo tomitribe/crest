@@ -2,23 +2,23 @@
 Usage: test [options] URI URI
 
 Options: 
-  --background=<Color>      color to use in the background
-                            (enum: red, green, blue, orange)
+  --recursive               recurse into directories
+  --links                   copy symlinks as symlinks
+  --perms                   preserve permissions
+  --owner=<String>          preserve owner (super-user only)
+                            (default: ${user.name})
+  --group                   preserve group
   --devices                 preserve device files (super-user only)
+  --specials                preserve special files
+  --times                   preserve times
   --exclude=<Pattern>       exclude files matching PATTERN
   --exclude-from=<File>     read exclude patterns from FILE
+  --include=<Pattern>       don't exclude files matching PATTERN
+  --include-from=<File>     read include patterns from FILE
+  --highlight=<Color>       default: orange
+                            (enum: red, green, blue, orange)
   --foreground=<Color>      color to use in the foreground
                             (default: orange)
                             (enum: red, green, blue, orange)
-  --group                   preserve group
-  --highlight=<Color>       default: orange
+  --background=<Color>      color to use in the background
                             (enum: red, green, blue, orange)
-  --include=<Pattern>       don't exclude files matching PATTERN
-  --include-from=<File>     read include patterns from FILE
-  --links                   copy symlinks as symlinks
-  --owner=<String>          preserve owner (super-user only)
-                            (default: ${user.name})
-  --perms                   preserve permissions
-  --recursive               recurse into directories
-  --specials                preserve special files
-  --times                   preserve times

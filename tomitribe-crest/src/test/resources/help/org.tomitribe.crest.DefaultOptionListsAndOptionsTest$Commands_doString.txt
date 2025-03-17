@@ -2,5 +2,5 @@
 Usage: doString [options] Color
 
 Options: 
-  --color=<Color>          enum: red, green, blue, orange
   --foo=<String[]>         default: 2, 3, 5
+  --color=<Color>          enum: red, green, blue, orange

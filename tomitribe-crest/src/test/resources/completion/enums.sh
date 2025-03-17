@@ -93,9 +93,9 @@ function _enums_green() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --shape=*) _propose_flag_values "CIRCLE" "SQUARE" "TRIANGLE" ;;
   --time=*) _propose_flag_values "NANOSECONDS" "MICROSECONDS" "MILLISECONDS" "SECONDS" "MINUTES" "HOURS" "DAYS" ;;
-  -*) _propose_flags "--shape=" "--time=";;
+  --shape=*) _propose_flag_values "CIRCLE" "SQUARE" "TRIANGLE" ;;
+  -*) _propose_flags "--time=" "--shape=";;
   *) _propose_files ;;
   esac
 

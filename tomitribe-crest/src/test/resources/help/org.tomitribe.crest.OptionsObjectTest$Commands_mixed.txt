@@ -2,6 +2,6 @@
 Usage: mixed [options] String URI Shape URI
 
 Options: 
-  --key=<String>           
   --size=<int>             default: 0
+  --key=<String>           
   --value=<String>         

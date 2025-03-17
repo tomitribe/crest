@@ -80,9 +80,9 @@ function _overloaded_push() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  -u=*) _propose_flag_file_values ;;
   --verbose=*) _propose_flag_file_values ;;
-  -*) _propose_flags "-u=" "--verbose=";;
+  -u=*) _propose_flag_file_values ;;
+  -*) _propose_flags "--verbose=" "-u=";;
   *) _propose_files ;;
   esac
 

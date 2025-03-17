@@ -2,5 +2,5 @@
 Usage: defaults [options]
 
 Options: 
-  --home=<File>            default: ${user.dir}
   --user=<String>          default: ${user.name}
+  --home=<File>            default: ${user.dir}

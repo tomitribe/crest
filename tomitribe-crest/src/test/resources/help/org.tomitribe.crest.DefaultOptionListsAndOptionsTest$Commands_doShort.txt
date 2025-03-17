@@ -2,5 +2,5 @@
 Usage: doShort [options] Color
 
 Options: 
-  --color=<Color>          enum: red, green, blue, orange
   --foo=<Short[]>          default: 2, 3, 5
+  --color=<Color>          enum: red, green, blue, orange

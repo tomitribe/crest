@@ -45,39 +45,39 @@ public class OverloadedCmdHelpTest {
         main.run("help", "account", "zendesk");
 
         assertEquals(
-                String.format("\n" +
-                        "Usage: account zendesk [options1]\n" +
-                        "       account zendesk [options2] Name\n" +
-                        "       account zendesk [options3] Name\n" +
-                        "       account zendesk [options4] Name\n" +
-                        "\n" +
-                        "Options1: \n" +
-                        "  --env=<Env>              default: prod\n" +
-                        "                           (enum: prod, dev)\n" +
-                        "  --list, -l               \n" +
-                        "\n" +
-                        "Options2: \n" +
-                        "  --create, -c             \n" +
-                        "  --env=<Env>              default: prod\n" +
-                        "                           (enum: prod, dev)\n" +
-                        "  --host=<URI>             \n" +
-                        "  --token=<String>         \n" +
-                        "  --username=<String>      \n" +
-                        "\n" +
-                        "Options3: \n" +
-                        "  --env=<Env>              default: prod\n" +
-                        "                           (enum: prod, dev)\n" +
-                        "  --host=<URI>             \n" +
-                        "  --token=<String>         \n" +
-                        "  --update, -u             \n" +
-                        "  --username=<String>      \n" +
-                        "\n" +
-                        "Options4: \n" +
-                        "  --delete, -d             \n" +
-                        "  --env=<Env>              default: prod\n" +
-                        "                           (enum: prod, dev)\n" +
-                        "\n" +
-                        "ops 23.5.6\n"),
+                String.format("%n" +
+                        "Usage: account zendesk [options1]%n" +
+                        "       account zendesk [options2] Name%n" +
+                        "       account zendesk [options3] Name%n" +
+                        "       account zendesk [options4] Name%n" +
+                        "%n" +
+                        "Options1: %n" +
+                        "  --list, -l               %n" +
+                        "  --env=<Env>              default: prod%n" +
+                        "                           (enum: prod, dev)%n" +
+                        "%n" +
+                        "Options2: %n" +
+                        "  --create, -c             %n" +
+                        "  --username=<String>      %n" +
+                        "  --token=<String>         %n" +
+                        "  --host=<URI>             %n" +
+                        "  --env=<Env>              default: prod%n" +
+                        "                           (enum: prod, dev)%n" +
+                        "%n" +
+                        "Options3: %n" +
+                        "  --update, -u             %n" +
+                        "  --username=<String>      %n" +
+                        "  --token=<String>         %n" +
+                        "  --host=<URI>             %n" +
+                        "  --env=<Env>              default: prod%n" +
+                        "                           (enum: prod, dev)%n" +
+                        "%n" +
+                        "Options4: %n" +
+                        "  --delete, -d             %n" +
+                        "  --env=<Env>              default: prod%n" +
+                        "                           (enum: prod, dev)%n" +
+                        "%n" +
+                        "ops 23.5.6%n"),
                 out.toString());
     }
 
@@ -102,9 +102,9 @@ public class OverloadedCmdHelpTest {
                         "Usage: account zendesk [options]%n" +
                         "%n" +
                         "Options: %n" +
+                        "  --list, -l               %n" +
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
-                        "  --list, -l               %n" +
                         "%n" +
                         "ops 23.5.6%n"),
                 err.toString());
@@ -136,25 +136,25 @@ public class OverloadedCmdHelpTest {
                         "       account zendesk [options4] Name%n" +
                         "%n" +
                         "Options1: %n" +
+                        "  --list, -l               %n" +
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
-                        "  --list, -l               %n" +
                         "%n" +
                         "Options2: %n" +
                         "  --create, -c             %n" +
+                        "  --username=<String>      %n" +
+                        "  --token=<String>         %n" +
+                        "  --host=<URI>             %n" +
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
-                        "  --host=<URI>             %n" +
-                        "  --token=<String>         %n" +
-                        "  --username=<String>      %n" +
                         "%n" +
                         "Options3: %n" +
-                        "  --env=<Env>              default: prod%n" +
-                        "                           (enum: prod, dev)%n" +
-                        "  --host=<URI>             %n" +
-                        "  --token=<String>         %n" +
                         "  --update, -u             %n" +
                         "  --username=<String>      %n" +
+                        "  --token=<String>         %n" +
+                        "  --host=<URI>             %n" +
+                        "  --env=<Env>              default: prod%n" +
+                        "                           (enum: prod, dev)%n" +
                         "%n" +
                         "Options4: %n" +
                         "  --delete, -d             %n" +

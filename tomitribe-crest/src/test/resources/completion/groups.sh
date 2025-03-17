@@ -111,9 +111,9 @@ function _groups_svn_checkout() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --password=*) _propose_flag_file_values ;;
   --username=*) _propose_flag_file_values ;;
-  -*) _propose_flags "--password=" "--username=";;
+  --password=*) _propose_flag_file_values ;;
+  -*) _propose_flags "--username=" "--password=";;
   *) _propose_files ;;
   esac
 

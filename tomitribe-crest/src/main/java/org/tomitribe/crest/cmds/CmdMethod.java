@@ -78,6 +78,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -126,7 +127,7 @@ public class CmdMethod implements Cmd {
     private volatile List<ParameterMetadata> parameterMetadatas;
 
     public class Spec {
-        private final Map<String, OptionParam> options = new TreeMap<>();
+        private final Map<String, OptionParam> options = new LinkedHashMap<>();
         private final Map<String, OptionParam> aliases = new TreeMap<>();
         private final List<Param> arguments = new LinkedList<>();
 

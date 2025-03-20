@@ -16,6 +16,7 @@
  */
 package org.tomitribe.crest;
 
+import org.tomitribe.crest.api.Editor;
 import org.tomitribe.crest.api.Exit;
 import org.tomitribe.crest.api.PrintOutput;
 import org.tomitribe.crest.api.StreamingOutput;
@@ -34,6 +35,7 @@ import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.table.Formatting;
 import org.tomitribe.crest.table.TableInterceptor;
 
+import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -112,6 +114,13 @@ public class Main implements Completer {
         final Map<String, Cmd> m = Commands.get(clazz, defaultsContext);
         if (!m.isEmpty()) {
             this.commands.putAll(m);
+        } else if (clazz.isAnnotationPresent(Editor.class)) {
+            final Editor annotation = clazz.getAnnotation(Editor.class);
+            try {
+                PropertyEditorManager.registerEditor(annotation.value(), clazz);
+            } catch (final Exception e) {
+                // no-op
+            }
         } else {
 
             final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz);

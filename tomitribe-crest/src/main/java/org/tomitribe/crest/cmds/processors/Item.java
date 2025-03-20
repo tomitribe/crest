@@ -19,10 +19,13 @@ package org.tomitribe.crest.cmds.processors;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.util.Join;
 
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Item {
 
@@ -93,7 +96,26 @@ public class Item {
         if (Enum.class.isAssignableFrom(type)) {
             final Class<? extends Enum> enumType = (Class<? extends Enum>) type;
             final EnumSet<? extends Enum> enums = EnumSet.allOf(enumType);
-            final String join = Join.join(", ", enums);
+
+            // Check if a PropertyEditor exists for this enum
+            final PropertyEditor editor = PropertyEditorManager.findEditor(enumType);
+
+            final String join;
+            if (editor != null) {
+                // Convert enums using the PropertyEditor
+                join = enums.stream()
+                        .map(e -> {
+                            editor.setValue(e);
+                            return editor.getAsText(); // Get converted property representation
+                        })
+                        .collect(Collectors.joining(", "));
+            } else {
+                // Fallback: Use default enum names
+                join = enums.stream()
+                        .map(Enum::name)
+                        .collect(Collectors.joining(", "));
+            }
+
             this.getNote().add(String.format("enum: %s", join));
         }
 

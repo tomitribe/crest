@@ -26,7 +26,6 @@
     <version>0.36-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.example</groupId>
   <artifactId>toolz</artifactId>
   <version>0.36-SNAPSHOT</version>
   <name>Tools (Demo)</name>

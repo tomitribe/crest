@@ -37,6 +37,16 @@
     <tag>HEAD</tag>
   </scm>
 
+  <developers>
+    <developer>
+      <id>jlmonteiro</id>
+      <name>Jean-Louis Monteiro</name>
+      <email>jlmonteiro@tomitribe.com</email>
+      <organization>Tomitribe</organization>
+      <organizationUrl>https://www.tomitribe.com</organizationUrl>
+    </developer>
+  </developers>
+
   <modules>
     <module>tomitribe-crest-test</module>
     <module>tomitribe-crest-api</module>

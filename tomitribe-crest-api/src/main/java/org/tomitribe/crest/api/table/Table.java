@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * <pre>
  * &nbsp;@Table
  * &nbsp;@Command
- * &nbsp;public List&lt;Branch> branches() {
+ * &nbsp;public List&lt;Branch&gt; branches() {
  * &nbsp;    return branches;
  * &nbsp;}
  * </pre>
@@ -90,7 +90,7 @@ import java.lang.annotation.Target;
  * &nbsp;        sort = "releaseDate",
  * &nbsp;        header = false,
  * &nbsp;        border = Border.githubMarkdown)
- * &nbsp;public List<Branch> branches() {
+ * &nbsp;public List&lt;Branch&gt; branches() {
  * &nbsp;    return branches;
  * &nbsp;}
  * </pre>
@@ -105,7 +105,7 @@ import java.lang.annotation.Target;
  * <pre>
  * &nbsp;@Command
  * &nbsp;@Table
- * &nbsp;public List<Branch> branches(final TableOptions tableOptions) {
+ * &nbsp;public List&lt;Branch&gt; branches(final TableOptions tableOptions) {
  * &nbsp;    return branches;
  * &nbsp;}
  * </pre>
@@ -126,7 +126,7 @@ import java.lang.annotation.Target;
  * <pre>
  * &nbsp;@Command
  * &nbsp;@Table
- * &nbsp;public List<Branch> branches(
+ * &nbsp;public List&lt;Branch&gt; branches(
  * &nbsp;                @Option("table-border") final Border border,
  * &nbsp;                @Option("table-header") final Boolean header,
  * &nbsp;                @Option("table-sort") final String sort,
@@ -154,7 +154,7 @@ import java.lang.annotation.Target;
  * &nbsp;        sort = "releaseDate",
  * &nbsp;        header = false,
  * &nbsp;        border = Border.githubMarkdown)
- * &nbsp;public List<Branch> branches(
+ * &nbsp;public List&lt;Branch&gt; branches(
  * &nbsp;                @Option("table-border") final Border border,
  * &nbsp;                @Option("table-header") final Boolean header,
  * &nbsp;                @Option("table-sort") final String sort,

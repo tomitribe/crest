@@ -25,17 +25,17 @@ import java.util.List;
 public interface ParameterMetadata {
     enum ParamType {
         /**
-         * {@see Environment} or stdout, stderr, stdin.
+         * Environment or stdout, stderr, stdin.
          */
         INTERNAL,
 
         /**
-         * type matches the service registry of the {@see Environment}.
+         * type matches the service registry of the Environment
          */
         SERVICE,
 
         /**
-         * a parameter without {@see org.tomitribe.crest.api.Option}.
+         * a parameter without {@link org.tomitribe.crest.api.Option}.
          */
         PLAIN,
 
@@ -71,7 +71,7 @@ public interface ParameterMetadata {
     boolean isListable();
 
     /**
-     * @return the component type for a {@see isListable()} parameter, throw {@see java.lang.UnsupportedOperationException} otherwise.
+     * @return the component type for a {@link #isListable()} parameter, throw java.lang.UnsupportedOperationException otherwise.
      */
     Class<?> getComponentType();
 

@@ -27,6 +27,8 @@ import org.tomitribe.crest.cmds.Completer;
 import org.tomitribe.crest.cmds.HelpPrintedException;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
+import org.tomitribe.crest.cmds.targets.SimpleBean;
+import org.tomitribe.crest.cmds.targets.TargetProvider;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.environments.Environment;
@@ -49,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -62,6 +65,7 @@ public class Main implements Completer {
     protected final Environment environment;
     protected final String name;
     protected final String version;
+    protected final TargetProvider targetProvider;
 
     public Main() {
         this(new SystemPropertiesDefaultsContext(), Commands.load(), new SystemEnvironment(), System::exit);
@@ -81,15 +85,17 @@ public class Main implements Completer {
 
     private Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes, final Environment environment,
                  final Consumer<Integer> onExit) {
-        this(defaultsContext, classes, environment, onExit, null, null);
+        this(defaultsContext, classes, environment, onExit, null, null, null);
     }
 
     public Main(final DefaultsContext defaultsContext, final Iterable<Class<?>> classes, final Environment environment,
-                final Consumer<Integer> onExit, final String name, final String version) {
+                final Consumer<Integer> onExit, final String name, final String version, final TargetProvider provider) {
         this.environment = environment;
         this.onExit = onExit;
         this.version = version;
         this.name = name;
+
+        targetProvider = provider == null ? lookupTargetProviderServiceLoader() : provider;
 
         for (final Class clazz : classes) {
             processClass(defaultsContext, clazz);
@@ -102,6 +108,28 @@ public class Main implements Completer {
         installHelp(defaultsContext);
     }
 
+    private TargetProvider lookupTargetProviderServiceLoader() {
+        final TargetProvider targetProvider;
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (loader == null) {
+            loader = ClassLoader.getSystemClassLoader();
+        }
+
+        final List<TargetProvider> targetProviders = new ArrayList<>();
+        ServiceLoader.load(TargetProvider.class, loader)
+                .forEach(targetProviders::add);
+
+        if (targetProviders.size() > 1) {
+            throw new IllegalStateException("Multiple TargetProviders found: " + targetProviders);
+        }
+
+        if (targetProviders.size() == 1) {
+            return targetProviders.get(0);
+        } else {
+            return commandClass -> new SimpleBean(null); // default backwards compatibility
+        }
+    }
+
     public String getName() {
         return name;
     }
@@ -111,7 +139,7 @@ public class Main implements Completer {
     }
 
     public void processClass(final DefaultsContext defaultsContext, final Class<?> clazz) {
-        final Map<String, Cmd> m = Commands.get(clazz, defaultsContext);
+        final Map<String, Cmd> m = Commands.get(clazz, targetProvider.getTarget(clazz), defaultsContext);
         if (!m.isEmpty()) {
             this.commands.putAll(m);
         } else if (clazz.isAnnotationPresent(Editor.class)) {
@@ -389,6 +417,7 @@ public class Main implements Completer {
         private String version;
 
         private String name;
+        private TargetProvider targetProvider = null;
 
         /**
          * Specifies a version that Crest will print with help messages
@@ -420,6 +449,14 @@ public class Main implements Completer {
          */
         public Builder env(final String name, final String value) {
             env.put(name, value);
+            return this;
+        }
+
+        /**
+         * Passes in the target provider used to create the command instances.
+         */
+        public Builder provider(final TargetProvider targetProvider) {
+            this.targetProvider = targetProvider;
             return this;
         }
 
@@ -509,7 +546,7 @@ public class Main implements Completer {
                         .build();
 
 
-                return new Main(new SystemPropertiesDefaultsContext(), commands, environment, exit, name, version);
+                return new Main(new SystemPropertiesDefaultsContext(), commands, environment, exit, name, version, targetProvider);
             } catch (final Exception e) {
                 throw new MainBuildException(e);
             }
@@ -583,6 +620,7 @@ public class Main implements Completer {
         public static class MainBuildException extends RuntimeException {
             public MainBuildException(final Exception e) {
                 super(String.format("Unable to build Main. " + e.getMessage()));
+                e.printStackTrace();
             }
         }
     }

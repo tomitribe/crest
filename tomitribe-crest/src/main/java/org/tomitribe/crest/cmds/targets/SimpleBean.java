@@ -47,12 +47,16 @@ public class SimpleBean implements Target {
             return bean;
         }
 
+        final Class<?> declaringClass = method.getDeclaringClass();
+        return newInstance(declaringClass);
+    }
+
+    public Object newInstance(final Class<?> declaringClass) {
         try {
-            final Class<?> declaringClass = method.getDeclaringClass();
             final Constructor<?> constructor = declaringClass.getConstructor();
             return constructor.newInstance();
         } catch (final NoSuchMethodException e) {
-            return null;
+            throw new IllegalArgumentException("Can't instantiate `" + declaringClass +"` using default constructor.", e);
         } catch (final InvocationTargetException e) {
             throw new IllegalStateException(e.getCause());
         } catch (final Throwable e) {

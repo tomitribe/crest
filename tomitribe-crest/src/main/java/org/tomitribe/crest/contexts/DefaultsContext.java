@@ -16,10 +16,6 @@
  */
 package org.tomitribe.crest.contexts;
 
-import org.tomitribe.crest.cmds.targets.Target;
-
-import java.lang.reflect.Method;
-
 /**
  * Used to provide substitution values for @Default("hello ${value}") type expressions.
  */
@@ -29,10 +25,8 @@ public interface DefaultsContext {
      * an expression inside ${...} type substitutions to String values which will
      * replace the substitution expression.
      *
-     * @param target        The command class
-     * @param commandMethod the command method
      * @param key           the ... in the ${...} expression
      * @return the value to replace key with. Null is equivalent to the empty string.
      */
-    public String find(Target target, Method commandMethod, String key);
+    public String find(String key);
 }

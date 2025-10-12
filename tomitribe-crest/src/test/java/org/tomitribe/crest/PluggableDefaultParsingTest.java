@@ -21,10 +21,7 @@ import org.junit.Test;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
-import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.contexts.DefaultsContext;
-
-import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
 
@@ -62,7 +59,7 @@ public class PluggableDefaultParsingTest {
         }
 
         @Override
-        public String find(final Target cmd, final Method commandMethod, final String key) {
+        public String find(final String key) {
             return value;
         }
     }

@@ -19,10 +19,8 @@ package org.tomitribe.crest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.cmds.targets.Substitution;
-import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.contexts.DefaultsContext;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,7 +76,7 @@ public class SubstitutionTest extends Assert {
         }
 
         @Override
-        public String find(final Target cmd, final Method commandMethod, final String key) {
+        public String find(final String key) {
             return values.get(key);
         }
     }

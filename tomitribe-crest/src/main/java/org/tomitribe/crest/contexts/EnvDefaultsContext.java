@@ -16,13 +16,9 @@
  */
 package org.tomitribe.crest.contexts;
 
-import java.lang.reflect.Method;
-
-import org.tomitribe.crest.cmds.targets.Target;
-
 public class EnvDefaultsContext implements DefaultsContext {
     @Override
-    public String find(final Target cmd, final Method commandMethod, final String key) {
+    public String find(final String key) {
         return System.getenv(key);
     }
 }

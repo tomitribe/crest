@@ -16,8 +16,6 @@
  */
 package org.tomitribe.crest.cmds.targets;
 
-import static java.util.Locale.ROOT;
-
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.contexts.EnvDefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
@@ -29,6 +27,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
+
+import static java.util.Locale.ROOT;
 
 /**
  * @version $Revision$ $Date$
@@ -62,13 +62,13 @@ public class Substitution {
             protected String getOrDefault(final String varName, final String varDefaultValue) {
                 for (final Map.Entry<String, DefaultsContext> ctx : DEFAULTS_JVM_CONTEXTS.entrySet()) {
                     if (varName.startsWith(ctx.getKey())) {
-                        final String value = ctx.getValue().find(target, method, varName.substring(ctx.getKey().length()));
+                        final String value = ctx.getValue().find(varName.substring(ctx.getKey().length()));
                         if (value != null) {
                             return value;
                         }
                     }
                 }
-                final String value = df.find(target, method, varName);
+                final String value = df.find(varName);
                 return value == null ? varDefaultValue : value;
             }
         }.replace(input);

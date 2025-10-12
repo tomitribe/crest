@@ -54,14 +54,14 @@ public class SubstitutionTest extends Assert {
 
         final DefaultsContext df = new MapDefaultsContext(map);
 
-        assertEquals("uno", Substitution.format(null, null, "${one}", df));
-        assertEquals("uunoo", Substitution.format(null, null, "u${one}o", df));
-        assertEquals("uno dos tres", Substitution.format(null, null, "${one} ${two} ${three}", df));
-        assertEquals("/tmp/foo", Substitution.format(null, null, "${user.dir}", df));
-        assertEquals("azul", Substitution.format(null, null, "${red}", df));
+        assertEquals("uno", Substitution.format("${one}", df));
+        assertEquals("uunoo", Substitution.format("u${one}o", df));
+        assertEquals("uno dos tres", Substitution.format("${one} ${two} ${three}", df));
+        assertEquals("/tmp/foo", Substitution.format("${user.dir}", df));
+        assertEquals("azul", Substitution.format("${red}", df));
 
         try {
-            Substitution.format(null, null, "${a}", df);
+            Substitution.format("${a}", df);
             fail();
         } catch (final IllegalStateException e) {
             // pass

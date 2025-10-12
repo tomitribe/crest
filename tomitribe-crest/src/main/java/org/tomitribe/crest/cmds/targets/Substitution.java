@@ -21,7 +21,6 @@ import org.tomitribe.crest.contexts.EnvDefaultsContext;
 import org.tomitribe.crest.contexts.SystemPropertiesDefaultsContext;
 import org.tomitribe.crest.lang.Substitutor;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,11 +46,11 @@ public class Substitution {
         // no-op
     }
 
-    public static String format(final Target target, final Method method, final String input, final DefaultsContext df) {
-        return format(target, method, input, df, new HashSet<String>());
+    public static String format(final String input, final DefaultsContext df) {
+        return format(input, df, new HashSet<String>());
     }
 
-    private static String format(final Target target, final Method method, final String input,
+    private static String format(final String input,
                                  final DefaultsContext df, final Set<String> seen) {
         if (!seen.add(input)) {
             throw new IllegalStateException("Circular reference in " + input);

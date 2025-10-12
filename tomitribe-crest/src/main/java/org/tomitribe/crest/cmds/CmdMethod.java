@@ -35,7 +35,6 @@ import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.processors.Item;
 import org.tomitribe.crest.cmds.processors.OptionParam;
 import org.tomitribe.crest.cmds.processors.Param;
-import org.tomitribe.crest.cmds.targets.Substitution;
 import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.cmds.utils.CommandLine;
 import org.tomitribe.crest.contexts.DefaultsContext;
@@ -77,7 +76,6 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -103,7 +101,7 @@ import static org.tomitribe.crest.help.DocumentParser.parseOptionDescription;
  */
 public class CmdMethod implements Cmd {
     private static final String[] NO_PREFIX = {""};
-    private static final Join.NameCallback<String> STRING_NAME_CALLBACK = new Join.NameCallback<String>() {
+    public static final Join.NameCallback<String> STRING_NAME_CALLBACK = new Join.NameCallback<String>() {
         @Override
         public String getName(final String object) {
             if (object.startsWith("-")) {
@@ -142,6 +140,17 @@ public class CmdMethod implements Cmd {
         public List<Param> getArguments() {
             return Collections.unmodifiableList(arguments);
         }
+
+        public Map<String, String> getDefaults() {
+            final Map<String, String> options = new HashMap<>();
+
+            for (final OptionParam parameter : this.options.values()) {
+                options.put(parameter.getName(), parameter.getDefaultValue());
+            }
+
+            return options;
+        }
+
     }
 
     public CmdMethod(final Method method, final Target target, final DefaultsContext defaultsFinder,
@@ -766,7 +775,7 @@ public class CmdMethod implements Cmd {
     }
 
     public List<Object> parse(final String... rawArgs) {
-        return convert(new Arguments(rawArgs));
+        return convert(new Arguments(defaultsFinder, spec, rawArgs));
     }
 
     public class Needed {
@@ -783,12 +792,12 @@ public class CmdMethod implements Cmd {
 
         final List<Value> converted = convert(args, needed, parameters);
 
-        if (!args.list.isEmpty()) {
-            throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", args.list));
+        if (!args.getList().isEmpty()) {
+            throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", args.getList()));
         }
 
-        if (!args.options.isEmpty()) {
-            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", STRING_NAME_CALLBACK, args.options.keySet()));
+        if (!args.getOptions().isEmpty()) {
+            throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", STRING_NAME_CALLBACK, args.getOptions().keySet()));
         }
 
         return toArgs(converted);
@@ -811,7 +820,7 @@ public class CmdMethod implements Cmd {
          *
          * Thus, iteration order is very significant in this loop.
          */
-        final List<Value> converted = new ArrayList<>(args.options.size() /*approx but better than nothing*/);
+        final List<Value> converted = new ArrayList<>(args.getOptions().size() /*approx but better than nothing*/);
         final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
         for (final Param parameter : parameters1) {
             final ParameterMetadata apiView = parameter.getApiView();
@@ -836,7 +845,7 @@ public class CmdMethod implements Cmd {
                     converted.add(new Value(environment.findService(parameter.getType()), false));
                     break;
                 case PLAIN:
-                    if (!args.list.isEmpty()) {
+                    if (!args.getList().isEmpty()) {
                         needed.count--;
                         converted.add(fillPlainParameter(args, needed, parameter));
                     } else {
@@ -857,7 +866,7 @@ public class CmdMethod implements Cmd {
     }
 
     private static Value fillOptionParameter(final Arguments args, final Param parameter, final String name) {
-        final String value = args.options.remove(name);
+        final String value = args.getOptions().remove(name);
         if (parameter.isListable()) {
             return convert(parameter, OptionParam.getSeparatedValues(value), name);
         }
@@ -882,13 +891,13 @@ public class CmdMethod implements Cmd {
 
     private static Value fillPlainParameter(final Arguments args, final Needed needed, final Param parameter) {
         if (parameter.isListable()) {
-            final List<String> glob = new ArrayList<>(args.list.size());
-            for (int i = args.list.size(); i > needed.count; i--) {
-                glob.add(args.list.remove(0));
+            final List<String> glob = new ArrayList<>(args.getList().size());
+            for (int i = args.getList().size(); i > needed.count; i--) {
+                glob.add(args.getList().remove(0));
             }
             return convert(parameter, glob, null);
         } else {
-            final String value = args.list.remove(0);
+            final String value = args.getList().remove(0);
             return new Value(Converter.convert(value, parameter.getType(), parameter.getDisplayType().replace("[]", "...")), value != null);
         }
     }
@@ -1015,197 +1024,6 @@ public class CmdMethod implements Cmd {
         } catch (final Exception e) {
 
             throw new IllegalStateException("Cannot construct java.util.Collection type: " + aClass.getName(), e);
-        }
-    }
-
-    public Map<String, String> getDefaults() {
-        final Map<String, String> options = new HashMap<>();
-
-        for (final OptionParam parameter : spec.options.values()) {
-            options.put(parameter.getName(), parameter.getDefaultValue());
-        }
-
-        return options;
-    }
-
-    private class Arguments {
-        private final List<String> list = new ArrayList<>();
-        private final Map<String, String> options = new HashMap<>();
-
-        private Arguments(final String[] rawArgs) {
-
-            final Map<String, String> defaults = getDefaults();
-            final Map<String, String> supplied = new HashMap<>();
-
-            final List<String> invalid = new ArrayList<>();
-            final Set<String> repeated = new HashSet<>();
-
-            // Read in and apply the options specified on the command line
-            for (final String arg : rawArgs) {
-                if (arg.startsWith("--")) {
-                    getCommand("--", arg, defaults, supplied, invalid, repeated);
-                } else if (arg.startsWith("-")) {
-                    getCommand("-", arg, defaults, supplied, invalid, repeated);
-                } else {
-                    this.list.add(arg);
-                }
-            }
-
-            checkInvalid(invalid);
-            checkRequired(supplied);
-            checkRepeated(repeated);
-
-            interpret(defaults);
-
-            this.options.putAll(defaults);
-            this.options.putAll(supplied);
-
-        }
-
-        private void getCommand(final String defaultPrefix,
-                                final String arg,
-                                final Map<String, String> defaults,
-                                final Map<String, String> supplied,
-                                final List<String> invalid,
-                                final Set<String> repeated) {
-            String name;
-            String value;
-            String prefix = defaultPrefix;
-
-            if (arg.indexOf('=') > 0) {
-                name = arg.substring(arg.indexOf(prefix) + prefix.length(), arg.indexOf('='));
-                if (!defaults.containsKey(name) && !spec.aliases.containsKey(name)) {
-                    name = arg.substring(0, arg.indexOf('='));
-                    prefix = "";
-                }
-                value = arg.substring(arg.indexOf('=') + 1);
-            } else {
-                if (arg.startsWith("--no-")) {
-                    name = arg.substring(5);
-                    value = "false";
-                } else {
-                    name = arg.substring(prefix.length());
-                    value = "true";
-                }
-            }
-
-            if ("-".equals(prefix)) {
-
-                // reject -del=true
-                if (arg.indexOf('=') > -1 && name.length() > 1) {
-                    invalid.add(prefix + name);
-                    return;
-                }
-
-                final Set<String> opts = new HashSet<>();
-                for (final String opt : name.split("(?!^)")) {
-                    opts.add(opt);
-                }
-
-                for (final String opt : opts) {
-                    processOption(prefix, opt, value, defaults, supplied, invalid, repeated);
-                }
-            }
-
-            // reject --d and --d=true
-            if ("--".equals(prefix)) {
-                if (name.length() == 1) {
-                    invalid.add(prefix + name);
-                    return;
-                }
-
-                processOption(prefix, name, value, defaults, supplied, invalid, repeated);
-            }
-            if (prefix.isEmpty()) {
-                processOption(prefix, name, value, defaults, supplied, invalid, repeated);
-            }
-        }
-
-        private void processOption(final String prefix,
-                                   final String optName,
-                                   final String optValue,
-                                   final Map<String, String> defaults,
-                                   final Map<String, String> supplied,
-                                   final List<String> invalid,
-                                   final Set<String> repeated) {
-
-            String name = optName;
-            String value = optValue;
-
-            if (!defaults.containsKey(name) && spec.aliases.containsKey(name)) {
-                // check the options to find see if name is an alias for an option
-                // if it is, get the actual optionparam name
-                name = spec.aliases.get(name).getName();
-            }
-
-            if (defaults.containsKey(name)) {
-                final boolean isList = defaults.get(name) != null && defaults.get(name).startsWith(OptionParam.LIST_TYPE);
-                final String existing = supplied.get(name);
-
-                if (isList) {
-
-                    if (existing == null) {
-
-                        value = OptionParam.LIST_TYPE + value;
-
-                    } else {
-
-                        value = existing + OptionParam.LIST_SEPARATOR + value;
-
-                    }
-
-                } else if (existing != null) {
-
-                    repeated.add(name);
-                }
-
-                supplied.put(name, value);
-            } else {
-                invalid.add(prefix + name);
-            }
-        }
-
-        private void interpret(final Map<String, String> map) {
-            for (final Map.Entry<String, String> entry : map.entrySet()) {
-                if (entry.getValue() == null) {
-                    continue;
-                }
-                final String value = Substitution.format(target, method, entry.getValue(), defaultsFinder);
-                map.put(entry.getKey(), value);
-            }
-        }
-
-        private void checkInvalid(final List<String> invalid) {
-            if (!invalid.isEmpty()) {
-                throw new IllegalArgumentException("Unknown options: " + Join.join(", ", STRING_NAME_CALLBACK, invalid));
-            }
-        }
-
-        private void checkRequired(final Map<String, String> supplied) {
-            final List<String> required = new ArrayList<>();
-            for (final Param parameter : spec.options.values()) {
-                if (!parameter.isAnnotationPresent(Required.class)) {
-                    continue;
-                }
-
-                final Option option = parameter.getAnnotation(Option.class);
-
-                for (String optionValue : option.value()) {
-                    if (!supplied.containsKey(optionValue)) {
-                        required.add(optionValue);
-                    }
-                }
-            }
-
-            if (!required.isEmpty()) {
-                throw new IllegalArgumentException("Required: " + Join.join(", ", STRING_NAME_CALLBACK, required));
-            }
-        }
-
-        private void checkRepeated(final Set<String> repeated) {
-            if (!repeated.isEmpty()) {
-                throw new IllegalArgumentException("Cannot be specified more than once: " + Join.join(", ", repeated));
-            }
         }
     }
 

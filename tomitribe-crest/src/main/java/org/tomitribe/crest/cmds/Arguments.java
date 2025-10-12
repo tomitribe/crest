@@ -31,10 +31,10 @@ import java.util.Set;
 public class Arguments {
     private final List<String> list = new ArrayList<>();
     private final Map<String, String> options = new HashMap<>();
-    private final CmdMethod.Spec spec;
+    private final Spec spec;
     private final DefaultsContext defaultsFinder;
 
-    public Arguments(final DefaultsContext defaultsFinder, final CmdMethod.Spec spec, final String[] rawArgs) {
+    public Arguments(final DefaultsContext defaultsFinder, final Spec spec, final String[] rawArgs) {
         this.defaultsFinder = defaultsFinder;
         this.spec = spec;
         final Map<String, String> defaults = spec.getDefaults();

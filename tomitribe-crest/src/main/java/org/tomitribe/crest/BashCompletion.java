@@ -22,6 +22,7 @@ import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.OverloadedCmdMethod;
+import org.tomitribe.crest.cmds.Spec;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.OptionParam;
 import org.tomitribe.crest.environments.Environment;
@@ -146,7 +147,7 @@ public class BashCompletion {
 
         out.println("\nfunction " + functionName + "() {");
 
-        final CmdMethod.Spec spec = cmdMethod.getSpec();
+        final Spec spec = cmdMethod.getSpec();
 
         if (hasFlags(spec)) {
             proposeFlags(spec);
@@ -157,7 +158,7 @@ public class BashCompletion {
         out.println("}");
     }
 
-    private void proposeFlags(final CmdMethod.Spec spec) {
+    private void proposeFlags(final Spec spec) {
 
         out.println("" +
                 "  local cur=${COMP_WORDS[COMP_CWORD]}\n" +
@@ -195,7 +196,7 @@ public class BashCompletion {
 
     }
 
-    private static boolean hasFlags(final CmdMethod.Spec spec) {
+    private static boolean hasFlags(final Spec spec) {
         return spec != null && spec.getOptions() != null && spec.getOptions().size() != 0;
     }
 

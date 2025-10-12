@@ -124,7 +124,7 @@ public class CmdMethod implements Cmd {
     private final DefaultsContext defaultsFinder;
     private final Spec spec = new Spec();
     private final BeanValidationImpl beanValidation;
-    private volatile List<ParameterMetadata> parameterMetadatas;
+    private final List<ParameterMetadata> parameterMetadatas;
 
     public class Spec {
         private final Map<String, OptionParam> options = new LinkedHashMap<>();
@@ -155,6 +155,7 @@ public class CmdMethod implements Cmd {
         final List<Param> parameters = buildParams(null, NO_PREFIX, null, Reflection.params(method));
 
         this.parameters = Collections.unmodifiableList(parameters);
+        this.parameterMetadatas = buildApiParameterViews(parameters);
 
         this.interceptors = getInterceptors(method);
 
@@ -288,8 +289,6 @@ public class CmdMethod implements Cmd {
                 parameters.add(e);
             }
         }
-
-        parameterMetadatas = buildApiParameterViews(parameters);
 
         return parameters;
     }

@@ -126,7 +126,7 @@ public class CmdMethod implements Cmd {
     private final BeanValidationImpl beanValidation;
     private final List<ParameterMetadata> parameterMetadatas;
 
-    public class Spec {
+    public static class Spec {
         private final Map<String, OptionParam> options = new LinkedHashMap<>();
         private final Map<String, OptionParam> aliases = new TreeMap<>();
         private final List<Param> arguments = new LinkedList<>();
@@ -518,7 +518,7 @@ public class CmdMethod implements Cmd {
         }.proceed();
     }
 
-    private List<ParameterMetadata> buildApiParameterViews(final List<Param> parameters) {
+    private static List<ParameterMetadata> buildApiParameterViews(final List<Param> parameters) {
         final List<ParameterMetadata> parameterMetadatas = new ArrayList<>();
         for (final Param param : parameters) {
             // precompute all values to get a fast runtime immutable structure
@@ -794,7 +794,7 @@ public class CmdMethod implements Cmd {
         return toArgs(converted);
     }
 
-    private List<Object> toArgs(final List<Value> converted) {
+    private static List<Object> toArgs(final List<Value> converted) {
         final List<Object> objects = new ArrayList<>(converted.size());
         for (final Value v : converted) {
             objects.add(v.getValue());
@@ -802,7 +802,7 @@ public class CmdMethod implements Cmd {
         return objects;
     }
 
-    private List<Value> convert(Arguments args, Needed needed, List<Param> parameters1) {
+    private static List<Value> convert(Arguments args, Needed needed, List<Param> parameters1) {
         /**
          * Here we iterate over the method's parameters and convert strings into their equivalent Option or Arg value.
          *
@@ -856,7 +856,7 @@ public class CmdMethod implements Cmd {
         return converted;
     }
 
-    private Value fillOptionParameter(final Arguments args, final Param parameter, final String name) {
+    private static Value fillOptionParameter(final Arguments args, final Param parameter, final String name) {
         final String value = args.options.remove(name);
         if (parameter.isListable()) {
             return convert(parameter, OptionParam.getSeparatedValues(value), name);
@@ -880,7 +880,7 @@ public class CmdMethod implements Cmd {
         return new Value(convert, value != null && !value.equals(OptionParam.class.cast(parameter).getDefaultValue()));
     }
 
-    private Value fillPlainParameter(final Arguments args, final Needed needed, final Param parameter) {
+    private static Value fillPlainParameter(final Arguments args, final Needed needed, final Param parameter) {
         if (parameter.isListable()) {
             final List<String> glob = new ArrayList<>(args.list.size());
             for (int i = args.list.size(); i > needed.count; i--) {

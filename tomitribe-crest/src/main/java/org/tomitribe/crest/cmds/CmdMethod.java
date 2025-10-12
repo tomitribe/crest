@@ -120,7 +120,7 @@ public class CmdMethod implements Cmd {
     private final List<Param> parameters;
     private final Class<?>[] interceptors;
     private final DefaultsContext defaultsFinder;
-    private final Spec spec = new Spec();
+    private final Spec spec;
     private final BeanValidationImpl beanValidation;
     private final List<ParameterMetadata> parameterMetadatas;
 
@@ -128,6 +128,100 @@ public class CmdMethod implements Cmd {
         private final Map<String, OptionParam> options = new LinkedHashMap<>();
         private final Map<String, OptionParam> aliases = new TreeMap<>();
         private final List<Param> arguments = new LinkedList<>();
+        private final BeanValidationImpl beanValidation;
+
+        public Spec(final BeanValidationImpl beanValidation) {
+            this.beanValidation = beanValidation;
+        }
+
+        private List<Param> buildParams(final BeanValidationImpl beanValidation, final String globalDescription, final String[] inPrefixes,
+                                        final Defaults.DefaultMapping[] defaultsMapping, final Iterable<Parameter> params) {
+            final String[] prefixes = inPrefixes == null ? NO_PREFIX : inPrefixes;
+            final List<Param> parameters = new ArrayList<>();
+            for (final Parameter parameter : params) {
+
+                if (parameter.isAnnotationPresent(Option.class)) {
+
+                    final Option option = parameter.getAnnotation(Option.class);
+
+                    final Options options = parameter.getType().getAnnotation(Options.class);
+                    if (options != null) {
+
+                        final Defaults defaultMappings = parameter.getAnnotation(Defaults.class);
+                        final Defaults.DefaultMapping[] directMapping = parameter.getDeclaredAnnotationsByType(Defaults.DefaultMapping.class);
+                        final ComplexParam complexParam = new ComplexParam(this, beanValidation,
+                                option.value(), option.description(),
+                                directMapping != null ? directMapping : defaultMappings.value(),
+                                parameter, options.nillable());
+
+                        parameters.add(complexParam);
+
+                    } else {
+                        if (parameter.isAnnotationPresent(Defaults.class)) {
+                            throw new IllegalArgumentException("Simple option doesnt support @Defaults, use @Default please");
+                        }
+
+                        final String shortName = option.value()[0];
+                        final String mainOption = prefixes[0] + shortName;
+                        String def = null;
+                        String description = option.description();
+                        if (defaultsMapping != null) {
+                            for (final Defaults.DefaultMapping mapping : defaultsMapping) {
+                                if (mapping.name().equals(shortName)) {
+                                    def = mapping.value();
+                                    if (!mapping.description().isEmpty()) {
+                                        def = mapping.description();
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        final OptionParam optionParam = new OptionParam(parameter, mainOption, def, (globalDescription != null ? globalDescription : "") + description);
+
+                        final OptionParam existing = this.options.put(mainOption, optionParam);
+                        if (existing != null) {
+                            throw new IllegalArgumentException("Duplicate option: " + mainOption);
+                        }
+
+                        for (int i = 1; i < prefixes.length; i++) {
+                            final String key = prefixes[i] + optionParam.getName();
+                            final OptionParam existingAlias = this.aliases.put(key, optionParam);
+
+                            if (existingAlias != null) {
+                                throw new IllegalArgumentException("Duplicate alias: " + key);
+                            }
+                        }
+
+                        for (int i = 1; i < option.value().length; i++) {
+                            final String alias = option.value()[i];
+                            for (final String prefix : prefixes) {
+                                final String fullAlias = prefix + alias;
+                                final OptionParam existingAlias = this.aliases.put(fullAlias, optionParam);
+
+                                if (existingAlias != null) {
+                                    throw new IllegalArgumentException("Duplicate alias: " + fullAlias);
+                                }
+                            }
+                        }
+
+                        parameters.add(optionParam);
+                    }
+                } else if (parameter.getType().isAnnotationPresent(Options.class)) {
+
+                    final ComplexParam complexParam = new ComplexParam(this, beanValidation, null, null, null, parameter, parameter.getType().getAnnotation(Options.class).nillable());
+
+                    parameters.add(complexParam);
+
+                } else {
+
+                    final Param e = new Param(parameter);
+                    this.arguments.add(e);
+                    parameters.add(e);
+                }
+            }
+
+            return parameters;
+        }
 
         public Map<String, OptionParam> getOptions() {
             return Collections.unmodifiableMap(options);
@@ -144,7 +238,7 @@ public class CmdMethod implements Cmd {
         public Map<String, String> getDefaults() {
             final Map<String, String> options = new HashMap<>();
 
-            for (final OptionParam parameter : this.options.values()) {
+            for (final OptionParam parameter : this.getOptions().values()) {
                 options.put(parameter.getName(), parameter.getDefaultValue());
             }
 
@@ -160,8 +254,9 @@ public class CmdMethod implements Cmd {
         this.defaultsFinder = defaultsFinder;
         this.name = Commands.name(method);
         this.beanValidation = beanValidation;
+        this.spec = new Spec(beanValidation);
 
-        final List<Param> parameters = buildParams(null, NO_PREFIX, null, Reflection.params(method));
+        final List<Param> parameters = spec.buildParams(beanValidation, null, NO_PREFIX, null, Reflection.params(method));
 
         this.parameters = Collections.unmodifiableList(parameters);
         this.parameterMetadatas = buildApiParameterViews(parameters);
@@ -213,107 +308,21 @@ public class CmdMethod implements Cmd {
         return interceptors.toArray(new Class[0]);
     }
 
-    private List<Param> buildParams(final String globalDescription, final String[] inPrefixes,
-                                    final Defaults.DefaultMapping[] defaultsMapping, final Iterable<Parameter> params) {
-        final String[] prefixes = inPrefixes == null ? NO_PREFIX : inPrefixes;
-        final List<Param> parameters = new ArrayList<>();
-        for (final Parameter parameter : params) {
-
-            if (parameter.isAnnotationPresent(Option.class)) {
-
-                final Option option = parameter.getAnnotation(Option.class);
-
-                final Options options = parameter.getType().getAnnotation(Options.class);
-                if (options != null) {
-
-                    final Defaults defaultMappings = parameter.getAnnotation(Defaults.class);
-                    final Defaults.DefaultMapping[] directMapping = parameter.getDeclaredAnnotationsByType(Defaults.DefaultMapping.class);
-                    final ComplexParam complexParam = new ComplexParam(
-                            option.value(), option.description(),
-                            directMapping != null ? directMapping : defaultMappings.value(),
-                            parameter, options.nillable());
-
-                    parameters.add(complexParam);
-
-                } else {
-                    if (parameter.isAnnotationPresent(Defaults.class)) {
-                        throw new IllegalArgumentException("Simple option doesnt support @Defaults, use @Default please");
-                    }
-
-                    final String shortName = option.value()[0];
-                    final String mainOption = prefixes[0] + shortName;
-                    String def = null;
-                    String description = option.description();
-                    if (defaultsMapping != null) {
-                        for (final Defaults.DefaultMapping mapping : defaultsMapping) {
-                            if (mapping.name().equals(shortName)) {
-                                def = mapping.value();
-                                if (!mapping.description().isEmpty()) {
-                                    def = mapping.description();
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    final OptionParam optionParam = new OptionParam(parameter, mainOption, def, (globalDescription != null ? globalDescription : "") + description);
-
-                    final OptionParam existing = spec.options.put(mainOption, optionParam);
-                    if (existing != null) {
-                        throw new IllegalArgumentException("Duplicate option: " + mainOption);
-                    }
-
-                    for (int i = 1; i < prefixes.length; i++) {
-                        final String key = prefixes[i] + optionParam.getName();
-                        final OptionParam existingAlias = spec.aliases.put(key, optionParam);
-
-                        if (existingAlias != null) {
-                            throw new IllegalArgumentException("Duplicate alias: " + key);
-                        }
-                    }
-
-                    for (int i = 1; i < option.value().length; i++) {
-                        final String alias = option.value()[i];
-                        for (final String prefix : prefixes) {
-                            final String fullAlias = prefix + alias;
-                            final OptionParam existingAlias = spec.aliases.put(fullAlias, optionParam);
-
-                            if (existingAlias != null) {
-                                throw new IllegalArgumentException("Duplicate alias: " + fullAlias);
-                            }
-                        }
-                    }
-
-                    parameters.add(optionParam);
-                }
-            } else if (parameter.getType().isAnnotationPresent(Options.class)) {
-
-                final ComplexParam complexParam = new ComplexParam(null, null, null, parameter, parameter.getType().getAnnotation(Options.class).nillable());
-
-                parameters.add(complexParam);
-
-            } else {
-
-                final Param e = new Param(parameter);
-                spec.arguments.add(e);
-                parameters.add(e);
-            }
-        }
-
-        return parameters;
-    }
-
-    private class ComplexParam extends Param {
+    public static class ComplexParam extends Param {
 
         private final List<Param> parameters;
         private final Constructor<?> constructor;
         private final boolean nullable;
+        private final BeanValidationImpl beanValidation;
+        private final Spec spec;
 
-        private ComplexParam(final String[] prefixes, final String globalDescription,
-                             final Defaults.DefaultMapping[] defaults, final Parameter parent, final boolean nullable) {
+        public ComplexParam(final Spec spec, final BeanValidationImpl beanValidation, final String[] prefixes, final String globalDescription,
+                            final Defaults.DefaultMapping[] defaults, final Parameter parent, final boolean nullable) {
             super(parent);
-
+            this.spec = spec;
+            this.beanValidation = beanValidation;
             this.constructor = selectConstructor(parent);
-            this.parameters = Collections.unmodifiableList(buildParams(globalDescription, prefixes, defaults, Reflection.params(constructor)));
+            this.parameters = Collections.unmodifiableList(spec.buildParams(beanValidation, globalDescription, prefixes, defaults, Reflection.params(constructor)));
             this.nullable = nullable;
         }
 
@@ -353,7 +362,7 @@ public class CmdMethod implements Cmd {
         }
 
         public Value convert(final Arguments arguments, final Needed needed) {
-            final List<Value> converted = CmdMethod.this.convert(arguments, needed, parameters);
+            final List<Value> converted = CmdMethod.convert(arguments, needed, parameters);
             if (nullable) {
                 boolean allNull = true;
                 for (final Value val : converted) {
@@ -394,11 +403,11 @@ public class CmdMethod implements Cmd {
     }
 
     public List<Param> getArgumentParameters() {
-        return Collections.unmodifiableList(spec.arguments);
+        return Collections.unmodifiableList(spec.getArguments());
     }
 
     private void validate() {
-        for (final Param param : spec.arguments) {
+        for (final Param param : spec.getArguments()) {
             if (param.isAnnotationPresent(Default.class)) {
                 throw new IllegalArgumentException("@Default only usable with @Option parameters.");
             }
@@ -441,7 +450,7 @@ public class CmdMethod implements Cmd {
 
         final List<Object> args = new ArrayList<>();
 
-        for (final Param parameter : spec.arguments) {
+        for (final Param parameter : spec.getArguments()) {
             boolean skip = Environment.class.isAssignableFrom(parameter.getType());
             for (final Annotation a : parameter.getAnnotations()) {
                 final CrestAnnotation crestAnnotation = a.annotationType().getAnnotation(CrestAnnotation.class);
@@ -646,7 +655,7 @@ public class CmdMethod implements Cmd {
     }
 
     public Map<String, OptionParam> getOptionParameters() {
-        return Collections.unmodifiableMap(spec.options);
+        return Collections.unmodifiableMap(spec.getOptions());
     }
 
     public Spec getSpec() {
@@ -686,7 +695,7 @@ public class CmdMethod implements Cmd {
         if (spec.getOptions().size() > 0) {
             manual.heading("OPTIONS");
 
-            final List<Item> items = Help.getItems(method, name, spec.options.values(), commandJavadoc);
+            final List<Item> items = Help.getItems(method, name, spec.getOptions().values(), commandJavadoc);
 
             for (final Item item : items) {
 
@@ -771,7 +780,7 @@ public class CmdMethod implements Cmd {
         out.println(getUsage());
         out.println();
 
-        Help.optionHelp(method, getName(), spec.options.values(), out);
+        Help.optionHelp(method, getName(), spec.getOptions().values(), out);
     }
 
     public List<Object> parse(final String... rawArgs) {
@@ -788,7 +797,7 @@ public class CmdMethod implements Cmd {
 
     private <T> List<Object> convert(final Arguments args) {
 
-        final Needed needed = new Needed(spec.arguments.size());
+        final Needed needed = new Needed(spec.getArguments().size());
 
         final List<Value> converted = convert(args, needed, parameters);
 
@@ -1077,7 +1086,7 @@ public class CmdMethod implements Cmd {
 
     private Collection<String> findMatchingAliasOptions(String prefix, boolean isIncludeAliasChar) {
         final List<String> result = new ArrayList<>();
-        for (String alias : spec.aliases.keySet()) {
+        for (String alias : spec.getAliases().keySet()) {
             if (alias.startsWith(prefix)) {
                 if (alias.startsWith("-")) {
                     result.add(alias);

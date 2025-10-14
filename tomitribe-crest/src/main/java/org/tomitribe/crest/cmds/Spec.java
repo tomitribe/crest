@@ -14,6 +14,7 @@
 package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.api.Defaults;
+import org.tomitribe.crest.api.GlobalOptions;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.cmds.processors.OptionParam;
@@ -59,6 +60,17 @@ public class Spec {
                             option.value(), option.description(),
                             directMapping != null ? directMapping : defaultMappings.value(),
                             parameter, options.nillable());
+
+                    parameters.add(complexParam);
+
+                } else if (parameter.getType().isAnnotationPresent(GlobalOptions.class)) {
+
+                    final Defaults defaultMappings = parameter.getAnnotation(Defaults.class);
+                    final Defaults.DefaultMapping[] directMapping = parameter.getDeclaredAnnotationsByType(Defaults.DefaultMapping.class);
+                    final ComplexParam complexParam = new ComplexParam(this, beanValidation,
+                            option.value(), option.description(),
+                            directMapping != null ? directMapping : defaultMappings.value(),
+                            parameter, parameter.getType().getAnnotation(GlobalOptions.class).nillable());
 
                     parameters.add(complexParam);
 
@@ -115,6 +127,12 @@ public class Spec {
             } else if (parameter.getType().isAnnotationPresent(Options.class)) {
 
                 final ComplexParam complexParam = new ComplexParam(this, beanValidation, null, null, null, parameter, parameter.getType().getAnnotation(Options.class).nillable());
+
+                parameters.add(complexParam);
+
+            } else if (parameter.getType().isAnnotationPresent(GlobalOptions.class)) {
+
+                final ComplexParam complexParam = new ComplexParam(this, beanValidation, null, null, null, parameter, parameter.getType().getAnnotation(GlobalOptions.class).nillable());
 
                 parameters.add(complexParam);
 

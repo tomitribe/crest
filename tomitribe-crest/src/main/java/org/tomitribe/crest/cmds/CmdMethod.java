@@ -318,7 +318,7 @@ public class CmdMethod implements Cmd {
         }.proceed();
     }
 
-    private static List<ParameterMetadata> buildApiParameterViews(final List<Param> parameters) {
+    public static List<ParameterMetadata> buildApiParameterViews(final List<Param> parameters) {
         final List<ParameterMetadata> parameterMetadatas = new ArrayList<>();
         for (final Param param : parameters) {
             // precompute all values to get a fast runtime immutable structure
@@ -566,10 +566,7 @@ public class CmdMethod implements Cmd {
     }
 
     public List<Object> parse(final String... rawArgs) {
-        return convert(new Arguments(defaultsFinder, spec, rawArgs));
-    }
-
-    private <T> List<Object> convert(final Arguments args) {
+        final Arguments args = new Arguments(defaultsFinder, spec, rawArgs);
 
         final Needed needed = new Needed(spec.getArguments().size());
 
@@ -594,7 +591,7 @@ public class CmdMethod implements Cmd {
         return objects;
     }
 
-    public static List<Value> convert(Arguments args, Needed needed, List<Param> parameters1) {
+    public static List<Value> convert(Arguments args, Needed needed, List<Param> parameters) {
         /**
          * Here we iterate over the method's parameters and convert strings into their equivalent Option or Arg value.
          *
@@ -605,7 +602,7 @@ public class CmdMethod implements Cmd {
          */
         final List<Value> converted = new ArrayList<>(args.getOptions().size() /*approx but better than nothing*/);
         final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
-        for (final Param parameter : parameters1) {
+        for (final Param parameter : parameters) {
             final ParameterMetadata apiView = parameter.getApiView();
             switch (apiView.getType()) {
                 case INTERNAL: {
@@ -897,6 +894,14 @@ public class CmdMethod implements Cmd {
 
         public boolean isProvided() {
             return provided;
+        }
+
+        @Override
+        public String toString() {
+            return "Value{" +
+                    "value=" + value +
+                    ", provided=" + provided +
+                    '}';
         }
     }
 }

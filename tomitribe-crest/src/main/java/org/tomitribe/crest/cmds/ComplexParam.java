@@ -22,6 +22,7 @@ import org.tomitribe.crest.api.Out;
 import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.cmds.processors.Param;
 import org.tomitribe.crest.val.BeanValidationImpl;
+import org.tomitribe.util.Join;
 import org.tomitribe.util.reflect.Parameter;
 import org.tomitribe.util.reflect.Reflection;
 
@@ -121,5 +122,14 @@ public class ComplexParam extends Param {
 
     public List<Param> getParameters() {
         return parameters;
+    }
+
+    @Override
+    public String toString() {
+        return "ComplexParam{" +
+                "index=" + getIndex() +
+                ", type=" + getType() +
+                ", parameters=" + Join.join(" ", parameters) +
+                '}';
     }
 }

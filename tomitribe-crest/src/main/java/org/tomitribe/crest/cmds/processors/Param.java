@@ -63,4 +63,12 @@ public class Param extends Parameter {
     public void setApiView(final ParameterMetadata apiView) {
         this.apiView = apiView;
     }
+
+    @Override
+    public String toString() {
+        return "Param{" +
+                "index=" + getIndex() +
+                ", type=" + getType() +
+                '}';
+    }
 }

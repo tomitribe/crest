@@ -23,8 +23,10 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class TestEnvironment implements Environment {
 
@@ -35,6 +37,7 @@ public class TestEnvironment implements Environment {
     private final InputStream in;
     private final String name;
     private final String version;
+    private final List<Object> globalOptions = new CopyOnWriteArrayList<>();
 
     public TestEnvironment(final PrintString out,
                            final PrintString err,
@@ -102,6 +105,16 @@ public class TestEnvironment implements Environment {
     @Override
     public String getCommandVersion() {
         return version;
+    }
+
+    @Override
+    public List<Object> getGlobalOptions() {
+        return globalOptions;
+    }
+
+    @Override
+    public void setGlobalOptions(final List<Object> objects) {
+        this.globalOptions.addAll(objects);
     }
 
     public static Builder builder() {

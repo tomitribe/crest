@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
@@ -110,6 +111,14 @@ public class CrestCliTest {
                         @Override
                         public <T> T findService(final Class<T> type) {
                             return mainEnvironment.findService(type);
+                        }
+
+                        public void setGlobalOptions(final List<Object> objects) {
+                            mainEnvironment.setGlobalOptions(objects);
+                        }
+
+                        public List<Object> getGlobalOptions() {
+                            return mainEnvironment.getGlobalOptions();
                         }
                     };
                 }

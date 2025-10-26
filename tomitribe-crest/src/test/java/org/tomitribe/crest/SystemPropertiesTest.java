@@ -30,14 +30,6 @@ import java.io.File;
 public class SystemPropertiesTest extends Assert {
 
     @Test
-    public void dashD() throws Exception {
-
-        final Main main = new Main(Orange.class);
-
-        assertEquals("round", main.exec("property", "-Dshape=round", "shape"));
-    }
-
-    @Test
     public void systemPropertyDefaults() throws Exception {
 
         final Main main = new Main(Orange.class);

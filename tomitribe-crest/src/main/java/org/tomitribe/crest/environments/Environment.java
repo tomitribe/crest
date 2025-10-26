@@ -18,6 +18,7 @@ package org.tomitribe.crest.environments;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -61,4 +62,8 @@ public interface Environment {
     default String getCommandVersion() {
         return null;
     }
+
+    void setGlobalOptions(List<Object> objects);
+
+    List<Object> getGlobalOptions();
 }

@@ -18,12 +18,15 @@ package org.tomitribe.crest;
 
 import org.tomitribe.crest.api.Editor;
 import org.tomitribe.crest.api.Exit;
+import org.tomitribe.crest.api.GlobalOptions;
 import org.tomitribe.crest.api.PrintOutput;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
+import org.tomitribe.crest.cmds.Arguments;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CommandFailedException;
 import org.tomitribe.crest.cmds.Completer;
+import org.tomitribe.crest.cmds.GlobalSpec;
 import org.tomitribe.crest.cmds.HelpPrintedException;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
@@ -54,12 +57,14 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class Main implements Completer {
 
     protected final Map<String, Cmd> commands = new ConcurrentHashMap<>();
+    protected final List<Class<?>> globalOptionClasses = new CopyOnWriteArrayList<>();
     protected final Map<Class<?>, InternalInterceptor> interceptors = new HashMap<>();
     protected final Consumer<Integer> onExit;
     protected final Environment environment;
@@ -139,16 +144,25 @@ public class Main implements Completer {
     }
 
     public void processClass(final DefaultsContext defaultsContext, final Class<?> clazz) {
-        final Map<String, Cmd> m = Commands.get(clazz, targetProvider.getTarget(clazz), defaultsContext);
-        if (!m.isEmpty()) {
-            this.commands.putAll(m);
-        } else if (clazz.isAnnotationPresent(Editor.class)) {
+
+        if (clazz.isAnnotationPresent(Editor.class)) {
             final Editor annotation = clazz.getAnnotation(Editor.class);
             try {
                 PropertyEditorManager.registerEditor(annotation.value(), clazz);
             } catch (final Exception e) {
                 // no-op
             }
+            return;
+        }
+
+        if (clazz.isAnnotationPresent(GlobalOptions.class)) {
+            globalOptionClasses.add(clazz);
+            return;
+        }
+
+        final Map<String, Cmd> m = Commands.get(clazz, targetProvider.getTarget(clazz), defaultsContext);
+        if (!m.isEmpty()) {
+            this.commands.putAll(m);
         } else {
 
             final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz);
@@ -181,7 +195,7 @@ public class Main implements Completer {
     }
 
     private void installHelp(final DefaultsContext dc) {
-        final Map<String, Cmd> stringCmdMap = Commands.get(new Help(Main.this.commands, Main.this.version, Main.this.name), dc);
+        final Map<String, Cmd> stringCmdMap = Commands.get(new Help(Main.this.commands, Main.this.globalOptionClasses, Main.this.version, Main.this.name), dc);
         for (final Cmd cmd : stringCmdMap.values()) {
             add(cmd);
         }
@@ -288,47 +302,40 @@ public class Main implements Completer {
     }
 
     public Object exec(String... args) throws Exception {
-        final List<String> list = processSystemProperties(args);
+        final Arguments.Split split = Arguments.Split.split(args);
 
-        final String command = (list.isEmpty()) ? "help" : list.remove(0);
-        args = list.toArray(new String[list.size()]);
+        final String[] global = split.getGlobal();
 
-        if (command.equals("_completion")) {
-            return BashCompletion.generate(this, args);
-        }
+        final GlobalSpec globalSpec = GlobalSpec.builder()
+                .optionsClasses(globalOptionClasses)
+                .build();
 
-        final Cmd cmd = commands.get(command);
+        final List<Object> objects = globalSpec.parse(global);
+        Environment.ENVIRONMENT_THREAD_LOCAL.get().setGlobalOptions(objects);
 
-        if (cmd == null) {
+        try {
+            final String command = split.getCommand() == null ? "help" : split.getCommand();
 
-            final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
-            err.println("Unknown command: " + command);
-            err.println();
-            commands.get("help").exec(interceptors);
-            throw new IllegalArgumentException();
-        }
-
-        return cmd.exec(interceptors, args);
-    }
-
-    public static List<String> processSystemProperties(final String[] args) {
-        final List<String> list = new ArrayList<>();
-
-        // Read in and apply the properties specified on the command line
-        for (final String arg : args) {
-            if (arg.startsWith("-D")) {
-
-                final String name = arg.substring(arg.indexOf("-D") + 2, arg.indexOf('='));
-                final String value = arg.substring(arg.indexOf('=') + 1);
-
-                final Properties properties = Environment.ENVIRONMENT_THREAD_LOCAL.get().getProperties();
-                properties.setProperty(name, value);
-            } else {
-                list.add(arg);
+            if (command.equals("_completion")) {
+                return BashCompletion.generate(this, split.getArgs());
             }
-        }
 
-        return list;
+            final Cmd cmd = commands.get(command);
+
+            if (cmd == null) {
+
+                final PrintStream err = Environment.ENVIRONMENT_THREAD_LOCAL.get().getError();
+                err.println("Unknown command: " + command);
+                err.println();
+                commands.get("help").exec(interceptors);
+                throw new IllegalArgumentException();
+            }
+
+            return cmd.exec(interceptors, split.getArgs());
+        } finally {
+            Environment.ENVIRONMENT_THREAD_LOCAL.get().setGlobalOptions(Collections.emptyList());
+
+        }
     }
 
     @Override

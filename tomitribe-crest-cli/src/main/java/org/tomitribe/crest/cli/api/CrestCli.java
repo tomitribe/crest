@@ -399,12 +399,21 @@ public class CrestCli {
             public <T> T findService(final Class<T> type) {
                 return env.findService(type);
             }
+
+            public void setGlobalOptions(final List<Object> objects) {
+                env.setGlobalOptions(objects);
+            }
+
+            public List<Object> getGlobalOptions() {
+                return env.getGlobalOptions();
+            }
         };
     }
 
     // java 8 would have use Supplier which is cleaner
     protected CliEnvironment createMainEnvironment(final AtomicReference<InputReader> dynamicInputReaderRef,
                                                    final AtomicReference<History> dynamicHistoryAtomicReference) {
+//        final List<Object> globalOptions = new CopyOnWriteArrayList<>();
         final Map<String, ?> data = new HashMap<String, Object>();
         return new CliEnv() {
             @Override
@@ -421,6 +430,16 @@ public class CrestCli {
             public Map<String, ?> userData() {
                 return data;
             }
+
+//            @Override
+//            public List<Object> getGlobalOptions() {
+//                return globalOptions;
+//            }
+//
+//            @Override
+//            public void setGlobalOptions(final List<Object> objects) {
+//                globalOptions.addAll(objects);
+//            }
         };
     }
 

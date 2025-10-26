@@ -22,6 +22,7 @@ import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.util.Join;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -216,6 +217,92 @@ public class Arguments {
     private void checkRepeated(final Set<String> repeated) {
         if (!repeated.isEmpty()) {
             throw new IllegalArgumentException("Cannot be specified more than once: " + Join.join(", ", repeated));
+        }
+    }
+
+    public static class Split {
+        /**
+         * All flags leading up to the command
+         */
+        private String[] global;
+
+        /**
+         * The command name
+         */
+        private String command;
+
+        /**
+         * The command arguments
+         */
+        private String[] args;
+
+        public Split(final String[] global, final String command, final String[] args) {
+            this.global = global;
+            this.command = command;
+            this.args = args;
+        }
+
+        public String[] getGlobal() {
+            return global;
+        }
+
+        public String getCommand() {
+            return command;
+        }
+
+        public String[] getArgs() {
+            return args;
+        }
+
+        /**
+         * Splits a single array of command line arguments into three parts:
+         * <ul>
+         *   <li><b>Global arguments</b> – all leading arguments beginning with a dash
+         *       (e.g. <code>-v</code>, <code>--debug</code>).</li>
+         *   <li><b>Command name</b> – the first non-dash argument.</li>
+         *   <li><b>Command arguments</b> – all remaining arguments after the command name.</li>
+         * </ul>
+         *
+         * <p>Examples:
+         * <pre>{@code
+         * Split s1 = Split.split(new String[]{"--verbose", "deploy", "--force", "prod"});
+         * // global: ["--verbose"]
+         * // command: "deploy"
+         * // args: ["--force", "prod"]
+         *
+         * Split s2 = Split.split(new String[]{"--help"});
+         * // global: ["--help"]
+         * // command: null
+         * // args: []
+         * }</pre>
+         *
+         * @param args the full argument array, possibly {@code null}
+         * @return a {@link Split} object containing the parsed segments
+         */
+        public static Split split(final String[] args) {
+            if (args == null || args.length == 0) {
+                return new Split(new String[0], null, new String[0]);
+            }
+
+            int index = 0;
+            for (; index < args.length; index++) {
+                final String arg = args[index];
+                // Treat anything starting with '-' as global
+                if (!arg.startsWith("-")) {
+                    break;
+                }
+            }
+
+            final String[] global = Arrays.copyOfRange(args, 0, index);
+
+            if (index >= args.length) {
+                // all args are global, no command
+                return new Split(global, null, new String[0]);
+            }
+
+            final String command = args[index];
+            final String[] commandArgs = Arrays.copyOfRange(args, index + 1, args.length);
+            return new Split(global, command, commandArgs);
         }
     }
 }

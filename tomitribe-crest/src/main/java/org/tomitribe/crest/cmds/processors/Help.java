@@ -19,6 +19,7 @@ package org.tomitribe.crest.cmds.processors;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
+import org.tomitribe.crest.cmds.GlobalSpec;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.help.CommandJavadoc;
 import org.tomitribe.crest.help.Document;
@@ -49,17 +50,20 @@ public class Help {
     private final Map<String, Cmd> commands;
     private final String version;
     private final String name;
+    private final List<Class<?>> globalOptionClasses = new ArrayList<>();
 
-    public Help(final Map<String, Cmd> commands, final String version, final String name) {
+    public Help(final Map<String, Cmd> commands, final List<Class<?>> globalOptionClasses, final String version, final String name) {
         this.commands = commands;
         this.version = version;
         this.name = name;
+        this.globalOptionClasses.addAll(globalOptionClasses);
     }
 
     public static void optionHelp(final Method method, final String commandName,
                                   final Collection<OptionParam> optionParams, final PrintStream out) {
         optionHelp(method, commandName, optionParams, out, true);
     }
+
     public static void optionHelp(final Method method, final String commandName,
                                   final Collection<OptionParam> optionParams, final PrintStream out, final boolean printVersion) {
         if (optionParams.isEmpty()) {
@@ -68,6 +72,12 @@ public class Help {
 
         final List<Item> items = getItems(method, commandName, optionParams);
 
+        printItems(out, items);
+
+        if (printVersion) printNameAndVersion(out);
+    }
+
+    private static void printItems(final PrintStream out, final List<Item> items) {
         int width = 20;
         for (final Item item : items) {
             width = Math.max(width, item.getFlag().length());
@@ -96,8 +106,6 @@ public class Help {
 
 //            out.println();
         }
-
-        if (printVersion) printNameAndVersion(out);
     }
 
     public static void printNameAndVersion(final PrintStream out) {
@@ -122,6 +130,13 @@ public class Help {
 
         return items.stream()
                 .map(Help::trimDescriptions)
+                .collect(Collectors.toList());
+    }
+
+    public static List<Item> getItems(final Collection<OptionParam> optionParams) {
+
+        return optionParams.stream().
+                map(optionParam -> new Item(optionParam, null))
                 .collect(Collectors.toList());
     }
 
@@ -230,6 +245,15 @@ public class Help {
     @Command
     public String help() {
         final PrintString string = new PrintString();
+
+        if (!globalOptionClasses.isEmpty()) {
+            final GlobalSpec spec = GlobalSpec.builder()
+                    .optionsClasses(globalOptionClasses)
+                    .build();
+            printItems(string, getItems(spec.getOptions().values()));
+            string.println();
+        }
+
         string.println("Commands: ");
         string.printf("   %-20s", "");
         string.println();

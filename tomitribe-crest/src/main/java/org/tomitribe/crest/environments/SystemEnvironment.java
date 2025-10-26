@@ -23,8 +23,10 @@ import org.tomitribe.crest.val.BeanValidationImpl;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SystemEnvironment implements Environment {
     private final Map<Class<?>, Object> services;
@@ -34,6 +36,7 @@ public class SystemEnvironment implements Environment {
     private final Properties properties;
     private final String name;
     private final String version;
+    private final List<Object> globalOptions = new CopyOnWriteArrayList<>();
 
     public SystemEnvironment(final Map<Class<?>, Object> services) {
         this(services, System.out, System.err, System.in, System.getProperties(), null, null);
@@ -90,6 +93,17 @@ public class SystemEnvironment implements Environment {
     @Override
     public <T> T findService(Class<T> type) {
         return type.cast(services.get(type));
+    }
+
+    @Override
+    public List<Object> getGlobalOptions() {
+        return globalOptions;
+    }
+
+    @Override
+    public void setGlobalOptions(final List<Object> objects) {
+        this.globalOptions.clear();
+        this.globalOptions.addAll(objects);
     }
 
     protected void init() {

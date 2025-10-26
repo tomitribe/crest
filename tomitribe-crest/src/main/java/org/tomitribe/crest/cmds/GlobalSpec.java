@@ -14,6 +14,7 @@
 package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.api.interceptor.ParameterMetadata;
+import org.tomitribe.crest.cmds.processors.OptionParam;
 import org.tomitribe.crest.cmds.processors.Param;
 import org.tomitribe.crest.contexts.DefaultsContext;
 import org.tomitribe.crest.val.BeanValidationImpl;
@@ -22,6 +23,7 @@ import org.tomitribe.util.reflect.Parameter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.tomitribe.crest.cmds.CmdMethod.NO_PREFIX;
@@ -45,6 +47,10 @@ public class GlobalSpec {
 
         this.parameters = spec.buildParams(beanValidation, null, NO_PREFIX, null, collect);
         this.parameterMetadata = CmdMethod.buildApiParameterViews(parameters);
+    }
+
+    public Map<String, OptionParam> getOptions() {
+        return spec.getOptions();
     }
 
     public List<Object> parse(final String... rawArgs) {
@@ -86,6 +92,10 @@ public class GlobalSpec {
 
         public Builder optionsClass(final Class<?> clazz) {
             this.classes.add(clazz);
+            return this;
+        }
+        public Builder optionsClasses(final List<Class<?>> classes) {
+            this.classes.addAll(classes);
             return this;
         }
 

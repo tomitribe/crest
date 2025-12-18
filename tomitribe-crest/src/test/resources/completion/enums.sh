@@ -102,6 +102,7 @@ function _enums() {
 
 
 function _enums__global_flags() {
+  COMPREPLY=()
 }
 
 function _enums_red() {

@@ -153,7 +153,7 @@ public class BashCompletion {
         if (hasFlags(spec)) {
             proposeFlags(spec, true);
         } else {
-            out.println("  _propose_files");
+            out.printf("  _%s__propose_files%n", mainCommand);
         }
 
         out.println("}");
@@ -166,6 +166,8 @@ public class BashCompletion {
 
         if (hasFlags(spec)) {
             proposeFlags(spec, false);
+        } else {
+            out.println("  COMPREPLY=()");
         }
 
         out.println("}");
@@ -187,9 +189,9 @@ public class BashCompletion {
                 final List<String> strings = values.stream()
                         .map(this::quote)
                         .collect(Collectors.toList());
-                out.printf("  %s*) _propose_flag_values %s ;;\n", flag(param.getName()), Join.join(" ", strings));
+                out.printf("  %s*) _%s__propose_flag_values %s ;;\n", flag(param.getName()), mainCommand, Join.join(" ", strings));
             } else {
-                out.printf("  %s*) _propose_flag_file_values ;;\n", flag(param.getName()));
+                out.printf("  %s*) _%s__propose_flag_file_values ;;\n", flag(param.getName()), mainCommand);
             }
         }
 
@@ -200,11 +202,11 @@ public class BashCompletion {
                     .map(this::quote)
                     .collect(Collectors.toList());
 
-            out.printf("  -*) _propose_flags %s;;\n", Join.join(" ", flags));
+            out.printf("  -*) _%s__propose_flags %s;;\n", mainCommand, Join.join(" ", flags));
         }
 
         if (proposeFiles) {
-            out.println("  *) _propose_files ;;" );
+            out.printf("  *) _%s__propose_files ;;%n", mainCommand);
         }
 
         out.println("  esac\n");
@@ -319,7 +321,7 @@ public class BashCompletion {
 
     private void proposeFiles() {
         out.println("\n" +
-                "function _propose_files() {\n" +
+                "function _" + mainCommand + "__propose_files() {\n" +
                 "  local cur=${COMP_WORDS[COMP_CWORD]}\n" +
                 "  COMPREPLY=($(compgen -f \"$cur\"))\n" +
                 "}\n"
@@ -328,7 +330,7 @@ public class BashCompletion {
 
     private void proposeFlags() {
         out.println("\n" +
-                "function _propose_flags() {\n" +
+                "function _" + mainCommand + "__propose_flags() {\n" +
                 "  local FLAGS=\"$@\"\n" +
                 "  local cur=${COMP_WORDS[COMP_CWORD]}\n" +
                 "\n" +
@@ -348,7 +350,7 @@ public class BashCompletion {
 
     private void proposeFlagValues() {
         out.println("\n" +
-                "function _propose_flag_values() {\n" +
+                "function _" + mainCommand + "__propose_flag_values() {\n" +
                 "  local VALUES=\"$@\"\n" +
                 "  local cur=${COMP_WORDS[COMP_CWORD]}\n" +
                 "\n" +
@@ -360,7 +362,7 @@ public class BashCompletion {
 
     private void proposeFlagValuesFiles() {
         out.println("\n" +
-                "function _propose_flag_file_values() {\n" +
+                "function _" + mainCommand + "__propose_flag_file_values() {\n" +
                 "  local cur=${COMP_WORDS[COMP_CWORD]}\n" +
                 "\n" +
                 "  cur=\"$(echo \"$cur\" | perl -pe 's/[^=]+=//')\"\n" +

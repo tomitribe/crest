@@ -1,13 +1,13 @@
 #!/bin/bash
 
 
-function _propose_files() {
+function _enums__propose_files() {
   local cur=${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=($(compgen -f "$cur"))
 }
 
 
-function _propose_flags() {
+function _enums__propose_flags() {
   local FLAGS="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -24,7 +24,7 @@ function _propose_flags() {
 }
 
 
-function _propose_flag_values() {
+function _enums__propose_flag_values() {
   local VALUES="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -33,7 +33,7 @@ function _propose_flag_values() {
 }
 
 
-function _propose_flag_file_values() {
+function _enums__propose_flag_file_values() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   cur="$(echo "$cur" | perl -pe 's/[^=]+=//')"
@@ -109,31 +109,31 @@ function _enums_red() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --time=*) _propose_flag_values "NANOSECONDS" "MICROSECONDS" "MILLISECONDS" "SECONDS" "MINUTES" "HOURS" "DAYS" ;;
-  -*) _propose_flags "--time=";;
-  *) _propose_files ;;
+  --time=*) _enums__propose_flag_values "NANOSECONDS" "MICROSECONDS" "MILLISECONDS" "SECONDS" "MINUTES" "HOURS" "DAYS" ;;
+  -*) _enums__propose_flags "--time=";;
+  *) _enums__propose_files ;;
   esac
 
 }
 
 function _enums_help() {
-  _propose_files
+  _enums__propose_files
 }
 
 function _enums_green() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --time=*) _propose_flag_values "NANOSECONDS" "MICROSECONDS" "MILLISECONDS" "SECONDS" "MINUTES" "HOURS" "DAYS" ;;
-  --shape=*) _propose_flag_values "CIRCLE" "SQUARE" "TRIANGLE" ;;
-  -*) _propose_flags "--time=" "--shape=";;
-  *) _propose_files ;;
+  --time=*) _enums__propose_flag_values "NANOSECONDS" "MICROSECONDS" "MILLISECONDS" "SECONDS" "MINUTES" "HOURS" "DAYS" ;;
+  --shape=*) _enums__propose_flag_values "CIRCLE" "SQUARE" "TRIANGLE" ;;
+  -*) _enums__propose_flags "--time=" "--shape=";;
+  *) _enums__propose_files ;;
   esac
 
 }
 
 function _enums_blue() {
-  _propose_files
+  _enums__propose_files
 }
 
 complete -F _enums enums

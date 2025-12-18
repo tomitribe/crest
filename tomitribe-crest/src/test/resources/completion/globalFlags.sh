@@ -1,13 +1,13 @@
 #!/bin/bash
 
 
-function _propose_files() {
+function _globalFlags__propose_files() {
   local cur=${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=($(compgen -f "$cur"))
 }
 
 
-function _propose_flags() {
+function _globalFlags__propose_flags() {
   local FLAGS="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -24,7 +24,7 @@ function _propose_flags() {
 }
 
 
-function _propose_flag_values() {
+function _globalFlags__propose_flag_values() {
   local VALUES="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -33,7 +33,7 @@ function _propose_flag_values() {
 }
 
 
-function _propose_flag_file_values() {
+function _globalFlags__propose_flag_file_values() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   cur="$(echo "$cur" | perl -pe 's/[^=]+=//')"
@@ -103,15 +103,15 @@ function _globalFlags__global_flags() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --orange=*) _propose_flag_file_values ;;
-  --yellow=*) _propose_flag_values "true" "false" ;;
-  -*) _propose_flags "--orange=" "--yellow=";;
+  --orange=*) _globalFlags__propose_flag_file_values ;;
+  --yellow=*) _globalFlags__propose_flag_values "true" "false" ;;
+  -*) _globalFlags__propose_flags "--orange=" "--yellow=";;
   esac
 
 }
 
 function _globalFlags_help() {
-  _propose_files
+  _globalFlags__propose_files
 }
 function _globalFlags_svn() {
   local cur=${COMP_WORDS[COMP_CWORD]}
@@ -149,10 +149,10 @@ function _globalFlags_svn_checkout() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --username=*) _propose_flag_file_values ;;
-  --password=*) _propose_flag_file_values ;;
-  -*) _propose_flags "--username=" "--password=";;
-  *) _propose_files ;;
+  --username=*) _globalFlags__propose_flag_file_values ;;
+  --password=*) _globalFlags__propose_flag_file_values ;;
+  -*) _globalFlags__propose_flags "--username=" "--password=";;
+  *) _globalFlags__propose_files ;;
   esac
 
 }
@@ -161,10 +161,10 @@ function _globalFlags_svn_commit() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --message=*) _propose_flag_file_values ;;
-  --password=*) _propose_flag_file_values ;;
-  -*) _propose_flags "--message=" "--password=";;
-  *) _propose_files ;;
+  --message=*) _globalFlags__propose_flag_file_values ;;
+  --password=*) _globalFlags__propose_flag_file_values ;;
+  -*) _globalFlags__propose_flags "--message=" "--password=";;
+  *) _globalFlags__propose_files ;;
   esac
 
 }

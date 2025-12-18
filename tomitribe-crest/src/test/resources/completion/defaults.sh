@@ -1,13 +1,13 @@
 #!/bin/bash
 
 
-function _propose_files() {
+function _defaults__propose_files() {
   local cur=${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=($(compgen -f "$cur"))
 }
 
 
-function _propose_flags() {
+function _defaults__propose_flags() {
   local FLAGS="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -24,7 +24,7 @@ function _propose_flags() {
 }
 
 
-function _propose_flag_values() {
+function _defaults__propose_flag_values() {
   local VALUES="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -33,7 +33,7 @@ function _propose_flag_values() {
 }
 
 
-function _propose_flag_file_values() {
+function _defaults__propose_flag_file_values() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   cur="$(echo "$cur" | perl -pe 's/[^=]+=//')"
@@ -101,26 +101,27 @@ function _defaults() {
 
 
 function _defaults__global_flags() {
+  COMPREPLY=()
 }
 
 function _defaults_help() {
-  _propose_files
+  _defaults__propose_files
 }
 
 function _defaults_primitives() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --oByte=*) _propose_flag_values "<byte>" ;;
-  --oBoolean=*) _propose_flag_values "true" "false" ;;
-  --oCharacter=*) _propose_flag_values "<char>" ;;
-  --oShort=*) _propose_flag_values "<short>" ;;
-  --oInteger=*) _propose_flag_values "<int>" ;;
-  --oLong=*) _propose_flag_values "<long>" ;;
-  --oFloat=*) _propose_flag_values "<float>" ;;
-  --oDouble=*) _propose_flag_values "<double>" ;;
-  -*) _propose_flags "--oByte=" "--oBoolean=" "--oCharacter=" "--oShort=" "--oInteger=" "--oLong=" "--oFloat=" "--oDouble=";;
-  *) _propose_files ;;
+  --oByte=*) _defaults__propose_flag_values "<byte>" ;;
+  --oBoolean=*) _defaults__propose_flag_values "true" "false" ;;
+  --oCharacter=*) _defaults__propose_flag_values "<char>" ;;
+  --oShort=*) _defaults__propose_flag_values "<short>" ;;
+  --oInteger=*) _defaults__propose_flag_values "<int>" ;;
+  --oLong=*) _defaults__propose_flag_values "<long>" ;;
+  --oFloat=*) _defaults__propose_flag_values "<float>" ;;
+  --oDouble=*) _defaults__propose_flag_values "<double>" ;;
+  -*) _defaults__propose_flags "--oByte=" "--oBoolean=" "--oCharacter=" "--oShort=" "--oInteger=" "--oLong=" "--oFloat=" "--oDouble=";;
+  *) _defaults__propose_files ;;
   esac
 
 }
@@ -129,17 +130,17 @@ function _defaults_objects() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --oURI=*) _propose_flag_values "<URI>" ;;
-  --oURL=*) _propose_flag_values "<URL>" ;;
-  --oByte=*) _propose_flag_values "<Byte>" ;;
-  --oCharacter=*) _propose_flag_values "<Character>" ;;
-  --oShort=*) _propose_flag_values "<Short>" ;;
-  --oInteger=*) _propose_flag_values "<Integer>" ;;
-  --oLong=*) _propose_flag_values "<Long>" ;;
-  --oFloat=*) _propose_flag_values "<Float>" ;;
-  --oDouble=*) _propose_flag_values "<Double>" ;;
-  -*) _propose_flags "--oURI=" "--oURL=" "--oByte=" "--oCharacter=" "--oShort=" "--oInteger=" "--oLong=" "--oFloat=" "--oDouble=";;
-  *) _propose_files ;;
+  --oURI=*) _defaults__propose_flag_values "<URI>" ;;
+  --oURL=*) _defaults__propose_flag_values "<URL>" ;;
+  --oByte=*) _defaults__propose_flag_values "<Byte>" ;;
+  --oCharacter=*) _defaults__propose_flag_values "<Character>" ;;
+  --oShort=*) _defaults__propose_flag_values "<Short>" ;;
+  --oInteger=*) _defaults__propose_flag_values "<Integer>" ;;
+  --oLong=*) _defaults__propose_flag_values "<Long>" ;;
+  --oFloat=*) _defaults__propose_flag_values "<Float>" ;;
+  --oDouble=*) _defaults__propose_flag_values "<Double>" ;;
+  -*) _defaults__propose_flags "--oURI=" "--oURL=" "--oByte=" "--oCharacter=" "--oShort=" "--oInteger=" "--oLong=" "--oFloat=" "--oDouble=";;
+  *) _defaults__propose_files ;;
   esac
 
 }

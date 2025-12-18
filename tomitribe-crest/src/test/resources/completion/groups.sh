@@ -1,13 +1,13 @@
 #!/bin/bash
 
 
-function _propose_files() {
+function _groups__propose_files() {
   local cur=${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=($(compgen -f "$cur"))
 }
 
 
-function _propose_flags() {
+function _groups__propose_flags() {
   local FLAGS="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -24,7 +24,7 @@ function _propose_flags() {
 }
 
 
-function _propose_flag_values() {
+function _groups__propose_flag_values() {
   local VALUES="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -33,7 +33,7 @@ function _propose_flag_values() {
 }
 
 
-function _propose_flag_file_values() {
+function _groups__propose_flag_file_values() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   cur="$(echo "$cur" | perl -pe 's/[^=]+=//')"
@@ -100,10 +100,11 @@ function _groups() {
 
 
 function _groups__global_flags() {
+  COMPREPLY=()
 }
 
 function _groups_help() {
-  _propose_files
+  _groups__propose_files
 }
 function _groups_svn() {
   local cur=${COMP_WORDS[COMP_CWORD]}
@@ -141,10 +142,10 @@ function _groups_svn_checkout() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --username=*) _propose_flag_file_values ;;
-  --password=*) _propose_flag_file_values ;;
-  -*) _propose_flags "--username=" "--password=";;
-  *) _propose_files ;;
+  --username=*) _groups__propose_flag_file_values ;;
+  --password=*) _groups__propose_flag_file_values ;;
+  -*) _groups__propose_flags "--username=" "--password=";;
+  *) _groups__propose_files ;;
   esac
 
 }
@@ -153,10 +154,10 @@ function _groups_svn_commit() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --message=*) _propose_flag_file_values ;;
-  --password=*) _propose_flag_file_values ;;
-  -*) _propose_flags "--message=" "--password=";;
-  *) _propose_files ;;
+  --message=*) _groups__propose_flag_file_values ;;
+  --password=*) _groups__propose_flag_file_values ;;
+  -*) _groups__propose_flags "--message=" "--password=";;
+  *) _groups__propose_files ;;
   esac
 
 }

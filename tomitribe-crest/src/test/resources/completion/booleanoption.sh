@@ -1,13 +1,13 @@
 #!/bin/bash
 
 
-function _propose_files() {
+function _booleanoption__propose_files() {
   local cur=${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=($(compgen -f "$cur"))
 }
 
 
-function _propose_flags() {
+function _booleanoption__propose_flags() {
   local FLAGS="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -24,7 +24,7 @@ function _propose_flags() {
 }
 
 
-function _propose_flag_values() {
+function _booleanoption__propose_flag_values() {
   local VALUES="$@"
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -33,7 +33,7 @@ function _propose_flag_values() {
 }
 
 
-function _propose_flag_file_values() {
+function _booleanoption__propose_flag_file_values() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   cur="$(echo "$cur" | perl -pe 's/[^=]+=//')"
@@ -100,19 +100,20 @@ function _booleanoption() {
 
 
 function _booleanoption__global_flags() {
+  COMPREPLY=()
 }
 
 function _booleanoption_help() {
-  _propose_files
+  _booleanoption__propose_files
 }
 
 function _booleanoption_copy() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --force=*) _propose_flag_values "true" "false" ;;
-  -*) _propose_flags "--force=";;
-  *) _propose_files ;;
+  --force=*) _booleanoption__propose_flag_values "true" "false" ;;
+  -*) _booleanoption__propose_flags "--force=";;
+  *) _booleanoption__propose_files ;;
   esac
 
 }

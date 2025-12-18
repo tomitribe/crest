@@ -40,7 +40,7 @@ function _propose_flag_file_values() {
   COMPREPLY=($(compgen -f "$cur"))
 }
 
-function _defaults() {
+function _globalFlags() {
 
   local cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -60,7 +60,7 @@ function _defaults() {
     # logic in _propose_flags that tries not to repeat flags
     COMP_WORDS=("${COMP_WORDS[@]:0:LAST_GLOBAL_FLAG_INDEX+1}")
 
-    _defaults__global_flags
+    _globalFlags__global_flags
     return
   fi
 
@@ -73,8 +73,7 @@ function _defaults() {
   local args_length=${#COMP_WORDS[@]}
   local COMMANDS=(
     help
-    primitives
-    objects
+    svn
   )
 
   # List the commands
@@ -91,7 +90,7 @@ function _defaults() {
   for n in "${COMMANDS[@]}"; do
     [ "$CMD" = "$n" ] && {
       CMD="$(echo "$CMD" | perl -pe 's,[^a-zA-Z0-9],,g')"
-      _defaults_$CMD
+      _globalFlags_$CMD
       return
     }
   done
@@ -100,48 +99,74 @@ function _defaults() {
 }
 
 
-function _defaults__global_flags() {
+function _globalFlags__global_flags() {
+  local cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+  --orange=*) _propose_flag_file_values ;;
+  --yellow=*) _propose_flag_values "true" "false" ;;
+  -*) _propose_flags "--orange=" "--yellow=";;
+  esac
+
 }
 
-function _defaults_help() {
+function _globalFlags_help() {
   _propose_files
 }
+function _globalFlags_svn() {
+  local cur=${COMP_WORDS[COMP_CWORD]}
+  local args_length=${#COMP_WORDS[@]}
 
-function _defaults_primitives() {
+  local COMMANDS=(
+    checkout
+    commit
+  )
+
+  # List the commands
+  [ $args_length -lt 4 ] && {
+    COMPREPLY=($(compgen -W "${COMMANDS[*]}" "$cur"))
+    return
+  }
+
+  # Command chosen.  Delegate to its completion function
+
+  # Verify the command is one we know and execute the
+  # function that performs its completion
+  local CMD=${COMP_WORDS[2]}
+  for n in "${COMMANDS[@]}"; do
+    [ "$CMD" = "$n" ] && {
+      CMD="$(echo "$CMD" | perl -pe 's,[^a-zA-Z0-9],,g')"
+      _globalFlags_svn_$CMD
+      return
+    }
+  done
+
+  COMPREPLY=()
+}
+
+
+function _globalFlags_svn_checkout() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --oByte=*) _propose_flag_values "<byte>" ;;
-  --oBoolean=*) _propose_flag_values "true" "false" ;;
-  --oCharacter=*) _propose_flag_values "<char>" ;;
-  --oShort=*) _propose_flag_values "<short>" ;;
-  --oInteger=*) _propose_flag_values "<int>" ;;
-  --oLong=*) _propose_flag_values "<long>" ;;
-  --oFloat=*) _propose_flag_values "<float>" ;;
-  --oDouble=*) _propose_flag_values "<double>" ;;
-  -*) _propose_flags "--oByte=" "--oBoolean=" "--oCharacter=" "--oShort=" "--oInteger=" "--oLong=" "--oFloat=" "--oDouble=";;
+  --username=*) _propose_flag_file_values ;;
+  --password=*) _propose_flag_file_values ;;
+  -*) _propose_flags "--username=" "--password=";;
   *) _propose_files ;;
   esac
 
 }
 
-function _defaults_objects() {
+function _globalFlags_svn_commit() {
   local cur=${COMP_WORDS[COMP_CWORD]}
 
   case "$cur" in
-  --oURI=*) _propose_flag_values "<URI>" ;;
-  --oURL=*) _propose_flag_values "<URL>" ;;
-  --oByte=*) _propose_flag_values "<Byte>" ;;
-  --oCharacter=*) _propose_flag_values "<Character>" ;;
-  --oShort=*) _propose_flag_values "<Short>" ;;
-  --oInteger=*) _propose_flag_values "<Integer>" ;;
-  --oLong=*) _propose_flag_values "<Long>" ;;
-  --oFloat=*) _propose_flag_values "<Float>" ;;
-  --oDouble=*) _propose_flag_values "<Double>" ;;
-  -*) _propose_flags "--oURI=" "--oURL=" "--oByte=" "--oCharacter=" "--oShort=" "--oInteger=" "--oLong=" "--oFloat=" "--oDouble=";;
+  --message=*) _propose_flag_file_values ;;
+  --password=*) _propose_flag_file_values ;;
+  -*) _propose_flags "--message=" "--password=";;
   *) _propose_files ;;
   esac
 
 }
 
-complete -F _defaults defaults
+complete -F _globalFlags globalFlags

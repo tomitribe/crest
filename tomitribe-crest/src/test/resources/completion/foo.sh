@@ -41,9 +41,36 @@ function _propose_flag_file_values() {
 }
 
 function _foo() {
-  local cur=${COMP_WORDS[COMP_CWORD]}
-  local args_length=${#COMP_WORDS[@]}
 
+  local cur=${COMP_WORDS[COMP_CWORD]}
+
+  # Find the index of the last global flag
+  local LAST_GLOBAL_FLAG_INDEX=0
+
+  for ((i = 1; i < ${#COMP_WORDS[@]}; i++)); do
+    [[ "${COMP_WORDS[i]}" != -* ]] && break
+    ((LAST_GLOBAL_FLAG_INDEX++))
+  done
+
+  # If the current completion is a flag and that is before any subsequent
+  # commands, we do global flag completion.
+  if [[ "$cur" == -* ]] && (( COMP_CWORD <= LAST_GLOBAL_FLAG_INDEX )); then
+
+    # Remove any command arguments so their flags do not influence
+    # logic in _propose_flags that tries not to repeat flags
+    COMP_WORDS=("${COMP_WORDS[@]:0:LAST_GLOBAL_FLAG_INDEX+1}")
+
+    _foo__global_flags
+    return
+  fi
+
+  # If there are global flags, trim them out adjust the COMP_CWORD index
+  if (( LAST_GLOBAL_FLAG_INDEX > 0 )); then
+    COMP_WORDS=("${COMP_WORDS[0]}" "${COMP_WORDS[@]:LAST_GLOBAL_FLAG_INDEX+1}")
+    COMP_CWORD=$(( COMP_CWORD - LAST_GLOBAL_FLAG_INDEX  ))
+  fi
+
+  local args_length=${#COMP_WORDS[@]}
   local COMMANDS=(
     red
     help
@@ -73,6 +100,9 @@ function _foo() {
   COMPREPLY=()
 }
 
+
+function _foo__global_flags() {
+}
 
 function _foo_red() {
   _propose_files

@@ -306,9 +306,7 @@ public class Main implements Completer {
 
         final String[] global = split.getGlobal();
 
-        final GlobalSpec globalSpec = GlobalSpec.builder()
-                .optionsClasses(globalOptionClasses)
-                .build();
+        final GlobalSpec globalSpec = getGlobalSpec();
 
         final List<Object> objects = globalSpec.parse(global);
         Environment.ENVIRONMENT_THREAD_LOCAL.get().setGlobalOptions(objects);
@@ -336,6 +334,12 @@ public class Main implements Completer {
             Environment.ENVIRONMENT_THREAD_LOCAL.get().setGlobalOptions(Collections.emptyList());
 
         }
+    }
+
+    public GlobalSpec getGlobalSpec() {
+        return GlobalSpec.builder()
+                .optionsClasses(globalOptionClasses)
+                .build();
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CmdMethod;
+import org.tomitribe.crest.cmds.GlobalSpec;
 import org.tomitribe.crest.cmds.OverloadedCmdMethod;
 import org.tomitribe.crest.cmds.Spec;
 import org.tomitribe.crest.cmds.processors.Commands;
@@ -58,7 +59,7 @@ public class BashCompletion {
     public String _completer(@Option("f") boolean toFile) {
         return _completer(toFile, getName());
     }
-    
+
     @Command(COMPLETER)
     public String _completer(@Option("f") boolean toFile, final String name) {
         this.mainCommand = name;
@@ -67,7 +68,7 @@ public class BashCompletion {
 
         utilities();
 
-        group(2, "_" + mainCommand, this.main.commands.values());
+        root("_" + mainCommand, this.main.commands.values());
 
         out.println("\ncomplete -F _" + mainCommand + " " + mainCommand);
 
@@ -150,7 +151,7 @@ public class BashCompletion {
         final Spec spec = cmdMethod.getSpec();
 
         if (hasFlags(spec)) {
-            proposeFlags(spec);
+            proposeFlags(spec, true);
         } else {
             out.println("  _propose_files");
         }
@@ -158,7 +159,19 @@ public class BashCompletion {
         out.println("}");
     }
 
-    private void proposeFlags(final Spec spec) {
+    private void globalFlags(final String functionName, final GlobalSpec globalSpec) {
+        out.println("\nfunction " + functionName + "__global_flags() {");
+
+        final Spec spec = globalSpec.getSpec();
+
+        if (hasFlags(spec)) {
+            proposeFlags(spec, false);
+        }
+
+        out.println("}");
+    }
+
+    private void proposeFlags(final Spec spec, final boolean proposeFiles) {
 
         out.println("" +
                 "  local cur=${COMP_WORDS[COMP_CWORD]}\n" +
@@ -190,9 +203,11 @@ public class BashCompletion {
             out.printf("  -*) _propose_flags %s;;\n", Join.join(" ", flags));
         }
 
-        out.println("" +
-                "  *) _propose_files ;;\n" +
-                "  esac\n");
+        if (proposeFiles) {
+            out.println("  *) _propose_files ;;" );
+        }
+
+        out.println("  esac\n");
 
     }
 
@@ -359,6 +374,80 @@ public class BashCompletion {
         proposeFlags();
         proposeFlagValues();
         proposeFlagValuesFiles();
+    }
+
+    private void root(final String functionName, final Collection<Cmd> commands) {
+        final int depth = 2;
+        final int depthPlusOne = depth + 1;
+        final int depthMinusOne = depth - 1;
+
+        final List<String> names = commands.stream()
+                .map(Cmd::getName)
+                .map(s -> "    " + s)
+                .collect(Collectors.toList());
+
+        out.println("function " + functionName + "() {\n" +
+                "\n" +
+                "  local cur=${COMP_WORDS[COMP_CWORD]}\n" +
+                "\n" +
+                "  # Find the index of the last global flag\n" +
+                "  local LAST_GLOBAL_FLAG_INDEX=0\n" +
+                "\n" +
+                "  for ((i = 1; i < ${#COMP_WORDS[@]}; i++)); do\n" +
+                "    [[ \"${COMP_WORDS[i]}\" != -* ]] && break\n" +
+                "    ((LAST_GLOBAL_FLAG_INDEX++))\n" +
+                "  done\n" +
+                "\n" +
+                "  # If the current completion is a flag and that is before any subsequent\n" +
+                "  # commands, we do global flag completion.\n" +
+                "  if [[ \"$cur\" == -* ]] && (( COMP_CWORD <= LAST_GLOBAL_FLAG_INDEX )); then\n" +
+                "\n" +
+                "    # Remove any command arguments so their flags do not influence\n" +
+                "    # logic in _propose_flags that tries not to repeat flags\n" +
+                "    COMP_WORDS=(\"${COMP_WORDS[@]:0:LAST_GLOBAL_FLAG_INDEX+1}\")\n" +
+                "\n" +
+                "    " + functionName + "__global_flags\n" +
+                "    return\n" +
+                "  fi\n" +
+                "\n" +
+                "  # If there are global flags, trim them out adjust the COMP_CWORD index\n" +
+                "  if (( LAST_GLOBAL_FLAG_INDEX > 0 )); then\n" +
+                "    COMP_WORDS=(\"${COMP_WORDS[0]}\" \"${COMP_WORDS[@]:LAST_GLOBAL_FLAG_INDEX+1}\")\n" +
+                "    COMP_CWORD=$(( COMP_CWORD - LAST_GLOBAL_FLAG_INDEX  ))\n" +
+                "  fi\n" +
+                "\n" +
+                "  local args_length=${#COMP_WORDS[@]}\n" +
+                "  local COMMANDS=(\n" +
+                Join.join("\n", names) +
+                "\n  )\n" +
+                "\n" +
+                "  # List the commands\n" +
+                "  [ $args_length -lt " + depthPlusOne + " ] && {\n" +
+                "    COMPREPLY=($(compgen -W \"${COMMANDS[*]}\" \"$cur\"))\n" +
+                "    return\n" +
+                "  }\n" +
+                "\n" +
+                "  # Command chosen.  Delegate to its completion function\n" +
+                "\n" +
+                "  # Verify the command is one we know and execute the\n" +
+                "  # function that performs its completion\n" +
+                "  local CMD=${COMP_WORDS[" + depthMinusOne + "]}\n" +
+                "  for n in \"${COMMANDS[@]}\"; do\n" +
+                "    [ \"$CMD\" = \"$n\" ] && {\n" +
+                "      CMD=\"$(echo \"$CMD\" | perl -pe 's,[^a-zA-Z0-9],,g')\"\n" +
+                "      " + functionName + "_$CMD\n" +
+                "      return\n" +
+                "    }\n" +
+                "  done\n" +
+                "\n" +
+                "  COMPREPLY=()\n" +
+                "}\n");
+
+        globalFlags(functionName, this.main.getGlobalSpec());
+
+        for (final Cmd cmd : commands) {
+            cmd(depthPlusOne, functionName, cmd);
+        }
     }
 
     private void group(final int depth, final String functionName, final Collection<Cmd> commands) {

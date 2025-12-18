@@ -19,6 +19,7 @@ package org.tomitribe.crest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.GlobalOptions;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.val.Exists;
@@ -60,6 +61,11 @@ public class BashCompletionTest {
     @Test
     public void groups() throws IOException {
         assertCompletion("groups", Svn.class);
+    }
+
+    @Test
+    public void globalFlags() throws IOException {
+        assertCompletion("globalFlags", Svn.class, Bar.class);
     }
 
     private void assertCompletion(final String cmd, final Class<?>... clazzes) throws IOException {
@@ -225,5 +231,32 @@ public class BashCompletionTest {
             throw new UnsupportedOperationException();
         }
 
+    }
+
+    @GlobalOptions
+    public static class Bar {
+        private final String orange;
+        private final Boolean yellow;
+
+        public Bar(@Option("orange") final String orange, @Option("yellow") final Boolean yellow) {
+            this.orange = orange;
+            this.yellow = yellow;
+        }
+
+        public String getOrange() {
+            return orange;
+        }
+
+        public Boolean getYellow() {
+            return yellow;
+        }
+
+        @Override
+        public String toString() {
+            return "Bar{" +
+                    "orange='" + orange + '\'' +
+                    ", yellow=" + yellow +
+                    '}';
+        }
     }
 }

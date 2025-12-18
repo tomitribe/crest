@@ -53,6 +53,10 @@ public class GlobalSpec {
         return spec.getOptions();
     }
 
+    public Spec getSpec() {
+        return spec;
+    }
+
     public List<Object> parse(final String... rawArgs) {
         final Arguments args = new Arguments(defaultsFinder, spec, rawArgs);
 

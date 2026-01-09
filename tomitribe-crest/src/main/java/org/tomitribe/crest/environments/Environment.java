@@ -66,4 +66,12 @@ public interface Environment {
     void setGlobalOptions(List<Object> objects);
 
     List<Object> getGlobalOptions();
+
+    default <T> T getGlobalOption(final Class<T> type) {
+        return getGlobalOptions().stream()
+                .filter(o -> type.isAssignableFrom(o.getClass()))
+                .map(type::cast)
+                .findAny()
+                .orElse(null);
+    }
 }

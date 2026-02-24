@@ -24,6 +24,7 @@ import org.tomitribe.crest.api.StreamingOutput;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.cmds.Arguments;
 import org.tomitribe.crest.cmds.Cmd;
+import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CommandFailedException;
 import org.tomitribe.crest.cmds.Completer;
 import org.tomitribe.crest.cmds.GlobalSpec;
@@ -162,7 +163,14 @@ public class Main implements Completer {
 
         final Map<String, Cmd> m = Commands.get(clazz, targetProvider.getTarget(clazz), defaultsContext);
         if (!m.isEmpty()) {
-            this.commands.putAll(m);
+            for (final Map.Entry<String, Cmd> entry : m.entrySet()) {
+                final Cmd existing = this.commands.get(entry.getKey());
+                if (existing instanceof CmdGroup && entry.getValue() instanceof CmdGroup) {
+                    ((CmdGroup) existing).merge((CmdGroup) entry.getValue());
+                } else {
+                    this.commands.put(entry.getKey(), entry.getValue());
+                }
+            }
         } else {
 
             final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz);

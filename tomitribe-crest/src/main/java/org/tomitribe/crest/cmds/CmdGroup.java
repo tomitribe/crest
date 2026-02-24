@@ -44,6 +44,43 @@ public class CmdGroup implements Cmd {
         this.commands.putAll(commands);
     }
 
+    public void merge(final CmdGroup other) {
+        for (final Map.Entry<String, Cmd> entry : other.commands.entrySet()) {
+            final String name = entry.getKey();
+            final Cmd incoming = entry.getValue();
+            final Cmd existing = commands.get(name);
+
+            if (existing == null) {
+
+                commands.put(name, incoming);
+
+            } else if (existing instanceof OverloadedCmdMethod) {
+
+                final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) existing;
+                if (incoming instanceof OverloadedCmdMethod) {
+                    for (final CmdMethod method : ((OverloadedCmdMethod) incoming).getMethods()) {
+                        overloaded.add(method);
+                    }
+                } else {
+                    overloaded.add((CmdMethod) incoming);
+                }
+
+            } else {
+
+                if (incoming instanceof OverloadedCmdMethod) {
+                    final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) incoming;
+                    overloaded.add((CmdMethod) existing);
+                    commands.put(name, overloaded);
+                } else {
+                    final OverloadedCmdMethod overloaded = new OverloadedCmdMethod(name);
+                    overloaded.add((CmdMethod) existing);
+                    overloaded.add((CmdMethod) incoming);
+                    commands.put(name, overloaded);
+                }
+            }
+        }
+    }
+
     public Collection<Cmd> getCommands() {
         return Collections.unmodifiableCollection(commands.values());
     }

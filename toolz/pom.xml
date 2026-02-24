@@ -23,11 +23,11 @@
   <parent>
     <groupId>org.tomitribe</groupId>
     <artifactId>tomitribe-crest-parent</artifactId>
-    <version>0.38</version>
+    <version>0.39-SNAPSHOT</version>
   </parent>
 
   <artifactId>toolz</artifactId>
-  <version>0.38</version>
+  <version>0.39-SNAPSHOT</version>
   <name>Tools (Demo)</name>
   <description>
     A Crest Demo Application.

@@ -18,7 +18,9 @@ package org.tomitribe.crest.table;
 import org.tomitribe.crest.api.PrintOutput;
 import org.tomitribe.crest.term.Screen;
 import org.tomitribe.util.collect.ObjectMap;
+import org.tomitribe.util.editor.Editors;
 
+import java.beans.PropertyEditor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -316,7 +318,21 @@ public class Formatting {
 
         public Item(final Object value) {
             this.object = value instanceof Comparable ? (Comparable) value : null;
-            this.string = value != null ? value.toString() : "";
+            this.string = value != null ? toString(value) : "";
+        }
+
+        private static String toString(final Object value) {
+            try {
+                final PropertyEditor editor = Editors.get(value.getClass());
+                if (editor != null) {
+                    editor.setValue(value);
+                    final String text = editor.getAsText();
+                    if (text != null) return text;
+                }
+            } catch (final Exception e) {
+                // fall through to toString
+            }
+            return value.toString();
         }
 
         public String getString() {

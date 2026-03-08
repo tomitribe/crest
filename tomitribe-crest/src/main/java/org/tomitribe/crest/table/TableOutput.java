@@ -14,6 +14,7 @@
 package org.tomitribe.crest.table;
 
 import org.tomitribe.crest.api.PrintOutput;
+import org.tomitribe.crest.api.table.TableOptions;
 import org.tomitribe.crest.term.Screen;
 
 import java.io.IOException;
@@ -114,6 +115,22 @@ public class TableOutput implements PrintOutput {
 
         public Builder fields(final String fields) {
             options.setFields(fields);
+            return this;
+        }
+
+        public Builder options(final TableOptions tableOptions) {
+            if (tableOptions.getFields() != null) options.setFields(tableOptions.getFields());
+            if (tableOptions.getSort() != null) options.setSort(tableOptions.getSort());
+            if (tableOptions.getBorder() != null) options.setBorder(tableOptions.getBorder());
+            if (tableOptions.isHeader() != null) options.setHeader(tableOptions.isHeader());
+            return this;
+        }
+
+        public Builder options(final Options options) {
+            if (options.getFields() != null) this.options.setFields(options.getFields());
+            if (options.getSort() != null) this.options.setSort(options.getSort());
+            if (options.getBorder() != null) this.options.setBorder(options.getBorder());
+            if (options.isHeader() != null) this.options.setHeader(options.isHeader());
             return this;
         }
 

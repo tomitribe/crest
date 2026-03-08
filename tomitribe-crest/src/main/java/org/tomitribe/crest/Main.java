@@ -430,7 +430,7 @@ public class Main implements Completer {
         private PrintStream err = System.err;
         private InputStream in = System.in;
 
-        private List<Class<?>> commands = new ArrayList<>();
+        private List<Class<?>> classes = new ArrayList<>();
         private Consumer<Integer> exit = System::exit;
         private Properties properties = System.getProperties();
         private String version;
@@ -533,7 +533,19 @@ public class Main implements Completer {
          * @return
          */
         public Builder command(final Class<?> commandClass) {
-            this.commands.add(commandClass);
+            this.classes.add(commandClass);
+            return this;
+        }
+
+        /**
+         * Adds a @Command class or @CrestInterceptor to the
+         * environment.  If no classes are specified via this
+         * method then they will be discovered via the classpath.
+         * @param clazz
+         * @return
+         */
+        public Builder load(final Class<?> clazz) {
+            this.classes.add(clazz);
             return this;
         }
 
@@ -550,7 +562,7 @@ public class Main implements Completer {
 
         public Main build() {
             try {
-                final Iterable<Class<?>> commands = this.commands.size() == 0 ? Commands.load() : this.commands;
+                final Iterable<Class<?>> commands = this.classes.size() == 0 ? Commands.load() : this.classes;
 
                 final String name = this.name == null ? lookupName() : this.name;
                 final String version = this.version == null ? lookupVersion() : this.version;

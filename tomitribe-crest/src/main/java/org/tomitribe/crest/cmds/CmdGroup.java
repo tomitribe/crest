@@ -16,6 +16,7 @@
  */
 package org.tomitribe.crest.cmds;
 
+import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.utils.CommandLine;
@@ -26,25 +27,26 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class CmdGroup implements Cmd {
 
     final String name;
+    final List<Class<?>> owners = new ArrayList<>();
     final Map<String, Cmd> commands = new TreeMap<>();
 
     public CmdGroup(final Class<?> owner, final Map<String, Cmd> commands) {
+        this.owners.add(owner);
         this.name = Commands.name(owner);
         this.commands.putAll(commands);
     }
 
     public void merge(final CmdGroup other) {
+        owners.add(other.owners.get(0));
+
         for (final Map.Entry<String, Cmd> entry : other.commands.entrySet()) {
             final String name = entry.getKey();
             final Cmd incoming = entry.getValue();
@@ -96,6 +98,17 @@ public class CmdGroup implements Cmd {
     }
 
     @Override
+    public String getDescription() {
+        for (final Class<?> owner : owners) {
+            final Command command = owner.getAnnotation(Command.class);
+            if (command != null && !command.description().isEmpty()) {
+                return command.description();
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, String... rawArgs) {
 
         if (rawArgs.length == 0) {
@@ -128,23 +141,9 @@ public class CmdGroup implements Cmd {
         out.println(getUsage());
         out.println();
         out.println("Sub commands: ");
-        out.printf("   %-20s", "");
         out.println();
 
-        final SortedSet<String> strings = new TreeSet<>(new Comparator<String>() {
-            @Override
-            public int compare(final String s1, final String s2) {
-                assert null != s1;
-                assert null != s2;
-                return s1.compareTo(s2);
-            }
-        });
-
-        strings.addAll(commands.keySet());
-
-        for (final String command : strings) {
-            out.printf("   %-20s%n", command);
-        }
+        Help.printCommandListing(out, commands);
 
         Help.printNameAndVersion(out);
     }

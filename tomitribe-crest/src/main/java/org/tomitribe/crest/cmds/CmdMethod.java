@@ -272,6 +272,28 @@ public class CmdMethod implements Cmd {
     }
 
     @Override
+    public String getDescription() {
+        final Command command = method.getAnnotation(Command.class);
+        if (command != null && !command.description().isEmpty()) {
+            return command.description();
+        }
+
+        final CommandJavadoc commandJavadoc = CommandJavadoc.getCommandJavadocs(method, name);
+        if (commandJavadoc == null || commandJavadoc.getJavadoc() == null) {
+            return null;
+        }
+
+        final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
+        if (javadoc.getContent() == null || javadoc.getContent().isEmpty()) {
+            return null;
+        }
+
+        final String content = javadoc.getContent().trim();
+        final String[] sentences = content.split("\\. ");
+        return sentences[0];
+    }
+
+    @Override
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final String... rawArgs) {
         final List<Object> list;
         try {

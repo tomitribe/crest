@@ -1,5 +1,5 @@
 Usage: git [subcommand] [options]
 
 Sub commands: 
-                       
-   push                
+
+   push   

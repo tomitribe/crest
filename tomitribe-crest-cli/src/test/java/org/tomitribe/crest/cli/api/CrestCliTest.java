@@ -45,16 +45,16 @@ public class CrestCliTest {
         assertEquals(
             portable("prompt$help\n" +
             "Commands: \n" +
-            "                       \n" +
-            "   clear               \n" +
-            "   exit                \n" +
-            "   help                \n" +
-            "   history             \n" +
-            "   jgrep               \n" +
-            "   jsed                \n" +
-            "   pretty              \n" +
-            "   test                \n" +
-            "   wc                  \n" +
+            "\n" +
+            "   clear     \n" +
+            "   exit      \n" +
+            "   help      \n" +
+            "   history   \n" +
+            "   jgrep     \n" +
+            "   jsed      \n" +
+            "   pretty    \n" +
+            "   test      \n" +
+            "   wc        \n" +
             "prompt$test\n" +
             "line1\n" +
             "line 2\n" +

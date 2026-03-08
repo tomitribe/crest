@@ -29,6 +29,8 @@ import java.lang.annotation.Target;
 public @interface Command {
     String value() default "";
 
+    String description() default "";
+
     String usage() default "";
 
     Class<?>[] interceptedBy() default {};

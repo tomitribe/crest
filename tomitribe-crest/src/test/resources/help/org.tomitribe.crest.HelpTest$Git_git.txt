@@ -1,6 +1,6 @@
 Usage: git [subcommand] [options]
 
 Sub commands: 
-                       
-   pull                
-   push                
+
+   pull   
+   push   This is awesome

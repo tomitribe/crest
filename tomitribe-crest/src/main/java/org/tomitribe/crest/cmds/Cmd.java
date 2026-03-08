@@ -26,10 +26,14 @@ public interface Cmd extends Completer {
 
     String getName();
 
+    default String getDescription() {
+        return null;
+    }
+
     Object exec(Map<Class<?>, InternalInterceptor> globalInterceptors, String... rawArgs);
 
     void help(PrintStream out);
-    
+
     default void manual(PrintStream out) {
         help(out);
     }

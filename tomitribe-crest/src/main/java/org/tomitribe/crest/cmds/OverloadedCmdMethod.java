@@ -61,6 +61,17 @@ public class OverloadedCmdMethod implements Cmd {
     }
 
     @Override
+    public String getDescription() {
+        for (final CmdMethod method : methods) {
+            final String description = method.getDescription();
+            if (description != null) {
+                return description;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final String... rawArgs) {
 
         final Iterator<CmdMethod> iterator = methods.iterator();

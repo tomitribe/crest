@@ -54,11 +54,11 @@ public class GlobalOptionsTest extends TestCase {
                         "  --yellow=<Boolean>       %n" +
                         "%n" +
                         "Commands: %n" +
-                        "                       %n" +
-                        "   blue                %n" +
-                        "   green               %n" +
-                        "   help                %n" +
-                        "   red                 %n"),
+                        "%n" +
+                        "   blue    %n" +
+                        "   green   %n" +
+                        "   help    %n" +
+                        "   red     %n"),
                 help.exec(null));
 
     }

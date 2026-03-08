@@ -35,7 +35,6 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -242,6 +241,23 @@ public class Help {
     }
 
 
+    public static void printCommandListing(final PrintStream out, final Map<String, Cmd> commands) {
+        final SortedSet<String> sorted = new TreeSet<>(commands.keySet());
+
+        int maxLen = 0;
+        for (final String command : sorted) {
+            maxLen = Math.max(maxLen, command.length());
+        }
+
+        final String format = "   %-" + (maxLen + 3) + "s%s%n";
+
+        for (final String command : sorted) {
+            final Cmd cmd = commands.get(command);
+            final String description = cmd != null ? cmd.getDescription() : null;
+            out.printf(format, command, description != null ? description : "");
+        }
+    }
+
     @Command
     public String help() {
         final PrintString string = new PrintString();
@@ -255,23 +271,9 @@ public class Help {
         }
 
         string.println("Commands: ");
-        string.printf("   %-20s", "");
         string.println();
 
-        final SortedSet<String> strings = new TreeSet<>(new Comparator<String>() {
-            @Override
-            public int compare(final String s1, final String s2) {
-                assert null != s1;
-                assert null != s2;
-                return s1.compareTo(s2);
-            }
-        });
-
-        strings.addAll(commands.keySet());
-
-        for (final String command : strings) {
-            string.printf("   %-20s%n", command);
-        }
+        printCommandListing(string, commands);
 
         printNameAndVersion(string);
 

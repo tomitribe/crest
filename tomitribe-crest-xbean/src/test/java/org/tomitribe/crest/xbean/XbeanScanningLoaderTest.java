@@ -50,11 +50,11 @@ public class XbeanScanningLoaderTest extends TestCase {
         final String ln = System.getProperty("line.separator");
         assertEquals(
                 "Commands: " + ln +
-                        "                       " + ln +
-                        "   blue                " + ln +
-                        "   green               " + ln +
-                        "   help                " + ln +
-                        "   red                 " + ln,
+                        ln +
+                        "   blue    " + ln +
+                        "   green   " + ln +
+                        "   help    " + ln +
+                        "   red     " + ln,
                 main.exec("help"));
 
     }

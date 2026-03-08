@@ -59,9 +59,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "Version 3.6.9%n" +
                 ""), result.getOut());
@@ -83,9 +83,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "blue 5.16.1%n" +
                 ""), result.getOut());
@@ -106,9 +106,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "orange 2.4.6%n" +
                 ""), result.getOut());
@@ -126,9 +126,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "blue 6.4.1%n" +
                 ""), result.getOut());
@@ -146,9 +146,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "purple 7.9.8%n" +
                 ""), result.getOut());
@@ -166,9 +166,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "Version 9.2%n" +
                 ""), result.getOut());
@@ -188,9 +188,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "yellow 1.2%n" +
                 ""), result.getOut());
@@ -211,9 +211,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "yellow 1.2%n" +
                 ""), result.getOut());
@@ -233,9 +233,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "brown 3.4%n" +
                 ""), result.getOut());
@@ -253,9 +253,9 @@ public class CommandNameAndVersionTest {
                 .run();
 
         assertEquals(String.format("Commands: %n" +
-                "                       %n" +
-                "   color               %n" +
-                "   help                %n" +
+                "%n" +
+                "   color   %n" +
+                "   help    %n" +
                 "%n" +
                 "pink 3.12%n" +
                 ""), result.getOut());
@@ -274,9 +274,9 @@ public class CommandNameAndVersionTest {
         {
             Java.Result result = cli.run();
             assertEquals(String.format("Commands: %n" +
-                    "                       %n" +
-                    "   color               %n" +
-                    "   help                %n" +
+                    "%n" +
+                    "   color   %n" +
+                    "   help    %n" +
                     "%n" +
                     "Version 4.11%n" +
                     ""), result.getOut());
@@ -287,10 +287,10 @@ public class CommandNameAndVersionTest {
                     "Usage: color [subcommand] [options]%n" +
                     "%n" +
                     "Sub commands: %n" +
-                    "                       %n" +
-                    "   blue                %n" +
-                    "   green               %n" +
-                    "   red                 %n" +
+                    "%n" +
+                    "   blue    %n" +
+                    "   green   %n" +
+                    "   red     %n" +
                     "%n" +
                     "Version 4.11%n"), result.getErr());
         }

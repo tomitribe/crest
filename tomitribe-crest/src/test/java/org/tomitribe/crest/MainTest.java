@@ -54,11 +54,11 @@ public class MainTest extends TestCase {
         final String ln = System.getProperty("line.separator");
         assertEquals(
                 "Commands: " + ln +
-                        "                       " + ln +
-                        "   blue                " + ln +
-                        "   green               " + ln +
-                        "   help                " + ln +
-                        "   red                 " + ln,
+                        "" + ln +
+                        "   blue    " + ln +
+                        "   green   " + ln +
+                        "   help    " + ln +
+                        "   red     " + ln,
                 help.exec(null));
 
     }

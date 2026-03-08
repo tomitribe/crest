@@ -63,9 +63,9 @@ public class EditorInLoaderTest {
         {
             final Java.Result result = cli.run();
             assertEquals(String.format("Commands: %n" +
-                    "                       %n" +
-                    "   color               %n" +
-                    "   help                %n" +
+                    "%n" +
+                    "   color   %n" +
+                    "   help    %n" +
                     "%n" +
                     "Version 3.6.9%n" +
                     ""), result.getOut());

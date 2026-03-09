@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
@@ -72,22 +73,16 @@ public class CrestExtensionTest {
         extension.execute(context);
 
         final Collection<ClassReflectionModel> reflections = context.getReflections();
-        assertEquals(6, reflections.size());
+        assertEquals(5, reflections.size());
 
         final Path spiFile = temp.getRoot().toPath().resolve("crest-commands.txt");
         assertTrue(Files.exists(spiFile));
-        assertEquals(
-                asList("org.tomitribe.crest.EditorLoader", Enclosing.class.getName()),
-                Files.readAllLines(spiFile));
-
-        final Path spi2File = temp.getRoot().toPath().resolve("crest-editors.txt");
-        assertTrue(Files.exists(spi2File));
-        assertEquals(singletonList(MyEditor.class.getName()), Files.readAllLines(spi2File));
+        final List<String> lines = Files.readAllLines(spiFile);
+        assertTrue(lines.contains(Enclosing.class.getName()));
+        assertTrue(lines.contains(MyEditor.class.getName()));
 
         assertEquals(
-                asList(
-                        "-H:TomitribeCrestEditors=" + spi2File,
-                        "-H:TomitribeCrestCommands=" + spiFile),
+                singletonList("-H:TomitribeCrestCommands=" + spiFile),
                 configuration.getCustomOptions());
     }
 

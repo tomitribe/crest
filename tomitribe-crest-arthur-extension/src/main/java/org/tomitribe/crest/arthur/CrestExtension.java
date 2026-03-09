@@ -64,7 +64,7 @@ public class CrestExtension implements ArthurExtension {
     public void execute(final Context context) {
         final boolean alreadyScanned = Boolean.parseBoolean(context.getProperty("tomitribe.crest.useInPlaceRegistrations"));
         if (alreadyScanned) {
-            doRegisters(context, doLoadCrestTxt("crest-commands.txt"), doLoadCrestTxt("crest-editors.txt"));
+            doRegisters(context, doLoadCrestTxt("crest-commands.txt"));
             return;
         }
 
@@ -95,7 +95,8 @@ public class CrestExtension implements ArthurExtension {
                 .filter(editorsFilter)
                 .collect(toList());
 
-        doRegisters(context, commandsAndInterceptors, editors);
+        commandsAndInterceptors.addAll(editors);
+        doRegisters(context, commandsAndInterceptors);
         optionalJavaxBeanValidationRegistration(context);
     }
 
@@ -189,34 +190,13 @@ public class CrestExtension implements ArthurExtension {
         }
     }
 
-    private void doRegisters(final Context context, final List<String> commandsAndInterceptors, final List<String> editors) {
-        registerReflection(context, commandsAndInterceptors);
-        registerConstructorReflection(context, editors);
-
-        if (!editors.isEmpty()) { // uses a static block so init at runtime
-            registerEditorsLoader(context, editors);
-            registerCommandsLoader(context,
-                    // ensure editors are loaded early add EditorLoader in this SPI registration
-                    Stream.concat(
-                                    Stream.of("org.tomitribe.crest.EditorLoader"),
-                                    commandsAndInterceptors.stream())
-                            .collect(toList()));
-
-            context.register(toClassReflection("org.tomitribe.crest.EditorLoader"));
-        } else {
-            registerCommandsLoader(context, commandsAndInterceptors);
-        }
+    private void doRegisters(final Context context, final List<String> allClasses) {
+        registerReflection(context, allClasses);
+        registerCommandsLoader(context, allClasses);
     }
 
     private boolean isExplicitClass(final String name) {
         return !TableInterceptor.class.getName().equals(name) && !Help.class.getName().equals(name);
-    }
-
-    private void registerEditorsLoader(final Context context, final List<String> keptClasses) {
-        context.addNativeImageOption("-H:TomitribeCrestEditors=" + dump(
-                Paths.get(requireNonNull(context.getProperty("workingDirectory"), "workingDirectory property")),
-                "crest-editors.txt",
-                String.join("\n", keptClasses)));
     }
 
     private void registerCommandsLoader(final Context context, final List<String> keptClasses) {

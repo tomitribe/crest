@@ -16,7 +16,6 @@
  */
 package org.tomitribe.crest.cmds.processors;
 
-import org.tomitribe.crest.EditorLoader;
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
@@ -39,7 +38,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -205,7 +203,7 @@ public class Commands {
                         while ((line = reader.readLine()) != null) {
                             line = normalize(line);
                             try {
-                                onClass(classes, loader.loadClass(line));
+                                classes.add(loader.loadClass(line));
                             } catch (final ClassNotFoundException e) {
                                 // no-op: we can log it but don't fail cause one command didn't load
                             }
@@ -240,17 +238,8 @@ public class Commands {
     private static void addAll(final LinkedHashSet<Class<?>> classes, final Iterator<? extends Iterable<Class<?>>> all) {
         while (all.hasNext()) {
             for (final Class<?> clazz : all.next()) {
-                onClass(classes, clazz);
+                classes.add(clazz);
             }
-        }
-    }
-
-    // enable to handle auto-loading of some features specifically, in particular editor implicit auto-loading
-    private static void onClass(final Collection<Class<?>> classes, final Class<?> clazz) {
-        if (EditorLoader.class == clazz) { // was loaded but we don't need anything else but triggering the init
-            EditorLoader.Lazy.lightInit(Thread.currentThread().getContextClassLoader());
-        } else {
-            classes.add(clazz);
         }
     }
 }

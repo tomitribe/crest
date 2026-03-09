@@ -121,7 +121,7 @@ Creates a single jar containing all dependencies (your modules, Crest, transitiv
 
 Provides two goals:
 
-**`descriptor`** — Runs at compile time to generate command descriptor files used by the built-in `help` command. These descriptors extract javadoc content for man-page-style documentation.
+**`descriptor`** — Runs at compile time to scan your compiled classes for `@Command`, `@Editor`, and `@CrestInterceptor` annotations and generate a `crest-commands.txt` file. It also generates the `META-INF/services/org.tomitribe.crest.api.Loader` service file pointing to the built-in `CrestCommandsLoader`, unless you provide your own.
 
 **`executable`** — Runs at package time to prepend a shell stub to the shaded jar, making it directly executable on Unix systems without typing `java -jar`. After `mvn package`, you get an executable named after your artifact:
 
@@ -130,6 +130,37 @@ $ ./myproject-cli --help
 ```
 
 The default shell stub passes `-Dcmd="$0"` so Crest can show the script name in help output, and `$JAVA_OPTS` so users can set JVM flags via the environment. The executable is attached as a build artifact by default, so `mvn install` and `mvn deploy` publish it alongside the jar.
+
+#### Descriptor Goal Configuration
+
+The `descriptor` goal scans your compiled classes and generates `crest-commands.txt`. Use `excludes` to remove classes from the scan results and `includes` to add classes that the scanner wouldn't find:
+
+```xml
+<plugin>
+    <groupId>org.tomitribe</groupId>
+    <artifactId>crest-maven-plugin</artifactId>
+    <version>${crest.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>descriptor</goal>
+                <goal>executable</goal>
+            </goals>
+            <configuration>
+                <excludes>
+                    <exclude>com.example.internal.*</exclude>
+                    <exclude>com.example.DebugCommands</exclude>
+                </excludes>
+                <includes>
+                    <include>com.example.extra.ManualCommand</include>
+                </includes>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+Exclude patterns support `*` as a wildcard that matches any characters. For example, `com.example.internal.*` matches all classes in that package and its sub-packages.
 
 #### Executable Goal Configuration
 
@@ -179,15 +210,15 @@ The `target/` directory will contain:
 
 ## Command Discovery
 
-Crest needs to find your `@Command` classes. You have three options:
+Crest needs to find your `@Command`, `@Editor`, and `@CrestInterceptor` classes. You have three options:
 
-### Option A: Classpath Scanning (easiest)
+### Option A: crest-maven-plugin (recommended)
 
-Add the `tomitribe-crest-xbean` dependency and Crest automatically scans the classpath for `@Command` classes. No additional configuration needed.
+The `descriptor` goal scans your compiled classes at build time and generates a `crest-commands.txt` file plus the service loader wiring. No runtime scanning, no extra dependencies. Use `excludes` and `includes` in the plugin configuration if you need to control what's discovered.
 
-### Option B: Explicit Loader (recommended for large projects)
+### Option B: Explicit Loader
 
-Create a `Loader` that lists your command, interceptor, and editor classes explicitly. This avoids classpath scanning overhead and gives you full control:
+For full control, create a `Loader` that lists your classes explicitly:
 
 ```java
 public class MyLoader implements Loader {
@@ -209,6 +240,8 @@ Register it in `META-INF/services/org.tomitribe.crest.api.Loader`:
 ```
 com.example.cli.MyLoader
 ```
+
+When an explicit `Loader` is present, it is authoritative — Crest uses it and does not fall back to other discovery mechanisms.
 
 ### Option C: Main.builder()
 

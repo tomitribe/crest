@@ -34,7 +34,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collection;
+import java.util.List;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import static org.objectweb.asm.ClassReader.SKIP_CODE;
 import static org.objectweb.asm.ClassReader.SKIP_DEBUG;
@@ -53,6 +55,12 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
     @Parameter(property = "crest.descriptor.output", defaultValue = "${project.build.outputDirectory}/crest-commands.txt")
     protected File output;
 
+    @Parameter
+    protected List<String> includes;
+
+    @Parameter
+    protected List<String> excludes;
+
     private static final String LOADER_SERVICE = "META-INF/services/org.tomitribe.crest.api.Loader";
     private static final String CREST_COMMANDS_LOADER = "org.tomitribe.crest.CrestCommandsLoader";
 
@@ -69,6 +77,19 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
             scan(found, classes);
         } catch (final IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
+        }
+
+        // apply excludes
+        if (excludes != null && !excludes.isEmpty()) {
+            for (final String pattern : excludes) {
+                final Pattern regex = globToRegex(pattern);
+                found.removeIf(name -> regex.matcher(name).matches());
+            }
+        }
+
+        // apply includes (additional classes not found by scanning)
+        if (includes != null) {
+            found.addAll(includes);
         }
 
         // write crest-commands.txt (all annotated classes in one file)
@@ -160,6 +181,21 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
             return cfe.result;
         }
         return ScanResult.NONE;
+    }
+
+    static Pattern globToRegex(final String glob) {
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < glob.length(); i++) {
+            final char c = glob.charAt(i);
+            switch (c) {
+                case '*': sb.append(".*"); break;
+                case '?': sb.append('.'); break;
+                case '.': sb.append("\\."); break;
+                case '$': sb.append("\\$"); break;
+                default: sb.append(c);
+            }
+        }
+        return Pattern.compile(sb.toString());
     }
 
     private static class CommandFoundException extends RuntimeException {

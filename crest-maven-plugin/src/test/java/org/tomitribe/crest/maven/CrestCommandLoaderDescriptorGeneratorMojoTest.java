@@ -29,10 +29,14 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class CrestCommandLoaderDescriptorGeneratorMojoTest {
     @Test
@@ -51,6 +55,74 @@ public class CrestCommandLoaderDescriptorGeneratorMojoTest {
         reader.close();
 
         assertEquals(new HashSet<String>() {{ add(ClassCommand.class.getName()); add(MethodCommand.class.getName()); }}, found);
+    }
+
+    @Test
+    public void excludeByExactName() throws IOException, MojoFailureException, MojoExecutionException {
+        final CrestCommandLoaderDescriptorGeneratorMojo mojo = new CrestCommandLoaderDescriptorGeneratorMojo();
+        mojo.classes = new File("target/test-classes");
+        mojo.output = new File("target/CrestCommandLoaderDescriptorGeneratorMojoTest/exclude-exact.txt");
+        mojo.excludes = Collections.singletonList(ClassCommand.class.getName());
+        mojo.execute();
+
+        final Collection<String> found = readLines(mojo.output);
+        assertFalse(found.contains(ClassCommand.class.getName()));
+        assertTrue(found.contains(MethodCommand.class.getName()));
+    }
+
+    @Test
+    public void excludeByWildcard() throws IOException, MojoFailureException, MojoExecutionException {
+        final CrestCommandLoaderDescriptorGeneratorMojo mojo = new CrestCommandLoaderDescriptorGeneratorMojo();
+        mojo.classes = new File("target/test-classes");
+        mojo.output = new File("target/CrestCommandLoaderDescriptorGeneratorMojoTest/exclude-wildcard.txt");
+        mojo.excludes = Collections.singletonList("*ClassCommand");
+        mojo.execute();
+
+        final Collection<String> found = readLines(mojo.output);
+        assertFalse(found.contains(ClassCommand.class.getName()));
+        assertTrue(found.contains(MethodCommand.class.getName()));
+    }
+
+    @Test
+    public void includeAdditionalClass() throws IOException, MojoFailureException, MojoExecutionException {
+        final CrestCommandLoaderDescriptorGeneratorMojo mojo = new CrestCommandLoaderDescriptorGeneratorMojo();
+        mojo.classes = new File("target/test-classes");
+        mojo.output = new File("target/CrestCommandLoaderDescriptorGeneratorMojoTest/include.txt");
+        mojo.includes = Collections.singletonList("com.example.ManualCommand");
+        mojo.execute();
+
+        final Collection<String> found = readLines(mojo.output);
+        assertTrue(found.contains(ClassCommand.class.getName()));
+        assertTrue(found.contains(MethodCommand.class.getName()));
+        assertTrue(found.contains("com.example.ManualCommand"));
+    }
+
+    @Test
+    public void includeAndExclude() throws IOException, MojoFailureException, MojoExecutionException {
+        final CrestCommandLoaderDescriptorGeneratorMojo mojo = new CrestCommandLoaderDescriptorGeneratorMojo();
+        mojo.classes = new File("target/test-classes");
+        mojo.output = new File("target/CrestCommandLoaderDescriptorGeneratorMojoTest/include-exclude.txt");
+        mojo.excludes = Collections.singletonList(ClassCommand.class.getName());
+        mojo.includes = Collections.singletonList("com.example.Extra");
+        mojo.execute();
+
+        final Collection<String> found = readLines(mojo.output);
+        assertFalse(found.contains(ClassCommand.class.getName()));
+        assertTrue(found.contains(MethodCommand.class.getName()));
+        assertTrue(found.contains("com.example.Extra"));
+    }
+
+    private Collection<String> readLines(final File file) throws IOException {
+        final Collection<String> lines = new HashSet<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.isEmpty()) {
+                    lines.add(line);
+                }
+            }
+        }
+        return lines;
     }
 
     @Command

@@ -37,10 +37,10 @@ Hello, World!
 Override one or both options:
 
 ```bash
-$ myapp hello --name Alice
+$ myapp hello --name=Alice
 Hello, Alice!
 
-$ myapp hello --name Alice --greeting Hi
+$ myapp hello --name=Alice --greeting=Hi
 Hi, Alice!
 ```
 

@@ -30,9 +30,9 @@ public class ConfigCommands {
 CLI usage:
 
 ```
-config add --value "myvalue" myname
+config add --value="myvalue" myname
 config remove myname
-config import --file settings.json
+config import --file=settings.json
 ```
 
 Help output:

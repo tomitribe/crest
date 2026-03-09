@@ -55,7 +55,7 @@ public void deploy(final Config config,
                    @Option("version") final String version) { ... }
 ```
 
-CLI usage: `deploy --config staging --env dev --customer-id acme --version 2.1.0`
+CLI usage: `deploy --config=staging --env=dev --customer-id=acme --version=2.1.0`
 
 The `--config`, `--env`, and `--customer-id` options come from the `Config` and `CustomerIds` classes, while `--version` is defined directly on the method.
 

@@ -15,7 +15,7 @@ public String greet(@Option("name") @Default("World") final String name) {
 }
 ```
 
-CLI usage: `greet --name Alice`
+CLI usage: `greet --name=Alice`
 
 ### Custom Command Names
 
@@ -65,7 +65,7 @@ public class ConfigCommands {
 }
 ```
 
-CLI usage: `config set --key db.host --value localhost`
+CLI usage: `config set --key=db.host --value=localhost`
 
 ## @Option
 
@@ -78,9 +78,11 @@ public void upload(@Option("customer-id") final String customerId,
                    final URI source) { ... }
 ```
 
-CLI usage: `upload --customer-id acme --dry-run /data`
+CLI usage: `upload --customer-id=acme --dry-run /data`
 
 In this example, `customerId` and `dryRun` are named options, while `source` is a positional argument.
+
+> Crest requires an equals sign between an option and its value, e.g. `--customer-id=acme` not `--customer-id acme`. Boolean options (`boolean` or `Boolean`) are the exception — they don't require a value. Both `--dry-run` and `--dry-run=true` evaluate to `true`. Crest also generates an implicit negation for every boolean option: `--no-dry-run` is equivalent to `--dry-run=false`.
 
 ### Aliases
 
@@ -117,7 +119,7 @@ public void connect(@Option("host") @Default("localhost") final String host,
                     @Option("ssl") @Default("true") final boolean ssl) { ... }
 ```
 
-CLI usage: `connect` uses all defaults; `connect --port 3306` overrides only the port.
+CLI usage: `connect` uses all defaults; `connect --port=3306` overrides only the port.
 
 ### Variable Substitution
 
@@ -143,6 +145,6 @@ public void register(@Option("email") @Required final String email,
                      @Option("newsletter") @Default("false") final boolean newsletter) { ... }
 ```
 
-CLI usage: `register --email user@example.com --name "Jane Doe"` succeeds; `register --name "Jane Doe"` fails with a missing `--email` error.
+CLI usage: `register --email=user@example.com --name="Jane Doe"` succeeds; `register --name="Jane Doe"` fails with a missing `--email` error.
 
 `@Required` and `@Default` are mutually exclusive in practice -- if a parameter has a default, it does not need to be required.

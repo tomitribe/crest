@@ -18,7 +18,7 @@ public String hello(@Option("name") @Default("World") final String name) {
 ```
 
 ```
-$ hello --name Alice
+$ hello --name=Alice
 Hello, Alice
 ```
 

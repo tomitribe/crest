@@ -1,4 +1,4 @@
-baseURL = 'https://www.tomitribe.io/crest/'
+baseURL = 'https://tomitribe.github.io/crest/'
 languageCode = 'en-us'
 title = 'Crest — Command-Line API for Java'
 theme = 'crest'

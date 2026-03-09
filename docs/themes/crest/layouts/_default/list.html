@@ -1,0 +1,31 @@
+{{ define "main" }}
+<div class="page-wrapper">
+    {{ partial "sidebar.html" . }}
+
+    <div class="content-area">
+        <div class="content">
+            <h1>{{ .Title }}</h1>
+            {{ with .Params.description }}
+                <p class="page-description">{{ . }}</p>
+            {{ end }}
+
+            {{ .Content }}
+
+            {{ if .Pages }}
+            <div class="section-cards">
+                {{ range .Pages.ByWeight }}
+                <a href="{{ .RelPermalink }}" class="section-card">
+                    <h3>{{ .Title }}</h3>
+                    {{ with .Params.description }}
+                        <p>{{ . }}</p>
+                    {{ end }}
+                </a>
+                {{ end }}
+            </div>
+            {{ end }}
+        </div>
+
+        {{ partial "footer.html" . }}
+    </div>
+</div>
+{{ end }}

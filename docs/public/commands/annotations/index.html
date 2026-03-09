@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/crest/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=crest/livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annotations | Crest — Command-Line API for Java</title>
+    <meta name="description" content="The core annotations for defining commands, options, defaults, and required parameters in Crest.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/crest/css/main.css">
+</head>
+<body>
+    <nav class="site-nav">
+    <div class="nav-inner">
+        <a href="/crest/" class="logo"><span>&gt;</span> crest</a>
+        <button class="hamburger" aria-label="Toggle menu">&#9776;</button>
+        <ul class="nav-links">
+            
+                
+                    <li><a href="/crest/getting-started/">Getting Started</a></li>
+                
+            
+                
+                    <li><a href="/crest/commands/">Commands</a></li>
+                
+            
+                
+                    <li><a href="/crest/tables/">Tables</a></li>
+                
+            
+                
+                    <li><a href="/crest/advanced/">Advanced</a></li>
+                
+            
+                
+                    <li><a href="https://github.com/tomitribe/crest" class="nav-cta" target="_blank" rel="noopener">GitHub</a></li>
+                
+            
+        </ul>
+    </div>
+</nav>
+
+
+    
+<div class="page-wrapper">
+    <aside class="sidebar">
+    
+
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/getting-started/">Getting Started</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/getting-started/installation/">
+                            Installation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/maven-setup/">
+                            Maven Project Setup
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/first-command/">
+                            Your First Command
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/entry-point/">
+                            Entry Point
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/testing/">
+                            Testing Commands
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/commands/">Commands</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/commands/annotations/" class="active">
+                            Annotations
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/options-classes/">
+                            Options Classes
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/command-groups/">
+                            Command Groups
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/return-types/">
+                            Return Types
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/io-streams/">
+                            I/O Streams
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/help/">
+                            Help
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/tables/">Table Formatting</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/tables/table-annotation/">
+                            The @Table Annotation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/border-styles/">
+                            Border Styles
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/table-options/">
+                            Table Options
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/programmatic/">
+                            Programmatic Table Building
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/cell-formatting/">
+                            Cell Formatting
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/advanced/">Advanced</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/advanced/type-conversion/">
+                            Type Conversion
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/interceptors/">
+                            Interceptors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/validation/">
+                            Validation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/editors/">
+                            Editors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/loader/">
+                            Loader
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/exit-codes/">
+                            Exit Codes
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+</aside>
+
+
+    <div class="content-area">
+        <div class="content-with-toc">
+            <div class="content">
+                <h1>Annotations</h1>
+                
+                    <p class="page-description">The core annotations for defining commands, options, defaults, and required parameters in Crest.</p>
+                
+
+                <h2 id="command">@Command</h2>
+<p>The <code>@Command</code> annotation marks a method as a CLI command. The method name becomes the command name by default, or you can specify a custom name.</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">greet</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;name&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;World&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>name)<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;Hello, &#34;</span><span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">+</span><span style="color:#6e7681"> </span>name;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>CLI usage: <code>greet --name Alice</code></p>
+<h3 id="custom-command-names">Custom Command Names</h3>
+<p>Use the <code>value</code> parameter to override the default method name. This is especially useful when the desired command name is a Java reserved word:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span>(<span style="color:#a5d6ff">&#34;import&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">_import</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;file&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>File<span style="color:#6e7681"> </span>file)<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#8b949e;font-style:italic">// &#34;import&#34; is a reserved word, so the method is named _import</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><h3 id="descriptions">Descriptions</h3>
+<p>Provide a one-line description that appears in help listings:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span>(description<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;Deploy the application to the target environment&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">deploy</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;target&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>target)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><h3 id="custom-usage">Custom Usage</h3>
+<p>Override the auto-generated synopsis line with the <code>usage</code> parameter:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span>(value<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;commit&#34;</span>,<span style="color:#6e7681"> </span>usage<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;commit [options] &lt;message&gt; &lt;file&gt;&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">commit</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;all&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">boolean</span><span style="color:#6e7681"> </span>all,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                   </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>message,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                   </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>File<span style="color:#6e7681"> </span>file)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><h3 id="class-level-command">Class-Level @Command</h3>
+<p>When placed on a class, <code>@Command</code> defines a command group. All <code>@Command</code>-annotated methods inside the class become sub-commands. See <a href="http://localhost:1313/crest/commands/command-groups/">Command Groups</a> for details.</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span>(value<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;config&#34;</span>,<span style="color:#6e7681"> </span>description<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;Manage configuration&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">ConfigCommands</span><span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Command</span>(description<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;Set a config value&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">set</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;key&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>key,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                    </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;value&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>value)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Command</span>(description<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;Get a config value&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">get</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;key&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>key)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>CLI usage: <code>config set --key db.host --value localhost</code></p>
+<h2 id="option">@Option</h2>
+<p>Marks a method parameter as a named CLI option. Parameters without <code>@Option</code> are treated as positional arguments.</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">upload</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;customer-id&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>customerId,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                   </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;dry-run&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;false&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">boolean</span><span style="color:#6e7681"> </span>dryRun,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                   </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>URI<span style="color:#6e7681"> </span>source)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>CLI usage: <code>upload --customer-id acme --dry-run /data</code></p>
+<p>In this example, <code>customerId</code> and <code>dryRun</code> are named options, while <code>source</code> is a positional argument.</p>
+<h3 id="aliases">Aliases</h3>
+<p>Provide multiple names for the same option by passing an array:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">copy</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>({<span style="color:#a5d6ff">&#34;f&#34;</span>,<span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;force&#34;</span>})<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">boolean</span><span style="color:#6e7681"> </span>force,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                 </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>({<span style="color:#a5d6ff">&#34;r&#34;</span>,<span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;recursive&#34;</span>})<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">boolean</span><span style="color:#6e7681"> </span>recursive,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                 </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>URI<span style="color:#6e7681"> </span>source,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                 </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>URI<span style="color:#6e7681"> </span>dest)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>CLI usage: <code>copy --force --recursive /src /dest</code> or <code>copy -f -r /src /dest</code></p>
+<h3 id="inline-description">Inline Description</h3>
+<p>Add a description directly in the annotation for help output:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">commit</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(value<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;all&#34;</span>,<span style="color:#6e7681"> </span>description<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;commit all changed files&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">boolean</span><span style="color:#6e7681"> </span>all,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                   </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(value<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;message&#34;</span>,<span style="color:#6e7681"> </span>description<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;commit message&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>message)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><h2 id="default">@Default</h2>
+<p>Provides a default value for an option when the user does not supply one. The string is converted to the parameter&rsquo;s type using Crest&rsquo;s type conversion.</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">connect</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;host&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;localhost&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>host,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                    </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;port&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;5432&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">int</span><span style="color:#6e7681"> </span>port,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                    </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;ssl&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;true&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">boolean</span><span style="color:#6e7681"> </span>ssl)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>CLI usage: <code>connect</code> uses all defaults; <code>connect --port 3306</code> overrides only the port.</p>
+<h3 id="variable-substitution">Variable Substitution</h3>
+<p>Default values support system property and environment variable substitution using <code>${...}</code> syntax:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">deploy</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;owner&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;${user.name}&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>owner,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                   </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;region&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;${AWS_REGION}&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>region,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                   </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;target&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>target)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>At runtime, <code>${user.name}</code> resolves to the system property <code>user.name</code>, and <code>${AWS_REGION}</code> resolves to the environment variable <code>AWS_REGION</code>.</p>
+<h2 id="required">@Required</h2>
+<p>Enforces that an option must be provided by the user. If the option is missing, the framework throws a validation error with a descriptive message.</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">register</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;email&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Required</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>email,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                     </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;name&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Required</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>name,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                     </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;newsletter&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;false&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">boolean</span><span style="color:#6e7681"> </span>newsletter)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>CLI usage: <code>register --email user@example.com --name &quot;Jane Doe&quot;</code> succeeds; <code>register --name &quot;Jane Doe&quot;</code> fails with a missing <code>--email</code> error.</p>
+<p><code>@Required</code> and <code>@Default</code> are mutually exclusive in practice &ndash; if a parameter has a default, it does not need to be required.</p>
+
+
+                
+
+
+    
+        
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+<div class="page-nav">
+    
+    
+        
+        <a href="/crest/commands/options-classes/" class="next next-only">
+            <div class="nav-label">Next &rarr;</div>
+            <div class="nav-title">Options Classes</div>
+        </a>
+    
+</div>
+
+
+            </div>
+
+            
+<div class="toc-rail">
+    <div class="toc-rail-inner">
+        <h5>On this page</h5>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#command">@Command</a>
+      <ul>
+        <li><a href="#custom-command-names">Custom Command Names</a></li>
+        <li><a href="#descriptions">Descriptions</a></li>
+        <li><a href="#custom-usage">Custom Usage</a></li>
+        <li><a href="#class-level-command">Class-Level @Command</a></li>
+      </ul>
+    </li>
+    <li><a href="#option">@Option</a>
+      <ul>
+        <li><a href="#aliases">Aliases</a></li>
+        <li><a href="#inline-description">Inline Description</a></li>
+      </ul>
+    </li>
+    <li><a href="#default">@Default</a>
+      <ul>
+        <li><a href="#variable-substitution">Variable Substitution</a></li>
+      </ul>
+    </li>
+    <li><a href="#required">@Required</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+
+        </div>
+
+        <footer>
+    <div class="footer-inner">
+        <span>&copy; <a href="https://www.tomitribe.com">Tomitribe</a>. Apache License 2.0.</span>
+        <span><a href="https://github.com/tomitribe/crest">GitHub</a> &middot; <a href="https://www.tomitribe.io">Community</a></span>
+    </div>
+</footer>
+
+    </div>
+</div>
+
+
+    <script src="/crest/js/main.js"></script>
+</body>
+</html>

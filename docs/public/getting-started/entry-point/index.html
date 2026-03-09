@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/crest/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=crest/livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry Point | Crest — Command-Line API for Java</title>
+    <meta name="description" content="Configure how Crest discovers commands and launches your CLI application.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/crest/css/main.css">
+</head>
+<body>
+    <nav class="site-nav">
+    <div class="nav-inner">
+        <a href="/crest/" class="logo"><span>&gt;</span> crest</a>
+        <button class="hamburger" aria-label="Toggle menu">&#9776;</button>
+        <ul class="nav-links">
+            
+                
+                    <li><a href="/crest/getting-started/">Getting Started</a></li>
+                
+            
+                
+                    <li><a href="/crest/commands/">Commands</a></li>
+                
+            
+                
+                    <li><a href="/crest/tables/">Tables</a></li>
+                
+            
+                
+                    <li><a href="/crest/advanced/">Advanced</a></li>
+                
+            
+                
+                    <li><a href="https://github.com/tomitribe/crest" class="nav-cta" target="_blank" rel="noopener">GitHub</a></li>
+                
+            
+        </ul>
+    </div>
+</nav>
+
+
+    
+<div class="page-wrapper">
+    <aside class="sidebar">
+    
+
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/getting-started/">Getting Started</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/getting-started/installation/">
+                            Installation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/maven-setup/">
+                            Maven Project Setup
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/first-command/">
+                            Your First Command
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/entry-point/" class="active">
+                            Entry Point
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/testing/">
+                            Testing Commands
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/commands/">Commands</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/commands/annotations/">
+                            Annotations
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/options-classes/">
+                            Options Classes
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/command-groups/">
+                            Command Groups
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/return-types/">
+                            Return Types
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/io-streams/">
+                            I/O Streams
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/help/">
+                            Help
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/tables/">Table Formatting</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/tables/table-annotation/">
+                            The @Table Annotation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/border-styles/">
+                            Border Styles
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/table-options/">
+                            Table Options
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/programmatic/">
+                            Programmatic Table Building
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/cell-formatting/">
+                            Cell Formatting
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/advanced/">Advanced</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/advanced/type-conversion/">
+                            Type Conversion
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/interceptors/">
+                            Interceptors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/validation/">
+                            Validation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/editors/">
+                            Editors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/loader/">
+                            Loader
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/exit-codes/">
+                            Exit Codes
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+</aside>
+
+
+    <div class="content-area">
+        <div class="content-with-toc">
+            <div class="content">
+                <h1>Entry Point</h1>
+                
+                    <p class="page-description">Configure how Crest discovers commands and launches your CLI application.</p>
+                
+
+                <h2 id="the-main-class">The Main Class</h2>
+<p>Every Crest application needs an entry point that wires up command discovery and dispatches CLI arguments. The simplest approach uses the built-in <code>Main</code> class:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#ff7b72">import</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">org.tomitribe.crest.Main</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">MyCli</span><span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">static</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">main</span>(<span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#ff7b72;font-weight:bold">[]</span><span style="color:#6e7681"> </span>args)<span style="color:#6e7681"> </span><span style="color:#ff7b72">throws</span><span style="color:#6e7681"> </span>Exception<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>Main<span style="color:#6e7681"> </span>main<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">new</span><span style="color:#6e7681"> </span>Main();<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>main.run(args);<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>When constructed with <code>new Main()</code>, Crest discovers commands automatically via the ServiceLoader mechanism (described below). The <code>run()</code> method parses the arguments, finds the matching command, and invokes it.</p>
+<h2 id="mainbuilder-for-programmatic-setup">Main.builder() for Programmatic Setup</h2>
+<p>For more control, use <code>Main.builder()</code> to register commands explicitly and configure behavior:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#ff7b72">import</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">org.tomitribe.crest.Main</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">MyCli</span><span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">static</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">main</span>(<span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#ff7b72;font-weight:bold">[]</span><span style="color:#6e7681"> </span>args)<span style="color:#6e7681"> </span><span style="color:#ff7b72">throws</span><span style="color:#6e7681"> </span>Exception<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>Main<span style="color:#6e7681"> </span>main<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span>Main.builder()<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                </span>.command(HelloCommand.class)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                </span>.command(ConfigCommands.class)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                </span>.name(<span style="color:#a5d6ff">&#34;myapp&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                </span>.version(<span style="color:#a5d6ff">&#34;1.0.0&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                </span>.build();<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>main.run(args);<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>Key builder options:</p>
+<ul>
+<li><code>command(Class&lt;?&gt;)</code> &ndash; register a class containing <code>@Command</code> methods.</li>
+<li><code>load(Class&lt;?&gt;)</code> &ndash; register any supporting class (custom editors, interceptors).</li>
+<li><code>name(String)</code> &ndash; set the application name shown in help output. Defaults to the value of system property <code>cmd</code> or environment variable <code>CMD</code>.</li>
+<li><code>version(String)</code> &ndash; set the version shown in help output.</li>
+<li><code>out(PrintStream)</code> / <code>err(PrintStream)</code> / <code>in(InputStream)</code> &ndash; redirect I/O streams.</li>
+<li><code>exit(Consumer&lt;Integer&gt;)</code> &ndash; custom exit handler (default: <code>System::exit</code>).</li>
+<li><code>noexit()</code> &ndash; suppress <code>System.exit</code> calls, useful for testing and embedded use.</li>
+</ul>
+<p>If no classes are added via <code>command()</code>, the builder falls back to classpath discovery through the <code>Loader</code>.</p>
+<h2 id="serviceloader-discovery">ServiceLoader Discovery</h2>
+<p>By default, <code>new Main()</code> uses Java&rsquo;s <code>ServiceLoader</code> to find an implementation of <code>org.tomitribe.crest.api.Loader</code>. The <code>Loader</code> interface returns all the classes Crest should inspect for commands, interceptors, and editors.</p>
+<p>Create a <code>Loader</code> implementation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#ff7b72">import</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">org.tomitribe.crest.api.Loader</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">import</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">java.util.Iterator</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">MyLoader</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">implements</span><span style="color:#6e7681"> </span>Loader<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Override</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span>Iterator<span style="color:#ff7b72;font-weight:bold">&lt;</span>Class<span style="color:#ff7b72;font-weight:bold">&lt;?&gt;&gt;</span><span style="color:#6e7681"> </span>iterator()<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span>Loader.of(<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span>HelloCommand.class,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span>ConfigCommands.class<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>).iterator();<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>Register it in <code>META-INF/services/org.tomitribe.crest.api.Loader</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>com.example.cli.MyLoader
+</span></span></code></pre></div><p>With this file on the classpath, <code>new Main()</code> automatically discovers all your commands &ndash; no explicit registration needed.</p>
+<h2 id="run-vs-exec">run() vs exec()</h2>
+<p>The <code>Main</code> class offers two execution methods:</p>
+<ul>
+<li><code>main.run(args)</code> &ndash; runs the command and handles exceptions internally. Use this for your application&rsquo;s <code>main()</code> method.</li>
+<li><code>main.exec(args)</code> &ndash; runs the command and returns the result. Exceptions propagate to the caller. Use this when you need the return value programmatically, such as in tests.</li>
+</ul>
+
+
+                
+
+
+    
+
+    
+
+    
+
+    
+        
+    
+
+    
+
+
+
+<div class="page-nav">
+    
+        
+        <a href="/crest/getting-started/first-command/" class="prev">
+            <div class="nav-label">&larr; Previous</div>
+            <div class="nav-title">Your First Command</div>
+        </a>
+    
+    
+        
+        <a href="/crest/getting-started/testing/" class="next">
+            <div class="nav-label">Next &rarr;</div>
+            <div class="nav-title">Testing Commands</div>
+        </a>
+    
+</div>
+
+
+            </div>
+
+            
+<div class="toc-rail">
+    <div class="toc-rail-inner">
+        <h5>On this page</h5>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-main-class">The Main Class</a></li>
+    <li><a href="#mainbuilder-for-programmatic-setup">Main.builder() for Programmatic Setup</a></li>
+    <li><a href="#serviceloader-discovery">ServiceLoader Discovery</a></li>
+    <li><a href="#run-vs-exec">run() vs exec()</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+
+        </div>
+
+        <footer>
+    <div class="footer-inner">
+        <span>&copy; <a href="https://www.tomitribe.com">Tomitribe</a>. Apache License 2.0.</span>
+        <span><a href="https://github.com/tomitribe/crest">GitHub</a> &middot; <a href="https://www.tomitribe.io">Community</a></span>
+    </div>
+</footer>
+
+    </div>
+</div>
+
+
+    <script src="/crest/js/main.js"></script>
+</body>
+</html>

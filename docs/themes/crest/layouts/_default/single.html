@@ -1,0 +1,24 @@
+{{ define "main" }}
+<div class="page-wrapper">
+    {{ partial "sidebar.html" . }}
+
+    <div class="content-area">
+        <div class="content-with-toc">
+            <div class="content">
+                <h1>{{ .Title }}</h1>
+                {{ with .Params.description }}
+                    <p class="page-description">{{ . }}</p>
+                {{ end }}
+
+                {{ .Content }}
+
+                {{ partial "page-nav.html" . }}
+            </div>
+
+            {{ partial "toc.html" . }}
+        </div>
+
+        {{ partial "footer.html" . }}
+    </div>
+</div>
+{{ end }}

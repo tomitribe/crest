@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/crest/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=crest/livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cell Formatting | Crest — Command-Line API for Java</title>
+    <meta name="description" content="Control how table cells are rendered using PropertyEditor-based formatting with getAsText().">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/crest/css/main.css">
+</head>
+<body>
+    <nav class="site-nav">
+    <div class="nav-inner">
+        <a href="/crest/" class="logo"><span>&gt;</span> crest</a>
+        <button class="hamburger" aria-label="Toggle menu">&#9776;</button>
+        <ul class="nav-links">
+            
+                
+                    <li><a href="/crest/getting-started/">Getting Started</a></li>
+                
+            
+                
+                    <li><a href="/crest/commands/">Commands</a></li>
+                
+            
+                
+                    <li><a href="/crest/tables/">Tables</a></li>
+                
+            
+                
+                    <li><a href="/crest/advanced/">Advanced</a></li>
+                
+            
+                
+                    <li><a href="https://github.com/tomitribe/crest" class="nav-cta" target="_blank" rel="noopener">GitHub</a></li>
+                
+            
+        </ul>
+    </div>
+</nav>
+
+
+    
+<div class="page-wrapper">
+    <aside class="sidebar">
+    
+
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/getting-started/">Getting Started</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/getting-started/installation/">
+                            Installation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/maven-setup/">
+                            Maven Project Setup
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/first-command/">
+                            Your First Command
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/entry-point/">
+                            Entry Point
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/testing/">
+                            Testing Commands
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/commands/">Commands</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/commands/annotations/">
+                            Annotations
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/options-classes/">
+                            Options Classes
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/command-groups/">
+                            Command Groups
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/return-types/">
+                            Return Types
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/io-streams/">
+                            I/O Streams
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/help/">
+                            Help
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/tables/">Table Formatting</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/tables/table-annotation/">
+                            The @Table Annotation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/border-styles/">
+                            Border Styles
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/table-options/">
+                            Table Options
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/programmatic/">
+                            Programmatic Table Building
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/cell-formatting/" class="active">
+                            Cell Formatting
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/advanced/">Advanced</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/advanced/type-conversion/">
+                            Type Conversion
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/interceptors/">
+                            Interceptors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/validation/">
+                            Validation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/editors/">
+                            Editors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/loader/">
+                            Loader
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/exit-codes/">
+                            Exit Codes
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+</aside>
+
+
+    <div class="content-area">
+        <div class="content-with-toc">
+            <div class="content">
+                <h1>Cell Formatting</h1>
+                
+                    <p class="page-description">Control how table cells are rendered using PropertyEditor-based formatting with getAsText().</p>
+                
+
+                <p>Crest uses Java&rsquo;s <code>PropertyEditor</code> mechanism to format individual table cells. This allows you to control the display representation of any type that appears in your table output.</p>
+<h2 id="how-cell-rendering-works">How Cell Rendering Works</h2>
+<p>When rendering a cell value, the framework follows this resolution order:</p>
+<ol>
+<li><strong>PropertyEditor lookup</strong> &ndash; if a <code>PropertyEditor</code> is registered for the field&rsquo;s type and it implements <code>getAsText()</code>, that result is used.</li>
+<li><strong>toString() fallback</strong> &ndash; if no editor is found, the cell value&rsquo;s <code>toString()</code> method is called.</li>
+</ol>
+<p>This means any <code>@Editor</code> you register for CLI argument parsing will also control how that type appears in table cells, provided it implements <code>getAsText()</code>.</p>
+<h2 id="example-formatting-instant-values">Example: Formatting Instant Values</h2>
+<p>By default, <code>java.time.Instant</code> renders using its <code>toString()</code> method, producing ISO-8601 output like <code>2025-03-08T14:30:00Z</code>. To display a more readable format in tables, register a <code>PropertyEditor</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Editor</span>(Instant.class)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">InstantEditor</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">extends</span><span style="color:#6e7681"> </span>PropertyEditorSupport<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">private</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">static</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>DateTimeFormatter<span style="color:#6e7681"> </span>FMT<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span>DateTimeFormatter.ofPattern(<span style="color:#a5d6ff">&#34;yyyy-MM-dd HH:mm&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                    </span>.withZone(ZoneOffset.UTC);<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Override</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">setAsText</span>(<span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>text)<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>setValue(Instant.parse(text));<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Override</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">getAsText</span>()<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>Instant<span style="color:#6e7681"> </span>instant<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span>(Instant)<span style="color:#6e7681"> </span>getValue();<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span>instant<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">!=</span><span style="color:#6e7681"> </span><span style="color:#79c0ff">null</span><span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">?</span><span style="color:#6e7681"> </span>FMT.format(instant)<span style="color:#6e7681"> </span>:<span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;&#34;</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>With this editor registered, an <code>Instant</code> value of <code>2025-03-08T14:30:00Z</code> renders as <code>2025-03-08 14:30</code> in table cells.</p>
+<p>The same editor serves double duty:</p>
+<ul>
+<li><code>setAsText()</code> handles CLI argument parsing (string to object).</li>
+<li><code>getAsText()</code> handles table cell rendering (object to string).</li>
+</ul>
+<h2 id="registering-editors">Registering Editors</h2>
+<p>Editors must be discoverable by the framework. There are two ways to register them.</p>
+<h3 id="via-the-loader">Via the Loader</h3>
+<p>Include the editor class in your <code>Loader</code> implementation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">MyLoader</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">implements</span><span style="color:#6e7681"> </span>Loader<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Override</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span>Iterator<span style="color:#ff7b72;font-weight:bold">&lt;</span>Class<span style="color:#ff7b72;font-weight:bold">&lt;?&gt;&gt;</span><span style="color:#6e7681"> </span>iterator()<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span>Loader.of(<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span><span style="color:#8b949e;font-style:italic">// Command classes</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span>JobCommands.class,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span>ReportCommands.class,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span><span style="color:#8b949e;font-style:italic">// Editor classes</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span>InstantEditor.class,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span>DurationEditor.class<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>).iterator();<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><h3 id="via-mainbuilder">Via Main.builder()</h3>
+<p>Pass the editor class to <code>load()</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Main.builder()<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>.command(JobCommands.class)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>.command(ReportCommands.class)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>.load(InstantEditor.class)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>.load(DurationEditor.class)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>.build();<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>Crest inspects each class: if annotated with <code>@Editor</code>, it registers the editor with Java&rsquo;s <code>PropertyEditorManager</code>. The editor then applies globally &ndash; every table cell of that type uses the editor&rsquo;s <code>getAsText()</code> output.</p>
+<h2 id="choosing-between-abstractconverter-and-propertyeditorsupport">Choosing Between AbstractConverter and PropertyEditorSupport</h2>
+<p>If you only need CLI argument parsing (string to object) and do not need custom table formatting, use <code>AbstractConverter</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Editor</span>(LocalDate.class)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">LocalDateEditor</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">extends</span><span style="color:#6e7681"> </span>AbstractConverter<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Override</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">protected</span><span style="color:#6e7681"> </span>Object<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">toObjectImpl</span>(<span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>s)<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span>LocalDate.parse(s);<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p><code>AbstractConverter</code> does not implement <code>getAsText()</code>, so table cells will fall back to <code>toString()</code>.</p>
+<p>If you need both parsing and custom table display, use <code>PropertyEditorSupport</code> and implement both <code>setAsText()</code> and <code>getAsText()</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Editor</span>(Duration.class)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">DurationEditor</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">extends</span><span style="color:#6e7681"> </span>PropertyEditorSupport<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Override</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">setAsText</span>(<span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>text)<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>setValue(Duration.parse(text));<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Override</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">getAsText</span>()<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>Duration<span style="color:#6e7681"> </span>d<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span>(Duration)<span style="color:#6e7681"> </span>getValue();<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">if</span><span style="color:#6e7681"> </span>(d<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">==</span><span style="color:#6e7681"> </span><span style="color:#79c0ff">null</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;&#34;</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">long</span><span style="color:#6e7681"> </span>hours<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span>d.toHours();<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">long</span><span style="color:#6e7681"> </span>minutes<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span>d.toMinutesPart();<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span>String.format(<span style="color:#a5d6ff">&#34;%dh %dm&#34;</span>,<span style="color:#6e7681"> </span>hours,<span style="color:#6e7681"> </span>minutes);<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>With this editor, a <code>Duration</code> of <code>PT2H30M</code> renders as <code>2h 30m</code> in table cells instead of the default <code>PT2H30M</code>.</p>
+
+
+                
+
+
+    
+
+    
+
+    
+
+    
+
+    
+        
+    
+
+
+
+<div class="page-nav">
+    
+        
+        <a href="/crest/tables/programmatic/" class="prev prev-only">
+            <div class="nav-label">&larr; Previous</div>
+            <div class="nav-title">Programmatic Table Building</div>
+        </a>
+    
+    
+</div>
+
+
+            </div>
+
+            
+<div class="toc-rail">
+    <div class="toc-rail-inner">
+        <h5>On this page</h5>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#how-cell-rendering-works">How Cell Rendering Works</a></li>
+    <li><a href="#example-formatting-instant-values">Example: Formatting Instant Values</a></li>
+    <li><a href="#registering-editors">Registering Editors</a>
+      <ul>
+        <li><a href="#via-the-loader">Via the Loader</a></li>
+        <li><a href="#via-mainbuilder">Via Main.builder()</a></li>
+      </ul>
+    </li>
+    <li><a href="#choosing-between-abstractconverter-and-propertyeditorsupport">Choosing Between AbstractConverter and PropertyEditorSupport</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+
+        </div>
+
+        <footer>
+    <div class="footer-inner">
+        <span>&copy; <a href="https://www.tomitribe.com">Tomitribe</a>. Apache License 2.0.</span>
+        <span><a href="https://github.com/tomitribe/crest">GitHub</a> &middot; <a href="https://www.tomitribe.io">Community</a></span>
+    </div>
+</footer>
+
+    </div>
+</div>
+
+
+    <script src="/crest/js/main.js"></script>
+</body>
+</html>

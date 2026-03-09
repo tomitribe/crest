@@ -1,0 +1,26 @@
+{{ $pages := .CurrentSection.Pages.ByWeight }}
+{{ $currentIndex := -1 }}
+{{ range $i, $p := $pages }}
+    {{ if eq $p.RelPermalink $.RelPermalink }}
+        {{ $currentIndex = $i }}
+    {{ end }}
+{{ end }}
+
+{{ if ge $currentIndex 0 }}
+<div class="page-nav">
+    {{ if gt $currentIndex 0 }}
+        {{ $prev := index $pages (sub $currentIndex 1) }}
+        <a href="{{ $prev.RelPermalink }}" class="prev{{ if eq $currentIndex (sub (len $pages) 1) }} prev-only{{ end }}">
+            <div class="nav-label">&larr; Previous</div>
+            <div class="nav-title">{{ $prev.Title }}</div>
+        </a>
+    {{ end }}
+    {{ if lt $currentIndex (sub (len $pages) 1) }}
+        {{ $next := index $pages (add $currentIndex 1) }}
+        <a href="{{ $next.RelPermalink }}" class="next{{ if eq $currentIndex 0 }} next-only{{ end }}">
+            <div class="nav-label">Next &rarr;</div>
+            <div class="nav-title">{{ $next.Title }}</div>
+        </a>
+    {{ end }}
+</div>
+{{ end }}

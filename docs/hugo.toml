@@ -1,0 +1,46 @@
+baseURL = 'https://www.tomitribe.io/crest/'
+languageCode = 'en-us'
+title = 'Crest — Command-Line API for Java'
+theme = 'crest'
+
+[params]
+  description = "Annotation-driven framework for building command-line tools in Java, styled after JAX-RS."
+  github = "https://github.com/tomitribe/crest"
+  orgUrl = "https://www.tomitribe.com"
+  communityUrl = "https://www.tomitribe.io"
+
+[markup]
+  [markup.highlight]
+    style = 'github-dark'
+    lineNos = false
+    guessSyntax = true
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 4
+
+[menu]
+  [[menu.main]]
+    name = "Getting Started"
+    url = "/getting-started/"
+    weight = 1
+  [[menu.main]]
+    name = "Commands"
+    url = "/commands/"
+    weight = 2
+  [[menu.main]]
+    name = "Tables"
+    url = "/tables/"
+    weight = 3
+  [[menu.main]]
+    name = "Advanced"
+    url = "/advanced/"
+    weight = 4
+  [[menu.main]]
+    name = "GitHub"
+    url = "https://github.com/tomitribe/crest"
+    weight = 5
+    [menu.main.params]
+      external = true

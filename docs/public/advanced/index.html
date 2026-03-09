@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/crest/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=crest/livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced | Crest — Command-Line API for Java</title>
+    <meta name="description" content="Advanced features for type conversion, interceptors, validation, custom editors, and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/crest/css/main.css">
+</head>
+<body>
+    <nav class="site-nav">
+    <div class="nav-inner">
+        <a href="/crest/" class="logo"><span>&gt;</span> crest</a>
+        <button class="hamburger" aria-label="Toggle menu">&#9776;</button>
+        <ul class="nav-links">
+            
+                
+                    <li><a href="/crest/getting-started/">Getting Started</a></li>
+                
+            
+                
+                    <li><a href="/crest/commands/">Commands</a></li>
+                
+            
+                
+                    <li><a href="/crest/tables/">Tables</a></li>
+                
+            
+                
+                    <li><a href="/crest/advanced/">Advanced</a></li>
+                
+            
+                
+                    <li><a href="https://github.com/tomitribe/crest" class="nav-cta" target="_blank" rel="noopener">GitHub</a></li>
+                
+            
+        </ul>
+    </div>
+</nav>
+
+
+    
+<div class="page-wrapper">
+    <aside class="sidebar">
+    
+
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/getting-started/">Getting Started</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/getting-started/installation/">
+                            Installation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/maven-setup/">
+                            Maven Project Setup
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/first-command/">
+                            Your First Command
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/entry-point/">
+                            Entry Point
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/testing/">
+                            Testing Commands
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/commands/">Commands</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/commands/annotations/">
+                            Annotations
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/options-classes/">
+                            Options Classes
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/command-groups/">
+                            Command Groups
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/return-types/">
+                            Return Types
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/io-streams/">
+                            I/O Streams
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/help/">
+                            Help
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/tables/">Table Formatting</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/tables/table-annotation/">
+                            The @Table Annotation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/border-styles/">
+                            Border Styles
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/table-options/">
+                            Table Options
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/programmatic/">
+                            Programmatic Table Building
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/cell-formatting/">
+                            Cell Formatting
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/advanced/">Advanced</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/advanced/type-conversion/">
+                            Type Conversion
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/interceptors/">
+                            Interceptors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/validation/">
+                            Validation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/editors/">
+                            Editors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/loader/">
+                            Loader
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/exit-codes/">
+                            Exit Codes
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+</aside>
+
+
+    <div class="content-area">
+        <div class="content">
+            <h1>Advanced</h1>
+            
+                <p class="page-description">Advanced features for type conversion, interceptors, validation, custom editors, and more.</p>
+            
+
+            <p>Crest provides a rich set of advanced features beyond basic command definition. These capabilities let you build sophisticated CLI tools with custom type handling, cross-cutting concerns, input validation, and fine-grained control over the framework&rsquo;s behavior.</p>
+<ul>
+<li><strong><a href="http://localhost:1313/crest/advanced/type-conversion/">Type Conversion</a></strong> &ndash; How Crest converts CLI strings to Java types, including the conversion chain, built-in types, and domain wrapper types.</li>
+<li><strong><a href="http://localhost:1313/crest/advanced/interceptors/">Interceptors</a></strong> &ndash; Define cross-cutting concerns with <code>@CrestInterceptor</code> and attach them to commands via direct reference or custom annotations.</li>
+<li><strong><a href="http://localhost:1313/crest/advanced/validation/">Validation</a></strong> &ndash; Bean Validation (JSR-380) integration with built-in file validators and custom constraint support.</li>
+<li><strong><a href="http://localhost:1313/crest/advanced/editors/">Editors</a></strong> &ndash; Register custom <code>PropertyEditor</code> implementations with <code>@Editor</code> for CLI parsing and table display.</li>
+<li><strong><a href="http://localhost:1313/crest/advanced/loader/">Loader</a></strong> &ndash; The central registry for commands, interceptors, and editors, with <code>META-INF/services</code> and <code>Main.builder()</code> integration.</li>
+<li><strong><a href="http://localhost:1313/crest/advanced/exit-codes/">Exit Codes</a></strong> &ndash; Control process exit codes with <code>@Exit</code>-annotated exceptions.</li>
+</ul>
+
+
+            
+            <div class="section-cards">
+                
+                <a href="/crest/advanced/type-conversion/" class="section-card">
+                    <h3>Type Conversion</h3>
+                    
+                        <p>How Crest converts CLI string arguments to Java types using a chain of strategies, and how to leverage domain wrapper types.</p>
+                    
+                </a>
+                
+                <a href="/crest/advanced/interceptors/" class="section-card">
+                    <h3>Interceptors</h3>
+                    
+                        <p>Define cross-cutting concerns with @CrestInterceptor and attach them to commands via direct reference or custom annotations.</p>
+                    
+                </a>
+                
+                <a href="/crest/advanced/validation/" class="section-card">
+                    <h3>Validation</h3>
+                    
+                        <p>Bean Validation (JSR-380) integration with built-in file validators and custom constraint support.</p>
+                    
+                </a>
+                
+                <a href="/crest/advanced/editors/" class="section-card">
+                    <h3>Editors</h3>
+                    
+                        <p>Register custom PropertyEditor implementations with @Editor for CLI argument parsing and table cell formatting.</p>
+                    
+                </a>
+                
+                <a href="/crest/advanced/loader/" class="section-card">
+                    <h3>Loader</h3>
+                    
+                        <p>The central registry for commands, interceptors, and editors, with META-INF/services and Main.builder() integration.</p>
+                    
+                </a>
+                
+                <a href="/crest/advanced/exit-codes/" class="section-card">
+                    <h3>Exit Codes</h3>
+                    
+                        <p>Control process exit codes with @Exit-annotated exceptions for structured CLI error handling.</p>
+                    
+                </a>
+                
+            </div>
+            
+        </div>
+
+        <footer>
+    <div class="footer-inner">
+        <span>&copy; <a href="https://www.tomitribe.com">Tomitribe</a>. Apache License 2.0.</span>
+        <span><a href="https://github.com/tomitribe/crest">GitHub</a> &middot; <a href="https://www.tomitribe.io">Community</a></span>
+    </div>
+</footer>
+
+    </div>
+</div>
+
+
+    <script src="/crest/js/main.js"></script>
+</body>
+</html>

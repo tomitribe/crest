@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/crest/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=crest/livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation | Crest — Command-Line API for Java</title>
+    <meta name="description" content="Bean Validation (JSR-380) integration with built-in file validators and custom constraint support.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/crest/css/main.css">
+</head>
+<body>
+    <nav class="site-nav">
+    <div class="nav-inner">
+        <a href="/crest/" class="logo"><span>&gt;</span> crest</a>
+        <button class="hamburger" aria-label="Toggle menu">&#9776;</button>
+        <ul class="nav-links">
+            
+                
+                    <li><a href="/crest/getting-started/">Getting Started</a></li>
+                
+            
+                
+                    <li><a href="/crest/commands/">Commands</a></li>
+                
+            
+                
+                    <li><a href="/crest/tables/">Tables</a></li>
+                
+            
+                
+                    <li><a href="/crest/advanced/">Advanced</a></li>
+                
+            
+                
+                    <li><a href="https://github.com/tomitribe/crest" class="nav-cta" target="_blank" rel="noopener">GitHub</a></li>
+                
+            
+        </ul>
+    </div>
+</nav>
+
+
+    
+<div class="page-wrapper">
+    <aside class="sidebar">
+    
+
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/getting-started/">Getting Started</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/getting-started/installation/">
+                            Installation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/maven-setup/">
+                            Maven Project Setup
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/first-command/">
+                            Your First Command
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/entry-point/">
+                            Entry Point
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/testing/">
+                            Testing Commands
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/commands/">Commands</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/commands/annotations/">
+                            Annotations
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/options-classes/">
+                            Options Classes
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/command-groups/">
+                            Command Groups
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/return-types/">
+                            Return Types
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/io-streams/">
+                            I/O Streams
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/help/">
+                            Help
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/tables/">Table Formatting</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/tables/table-annotation/">
+                            The @Table Annotation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/border-styles/">
+                            Border Styles
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/table-options/">
+                            Table Options
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/programmatic/">
+                            Programmatic Table Building
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/cell-formatting/">
+                            Cell Formatting
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/advanced/">Advanced</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/advanced/type-conversion/">
+                            Type Conversion
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/interceptors/">
+                            Interceptors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/validation/" class="active">
+                            Validation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/editors/">
+                            Editors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/loader/">
+                            Loader
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/exit-codes/">
+                            Exit Codes
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+</aside>
+
+
+    <div class="content-area">
+        <div class="content-with-toc">
+            <div class="content">
+                <h1>Validation</h1>
+                
+                    <p class="page-description">Bean Validation (JSR-380) integration with built-in file validators and custom constraint support.</p>
+                
+
+                <p>Crest integrates with Bean Validation (JSR-380) to validate command parameters before the command method executes. If validation fails, the framework reports the error to the user automatically.</p>
+<h2 id="built-in-validators">Built-in Validators</h2>
+<p>Crest provides built-in validation annotations for common file system checks:</p>
+<ul>
+<li><strong><code>@Exists</code></strong> &ndash; the file or directory must exist</li>
+<li><strong><code>@Readable</code></strong> &ndash; the file must be readable</li>
+<li><strong><code>@Writable</code></strong> &ndash; the file must be writable</li>
+<li><strong><code>@Executable</code></strong> &ndash; the file must be executable</li>
+<li><strong><code>@Directory</code></strong> &ndash; the path must be a directory</li>
+</ul>
+<p>These annotations can be combined on a single parameter:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">process</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;input&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Exists</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Readable</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>File<span style="color:#6e7681"> </span>input,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                    </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;output&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Directory</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>File<span style="color:#6e7681"> </span>outDir)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>If the user provides a path that does not exist for <code>--input</code>, the framework reports a validation error before the command runs.</p>
+<h2 id="custom-validators">Custom Validators</h2>
+<p>Create custom validation annotations using the standard <code>@Constraint</code> mechanism from Bean Validation. Define the annotation and its validator class together:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Exists</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Constraint</span>(validatedBy<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span>{IsFile.Constraint.class})<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Target</span>({PARAMETER})<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Retention</span>(RUNTIME)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@interface</span><span style="color:#6e7681"> </span>IsFile<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>String<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">message</span>()<span style="color:#6e7681"> </span><span style="color:#ff7b72">default</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;{org.example.IsFile.message}&#34;</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>Class<span style="color:#ff7b72;font-weight:bold">&lt;?&gt;[]</span><span style="color:#6e7681"> </span>groups()<span style="color:#6e7681"> </span><span style="color:#ff7b72">default</span><span style="color:#6e7681"> </span>{};<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>Class<span style="color:#ff7b72;font-weight:bold">&lt;?</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">extends</span><span style="color:#6e7681"> </span>Payload<span style="color:#ff7b72;font-weight:bold">&gt;[]</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">payload</span>()<span style="color:#6e7681"> </span><span style="color:#ff7b72">default</span><span style="color:#6e7681"> </span>{};<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">Constraint</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">implements</span><span style="color:#6e7681"> </span>ConstraintValidator<span style="color:#ff7b72;font-weight:bold">&lt;</span>IsFile,<span style="color:#6e7681"> </span>File<span style="color:#ff7b72;font-weight:bold">&gt;</span><span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#d2a8ff;font-weight:bold">@Override</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">boolean</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">isValid</span>(<span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>File<span style="color:#6e7681"> </span>file,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                               </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>ConstraintValidatorContext<span style="color:#6e7681"> </span>ctx)<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">            </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span>file.isFile();<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>This <code>@IsFile</code> annotation composes <code>@Exists</code> (so the file must exist) and adds its own check that the path is a regular file (not a directory). Use it on command parameters just like the built-in annotations:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">void</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">analyze</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;config&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@IsFile</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>File<span style="color:#6e7681"> </span>config,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                    </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;output&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Directory</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Writable</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>File<span style="color:#6e7681"> </span>outDir)<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span>...<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><h3 id="validation-on-wrapper-types">Validation on Wrapper Types</h3>
+<p>Bean Validation annotations can also be placed on constructor parameters of domain wrapper types. This lets you centralize validation logic in the type itself:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">Port</span><span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">private</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">int</span><span style="color:#6e7681"> </span>value;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">Port</span>(<span style="color:#d2a8ff;font-weight:bold">@Min</span>(1)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Max</span>(65535)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>port)<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">this</span>.value<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span>Integer.parseInt(port);<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">int</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">get</span>()<span style="color:#6e7681"> </span>{<span style="color:#6e7681"> </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span>value;<span style="color:#6e7681"> </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div>
+
+                
+
+
+    
+
+    
+
+    
+        
+    
+
+    
+
+    
+
+    
+
+
+
+<div class="page-nav">
+    
+        
+        <a href="/crest/advanced/interceptors/" class="prev">
+            <div class="nav-label">&larr; Previous</div>
+            <div class="nav-title">Interceptors</div>
+        </a>
+    
+    
+        
+        <a href="/crest/advanced/editors/" class="next">
+            <div class="nav-label">Next &rarr;</div>
+            <div class="nav-title">Editors</div>
+        </a>
+    
+</div>
+
+
+            </div>
+
+            
+<div class="toc-rail">
+    <div class="toc-rail-inner">
+        <h5>On this page</h5>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#built-in-validators">Built-in Validators</a></li>
+    <li><a href="#custom-validators">Custom Validators</a>
+      <ul>
+        <li><a href="#validation-on-wrapper-types">Validation on Wrapper Types</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+
+        </div>
+
+        <footer>
+    <div class="footer-inner">
+        <span>&copy; <a href="https://www.tomitribe.com">Tomitribe</a>. Apache License 2.0.</span>
+        <span><a href="https://github.com/tomitribe/crest">GitHub</a> &middot; <a href="https://www.tomitribe.io">Community</a></span>
+    </div>
+</footer>
+
+    </div>
+</div>
+
+
+    <script src="/crest/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<aside class="sidebar">
+    {{ $currentPage := . }}
+
+    {{ range site.Sections.ByWeight }}
+        <div class="sidebar-section">
+            <h4><a href="{{ .RelPermalink }}"{{ if $.IsAncestor . }} class="active"{{ end }}>{{ .Title }}</a></h4>
+            <ul>
+                {{ range .Pages.ByWeight }}
+                    <li>
+                        <a href="{{ .RelPermalink }}"{{ if eq $currentPage.RelPermalink .RelPermalink }} class="active"{{ end }}>
+                            {{ .Title }}
+                        </a>
+                    </li>
+                {{ end }}
+            </ul>
+        </div>
+    {{ end }}
+</aside>

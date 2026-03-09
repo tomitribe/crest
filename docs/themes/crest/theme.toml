@@ -1,0 +1,11 @@
+[extra]
+name = "Crest"
+license = "Apache-2.0"
+licenselink = "https://github.com/tomitribe/crest/blob/main/LICENSE"
+description = "Custom theme for the Crest documentation site"
+tags = ["docs", "cli", "java"]
+min_version = "0.120.0"
+
+[author]
+  name = "Tomitribe"
+  homepage = "https://www.tomitribe.com"

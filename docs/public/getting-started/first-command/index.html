@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/crest/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=crest/livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your First Command | Crest — Command-Line API for Java</title>
+    <meta name="description" content="Write a simple CLI command using @Command, @Option, and @Default.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/crest/css/main.css">
+</head>
+<body>
+    <nav class="site-nav">
+    <div class="nav-inner">
+        <a href="/crest/" class="logo"><span>&gt;</span> crest</a>
+        <button class="hamburger" aria-label="Toggle menu">&#9776;</button>
+        <ul class="nav-links">
+            
+                
+                    <li><a href="/crest/getting-started/">Getting Started</a></li>
+                
+            
+                
+                    <li><a href="/crest/commands/">Commands</a></li>
+                
+            
+                
+                    <li><a href="/crest/tables/">Tables</a></li>
+                
+            
+                
+                    <li><a href="/crest/advanced/">Advanced</a></li>
+                
+            
+                
+                    <li><a href="https://github.com/tomitribe/crest" class="nav-cta" target="_blank" rel="noopener">GitHub</a></li>
+                
+            
+        </ul>
+    </div>
+</nav>
+
+
+    
+<div class="page-wrapper">
+    <aside class="sidebar">
+    
+
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/getting-started/">Getting Started</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/getting-started/installation/">
+                            Installation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/maven-setup/">
+                            Maven Project Setup
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/first-command/" class="active">
+                            Your First Command
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/entry-point/">
+                            Entry Point
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/getting-started/testing/">
+                            Testing Commands
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/commands/">Commands</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/commands/annotations/">
+                            Annotations
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/options-classes/">
+                            Options Classes
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/command-groups/">
+                            Command Groups
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/return-types/">
+                            Return Types
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/io-streams/">
+                            I/O Streams
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/commands/help/">
+                            Help
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/tables/">Table Formatting</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/tables/table-annotation/">
+                            The @Table Annotation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/border-styles/">
+                            Border Styles
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/table-options/">
+                            Table Options
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/programmatic/">
+                            Programmatic Table Building
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/tables/cell-formatting/">
+                            Cell Formatting
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+        <div class="sidebar-section">
+            <h4><a href="/crest/advanced/">Advanced</a></h4>
+            <ul>
+                
+                    <li>
+                        <a href="/crest/advanced/type-conversion/">
+                            Type Conversion
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/interceptors/">
+                            Interceptors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/validation/">
+                            Validation
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/editors/">
+                            Editors
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/loader/">
+                            Loader
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/crest/advanced/exit-codes/">
+                            Exit Codes
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+</aside>
+
+
+    <div class="content-area">
+        <div class="content-with-toc">
+            <div class="content">
+                <h1>Your First Command</h1>
+                
+                    <p class="page-description">Write a simple CLI command using @Command, @Option, and @Default.</p>
+                
+
+                <h2 id="a-simple-hello-command">A Simple Hello Command</h2>
+<p>In Crest, a public method annotated with <code>@Command</code> becomes a CLI command. The method name is the command name, and its parameters become the command&rsquo;s options and arguments.</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#ff7b72">import</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">org.tomitribe.crest.api.Command</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">import</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">org.tomitribe.crest.api.Default</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">import</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">org.tomitribe.crest.api.Option</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span><span style="color:#ff7b72">class</span> <span style="color:#f0883e;font-weight:bold">HelloCommand</span><span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#d2a8ff;font-weight:bold">@Command</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">hello</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;name&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;World&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>name,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                        </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;greeting&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;Hello&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>greeting)<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">        </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span>greeting<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">+</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;, &#34;</span><span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">+</span><span style="color:#6e7681"> </span>name<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">+</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;!&#34;</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>This single class gives you a fully working CLI command with named options, default values, and automatic help generation.</p>
+<h2 id="running-the-command">Running the Command</h2>
+<p>With no arguments, the defaults kick in:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ myapp hello
+</span></span><span style="display:flex;"><span>Hello, World!
+</span></span></code></pre></div><p>Override one or both options:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ myapp hello --name Alice
+</span></span><span style="display:flex;"><span>Hello, Alice!
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$ myapp hello --name Alice --greeting Hi
+</span></span><span style="display:flex;"><span>Hi, Alice!
+</span></span></code></pre></div><h2 id="built-in-help">Built-in Help</h2>
+<p>Crest automatically registers a <code>help</code> command. Running <code>help</code> lists all available commands with their descriptions:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ myapp help
+</span></span><span style="display:flex;"><span>Commands:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   hello
+</span></span><span style="display:flex;"><span>   help
+</span></span></code></pre></div><p>Running <code>help</code> on a specific command shows its full usage, including every option and its default value:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ myapp help hello
+</span></span></code></pre></div><p>To add a description that appears in the command listing, use the <code>description</code> parameter on <code>@Command</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#d2a8ff;font-weight:bold">@Command</span>(description<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">=</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;Greet someone by name&#34;</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff7b72">public</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">hello</span>(<span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;name&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;World&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>name,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">                    </span><span style="color:#d2a8ff;font-weight:bold">@Option</span>(<span style="color:#a5d6ff">&#34;greeting&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">@Default</span>(<span style="color:#a5d6ff">&#34;Hello&#34;</span>)<span style="color:#6e7681"> </span><span style="color:#ff7b72">final</span><span style="color:#6e7681"> </span>String<span style="color:#6e7681"> </span>greeting)<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">return</span><span style="color:#6e7681"> </span>greeting<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">+</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;, &#34;</span><span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">+</span><span style="color:#6e7681"> </span>name<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">+</span><span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;!&#34;</span>;<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div><p>Now the listing shows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ myapp help
+</span></span><span style="display:flex;"><span>Commands:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   hello   Greet someone by name
+</span></span><span style="display:flex;"><span>   help
+</span></span></code></pre></div><h2 id="how-it-works">How It Works</h2>
+<ul>
+<li><code>@Command</code> marks the method as a CLI command. The method name (<code>hello</code>) becomes the command name.</li>
+<li><code>@Option(&quot;name&quot;)</code> turns the parameter into a named option (<code>--name</code>).</li>
+<li><code>@Default(&quot;World&quot;)</code> provides a fallback value when the option is not supplied.</li>
+<li>The return type is <code>String</code>, so Crest prints the returned value to stdout automatically.</li>
+</ul>
+<p>Parameters without <code>@Option</code> are treated as positional arguments. Parameters without <code>@Default</code> are required unless their type is <code>boolean</code> (which defaults to <code>false</code>).</p>
+
+
+                
+
+
+    
+
+    
+
+    
+        
+    
+
+    
+
+    
+
+
+
+<div class="page-nav">
+    
+        
+        <a href="/crest/getting-started/maven-setup/" class="prev">
+            <div class="nav-label">&larr; Previous</div>
+            <div class="nav-title">Maven Project Setup</div>
+        </a>
+    
+    
+        
+        <a href="/crest/getting-started/entry-point/" class="next">
+            <div class="nav-label">Next &rarr;</div>
+            <div class="nav-title">Entry Point</div>
+        </a>
+    
+</div>
+
+
+            </div>
+
+            
+<div class="toc-rail">
+    <div class="toc-rail-inner">
+        <h5>On this page</h5>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#a-simple-hello-command">A Simple Hello Command</a></li>
+    <li><a href="#running-the-command">Running the Command</a></li>
+    <li><a href="#built-in-help">Built-in Help</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+
+        </div>
+
+        <footer>
+    <div class="footer-inner">
+        <span>&copy; <a href="https://www.tomitribe.com">Tomitribe</a>. Apache License 2.0.</span>
+        <span><a href="https://github.com/tomitribe/crest">GitHub</a> &middot; <a href="https://www.tomitribe.io">Community</a></span>
+    </div>
+</footer>
+
+    </div>
+</div>
+
+
+    <script src="/crest/js/main.js"></script>
+</body>
+</html>

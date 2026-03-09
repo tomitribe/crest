@@ -1,6 +1,10 @@
+
+
 = CREST
 
-Command-line API styled after JAX-RS
+Command-line API styled after JAX-RS.  
+
+-> https://tomitribe.github.io/crest/
 
 CREST allows you to get to the real work as quickly as possible when writing command line tools in Java.
 

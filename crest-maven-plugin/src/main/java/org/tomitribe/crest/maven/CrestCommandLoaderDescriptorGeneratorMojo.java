@@ -53,8 +53,8 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
     @Parameter(property = "crest.descriptor.output", defaultValue = "${project.build.outputDirectory}/crest-commands.txt")
     protected File output;
 
-    @Parameter(property = "crest.descriptor.editors.output", defaultValue = "${project.build.outputDirectory}/crest-editors.txt")
-    protected File editorsOutput;
+    private static final String LOADER_SERVICE = "META-INF/services/org.tomitribe.crest.api.Loader";
+    private static final String CREST_COMMANDS_LOADER = "org.tomitribe.crest.CrestCommandsLoader";
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -63,58 +63,56 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
             return;
         }
 
-        // find commands
-        final Collection<String> commands = new TreeSet<>(); // sorted if a human wants to check it
-        final Collection<String> editors = new TreeSet<>(); // sorted if a human wants to check it
+        // find all annotated classes: @Command, @Editor, @CrestInterceptor
+        final Collection<String> found = new TreeSet<>(); // sorted if a human wants to check it
         try {
-            scan(editors, commands, classes);
+            scan(found, classes);
         } catch (final IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
 
-        // write it
+        // write crest-commands.txt (all annotated classes in one file)
         if (!output.getParentFile().isDirectory() && !output.getParentFile().mkdirs()) {
             throw new MojoExecutionException("Can't create " + output.getAbsolutePath());
         }
         try {
-            Files.write(output.toPath(), ((editors.isEmpty() ?
-                    "" : "org.tomitribe.crest.EditorLoader\n") +
-                    String.join("\n", commands)).getBytes(StandardCharsets.UTF_8));
+            Files.write(output.toPath(), String.join("\n", found).getBytes(StandardCharsets.UTF_8));
             getLog().info("Wrote " + output);
         } catch (final IOException e) {
             throw new MojoFailureException(e.getMessage(), e);
         }
-        if (!editors.isEmpty()) {
+
+        // Generate META-INF/services/org.tomitribe.crest.api.Loader
+        // unless the user already provides their own
+        final File serviceFile = new File(classes, LOADER_SERVICE);
+        if (!serviceFile.exists()) {
+            if (!serviceFile.getParentFile().isDirectory() && !serviceFile.getParentFile().mkdirs()) {
+                throw new MojoExecutionException("Can't create " + serviceFile.getParentFile().getAbsolutePath());
+            }
             try {
-                Files.write(editorsOutput.toPath(), String.join("\n", editors).getBytes(StandardCharsets.UTF_8));
-                getLog().info("Wrote " + editorsOutput);
+                Files.write(serviceFile.toPath(), CREST_COMMANDS_LOADER.getBytes(StandardCharsets.UTF_8));
+                getLog().info("Wrote " + serviceFile);
             } catch (final IOException e) {
                 throw new MojoFailureException(e.getMessage(), e);
             }
+        } else {
+            getLog().info("User-provided " + LOADER_SERVICE + " found, skipping generation");
         }
     }
 
-    private void scan(final Collection<String> editors, final Collection<String> commands, final File file) throws IOException {
+    private void scan(final Collection<String> found, final File file) throws IOException {
         if (file.isFile()) {
             if (file.getName().endsWith(".class")) {
                 final ScanResult result = scanClass(file);
-                switch (result.type) {
-                    case EDITOR:
-                        editors.add(result.name);
-                        break;
-                    case COMMAND:
-                    case INTERCEPTOR:
-                        commands.add(result.name);
-                        break;
-                    case NONE:
-                    default:
+                if (result.type != ScanResultType.NONE) {
+                    found.add(result.name);
                 }
-            } // else we don't care
+            }
         } else if (file.isDirectory()) {
             final File[] children = file.listFiles();
             if (children != null) {
                 for (final File child : children) {
-                    scan(editors, commands, child);
+                    scan(found, child);
                 }
             }
         }

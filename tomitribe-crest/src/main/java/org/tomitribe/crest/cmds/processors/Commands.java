@@ -174,13 +174,25 @@ public class Commands {
             loader = ClassLoader.getSystemClassLoader();
         }
 
-        // Let them tell us the list of classes to use
         final LinkedHashSet<Class<?>> classes = new LinkedHashSet<>();
 
-        addAll(classes, ServiceLoader.load(Loader.class, loader).iterator());
+        // api.Loader is the primary mechanism — if any are found, they
+        // are the authoritative source and we skip everything else.
         addAll(classes, ServiceLoader.load(org.tomitribe.crest.api.Loader.class, loader).iterator());
 
-        // if maven plugin has been used just let add the found classes
+        if (!classes.isEmpty()) {
+            return classes;
+        }
+
+        // Backward compat: check the deprecated Commands$Loader (used by xbean)
+        addAll(classes, ServiceLoader.load(Loader.class, loader).iterator());
+
+        if (!classes.isEmpty()) {
+            return classes;
+        }
+
+        // Last resort: read crest-commands.txt directly for builds that
+        // haven't updated to generate the Loader service file yet
         for (final String prefix : asList("", "/")) {
             try {
                 final Enumeration<URL> urls = loader.getResources(prefix + "crest-commands.txt");

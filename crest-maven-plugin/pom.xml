@@ -50,6 +50,18 @@
     </dependency>
 
     <dependency>
+      <groupId>net.e175.klaus</groupId>
+      <artifactId>zip-prefixer</artifactId>
+      <version>0.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-core</artifactId>
+      <version>3.0.3</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest-api</artifactId>
       <version>${project.version}</version>

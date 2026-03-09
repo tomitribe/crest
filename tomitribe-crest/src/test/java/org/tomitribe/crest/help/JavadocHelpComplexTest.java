@@ -130,7 +130,7 @@ public class JavadocHelpComplexTest {
                         "              starting with ';' or '#' are ignored.  If FILE is -, the list will be read from\n" +
                         "              standard input.\n" +
                         "\n" +
-                        "       --no-progress, --no-p\n" +
+                        "       --progress, -p, --no-progress\n" +
                         "              This  option  tells  rsync  to  print  information  showing the progress of the\n" +
                         "              transfer.  This gives a bored user something to watch.  Implies --verbose if it\n" +
                         "              wasn't already specified.\n" +

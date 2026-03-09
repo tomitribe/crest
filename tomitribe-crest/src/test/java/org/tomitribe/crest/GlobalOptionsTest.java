@@ -50,8 +50,8 @@ public class GlobalOptionsTest extends TestCase {
 
         assertEquals(
                 String.format("Options: %n" +
-                        "  --orange=<String>        %n" +
-                        "  --yellow=<Boolean>       %n" +
+                        "  --orange=<String>         %n" +
+                        "  --yellow, --no-yellow     %n" +
                         "%n" +
                         "Commands: %n" +
                         "%n" +

@@ -60,12 +60,23 @@ public class Item {
         String defaultValue = p.getDefaultValue();
 
         final String name = p.getName();
-        if (boolean.class.equals(type) || (Boolean.class.equals(type) && defaultValue != null)) {
+        if (boolean.class.equals(type) || Boolean.class.equals(type)) {
 
-            if ("true".equals(defaultValue)) {
-                this.flag = hasAlias ? Join.join(", ", "--no-" + name, getAlias(alias, false, true)) : "--no-" + name;
+            final String optName = name.startsWith("-") ? name : prefix + name;
+            final boolean showNegation = !"false".equals(defaultValue);
+
+            if (showNegation) {
+                // Show --no- only for the longest form to reduce noise
+                String longest = name;
+                for (final String a : alias) {
+                    if (a.length() > longest.length()) {
+                        longest = a;
+                    }
+                }
+                this.flag = hasAlias
+                        ? Join.join(", ", optName, getAlias(alias, true, false)) + ", --no-" + longest
+                        : optName + ", --no-" + name;
             } else {
-                final String optName = name.startsWith("-") ? name : prefix + name;
                 this.flag = hasAlias ? Join.join(", ", optName, getAlias(alias, true, false)) : optName;
             }
 

@@ -2,7 +2,7 @@
 Usage: rsync [options]
 
 Options: 
-  -d, --dirs=<Boolean>                 
-  -l, --links=<Boolean>                
-  -e, --rsh=<Boolean>                  
-  --del, --delete-during=<Boolean>     
+  -d, --dirs, --no-dirs                          
+  -l, --links, --no-links                        
+  -e, --rsh, --no-rsh                            
+  --del, --delete-during, --no-delete-during     

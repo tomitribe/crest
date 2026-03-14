@@ -57,6 +57,11 @@ public class ComplexParam extends Param {
         final List<Constructor<?>> constructors = Arrays.asList(parent.getType().getConstructors());
         constructors.sort(Comparator.comparing(Object::toString));
 
+        if (constructors.isEmpty()) {
+            throw new IllegalArgumentException("@Options class " + parent.getType().getName() +
+                    " has no public constructors. Add a public constructor with @Option-annotated parameters.");
+        }
+
         if (constructors.size() == 1) {
             return constructors.get(0);
         }

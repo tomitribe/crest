@@ -103,23 +103,6 @@ public class Commands {
         return root.getCommandMap();
     }
 
-    public static String name(final Method method) {
-        final Command command = method.getAnnotation(Command.class);
-        if (command == null) {
-            return method.getName();
-        }
-        return leafName(value(command.value(), method.getName()));
-    }
-
-    public static String name(final Class<?> clazz) {
-        final Command command = clazz.getAnnotation(Command.class);
-        final String defaultName = Strings.lcfirst(clazz.getSimpleName());
-        if (command == null) {
-            return defaultName;
-        }
-        return leafName(value(command.value(), defaultName));
-    }
-
     /**
      * Returns the full path tokens for a method's @Command value.
      * Single-word values return a single-element list.
@@ -145,15 +128,6 @@ public class Commands {
             return Collections.singletonList(Strings.lcfirst(clazz.getSimpleName()));
         }
         return Arrays.asList(command.value().split("\\s+"));
-    }
-
-    private static String leafName(final String name) {
-        final int lastSpace = name.lastIndexOf(' ');
-        return lastSpace < 0 ? name : name.substring(lastSpace + 1);
-    }
-
-    public static String value(final String value, final String defaultValue) {
-        return value == null || value.isEmpty() ? defaultValue : value;
     }
 
     /**

@@ -17,7 +17,6 @@
 package org.tomitribe.crest.cmds;
 
 import org.tomitribe.crest.api.Command;
-import org.tomitribe.crest.cmds.processors.Commands;
 import org.tomitribe.crest.cmds.processors.Help;
 import org.tomitribe.crest.cmds.utils.CommandLine;
 import org.tomitribe.crest.environments.Environment;
@@ -39,24 +38,6 @@ public class CmdGroup implements Cmd {
     final List<Class<?>> owners = new ArrayList<>();
     final Map<String, Cmd> commands = new TreeMap<>();
     private CmdGroup parent;
-
-    public CmdGroup(final Class<?> owner, final Map<String, Cmd> commands) {
-        this.owners.add(owner);
-        this.name = Commands.name(owner);
-        this.commands.putAll(commands);
-    }
-
-    /**
-     * Constructor for a named group with explicit name and commands.
-     * Used when the class-level @Command value contains spaces,
-     * producing a multi-level hierarchy where the outermost group
-     * name differs from the raw annotation value.
-     */
-    public CmdGroup(final Class<?> owner, final String name, final Map<String, Cmd> commands) {
-        this.owners.add(owner);
-        this.name = name;
-        this.commands.putAll(commands);
-    }
 
     /**
      * Constructor for auto-created intermediate groups (mkdir -p style).
@@ -97,7 +78,7 @@ public class CmdGroup implements Cmd {
 
             throw new IllegalArgumentException(
                     "Conflict: '" + name + "' is both a command and a command group. " +
-                    "A name cannot be used as both a leaf command and a group containing sub-commands.");
+                            "A name cannot be used as both a leaf command and a group containing sub-commands.");
 
         } else if (existing instanceof OverloadedCmdMethod) {
 

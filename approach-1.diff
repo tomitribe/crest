@@ -1,0 +1,322 @@
+diff --git a/tomitribe-crest/src/main/java/org/tomitribe/crest/Main.java b/tomitribe-crest/src/main/java/org/tomitribe/crest/Main.java
+index 6fb2801..d7292fc 100644
+--- a/tomitribe-crest/src/main/java/org/tomitribe/crest/Main.java
++++ b/tomitribe-crest/src/main/java/org/tomitribe/crest/Main.java
+@@ -165,8 +165,14 @@ public class Main implements Completer {
+         if (!m.isEmpty()) {
+             for (final Map.Entry<String, Cmd> entry : m.entrySet()) {
+                 final Cmd existing = this.commands.get(entry.getKey());
+-                if (existing instanceof CmdGroup && entry.getValue() instanceof CmdGroup) {
++                if (existing == null) {
++                    this.commands.put(entry.getKey(), entry.getValue());
++                } else if (existing instanceof CmdGroup && entry.getValue() instanceof CmdGroup) {
+                     ((CmdGroup) existing).merge((CmdGroup) entry.getValue());
++                } else if (existing instanceof CmdGroup || entry.getValue() instanceof CmdGroup) {
++                    throw new IllegalArgumentException(
++                            "Conflict: '" + entry.getKey() + "' is both a command and a command group. " +
++                            "A name cannot be used as both a leaf command and a group containing sub-commands.");
+                 } else {
+                     this.commands.put(entry.getKey(), entry.getValue());
+                 }
+diff --git a/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/CmdGroup.java b/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/CmdGroup.java
+index 4167f63..8a71e75 100644
+--- a/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/CmdGroup.java
++++ b/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/CmdGroup.java
+@@ -44,8 +44,34 @@ public class CmdGroup implements Cmd {
+         this.commands.putAll(commands);
+     }
+ 
++    /**
++     * Constructor for a named group with explicit name and commands.
++     * Used when the class-level @Command value contains spaces,
++     * producing a multi-level hierarchy where the outermost group
++     * name differs from the raw annotation value.
++     */
++    public CmdGroup(final Class<?> owner, final String name, final Map<String, Cmd> commands) {
++        this.owners.add(owner);
++        this.name = name;
++        this.commands.putAll(commands);
++    }
++
++    /**
++     * Constructor for auto-created intermediate groups (mkdir -p style).
++     * These groups have no owning class and no description until a class
++     * explicitly declares them.
++     */
++    public CmdGroup(final String name, final Map<String, Cmd> commands) {
++        this.name = name;
++        this.commands.putAll(commands);
++    }
++
+     public void merge(final CmdGroup other) {
+-        owners.add(other.owners.get(0));
++        for (final Class<?> owner : other.owners) {
++            if (!owners.contains(owner)) {
++                owners.add(owner);
++            }
++        }
+ 
+         for (final Map.Entry<String, Cmd> entry : other.commands.entrySet()) {
+             final String name = entry.getKey();
+@@ -56,6 +82,16 @@ public class CmdGroup implements Cmd {
+ 
+                 commands.put(name, incoming);
+ 
++            } else if (existing instanceof CmdGroup && incoming instanceof CmdGroup) {
++
++                ((CmdGroup) existing).merge((CmdGroup) incoming);
++
++            } else if (existing instanceof CmdGroup || incoming instanceof CmdGroup) {
++
++                throw new IllegalArgumentException(
++                        "Conflict: '" + name + "' is both a command and a command group. " +
++                        "A name cannot be used as both a leaf command and a group containing sub-commands.");
++
+             } else if (existing instanceof OverloadedCmdMethod) {
+ 
+                 final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) existing;
+@@ -87,6 +123,10 @@ public class CmdGroup implements Cmd {
+         return Collections.unmodifiableCollection(commands.values());
+     }
+ 
++    public Cmd getCommand(final String name) {
++        return commands.get(name);
++    }
++
+     @Override
+     public String getUsage() {
+         return name + " [subcommand] [options]";
+diff --git a/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/processors/Commands.java b/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/processors/Commands.java
+index a1ebcef..716ce44 100644
+--- a/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/processors/Commands.java
++++ b/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/processors/Commands.java
+@@ -96,37 +96,107 @@ public class Commands {
+                             .map(e -> e.findService(BeanValidationImpl.class))
+                             .orElse(null));
+ 
+-            final Cmd existing = map.get(cmd.getName());
++            final String[] methodPath = path(method);
++            nestCmd(map, methodPath, cmd);
++        }
+ 
+-            if (existing == null) {
++        if (clazz.isAnnotationPresent(Command.class)) {
+ 
+-                map.put(cmd.getName(), cmd);
++            final String[] classPath = path(clazz);
++            return wrapInGroups(clazz, classPath, map);
++
++        }
++        return map;
++    }
+ 
+-            } else if (existing instanceof OverloadedCmdMethod) {
++    /**
++     * Places a command into the map at the correct depth,
++     * creating intermediate CmdGroups as needed (mkdir -p style).
++     */
++    private static void nestCmd(final Map<String, Cmd> map, final String[] path, final CmdMethod cmd) {
++        if (path.length == 1) {
++            addLeaf(map, path[0], cmd);
++        } else {
++            // Build nested CmdGroup chain from inside out
++            Map<String, Cmd> innerMap = new HashMap<>();
++            innerMap.put(path[path.length - 1], cmd);
++
++            for (int i = path.length - 2; i >= 1; i--) {
++                final CmdGroup group = new CmdGroup(path[i], innerMap);
++                innerMap = new HashMap<>();
++                innerMap.put(path[i], group);
++            }
+ 
+-                final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) existing;
+-                overloaded.add(cmd);
++            // Merge the outermost group into the map
++            final String rootName = path[0];
++            final CmdGroup rootGroup = new CmdGroup(rootName, innerMap);
++            final Cmd existing = map.get(rootName);
+ 
++            if (existing == null) {
++                map.put(rootName, rootGroup);
++            } else if (existing instanceof CmdGroup) {
++                ((CmdGroup) existing).merge(rootGroup);
+             } else {
+-
+-                final OverloadedCmdMethod overloaded = new OverloadedCmdMethod(cmd.getName());
+-                overloaded.add((CmdMethod) existing);
+-                overloaded.add(cmd);
+-                map.put(overloaded.getName(), overloaded);
++                throw new IllegalArgumentException(
++                        "Conflict: '" + rootName + "' is both a command and a command group. " +
++                        "A name cannot be used as both a leaf command and a group containing sub-commands.");
+             }
+         }
++    }
+ 
+-        if (clazz.isAnnotationPresent(Command.class)) {
++    private static void addLeaf(final Map<String, Cmd> map, final String name, final CmdMethod cmd) {
++        final Cmd existing = map.get(name);
++
++        if (existing == null) {
++
++            map.put(name, cmd);
++
++        } else if (existing instanceof CmdGroup) {
++
++            throw new IllegalArgumentException(
++                    "Conflict: '" + name + "' is both a command and a command group. " +
++                    "A name cannot be used as both a leaf command and a group containing sub-commands.");
+ 
+-            final CmdGroup cmdGroup = new CmdGroup(clazz, map);
++        } else if (existing instanceof OverloadedCmdMethod) {
+ 
+-            final HashMap<String, Cmd> group = new HashMap<>();
+-            group.put(cmdGroup.getName(), cmdGroup);
++            ((OverloadedCmdMethod) existing).add(cmd);
+ 
+-            return group;
++        } else {
+ 
++            final OverloadedCmdMethod overloaded = new OverloadedCmdMethod(name);
++            overloaded.add((CmdMethod) existing);
++            overloaded.add(cmd);
++            map.put(name, overloaded);
+         }
+-        return map;
++    }
++
++    /**
++     * Wraps a method map in nested CmdGroups based on the class path.
++     * The innermost group has the owner class (for description resolution).
++     * Intermediate groups are auto-created with no owner.
++     */
++    private static Map<String, Cmd> wrapInGroups(final Class<?> owner, final String[] classPath, final Map<String, Cmd> methods) {
++        if (classPath.length == 1) {
++            final CmdGroup cmdGroup = new CmdGroup(owner, methods);
++            final HashMap<String, Cmd> result = new HashMap<>();
++            result.put(cmdGroup.getName(), cmdGroup);
++            return result;
++        }
++
++        // Multi-word path: innermost group gets the owner (for description)
++        final String innerName = classPath[classPath.length - 1];
++        CmdGroup current = new CmdGroup(owner, innerName, methods);
++
++        // Build intermediate groups from inside out
++        for (int i = classPath.length - 2; i >= 0; i--) {
++            final Map<String, Cmd> wrapper = new HashMap<>();
++            wrapper.put(current.getName(), current);
++            current = new CmdGroup(classPath[i], wrapper);
++        }
++
++        final HashMap<String, Cmd> result = new HashMap<>();
++        result.put(current.getName(), current);
++        return result;
+     }
+ 
+     public static String name(final Method method) {
+@@ -134,7 +204,7 @@ public class Commands {
+         if (command == null) {
+             return method.getName();
+         }
+-        return value(command.value(), method.getName());
++        return leafName(value(command.value(), method.getName()));
+     }
+ 
+     public static String name(final Class<?> clazz) {
+@@ -143,7 +213,36 @@ public class Commands {
+         if (command == null) {
+             return defaultName;
+         }
+-        return value(command.value(), defaultName);
++        return leafName(value(command.value(), defaultName));
++    }
++
++    /**
++     * Returns the full path tokens for a method's @Command value.
++     * Single-word values return a one-element array.
++     */
++    static String[] path(final Method method) {
++        final Command command = method.getAnnotation(Command.class);
++        if (command == null) {
++            return new String[]{method.getName()};
++        }
++        return value(command.value(), method.getName()).split("\\s+");
++    }
++
++    /**
++     * Returns the full path tokens for a class's @Command value.
++     */
++    static String[] path(final Class<?> clazz) {
++        final Command command = clazz.getAnnotation(Command.class);
++        final String defaultName = Strings.lcfirst(clazz.getSimpleName());
++        if (command == null) {
++            return new String[]{defaultName};
++        }
++        return value(command.value(), defaultName).split("\\s+");
++    }
++
++    private static String leafName(final String name) {
++        final int lastSpace = name.lastIndexOf(' ');
++        return lastSpace < 0 ? name : name.substring(lastSpace + 1);
+     }
+ 
+     public static String value(final String value, final String defaultValue) {
+diff --git a/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/processors/Help.java b/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/processors/Help.java
+index 8856323..3c21f47 100644
+--- a/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/processors/Help.java
++++ b/tomitribe-crest/src/main/java/org/tomitribe/crest/cmds/processors/Help.java
+@@ -313,4 +313,30 @@ public class Help {
+         return out.toString();
+     }
+ 
++    @Command
++    public String help(final String name, final String sub1, final String sub2) {
++        final Cmd cmd = commands.get(name);
++
++        if (cmd == null) {
++            return String.format("No such command: %s%n", name);
++        }
++
++        final PrintString out = new PrintString();
++
++        if (cmd instanceof CmdGroup) {
++            final Cmd sub = ((CmdGroup) cmd).getCommand(sub1);
++            if (sub instanceof CmdGroup) {
++                ((CmdGroup) sub).manual(sub2, out);
++            } else if (sub != null) {
++                sub.manual(out);
++            } else {
++                return String.format("No such command: %s %s%n", name, sub1);
++            }
++        } else {
++            cmd.manual(out);
++        }
++
++        return out.toString();
++    }
++
+ }
+diff --git a/tomitribe-crest/src/main/java/org/tomitribe/crest/help/HelpProcessor.java b/tomitribe-crest/src/main/java/org/tomitribe/crest/help/HelpProcessor.java
+index 7d347c4..312eac9 100644
+--- a/tomitribe-crest/src/main/java/org/tomitribe/crest/help/HelpProcessor.java
++++ b/tomitribe-crest/src/main/java/org/tomitribe/crest/help/HelpProcessor.java
+@@ -134,11 +134,17 @@ public class HelpProcessor extends AbstractProcessor {
+     private String getCommandName(final ExecutableElement executableElement) {
+         final Command command = executableElement.getAnnotation(Command.class);
+ 
+-        return Stream.of(command.value(), executableElement.getSimpleName() + "")
++        final String fullName = Stream.of(command.value(), executableElement.getSimpleName() + "")
+                 .filter(Objects::nonNull)
+                 .filter(s -> s.length() > 0)
+                 .findFirst()
+                 .orElseThrow(() -> new IllegalElementException("Illegal command with no name", executableElement));
++
++        // Use only the leaf name for resource file generation.
++        // Multi-word @Command values like "setting add" represent a path;
++        // the command name is the last token.
++        final int lastSpace = fullName.lastIndexOf(' ');
++        return lastSpace < 0 ? fullName : fullName.substring(lastSpace + 1);
+     }
+ 
+ }

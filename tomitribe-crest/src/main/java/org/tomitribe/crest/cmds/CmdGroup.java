@@ -66,6 +66,49 @@ public class CmdGroup implements Cmd {
         this.commands.putAll(commands);
     }
 
+    public void put(final String name, final Cmd incoming) {
+        final Cmd existing = commands.get(name);
+
+        if (existing == null) {
+
+            commands.put(name, incoming);
+
+        } else if (existing instanceof CmdGroup && incoming instanceof CmdGroup) {
+
+            ((CmdGroup) existing).merge((CmdGroup) incoming);
+
+        } else if (existing instanceof CmdGroup || incoming instanceof CmdGroup) {
+
+            throw new IllegalArgumentException(
+                    "Conflict: '" + name + "' is both a command and a command group. " +
+                    "A name cannot be used as both a leaf command and a group containing sub-commands.");
+
+        } else if (existing instanceof OverloadedCmdMethod) {
+
+            final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) existing;
+            if (incoming instanceof OverloadedCmdMethod) {
+                for (final CmdMethod method : ((OverloadedCmdMethod) incoming).getMethods()) {
+                    overloaded.add(method);
+                }
+            } else {
+                overloaded.add((CmdMethod) incoming);
+            }
+
+        } else {
+
+            if (incoming instanceof OverloadedCmdMethod) {
+                final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) incoming;
+                overloaded.add((CmdMethod) existing);
+                commands.put(name, overloaded);
+            } else {
+                final OverloadedCmdMethod overloaded = new OverloadedCmdMethod(name);
+                overloaded.add((CmdMethod) existing);
+                overloaded.add((CmdMethod) incoming);
+                commands.put(name, overloaded);
+            }
+        }
+    }
+
     public void merge(final CmdGroup other) {
         for (final Class<?> owner : other.owners) {
             if (!owners.contains(owner)) {
@@ -74,53 +117,16 @@ public class CmdGroup implements Cmd {
         }
 
         for (final Map.Entry<String, Cmd> entry : other.commands.entrySet()) {
-            final String name = entry.getKey();
-            final Cmd incoming = entry.getValue();
-            final Cmd existing = commands.get(name);
-
-            if (existing == null) {
-
-                commands.put(name, incoming);
-
-            } else if (existing instanceof CmdGroup && incoming instanceof CmdGroup) {
-
-                ((CmdGroup) existing).merge((CmdGroup) incoming);
-
-            } else if (existing instanceof CmdGroup || incoming instanceof CmdGroup) {
-
-                throw new IllegalArgumentException(
-                        "Conflict: '" + name + "' is both a command and a command group. " +
-                        "A name cannot be used as both a leaf command and a group containing sub-commands.");
-
-            } else if (existing instanceof OverloadedCmdMethod) {
-
-                final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) existing;
-                if (incoming instanceof OverloadedCmdMethod) {
-                    for (final CmdMethod method : ((OverloadedCmdMethod) incoming).getMethods()) {
-                        overloaded.add(method);
-                    }
-                } else {
-                    overloaded.add((CmdMethod) incoming);
-                }
-
-            } else {
-
-                if (incoming instanceof OverloadedCmdMethod) {
-                    final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) incoming;
-                    overloaded.add((CmdMethod) existing);
-                    commands.put(name, overloaded);
-                } else {
-                    final OverloadedCmdMethod overloaded = new OverloadedCmdMethod(name);
-                    overloaded.add((CmdMethod) existing);
-                    overloaded.add((CmdMethod) incoming);
-                    commands.put(name, overloaded);
-                }
-            }
+            put(entry.getKey(), entry.getValue());
         }
     }
 
     public Collection<Cmd> getCommands() {
         return Collections.unmodifiableCollection(commands.values());
+    }
+
+    public Map<String, Cmd> getCommandMap() {
+        return commands;
     }
 
     public Cmd getCommand(final String name) {

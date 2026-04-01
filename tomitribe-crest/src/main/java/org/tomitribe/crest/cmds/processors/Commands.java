@@ -20,7 +20,6 @@ import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.CmdMethod;
-import org.tomitribe.crest.cmds.OverloadedCmdMethod;
 import org.tomitribe.crest.cmds.targets.SimpleBean;
 import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.contexts.DefaultsContext;
@@ -38,6 +37,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -86,7 +86,7 @@ public class Commands {
             throw new IllegalArgumentException("Target cannot be null");
         }
 
-        final Map<String, Cmd> map = new HashMap<>();
+        final CmdGroup collector = new CmdGroup("", Collections.emptyMap());
 
         for (final Method method : commands(clazz)) {
 
@@ -97,77 +97,36 @@ public class Commands {
                             .orElse(null));
 
             final String[] methodPath = path(method);
-            nestCmd(map, methodPath, cmd);
+
+            if (methodPath.length == 1) {
+
+                collector.put(methodPath[0], cmd);
+
+            } else {
+                // Build nested CmdGroup chain from inside out
+                Map<String, Cmd> innerMap = new HashMap<>();
+                innerMap.put(methodPath[methodPath.length - 1], cmd);
+
+                for (int i = methodPath.length - 2; i >= 1; i--) {
+                    final CmdGroup group = new CmdGroup(methodPath[i], innerMap);
+                    innerMap = new HashMap<>();
+                    innerMap.put(methodPath[i], group);
+                }
+
+                // Merge the outermost group into the collector
+                final String rootName = methodPath[0];
+                final CmdGroup rootGroup = new CmdGroup(rootName, innerMap);
+                collector.put(rootName, rootGroup);
+            }
         }
 
         if (clazz.isAnnotationPresent(Command.class)) {
 
             final String[] classPath = path(clazz);
-            return wrapInGroups(clazz, classPath, map);
+            return wrapInGroups(clazz, classPath, collector.getCommandMap());
 
         }
-        return map;
-    }
-
-    /**
-     * Places a command into the map at the correct depth,
-     * creating intermediate CmdGroups as needed (mkdir -p style).
-     */
-    private static void nestCmd(final Map<String, Cmd> map, final String[] path, final CmdMethod cmd) {
-        if (path.length == 1) {
-            addLeaf(map, path[0], cmd);
-        } else {
-            // Build nested CmdGroup chain from inside out
-            Map<String, Cmd> innerMap = new HashMap<>();
-            innerMap.put(path[path.length - 1], cmd);
-
-            for (int i = path.length - 2; i >= 1; i--) {
-                final CmdGroup group = new CmdGroup(path[i], innerMap);
-                innerMap = new HashMap<>();
-                innerMap.put(path[i], group);
-            }
-
-            // Merge the outermost group into the map
-            final String rootName = path[0];
-            final CmdGroup rootGroup = new CmdGroup(rootName, innerMap);
-            final Cmd existing = map.get(rootName);
-
-            if (existing == null) {
-                map.put(rootName, rootGroup);
-            } else if (existing instanceof CmdGroup) {
-                ((CmdGroup) existing).merge(rootGroup);
-            } else {
-                throw new IllegalArgumentException(
-                        "Conflict: '" + rootName + "' is both a command and a command group. " +
-                        "A name cannot be used as both a leaf command and a group containing sub-commands.");
-            }
-        }
-    }
-
-    private static void addLeaf(final Map<String, Cmd> map, final String name, final CmdMethod cmd) {
-        final Cmd existing = map.get(name);
-
-        if (existing == null) {
-
-            map.put(name, cmd);
-
-        } else if (existing instanceof CmdGroup) {
-
-            throw new IllegalArgumentException(
-                    "Conflict: '" + name + "' is both a command and a command group. " +
-                    "A name cannot be used as both a leaf command and a group containing sub-commands.");
-
-        } else if (existing instanceof OverloadedCmdMethod) {
-
-            ((OverloadedCmdMethod) existing).add(cmd);
-
-        } else {
-
-            final OverloadedCmdMethod overloaded = new OverloadedCmdMethod(name);
-            overloaded.add((CmdMethod) existing);
-            overloaded.add(cmd);
-            map.put(name, overloaded);
-        }
+        return collector.getCommandMap();
     }
 
     /**

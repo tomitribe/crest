@@ -96,37 +96,107 @@ public class Commands {
                             .map(e -> e.findService(BeanValidationImpl.class))
                             .orElse(null));
 
-            final Cmd existing = map.get(cmd.getName());
-
-            if (existing == null) {
-
-                map.put(cmd.getName(), cmd);
-
-            } else if (existing instanceof OverloadedCmdMethod) {
-
-                final OverloadedCmdMethod overloaded = (OverloadedCmdMethod) existing;
-                overloaded.add(cmd);
-
-            } else {
-
-                final OverloadedCmdMethod overloaded = new OverloadedCmdMethod(cmd.getName());
-                overloaded.add((CmdMethod) existing);
-                overloaded.add(cmd);
-                map.put(overloaded.getName(), overloaded);
-            }
+            final String[] methodPath = path(method);
+            nestCmd(map, methodPath, cmd);
         }
 
         if (clazz.isAnnotationPresent(Command.class)) {
 
-            final CmdGroup cmdGroup = new CmdGroup(clazz, map);
-
-            final HashMap<String, Cmd> group = new HashMap<>();
-            group.put(cmdGroup.getName(), cmdGroup);
-
-            return group;
+            final String[] classPath = path(clazz);
+            return wrapInGroups(clazz, classPath, map);
 
         }
         return map;
+    }
+
+    /**
+     * Places a command into the map at the correct depth,
+     * creating intermediate CmdGroups as needed (mkdir -p style).
+     */
+    private static void nestCmd(final Map<String, Cmd> map, final String[] path, final CmdMethod cmd) {
+        if (path.length == 1) {
+            addLeaf(map, path[0], cmd);
+        } else {
+            // Build nested CmdGroup chain from inside out
+            Map<String, Cmd> innerMap = new HashMap<>();
+            innerMap.put(path[path.length - 1], cmd);
+
+            for (int i = path.length - 2; i >= 1; i--) {
+                final CmdGroup group = new CmdGroup(path[i], innerMap);
+                innerMap = new HashMap<>();
+                innerMap.put(path[i], group);
+            }
+
+            // Merge the outermost group into the map
+            final String rootName = path[0];
+            final CmdGroup rootGroup = new CmdGroup(rootName, innerMap);
+            final Cmd existing = map.get(rootName);
+
+            if (existing == null) {
+                map.put(rootName, rootGroup);
+            } else if (existing instanceof CmdGroup) {
+                ((CmdGroup) existing).merge(rootGroup);
+            } else {
+                throw new IllegalArgumentException(
+                        "Conflict: '" + rootName + "' is both a command and a command group. " +
+                        "A name cannot be used as both a leaf command and a group containing sub-commands.");
+            }
+        }
+    }
+
+    private static void addLeaf(final Map<String, Cmd> map, final String name, final CmdMethod cmd) {
+        final Cmd existing = map.get(name);
+
+        if (existing == null) {
+
+            map.put(name, cmd);
+
+        } else if (existing instanceof CmdGroup) {
+
+            throw new IllegalArgumentException(
+                    "Conflict: '" + name + "' is both a command and a command group. " +
+                    "A name cannot be used as both a leaf command and a group containing sub-commands.");
+
+        } else if (existing instanceof OverloadedCmdMethod) {
+
+            ((OverloadedCmdMethod) existing).add(cmd);
+
+        } else {
+
+            final OverloadedCmdMethod overloaded = new OverloadedCmdMethod(name);
+            overloaded.add((CmdMethod) existing);
+            overloaded.add(cmd);
+            map.put(name, overloaded);
+        }
+    }
+
+    /**
+     * Wraps a method map in nested CmdGroups based on the class path.
+     * The innermost group has the owner class (for description resolution).
+     * Intermediate groups are auto-created with no owner.
+     */
+    private static Map<String, Cmd> wrapInGroups(final Class<?> owner, final String[] classPath, final Map<String, Cmd> methods) {
+        if (classPath.length == 1) {
+            final CmdGroup cmdGroup = new CmdGroup(owner, methods);
+            final HashMap<String, Cmd> result = new HashMap<>();
+            result.put(cmdGroup.getName(), cmdGroup);
+            return result;
+        }
+
+        // Multi-word path: innermost group gets the owner (for description)
+        final String innerName = classPath[classPath.length - 1];
+        CmdGroup current = new CmdGroup(owner, innerName, methods);
+
+        // Build intermediate groups from inside out
+        for (int i = classPath.length - 2; i >= 0; i--) {
+            final Map<String, Cmd> wrapper = new HashMap<>();
+            wrapper.put(current.getName(), current);
+            current = new CmdGroup(classPath[i], wrapper);
+        }
+
+        final HashMap<String, Cmd> result = new HashMap<>();
+        result.put(current.getName(), current);
+        return result;
     }
 
     public static String name(final Method method) {
@@ -134,7 +204,7 @@ public class Commands {
         if (command == null) {
             return method.getName();
         }
-        return value(command.value(), method.getName());
+        return leafName(value(command.value(), method.getName()));
     }
 
     public static String name(final Class<?> clazz) {
@@ -143,7 +213,36 @@ public class Commands {
         if (command == null) {
             return defaultName;
         }
-        return value(command.value(), defaultName);
+        return leafName(value(command.value(), defaultName));
+    }
+
+    /**
+     * Returns the full path tokens for a method's @Command value.
+     * Single-word values return a one-element array.
+     */
+    static String[] path(final Method method) {
+        final Command command = method.getAnnotation(Command.class);
+        if (command == null) {
+            return new String[]{method.getName()};
+        }
+        return value(command.value(), method.getName()).split("\\s+");
+    }
+
+    /**
+     * Returns the full path tokens for a class's @Command value.
+     */
+    static String[] path(final Class<?> clazz) {
+        final Command command = clazz.getAnnotation(Command.class);
+        final String defaultName = Strings.lcfirst(clazz.getSimpleName());
+        if (command == null) {
+            return new String[]{defaultName};
+        }
+        return value(command.value(), defaultName).split("\\s+");
+    }
+
+    private static String leafName(final String name) {
+        final int lastSpace = name.lastIndexOf(' ');
+        return lastSpace < 0 ? name : name.substring(lastSpace + 1);
     }
 
     public static String value(final String value, final String defaultValue) {

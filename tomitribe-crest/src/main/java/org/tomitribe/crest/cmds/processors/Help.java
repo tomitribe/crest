@@ -313,4 +313,30 @@ public class Help {
         return out.toString();
     }
 
+    @Command
+    public String help(final String name, final String sub1, final String sub2) {
+        final Cmd cmd = commands.get(name);
+
+        if (cmd == null) {
+            return String.format("No such command: %s%n", name);
+        }
+
+        final PrintString out = new PrintString();
+
+        if (cmd instanceof CmdGroup) {
+            final Cmd sub = ((CmdGroup) cmd).getCommand(sub1);
+            if (sub instanceof CmdGroup) {
+                ((CmdGroup) sub).manual(sub2, out);
+            } else if (sub != null) {
+                sub.manual(out);
+            } else {
+                return String.format("No such command: %s %s%n", name, sub1);
+            }
+        } else {
+            cmd.manual(out);
+        }
+
+        return out.toString();
+    }
+
 }

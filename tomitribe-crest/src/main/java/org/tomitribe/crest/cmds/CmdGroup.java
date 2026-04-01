@@ -44,8 +44,34 @@ public class CmdGroup implements Cmd {
         this.commands.putAll(commands);
     }
 
+    /**
+     * Constructor for a named group with explicit name and commands.
+     * Used when the class-level @Command value contains spaces,
+     * producing a multi-level hierarchy where the outermost group
+     * name differs from the raw annotation value.
+     */
+    public CmdGroup(final Class<?> owner, final String name, final Map<String, Cmd> commands) {
+        this.owners.add(owner);
+        this.name = name;
+        this.commands.putAll(commands);
+    }
+
+    /**
+     * Constructor for auto-created intermediate groups (mkdir -p style).
+     * These groups have no owning class and no description until a class
+     * explicitly declares them.
+     */
+    public CmdGroup(final String name, final Map<String, Cmd> commands) {
+        this.name = name;
+        this.commands.putAll(commands);
+    }
+
     public void merge(final CmdGroup other) {
-        owners.add(other.owners.get(0));
+        for (final Class<?> owner : other.owners) {
+            if (!owners.contains(owner)) {
+                owners.add(owner);
+            }
+        }
 
         for (final Map.Entry<String, Cmd> entry : other.commands.entrySet()) {
             final String name = entry.getKey();
@@ -55,6 +81,16 @@ public class CmdGroup implements Cmd {
             if (existing == null) {
 
                 commands.put(name, incoming);
+
+            } else if (existing instanceof CmdGroup && incoming instanceof CmdGroup) {
+
+                ((CmdGroup) existing).merge((CmdGroup) incoming);
+
+            } else if (existing instanceof CmdGroup || incoming instanceof CmdGroup) {
+
+                throw new IllegalArgumentException(
+                        "Conflict: '" + name + "' is both a command and a command group. " +
+                        "A name cannot be used as both a leaf command and a group containing sub-commands.");
 
             } else if (existing instanceof OverloadedCmdMethod) {
 
@@ -85,6 +121,10 @@ public class CmdGroup implements Cmd {
 
     public Collection<Cmd> getCommands() {
         return Collections.unmodifiableCollection(commands.values());
+    }
+
+    public Cmd getCommand(final String name) {
+        return commands.get(name);
     }
 
     @Override

@@ -165,8 +165,14 @@ public class Main implements Completer {
         if (!m.isEmpty()) {
             for (final Map.Entry<String, Cmd> entry : m.entrySet()) {
                 final Cmd existing = this.commands.get(entry.getKey());
-                if (existing instanceof CmdGroup && entry.getValue() instanceof CmdGroup) {
+                if (existing == null) {
+                    this.commands.put(entry.getKey(), entry.getValue());
+                } else if (existing instanceof CmdGroup && entry.getValue() instanceof CmdGroup) {
                     ((CmdGroup) existing).merge((CmdGroup) entry.getValue());
+                } else if (existing instanceof CmdGroup || entry.getValue() instanceof CmdGroup) {
+                    throw new IllegalArgumentException(
+                            "Conflict: '" + entry.getKey() + "' is both a command and a command group. " +
+                            "A name cannot be used as both a leaf command and a group containing sub-commands.");
                 } else {
                     this.commands.put(entry.getKey(), entry.getValue());
                 }

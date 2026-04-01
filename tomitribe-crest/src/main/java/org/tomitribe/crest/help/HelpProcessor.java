@@ -134,11 +134,17 @@ public class HelpProcessor extends AbstractProcessor {
     private String getCommandName(final ExecutableElement executableElement) {
         final Command command = executableElement.getAnnotation(Command.class);
 
-        return Stream.of(command.value(), executableElement.getSimpleName() + "")
+        final String fullName = Stream.of(command.value(), executableElement.getSimpleName() + "")
                 .filter(Objects::nonNull)
                 .filter(s -> s.length() > 0)
                 .findFirst()
                 .orElseThrow(() -> new IllegalElementException("Illegal command with no name", executableElement));
+
+        // Use only the leaf name for resource file generation.
+        // Multi-word @Command values like "setting add" represent a path;
+        // the command name is the last token.
+        final int lastSpace = fullName.lastIndexOf(' ');
+        return lastSpace < 0 ? fullName : fullName.substring(lastSpace + 1);
     }
 
 }

@@ -39,8 +39,12 @@ theme = 'crest'
     url = "/advanced/"
     weight = 4
   [[menu.main]]
+    name = "Changelog"
+    url = "/changelog/"
+    weight = 5
+  [[menu.main]]
     name = "GitHub"
     url = "https://github.com/tomitribe/crest"
-    weight = 5
+    weight = 6
     [menu.main.params]
       external = true

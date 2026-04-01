@@ -11,14 +11,19 @@ As a CLI tool grows, a flat list of commands becomes hard to navigate. Crest sup
 Place `@Command` on the class itself to define a group. The class-level `value` becomes the group name, and each `@Command`-annotated method inside becomes a sub-command.
 
 ```java
-@Command(value = "config", description = "Manage configuration")
+/**
+ * Manage configuration
+ */
+@Command("config")
 public class ConfigCommands {
 
-    @Command(description = "Add a new config value")
+    /** Add a new config value */
+    @Command
     public void add(final Name name,
                     @Required @Option("value") final String value) { ... }
 
-    @Command(description = "Remove a config value")
+    /** Remove a config value */
+    @Command
     public void remove(final Name name) { ... }
 
     @Command("import")
@@ -52,24 +57,31 @@ Sub commands:
 Multiple classes can contribute sub-commands to the same group. Use the same `@Command` value on each class:
 
 ```java
-@Command(value = "user", description = "User management")
+/**
+ * User management
+ */
+@Command("user")
 public class UserCommands {
 
-    @Command(description = "Create a new user")
+    /** Create a new user */
+    @Command
     public void create(@Option("name") @Required final String name,
                        @Option("email") @Required final String email) { ... }
 
-    @Command(description = "Delete a user")
+    /** Delete a user */
+    @Command
     public void delete(@Option("id") @Required final String id) { ... }
 }
 
 @Command("user")
 public class UserQueryCommands {
 
-    @Command(description = "List all users")
+    /** List all users */
+    @Command
     public void list(@Option("filter") final String filter) { ... }
 
-    @Command(description = "Show user details")
+    /** Show user details */
+    @Command
     public void show(@Option("id") @Required final String id) { ... }
 }
 ```
@@ -83,6 +95,95 @@ When multiple classes contribute to the same group, the group description comes 
 In the example above, `UserCommands` provides the description `"User management"`, while `UserQueryCommands` does not specify one. The group description resolves to `"User management"` regardless of registration order.
 
 If multiple classes provide a description for the same group, one of them will be used. To avoid ambiguity, define the description on a single class.
+
+## Deeper Command Groups
+
+Command groups can be nested to any depth by using space-separated names in the `@Command` value. Each token becomes a level in the command hierarchy.
+
+```java
+/**
+ * Quote management
+ */
+@Command("quote")
+public class QuoteCommands {
+
+    /** Create a quote */
+    @Command
+    public void create(@Option("name") final String name) { ... }
+
+    /** Remove a quote */
+    @Command
+    public void remove(@Option("id") final String id) { ... }
+}
+
+/**
+ * Manage line items
+ */
+@Command("quote line-item")
+public class QuoteLineItemCommands {
+
+    /** Create a line item */
+    @Command
+    public void create(@Option("product") final String product,
+                       @Option("quantity") final int quantity) { ... }
+
+    /** Delete a line item */
+    @Command
+    public void delete(@Option("id") final String id) { ... }
+
+    /** List line items */
+    @Command
+    public void list() { ... }
+}
+```
+
+CLI usage:
+
+```
+quote create --name="Acme proposal"
+quote remove --id=42
+quote line-item create --product=Widget --quantity=10
+quote line-item delete --id=7
+quote line-item list
+```
+
+The resulting hierarchy:
+
+```
+quote
+├── create       Create a quote
+├── remove       Remove a quote
+└── line-item
+    ├── create   Create a line item
+    ├── delete   Delete a line item
+    └── list     List line items
+```
+
+Intermediate groups are created automatically. If `QuoteLineItemCommands` declares `@Command("quote line-item")` but no class declares `@Command("quote")`, the `quote` group is auto-created with no description. If a class later provides a `@Command("quote")` class with a javadoc description, the description merges in.
+
+### Method-Level Paths
+
+The class-level and method-level `@Command` values are concatenated, following the same model as JAX-RS `@Path`. A method can contribute additional group levels:
+
+```java
+@Command("quote")
+public class QuoteCommands {
+
+    /** Create a quote */
+    @Command
+    public void create(@Option("name") final String name) { ... }
+
+    /** Create a line item */
+    @Command("line-item create")
+    public void lineItemCreate(@Option("product") final String product) { ... }
+
+    /** Delete a line item */
+    @Command("line-item delete")
+    public void lineItemDelete(@Option("id") final String id) { ... }
+}
+```
+
+This produces the same hierarchy as the separate-class example above. The two approaches can be mixed freely -- some sub-commands defined inline via method paths, others contributed by separate classes.
 
 ## Sub-Command Help
 

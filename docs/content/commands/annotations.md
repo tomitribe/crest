@@ -30,7 +30,15 @@ public void _import(@Option("file") final File file) {
 
 ### Descriptions
 
-Provide a one-line description that appears in help listings:
+Provide a one-line description that appears in help listings. The first sentence of the method's Javadoc is used:
+
+```java
+/** Deploy the application to the target environment */
+@Command
+public void deploy(@Option("target") final String target) { ... }
+```
+
+Alternatively, the `description` attribute can be used directly:
 
 ```java
 @Command(description = "Deploy the application to the target environment")
@@ -53,14 +61,19 @@ public void commit(@Option("all") final boolean all,
 When placed on a class, `@Command` defines a command group. All `@Command`-annotated methods inside the class become sub-commands. See [Command Groups]({{< ref "command-groups" >}}) for details.
 
 ```java
-@Command(value = "config", description = "Manage configuration")
+/**
+ * Manage configuration
+ */
+@Command("config")
 public class ConfigCommands {
 
-    @Command(description = "Set a config value")
+    /** Set a config value */
+    @Command
     public void set(@Option("key") final String key,
                     @Option("value") final String value) { ... }
 
-    @Command(description = "Get a config value")
+    /** Get a config value */
+    @Command
     public void get(@Option("key") final String key) { ... }
 }
 ```

@@ -75,7 +75,8 @@ public void transform(@In final InputStream in,
 I/O stream parameters annotated with `@In`, `@Out`, and `@Err` are automatically hidden from help output. They do not appear in the command's option list or synopsis, since they are not user-facing options.
 
 ```java
-@Command(description = "Process input data")
+/** Process input data */
+@Command
 public void process(@Out final PrintStream out,
                     @Err final PrintStream err,
                     @Option("format") final String format) { ... }

@@ -62,10 +62,11 @@ Running `help` on a specific command shows its full usage, including every optio
 $ myapp help hello
 ```
 
-To add a description that appears in the command listing, use the `description` parameter on `@Command`:
+To add a description that appears in the command listing, add a Javadoc comment:
 
 ```java
-@Command(description = "Greet someone by name")
+/** Greet someone by name */
+@Command
 public String hello(@Option("name") @Default("World") final String name,
                     @Option("greeting") @Default("Hello") final String greeting) {
     return greeting + ", " + name + "!";

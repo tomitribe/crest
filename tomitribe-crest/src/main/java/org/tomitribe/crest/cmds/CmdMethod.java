@@ -65,7 +65,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -127,9 +126,29 @@ public class CmdMethod implements Cmd {
         this.target = target;
         this.method = method;
         this.defaultsFinder = defaultsFinder;
-        this.name = Commands.name(method);
         this.beanValidation = beanValidation;
         this.spec = new Spec(beanValidation);
+
+        // Build the full command path: root + class groups + method path
+        final LinkedList<String> tokens = new LinkedList<>();
+        tokens.add("");
+        tokens.addAll(Commands.path(clazz));
+        tokens.addAll(Commands.path(method));
+
+        // The last token is the leaf command name
+        this.name = tokens.removeLast();
+
+        // Build the parent group chain
+        this.parent = new CmdGroup(tokens, this);
+
+        // Assign owner for description resolution
+        if (clazz.isAnnotationPresent(Command.class)) {
+            CmdGroup owner = this.parent;
+            for (int i = 1; i < Commands.path(method).size(); i++) {
+                owner = owner.getParent();
+            }
+            owner.addOwner(clazz);
+        }
 
         final List<Param> parameters = spec.buildParams(beanValidation, null, NO_PREFIX, null, Reflection.params(method));
 
@@ -139,31 +158,6 @@ public class CmdMethod implements Cmd {
         this.interceptors = getInterceptors(method);
 
         validate();
-
-        // Build the parent group chain from the full command path
-        final String[] groupPath = clazz.isAnnotationPresent(Command.class)
-                ? Commands.path(clazz) : new String[0];
-        final String[] methodPath = Commands.path(method);
-
-        final LinkedList<String> tokens = new LinkedList<>();
-        tokens.add("");
-        tokens.addAll(Arrays.asList(groupPath));
-        for (int i = 0; i < methodPath.length - 1; i++) {
-            tokens.add(methodPath[i]);
-        }
-
-        this.parent = new CmdGroup(tokens, this);
-
-        // Assign owner for description resolution.
-        // The owner class goes on the group at the class path depth —
-        // walk up (methodPath.length - 1) levels from the immediate parent.
-        if (groupPath.length > 0) {
-            CmdGroup owner = this.parent;
-            for (int i = 1; i < methodPath.length; i++) {
-                owner = owner.getParent();
-            }
-            owner.addOwner(clazz);
-        }
     }
 
     @Override

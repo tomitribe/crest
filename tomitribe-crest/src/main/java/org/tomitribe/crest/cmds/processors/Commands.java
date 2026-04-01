@@ -37,8 +37,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -120,26 +122,29 @@ public class Commands {
 
     /**
      * Returns the full path tokens for a method's @Command value.
-     * Single-word values return a one-element array.
+     * Single-word values return a single-element list.
      */
-    public static String[] path(final Method method) {
+    public static List<String> path(final Method method) {
         final Command command = method.getAnnotation(Command.class);
-        if (command == null) {
-            return new String[]{method.getName()};
+        if (command == null || command.value().isEmpty()) {
+            return Collections.singletonList(method.getName());
         }
-        return value(command.value(), method.getName()).split("\\s+");
+        return Arrays.asList(command.value().split("\\s+"));
     }
 
     /**
      * Returns the full path tokens for a class's @Command value.
+     * Returns an empty list if the class has no @Command annotation.
      */
-    public static String[] path(final Class<?> clazz) {
+    public static List<String> path(final Class<?> clazz) {
         final Command command = clazz.getAnnotation(Command.class);
-        final String defaultName = Strings.lcfirst(clazz.getSimpleName());
         if (command == null) {
-            return new String[]{defaultName};
+            return Collections.emptyList();
         }
-        return value(command.value(), defaultName).split("\\s+");
+        if (command.value().isEmpty()) {
+            return Collections.singletonList(Strings.lcfirst(clazz.getSimpleName()));
+        }
+        return Arrays.asList(command.value().split("\\s+"));
     }
 
     private static String leafName(final String name) {

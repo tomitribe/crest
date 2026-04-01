@@ -39,7 +39,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -86,76 +85,20 @@ public class Commands {
             throw new IllegalArgumentException("Target cannot be null");
         }
 
-        final CmdGroup collector = new CmdGroup("", Collections.emptyMap());
+        final CmdGroup root = new CmdGroup("", Collections.emptyMap());
 
         for (final Method method : commands(clazz)) {
 
             final CmdMethod cmd = new CmdMethod(
-                    method, target, dc,
+                    clazz, method, target, dc,
                     ofNullable(Environment.ENVIRONMENT_THREAD_LOCAL.get())
                             .map(e -> e.findService(BeanValidationImpl.class))
                             .orElse(null));
 
-            final String[] methodPath = path(method);
-
-            if (methodPath.length == 1) {
-
-                collector.put(methodPath[0], cmd);
-
-            } else {
-                // Build nested CmdGroup chain from inside out
-                Map<String, Cmd> innerMap = new HashMap<>();
-                innerMap.put(methodPath[methodPath.length - 1], cmd);
-
-                for (int i = methodPath.length - 2; i >= 1; i--) {
-                    final CmdGroup group = new CmdGroup(methodPath[i], innerMap);
-                    innerMap = new HashMap<>();
-                    innerMap.put(methodPath[i], group);
-                }
-
-                // Merge the outermost group into the collector
-                final String rootName = methodPath[0];
-                final CmdGroup rootGroup = new CmdGroup(rootName, innerMap);
-                collector.put(rootName, rootGroup);
-            }
+            root.merge(cmd.getRoot());
         }
 
-        if (clazz.isAnnotationPresent(Command.class)) {
-
-            final String[] classPath = path(clazz);
-            return wrapInGroups(clazz, classPath, collector.getCommandMap());
-
-        }
-        return collector.getCommandMap();
-    }
-
-    /**
-     * Wraps a method map in nested CmdGroups based on the class path.
-     * The innermost group has the owner class (for description resolution).
-     * Intermediate groups are auto-created with no owner.
-     */
-    private static Map<String, Cmd> wrapInGroups(final Class<?> owner, final String[] classPath, final Map<String, Cmd> methods) {
-        if (classPath.length == 1) {
-            final CmdGroup cmdGroup = new CmdGroup(owner, methods);
-            final HashMap<String, Cmd> result = new HashMap<>();
-            result.put(cmdGroup.getName(), cmdGroup);
-            return result;
-        }
-
-        // Multi-word path: innermost group gets the owner (for description)
-        final String innerName = classPath[classPath.length - 1];
-        CmdGroup current = new CmdGroup(owner, innerName, methods);
-
-        // Build intermediate groups from inside out
-        for (int i = classPath.length - 2; i >= 0; i--) {
-            final Map<String, Cmd> wrapper = new HashMap<>();
-            wrapper.put(current.getName(), current);
-            current = new CmdGroup(classPath[i], wrapper);
-        }
-
-        final HashMap<String, Cmd> result = new HashMap<>();
-        result.put(current.getName(), current);
-        return result;
+        return root.getCommandMap();
     }
 
     public static String name(final Method method) {
@@ -179,7 +122,7 @@ public class Commands {
      * Returns the full path tokens for a method's @Command value.
      * Single-word values return a one-element array.
      */
-    static String[] path(final Method method) {
+    public static String[] path(final Method method) {
         final Command command = method.getAnnotation(Command.class);
         if (command == null) {
             return new String[]{method.getName()};
@@ -190,7 +133,7 @@ public class Commands {
     /**
      * Returns the full path tokens for a class's @Command value.
      */
-    static String[] path(final Class<?> clazz) {
+    public static String[] path(final Class<?> clazz) {
         final Command command = clazz.getAnnotation(Command.class);
         final String defaultName = Strings.lcfirst(clazz.getSimpleName());
         if (command == null) {

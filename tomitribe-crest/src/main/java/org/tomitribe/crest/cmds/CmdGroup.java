@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,6 +38,7 @@ public class CmdGroup implements Cmd {
     final String name;
     final List<Class<?>> owners = new ArrayList<>();
     final Map<String, Cmd> commands = new TreeMap<>();
+    private CmdGroup parent;
 
     public CmdGroup(final Class<?> owner, final Map<String, Cmd> commands) {
         this.owners.add(owner);
@@ -64,6 +66,20 @@ public class CmdGroup implements Cmd {
     public CmdGroup(final String name, final Map<String, Cmd> commands) {
         this.name = name;
         this.commands.putAll(commands);
+    }
+
+    /**
+     * Chain-building constructor.  Peels the last token from the list
+     * as this group's name, wires the child, and recurses upward if
+     * tokens remain.
+     */
+    public CmdGroup(final LinkedList<String> tokens, final Cmd child) {
+        this.name = tokens.removeLast();
+        this.commands.put(child.getName(), child);
+
+        if (!tokens.isEmpty()) {
+            this.parent = new CmdGroup(tokens, this);
+        }
     }
 
     public void put(final String name, final Cmd incoming) {
@@ -131,6 +147,23 @@ public class CmdGroup implements Cmd {
 
     public Cmd getCommand(final String name) {
         return commands.get(name);
+    }
+
+    @Override
+    public CmdGroup getParent() {
+        return parent;
+    }
+
+    @Override
+    public CmdGroup getRoot() {
+        if (parent == null) return this;
+        return parent.getRoot();
+    }
+
+    public void addOwner(final Class<?> owner) {
+        if (!owners.contains(owner)) {
+            owners.add(owner);
+        }
     }
 
     @Override

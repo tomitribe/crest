@@ -37,4 +37,14 @@ public interface Cmd extends Completer {
     default void manual(PrintStream out) {
         help(out);
     }
+
+    default CmdGroup getParent() {
+        return null;
+    }
+
+    default CmdGroup getRoot() {
+        final CmdGroup parent = getParent();
+        if (parent == null) return null;
+        return parent.getRoot();
+    }
 }

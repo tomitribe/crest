@@ -41,6 +41,8 @@ import org.tomitribe.crest.help.CommandJavadoc;
 import org.tomitribe.crest.help.Document;
 import org.tomitribe.crest.help.DocumentFormatter;
 import org.tomitribe.crest.help.DocumentParser;
+import org.tomitribe.crest.help.Element;
+import org.tomitribe.crest.help.Paragraph;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptorInvocationContext;
 import org.tomitribe.crest.javadoc.Javadoc;
@@ -319,8 +321,18 @@ public class CmdMethod implements Cmd {
             return null;
         }
 
-        final String content = javadoc.getContent().trim();
-        final String[] sentences = content.split("\\. ");
+        final Document document = DocumentParser.parser(javadoc.getContent());
+
+        return document.getElements().stream()
+                .filter(e -> e instanceof Paragraph)
+                .map(Element::getContent)
+                .map(CmdMethod::firstSentence)
+                .findFirst()
+                .orElse(null);
+    }
+
+    static String firstSentence(final String content) {
+        final String[] sentences = content.split("(?<=[.!?])\\s");
         return sentences[0];
     }
 

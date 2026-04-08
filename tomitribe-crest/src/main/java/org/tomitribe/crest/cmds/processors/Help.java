@@ -151,7 +151,7 @@ public class Help {
         if (!(element instanceof Paragraph)) return item;
 
         final String content = element.getContent();
-        final String[] sentences = content.split("\\. ");
+        final String[] sentences = content.split("(?<=[.!?])\\s");
 
         if (sentences.length == 0) return item;
 

@@ -110,7 +110,7 @@ public class CmdMethodDescriptionTest extends Assert {
     public void javadocFirstSentenceOnly() {
         final Map<String, Cmd> commands = Commands.get(JavadocDescriptions.class);
 
-        assertEquals("Compile source files into bytecode", commands.get("compile").getDescription());
+        assertEquals("Compile source files into bytecode.", commands.get("compile").getDescription());
     }
 
     @Test
@@ -139,11 +139,114 @@ public class CmdMethodDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   compile   Compile source files into bytecode%n" +
+                "   compile   Compile source files into bytecode.%n" +
                 "   deploy    Deploy the application to the server.%n" +
                 "   help      %n" +
                 "   start     Start the server%n" +
                 "   stop      %n"), out.toString());
+    }
+
+    // --- javadoc first sentence extraction scenarios ---
+
+    public static class JavadocSentenceScenarios {
+
+        /**
+         * Compile source files into bytecode. This is the second sentence.
+         */
+        @Command
+        public void periodSpace(@Option("source") final String source) { }
+
+        /**
+         * Displays the Software field in the Account along with the packages included in their Quote.
+         * If the Account does not have the Subscription Quote field set and/or is not listed as a Customer,
+         * it will not be included in the output.
+         */
+        @Command
+        public void periodNewline(@Option("source") final String source) { }
+
+        /**
+         * Delete an Account
+         */
+        @Command
+        public void noPunctuation(@Option("id") final String id) { }
+
+        /**
+         * Deploy now! Don't wait.
+         */
+        @Command
+        public void exclamation(@Option("target") final String target) { }
+
+        /**
+         * Did it work? Check the logs.
+         */
+        @Command
+        public void question(@Option("target") final String target) { }
+
+        /**
+         * Delete an Account.
+         *
+         * Example:
+         *   sforce account delete "Acme Corp"
+         *   sforce account delete 001jK000003ABCDQAZ
+         */
+        @Command
+        public void multiParagraph(@Option("id") final String id) { }
+
+        /**
+         * USAGE:
+         * Deploy the application to the server.
+         */
+        @Command
+        public void headingThenParagraph(@Option("target") final String target) { }
+    }
+
+    @Test
+    public void javadocPeriodSpace() {
+        final Map<String, Cmd> commands = Commands.get(JavadocSentenceScenarios.class);
+
+        assertEquals("Compile source files into bytecode.", commands.get("periodSpace").getDescription());
+    }
+
+    @Test
+    public void javadocPeriodNewline() {
+        final Map<String, Cmd> commands = Commands.get(JavadocSentenceScenarios.class);
+
+        assertEquals("Displays the Software field in the Account along with the packages included in their Quote.", commands.get("periodNewline").getDescription());
+    }
+
+    @Test
+    public void javadocNoPunctuation() {
+        final Map<String, Cmd> commands = Commands.get(JavadocSentenceScenarios.class);
+
+        assertEquals("Delete an Account", commands.get("noPunctuation").getDescription());
+    }
+
+    @Test
+    public void javadocExclamation() {
+        final Map<String, Cmd> commands = Commands.get(JavadocSentenceScenarios.class);
+
+        assertEquals("Deploy now!", commands.get("exclamation").getDescription());
+    }
+
+    @Test
+    public void javadocQuestion() {
+        final Map<String, Cmd> commands = Commands.get(JavadocSentenceScenarios.class);
+
+        assertEquals("Did it work?", commands.get("question").getDescription());
+    }
+
+    @Test
+    public void javadocMultiParagraph() {
+        final Map<String, Cmd> commands = Commands.get(JavadocSentenceScenarios.class);
+
+        assertEquals("Delete an Account.", commands.get("multiParagraph").getDescription());
+    }
+
+    @Test
+    public void javadocHeadingThenParagraph() {
+        final Map<String, Cmd> commands = Commands.get(JavadocSentenceScenarios.class);
+
+        assertEquals("Deploy the application to the server.", commands.get("headingThenParagraph").getDescription());
     }
 
     // --- no description at all ---

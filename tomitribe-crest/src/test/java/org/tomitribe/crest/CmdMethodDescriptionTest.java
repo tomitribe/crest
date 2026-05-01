@@ -249,6 +249,34 @@ public class CmdMethodDescriptionTest extends Assert {
         assertEquals("Deploy the application to the server.", commands.get("headingThenParagraph").getDescription());
     }
 
+    // --- html tags in javadoc ---
+
+    public static class HtmlInJavadoc {
+
+        /**
+         * Manage quotes for accounts.
+         * <p>
+         * Sub-commands for creating, listing, and updating quotes.
+         */
+        @Command
+        public void quote(@Option("id") final String id) { }
+
+        /**
+         * Display account info.<br>
+         * Includes name, type, and ID.
+         */
+        @Command
+        public void account(@Option("id") final String id) { }
+    }
+
+    @Test
+    public void htmlInJavadocDoesNotNpe() {
+        final Map<String, Cmd> commands = Commands.get(HtmlInJavadoc.class);
+
+        assertEquals("Manage quotes for accounts.", commands.get("quote").getDescription());
+        assertEquals("Display account info.", commands.get("account").getDescription());
+    }
+
     // --- no description at all ---
 
     public static class NoDescriptions {

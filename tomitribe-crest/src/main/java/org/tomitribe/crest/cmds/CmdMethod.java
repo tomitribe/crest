@@ -322,6 +322,7 @@ public class CmdMethod implements Cmd {
         }
 
         final Document document = DocumentParser.parser(javadoc.getContent());
+        if (document == null) return null;
 
         return document.getElements().stream()
                 .filter(e -> e instanceof Paragraph)

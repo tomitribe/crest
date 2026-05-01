@@ -19,7 +19,9 @@ package org.tomitribe.crest.help;
 public class HtmlDocumentParser {
 
     public static Document parse(final String content) {
-        return null;
+        if (content == null) return Document.builder().build();
+        final String stripped = content.replaceAll("<[^>]+>", "");
+        return new DocumentParser(stripped).parse();
     }
 
     private HtmlDocumentParser() {

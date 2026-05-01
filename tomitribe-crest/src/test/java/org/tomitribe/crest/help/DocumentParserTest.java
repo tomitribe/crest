@@ -20,8 +20,30 @@ import org.junit.Test;
 import org.tomitribe.util.Join;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class DocumentParserTest {
+
+    @Test
+    public void htmlContentIsStrippedNotNull() {
+        final Document document = DocumentParser.parser(
+                "Manage quotes for accounts.\n<p>\nSub-commands for creating, listing, and updating quotes.");
+        assertNotNull(document);
+        final String actual = Join.join("\n", document.elements);
+        assertTrue(actual, actual.contains("Manage quotes for accounts"));
+        assertTrue(actual, actual.contains("Sub-commands for creating, listing, and updating quotes"));
+    }
+
+    @Test
+    public void htmlBrIsStripped() {
+        final Document document = DocumentParser.parser("Display account info.<br>Includes name, type, and ID.");
+        assertNotNull(document);
+        final String actual = Join.join("\n", document.elements);
+        assertTrue(actual, actual.contains("Display account info"));
+        assertTrue(actual, actual.contains("Includes name, type, and ID"));
+    }
+
 
     @Test
     public void paragraphs() {

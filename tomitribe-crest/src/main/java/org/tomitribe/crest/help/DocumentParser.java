@@ -72,7 +72,7 @@ public class DocumentParser {
         return element;
     }
 
-    private Document parse() {
+    Document parse() {
 
         final List<String> lines = normalizeAndSplitContent();
 

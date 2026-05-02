@@ -55,6 +55,11 @@ public class CrestCliTest {
             "   pretty    \n" +
             "   test      \n" +
             "   wc        \n" +
+            "\n" +
+            "Help: \n" +
+            "\n" +
+            "   help --all       List all commands recursively\n" +
+            "   help <command>   Show detailed help for a command\n" +
             "prompt$test\n" +
             "line1\n" +
             "line 2\n" +

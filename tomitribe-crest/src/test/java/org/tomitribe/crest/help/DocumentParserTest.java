@@ -181,6 +181,28 @@ public class DocumentParserTest {
     }
 
     @Test
+    public void bulletWithUnindentedContinuation() {
+        final String content = "" +
+                "- The `,` (comma) wildcard includes additional values. " +
+                "In the Month field, JAN,FEB,MAR includes January,\n" +
+                "February, and March.\n" +
+                "\n" +
+                "- The `-` (dash) wildcard specifies ranges. " +
+                "In the Day field, 1-15 includes days 1 through 15 of the specified\n" +
+                "month.";
+
+        final Document document = DocumentParser.parser(content);
+        final String actual = Join.join("\n", document.elements);
+
+        assertEquals("" +
+                "Bullet{content='The `,` (comma) wildcard includes additional values. " +
+                "In the Month field, JAN,FEB,MAR includes January, February, and March.'}\n" +
+                "Bullet{content='The `-` (dash) wildcard specifies ranges. " +
+                "In the Day field, 1-15 includes days 1 through 15 of the specified month.'}",
+                actual);
+    }
+
+    @Test
     public void preformatted() {
         final String content = "" +
                 "This option causes rsync to set the group of the destination file to be the\n" +

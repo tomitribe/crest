@@ -175,13 +175,14 @@ public class DocumentParser {
             }
         }
 
-        // Is this line a continuation of a bullet?
+        // Is this line a continuation of a bullet?  Blank lines, headings, and
+        // new bullets have already been handled above, so any remaining non-blank
+        // line belongs to the active bullet — strip the bullet's indent if present,
+        // otherwise take the line as-is so unindented soft-wraps still join cleanly.
         if (state instanceof ReadingBullet) {
             final ReadingBullet readingBullet = (ReadingBullet) this.state;
             final Matcher matcher = readingBullet.continued.matcher(line);
-            if (!matcher.find()) return false;
-
-            final String text = matcher.group(1);
+            final String text = matcher.find() ? matcher.group(1) : line;
             readingBullet.process(text);
             return true;
         }

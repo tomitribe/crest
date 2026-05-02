@@ -591,9 +591,7 @@ public class CmdMethod implements Cmd {
         if (width > 120) width -= 7;
 
         final DocumentFormatter formatter = new DocumentFormatter(width, color);
-        final org.tomitribe.util.PrintString hintBuffer = new org.tomitribe.util.PrintString();
-        Help.printHelpHint(hintBuffer, false, fullPath());
-        final String format = formatter.format(manual.build()) + hintBuffer.toString();
+        final String format = formatter.format(manual.build());
 
         final boolean less = !environment.getEnv().containsKey("NOLESS");
         if (!less) {

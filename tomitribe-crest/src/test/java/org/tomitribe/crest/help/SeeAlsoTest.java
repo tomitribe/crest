@@ -46,10 +46,6 @@ public class SeeAlsoTest {
                         "\n" +
                         "SEE ALSO\n" +
                         "       https://github.com/tomitribe/crest\n" +
-                        "\n" +
-                        "Help: \n" +
-                        "\n" +
-                        "   help update   Show detailed help\n" +
                         "",
                 env.getOut().toString());
     }
@@ -85,10 +81,6 @@ public class SeeAlsoTest {
                         "       https://github.com/tomitribe/crest\n" +
                         "\n" +
                         "       This is text\n" +
-                        "\n" +
-                        "Help: \n" +
-                        "\n" +
-                        "   help commit   Show detailed help\n" +
                         "",
                 env.getOut().toString());
     }

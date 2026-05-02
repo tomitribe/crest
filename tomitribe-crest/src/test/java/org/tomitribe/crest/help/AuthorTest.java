@@ -47,11 +47,7 @@ public class AuthorTest {
                         "       --message=<String>\n" +
                         "\n" +
                         "AUTHORS\n" +
-                        "       Gonzo the Great\n" +
-                        "\n" +
-                        "Help: \n" +
-                        "\n" +
-                        "   help update   Show detailed help\n",
+                        "       Gonzo the Great\n",
                 actual);
     }
 
@@ -85,11 +81,7 @@ public class AuthorTest {
                         "AUTHORS\n" +
                         "       Gonzo the Great\n" +
                         "\n" +
-                        "       Kermit the Frog <kermit@frog.com>\n" +
-                        "\n" +
-                        "Help: \n" +
-                        "\n" +
-                        "   help commit   Show detailed help\n",
+                        "       Kermit the Frog <kermit@frog.com>\n",
                 env.getOut().toString());
     }
 

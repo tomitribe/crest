@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Help on Crest — Command-Line API for Java</title><link>https://tomitribe.github.io/crest/help/</link><description>Recent content in Help on Crest — Command-Line API for Java</description><generator>Hugo</generator><language>en-us</language><atom:link href="https://tomitribe.github.io/crest/help/index.xml" rel="self" type="application/rss+xml"/><item><title>The Help Command</title><link>https://tomitribe.github.io/crest/help/help-command/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://tomitribe.github.io/crest/help/help-command/</guid><description>&lt;p&gt;The &lt;code&gt;help&lt;/code&gt; command is registered automatically. It supports listing all commands and showing detailed help for individual commands.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;myapp help # Lists all commands with descriptions
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;myapp help deploy # Full man page for &amp;#34;deploy&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;myapp help config set # Man page for sub-command &amp;#34;set&amp;#34; in group &amp;#34;config&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="command-listings"&gt;Command listings&lt;/h2&gt;
+&lt;p&gt;Running &lt;code&gt;help&lt;/code&gt; without arguments lists all available commands with their one-line descriptions:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Commands:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; config Manage configuration
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; deploy Deploy the application
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; generate Generates a signed JWT token for the given customer
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; help
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The format is: 3 spaces, command name (left-aligned, padded to the longest name plus 3 spaces), then description.&lt;/p&gt;</description></item><item><title>Javadoc</title><link>https://tomitribe.github.io/crest/help/javadoc/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://tomitribe.github.io/crest/help/javadoc/</guid><description>&lt;p&gt;Javadoc on a &lt;code&gt;@Command&lt;/code&gt; method becomes the body of its man page. The &lt;code&gt;HelpProcessor&lt;/code&gt; annotation processor extracts javadoc at compile time and stores it in &lt;code&gt;META-INF/crest/{className}/{commandName}.{index}.properties&lt;/code&gt;. At runtime, &lt;code&gt;DocumentParser&lt;/code&gt; parses that text into structured elements that render in the terminal.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-java" data-lang="java"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt;/**
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * Generates a signed JWT token for the given customer.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * The token includes the customer ID and expiration date,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * encrypted with the configured private key.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param customerId the customer account identifier
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param expiration when the token should expire
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; */&lt;/span&gt;&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Command&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;generate&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ff7b72"&gt;public&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;generate&lt;/span&gt;(&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Option&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;customer-id&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String&lt;span style="color:#6e7681"&gt; &lt;/span&gt;customerId,&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Option&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;expiration&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;LocalDate&lt;span style="color:#6e7681"&gt; &lt;/span&gt;expiration)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;{&lt;span style="color:#6e7681"&gt; &lt;/span&gt;...&lt;span style="color:#6e7681"&gt; &lt;/span&gt;}&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The first sentence (&amp;ldquo;Generates a signed JWT token for the given customer&amp;rdquo;) becomes the one-line description shown in command listings. The body becomes the DESCRIPTION section.&lt;/p&gt;</description></item><item><title>Annotation Descriptions</title><link>https://tomitribe.github.io/crest/help/annotation-descriptions/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://tomitribe.github.io/crest/help/annotation-descriptions/</guid><description>&lt;p&gt;For short commands and trivial options, inline annotation values are often the cleanest source of help text. They live next to the code they describe and need no annotation processor.&lt;/p&gt;
+&lt;h2 id="commanddescription"&gt;@Command(description)&lt;/h2&gt;
+&lt;p&gt;The one-line description shown next to each command in listings.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-java" data-lang="java"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Command&lt;/span&gt;(description&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72;font-weight:bold"&gt;=&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#a5d6ff"&gt;&amp;#34;Set a config value&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ff7b72"&gt;public&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;void&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;set&lt;/span&gt;(&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Option&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;key&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String&lt;span style="color:#6e7681"&gt; &lt;/span&gt;key,&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Option&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;value&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String&lt;span style="color:#6e7681"&gt; &lt;/span&gt;value)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;{&lt;span style="color:#6e7681"&gt; &lt;/span&gt;...&lt;span style="color:#6e7681"&gt; &lt;/span&gt;}&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If &lt;code&gt;description&lt;/code&gt; is omitted, Crest falls back to the first sentence of the method&amp;rsquo;s javadoc (if any). The first sentence is determined by splitting on period-space (&lt;code&gt;&amp;quot;. &amp;quot;&lt;/code&gt;).&lt;/p&gt;</description></item><item><title>Resource Bundles</title><link>https://tomitribe.github.io/crest/help/resource-bundle/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://tomitribe.github.io/crest/help/resource-bundle/</guid><description>&lt;p&gt;When the same option appears across many commands &amp;ndash; &lt;code&gt;--verbose&lt;/code&gt;, &lt;code&gt;--dry-run&lt;/code&gt;, &lt;code&gt;--config&lt;/code&gt; &amp;ndash; repeating its description on every method is noise. A &lt;code&gt;ResourceBundle&lt;/code&gt; named &lt;code&gt;OptionDescriptions.properties&lt;/code&gt; in the same package as the command class lets you write each description once and reuse it.&lt;/p&gt;
+&lt;p&gt;This is also the source to use for translated help text.&lt;/p&gt;
+&lt;h2 id="placement"&gt;Placement&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;src/main/resources/com/example/cli/OptionDescriptions.properties
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-properties" data-lang="properties"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;recursive&lt;span style="color:#ff7b72;font-weight:bold"&gt;=&lt;/span&gt;&lt;span style="color:#a5d6ff"&gt;recurse into directories&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;links&lt;span style="color:#ff7b72;font-weight:bold"&gt;=&lt;/span&gt;&lt;span style="color:#a5d6ff"&gt;copy symlinks as symlinks&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;verbose&lt;span style="color:#ff7b72;font-weight:bold"&gt;=&lt;/span&gt;&lt;span style="color:#a5d6ff"&gt;enable verbose output&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;dry-run&lt;span style="color:#ff7b72;font-weight:bold"&gt;=&lt;/span&gt;&lt;span style="color:#a5d6ff"&gt;show what would happen, but do not change anything&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="lookup-order"&gt;Lookup order&lt;/h2&gt;
+&lt;p&gt;For an option named &lt;code&gt;progress&lt;/code&gt; on a command named &lt;code&gt;rsync&lt;/code&gt;, Crest looks up:&lt;/p&gt;</description></item><item><title>Best Practices</title><link>https://tomitribe.github.io/crest/help/best-practices/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://tomitribe.github.io/crest/help/best-practices/</guid><description>&lt;p&gt;Crest will accept whatever you write. The conventions below are how teams that use Crest at scale have learned to make commands self-documenting &amp;ndash; particularly for commands that someone will run with consequences.&lt;/p&gt;
+&lt;h2 id="the-first-line-is-the-listing-description"&gt;The first line is the listing description&lt;/h2&gt;
+&lt;p&gt;The single most important sentence in your javadoc is the first one. It becomes the description shown next to the command in &lt;code&gt;myapp help&lt;/code&gt; listings &amp;ndash; the only text a user sees while scanning a list of commands deciding which one to run.&lt;/p&gt;</description></item><item><title>Example</title><link>https://tomitribe.github.io/crest/help/example/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://tomitribe.github.io/crest/help/example/</guid><description>&lt;p&gt;&lt;a href="https://tomitribe.github.io/crest/help/best-practices/"&gt;Best Practices&lt;/a&gt; names the conventions. This page shows them applied to a real command &amp;ndash; source javadoc above, rendered terminal output below.&lt;/p&gt;
+&lt;p&gt;The command is &lt;code&gt;distribe job create&lt;/code&gt;, which schedules a CLI command to run on a cron-like trigger. It&amp;rsquo;s worth showing because it exercises most of Crest&amp;rsquo;s help features: ALL-CAPS section headings, bullets with backtick-emphasized tokens, preformatted command examples, and &lt;code&gt;@param&lt;/code&gt; descriptions.&lt;/p&gt;
+&lt;h2 id="source"&gt;Source&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-java" data-lang="java"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt;/**
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * Schedule a distribe command to be executed in cron-like fashion.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * NAMES
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * The name of the Schedule will default to the value of the command arguments
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * joined by a &amp;#34;-&amp;#34;. However, the name can be explicitly set via `--name`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * CRON-BASED SCHEDULES
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * A cron expression creates a fine-grained recurring schedule that runs at a
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * specific time of your choosing. EventBridge Scheduler supports configuring
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * cron-based schedules in Universal Coordinated Time (UTC), or in the time
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * zone that you specify when you create your schedule. For example, you can
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * create a cron-based schedule that runs at 8:00 a.m. PST on the first Monday
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * of every month.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * A cron expression consists of five required fields separated by white space:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * minutes hours day-of-month month day-of-week year
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * Acceptable values include:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - `minute` accepts values `0-59` and wildcards `, - * /`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - `hour` accepts values `0-23` and wildcards `, - * /`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - `day-of-month` accepts values `1-31` and wildcards `, - * ? / L W`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - `month` accepts values `1-12` or `JAN-DEC` and wildcards `, - * /`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - `day-of-week` accepts values `1-7` or `SUN-SAT` and wildcards `, - * ? L #`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - `year` accepts values `1970-2199` and wildcards `, - * /`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * EXAMPLES
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * Say you want to list the releases every month and email them to
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * support-team@tomitribe.com:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * distribe job create --day-of-month=1 --to=support-team@tomitribe.com s3 releases
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * IDEMPOTENCY
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * This command cannot be run with the same arguments multiple times. Once a
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * schedule is created with a specific name, no other schedules can be created
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * with that name. Use `--name` to set the name explicitly instead of relying
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * on defaults.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * SYSTEMS
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - AWS EventBridge (read,write)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - AWS Simple Email Service (write)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * IMPACT
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * This command creates a schedule in AWS EventBridge that triggers the
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * JobsLambda setup as an AWS Lambda.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * RELATED
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * To list the current schedules
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * distribe job list
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * To get greater detail on any specific job
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * distribe job get the-job-name
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * To delete an existing job so it can be redefined
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * distribe job delete the-job-name
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param to the email addresses where the command will be sent
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param name the unique name of the job
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param command the distribe command to execute, minus the &amp;#34;distribe&amp;#34; prefix
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; */&lt;/span&gt;&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Command&lt;/span&gt;&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ff7b72"&gt;public&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;create&lt;/span&gt;(&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Option&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;to&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;List&lt;span style="color:#ff7b72;font-weight:bold"&gt;&amp;lt;&lt;/span&gt;Email&lt;span style="color:#ff7b72;font-weight:bold"&gt;&amp;gt;&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;to,&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Option&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String&lt;span style="color:#6e7681"&gt; &lt;/span&gt;name,&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;Schedule&lt;span style="color:#6e7681"&gt; &lt;/span&gt;schedule,&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;Config&lt;span style="color:#6e7681"&gt; &lt;/span&gt;config,&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String...&lt;span style="color:#6e7681"&gt; &lt;/span&gt;command)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;{&lt;span style="color:#6e7681"&gt; &lt;/span&gt;...&lt;span style="color:#6e7681"&gt; &lt;/span&gt;}&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="rendered"&gt;Rendered&lt;/h2&gt;
+&lt;pre class="crest-help"&gt;
+&lt;b&gt;NAME&lt;/b&gt;
+ create
+
+&lt;b&gt;SYNOPSIS&lt;/b&gt;
+ job create [options] String...
+
+&lt;b&gt;DESCRIPTION&lt;/b&gt;
+ Schedule a distribe command to be executed in cron-like fashion.
+
+&lt;b&gt;NAMES&lt;/b&gt;
+
+ The name of the Schedule will default to the value of the command
+ arguments joined by a &amp;#34;-&amp;#34;. However, the name can be explicitly set
+ via &lt;b&gt;--name&lt;/b&gt;
+
+&lt;b&gt;CRON-BASED SCHEDULES&lt;/b&gt;
+
+ A cron expression creates a fine-grained recurring schedule that runs
+ at a specific time of your choosing. EventBridge Scheduler supports
+ configuring cron-based schedules in Universal Coordinated Time (UTC),
+ or in the time zone that you specify when you create your schedule.
+ For example, you can create a cron-based schedule that runs at 8:00
+ a.m. PST on the first Monday of every month.
+
+ A cron expression consists of five required fields separated by white
+ space:
+
+ minutes hours day-of-month month day-of-week year
+
+ Acceptable values include:
+
+ o &lt;b&gt;minute&lt;/b&gt; accepts values &lt;b&gt;0-59&lt;/b&gt; and wildcards &lt;b&gt;, - * /&lt;/b&gt;
+
+ o &lt;b&gt;hour&lt;/b&gt; accepts values &lt;b&gt;0-23&lt;/b&gt; and wildcards &lt;b&gt;, - * /&lt;/b&gt;
+
+ o &lt;b&gt;day-of-month&lt;/b&gt; accepts values &lt;b&gt;1-31&lt;/b&gt; and wildcards &lt;b&gt;, - * ? / L W&lt;/b&gt;
+
+ o &lt;b&gt;month&lt;/b&gt; accepts values &lt;b&gt;1-12&lt;/b&gt; or &lt;b&gt;JAN-DEC&lt;/b&gt; and wildcards &lt;b&gt;, - * /&lt;/b&gt;
+
+ o &lt;b&gt;day-of-week&lt;/b&gt; accepts values &lt;b&gt;1-7&lt;/b&gt; or &lt;b&gt;SUN-SAT&lt;/b&gt; and wildcards &lt;b&gt;, - * ? L #&lt;/b&gt;
+
+ o &lt;b&gt;year&lt;/b&gt; accepts values &lt;b&gt;1970-2199&lt;/b&gt; and wildcards &lt;b&gt;, - * /&lt;/b&gt;
+&lt;/pre&gt;
+
+&lt;p&gt;Notice how the source maps to the rendering:&lt;/p&gt;</description></item></channel></rss>

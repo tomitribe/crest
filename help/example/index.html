@@ -1,0 +1,125 @@
+<!doctype html><html lang=en-us><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Example | Crest — Command-Line API for Java</title><meta name=description content="A real Crest command shown end-to-end: source javadoc and rendered terminal output."><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel=stylesheet><link rel=stylesheet href=/crest/css/main.css></head><body><nav class=site-nav><div class=nav-inner><a href=/crest/ class=logo><span>></span> crest</a>
+<button class=hamburger aria-label="Toggle menu">&#9776;</button><ul class=nav-links><li><a href=/crest/getting-started/>Getting Started</a></li><li><a href=/crest/commands/>Commands</a></li><li><a href=/crest/help/>Help</a></li><li><a href=/crest/tables/>Tables</a></li><li><a href=/crest/advanced/>Advanced</a></li><li><a href=/crest/changelog/>Changelog</a></li><li><a href=https://github.com/tomitribe/crest class=nav-cta target=_blank rel=noopener>GitHub</a></li></ul></div></nav><div class=page-wrapper><aside class=sidebar><div class=sidebar-section><h4><a href=/crest/getting-started/>Getting Started</a></h4><ul><li><a href=/crest/getting-started/installation/>Installation</a></li><li><a href=/crest/getting-started/maven-setup/>Maven Project Setup</a></li><li><a href=/crest/getting-started/first-command/>Your First Command</a></li><li><a href=/crest/getting-started/entry-point/>Entry Point</a></li><li><a href=/crest/getting-started/testing/>Testing Commands</a></li></ul></div><div class=sidebar-section><h4><a href=/crest/commands/>Commands</a></h4><ul><li><a href=/crest/commands/annotations/>Annotations</a></li><li><a href=/crest/commands/options-classes/>Options Classes</a></li><li><a href=/crest/commands/command-groups/>Command Groups</a></li><li><a href=/crest/commands/return-types/>Return Types</a></li><li><a href=/crest/commands/io-streams/>I/O Streams</a></li></ul></div><div class=sidebar-section><h4><a href=/crest/help/>Help</a></h4><ul><li><a href=/crest/help/help-command/>The Help Command</a></li><li><a href=/crest/help/javadoc/>Javadoc</a></li><li><a href=/crest/help/annotation-descriptions/>Annotation Descriptions</a></li><li><a href=/crest/help/resource-bundle/>Resource Bundles</a></li><li><a href=/crest/help/best-practices/>Best Practices</a></li><li><a href=/crest/help/example/ class=active>Example</a></li></ul></div><div class=sidebar-section><h4><a href=/crest/tables/>Table Formatting</a></h4><ul><li><a href=/crest/tables/table-annotation/>The @Table Annotation</a></li><li><a href=/crest/tables/border-styles/>Border Styles</a></li><li><a href=/crest/tables/table-options/>Table Options</a></li><li><a href=/crest/tables/programmatic/>Programmatic Table Building</a></li><li><a href=/crest/tables/cell-formatting/>Cell Formatting</a></li></ul></div><div class=sidebar-section><h4><a href=/crest/advanced/>Advanced</a></h4><ul><li><a href=/crest/advanced/type-conversion/>Type Conversion</a></li><li><a href=/crest/advanced/interceptors/>Interceptors</a></li><li><a href=/crest/advanced/validation/>Validation</a></li><li><a href=/crest/advanced/editors/>Editors</a></li><li><a href=/crest/advanced/loader/>Loader</a></li><li><a href=/crest/advanced/exit-codes/>Exit Codes</a></li></ul></div><div class=sidebar-section><h4><a href=/crest/changelog/>Changelog</a></h4><ul></ul></div></aside><div class=content-area><div class=content-with-toc><div class=content><h1>Example</h1><p class=page-description>A real Crest command shown end-to-end: source javadoc and rendered terminal output.</p><p><a href=https://tomitribe.github.io/crest/help/best-practices/>Best Practices</a> names the conventions. This page shows them applied to a real command &ndash; source javadoc above, rendered terminal output below.</p><p>The command is <code>distribe job create</code>, which schedules a CLI command to run on a cron-like trigger. It&rsquo;s worth showing because it exercises most of Crest&rsquo;s help features: ALL-CAPS section headings, bullets with backtick-emphasized tokens, preformatted command examples, and <code>@param</code> descriptions.</p><h2 id=source>Source</h2><div class=highlight><pre tabindex=0 style=color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#8b949e;font-style:italic>/**
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * Schedule a distribe command to be executed in cron-like fashion.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * NAMES
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * The name of the Schedule will default to the value of the command arguments
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * joined by a &#34;-&#34;. However, the name can be explicitly set via `--name`
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * CRON-BASED SCHEDULES
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * A cron expression creates a fine-grained recurring schedule that runs at a
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * specific time of your choosing. EventBridge Scheduler supports configuring
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * cron-based schedules in Universal Coordinated Time (UTC), or in the time
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * zone that you specify when you create your schedule. For example, you can
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * create a cron-based schedule that runs at 8:00 a.m. PST on the first Monday
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * of every month.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * A cron expression consists of five required fields separated by white space:
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * minutes hours day-of-month month day-of-week year
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * Acceptable values include:
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - `minute` accepts values `0-59` and wildcards `, - * /`
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - `hour` accepts values `0-23` and wildcards `, - * /`
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - `day-of-month` accepts values `1-31` and wildcards `, - * ? / L W`
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - `month` accepts values `1-12` or `JAN-DEC` and wildcards `, - * /`
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - `day-of-week` accepts values `1-7` or `SUN-SAT` and wildcards `, - * ? L #`
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - `year` accepts values `1970-2199` and wildcards `, - * /`
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * EXAMPLES
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * Say you want to list the releases every month and email them to
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * support-team@tomitribe.com:
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *     distribe job create --day-of-month=1 --to=support-team@tomitribe.com s3 releases
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * IDEMPOTENCY
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * This command cannot be run with the same arguments multiple times. Once a
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * schedule is created with a specific name, no other schedules can be created
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * with that name. Use `--name` to set the name explicitly instead of relying
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * on defaults.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * SYSTEMS
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - AWS EventBridge (read,write)
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - AWS Simple Email Service (write)
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * IMPACT
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * This command creates a schedule in AWS EventBridge that triggers the
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * JobsLambda setup as an AWS Lambda.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * RELATED
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * To list the current schedules
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *     distribe job list
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * To get greater detail on any specific job
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *     distribe job get the-job-name
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * To delete an existing job so it can be redefined
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *     distribe job delete the-job-name
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param to       the email addresses where the command will be sent
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param name     the unique name of the job
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param command  the distribe command to execute, minus the &#34;distribe&#34; prefix
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> */</span><span style=color:#6e7681>
+</span></span></span><span style=display:flex><span><span style=color:#d2a8ff;font-weight:700>@Command</span><span style=color:#6e7681>
+</span></span></span><span style=display:flex><span><span style=color:#ff7b72>public</span><span style=color:#6e7681> </span>String<span style=color:#6e7681> </span><span style=color:#d2a8ff;font-weight:700>create</span>(<span style=color:#6e7681>
+</span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#d2a8ff;font-weight:700>@Option</span>(<span style=color:#a5d6ff>&#34;to&#34;</span>)<span style=color:#6e7681> </span><span style=color:#ff7b72>final</span><span style=color:#6e7681> </span>List<span style=color:#ff7b72;font-weight:700>&lt;</span>Email<span style=color:#ff7b72;font-weight:700>&gt;</span><span style=color:#6e7681> </span>to,<span style=color:#6e7681>
+</span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#d2a8ff;font-weight:700>@Option</span>(<span style=color:#a5d6ff>&#34;name&#34;</span>)<span style=color:#6e7681> </span>String<span style=color:#6e7681> </span>name,<span style=color:#6e7681>
+</span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#ff7b72>final</span><span style=color:#6e7681> </span>Schedule<span style=color:#6e7681> </span>schedule,<span style=color:#6e7681>
+</span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#ff7b72>final</span><span style=color:#6e7681> </span>Config<span style=color:#6e7681> </span>config,<span style=color:#6e7681>
+</span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#ff7b72>final</span><span style=color:#6e7681> </span>String...<span style=color:#6e7681> </span>command)<span style=color:#6e7681> </span>{<span style=color:#6e7681> </span>...<span style=color:#6e7681> </span>}<span style=color:#6e7681>
+</span></span></span></code></pre></div><h2 id=rendered>Rendered</h2><pre class=crest-help>
+<b>NAME</b>
+       create
+
+<b>SYNOPSIS</b>
+       job create [options] String...
+
+<b>DESCRIPTION</b>
+       Schedule a distribe command to be executed in cron-like fashion.
+
+<b>NAMES</b>
+
+       The name of the Schedule will default to the value of the command
+       arguments joined by a &#34;-&#34;. However, the name can be explicitly set
+       via <b>--name</b>
+
+<b>CRON-BASED SCHEDULES</b>
+
+       A cron expression creates a fine-grained recurring schedule that runs
+       at a specific time of your choosing. EventBridge Scheduler supports
+       configuring cron-based schedules in Universal Coordinated Time (UTC),
+       or in the time zone that you specify when you create your schedule.
+       For example, you can create a cron-based schedule that runs at 8:00
+       a.m. PST on the first Monday of every month.
+
+       A cron expression consists of five required fields separated by white
+       space:
+
+       minutes hours day-of-month month day-of-week year
+
+       Acceptable values include:
+
+       o      <b>minute</b> accepts values <b>0-59</b> and wildcards <b>, - * /</b>
+
+       o      <b>hour</b> accepts values <b>0-23</b> and wildcards <b>, - * /</b>
+
+       o      <b>day-of-month</b> accepts values <b>1-31</b> and wildcards <b>, - * ? / L W</b>
+
+       o      <b>month</b> accepts values <b>1-12</b> or <b>JAN-DEC</b> and wildcards <b>, - * /</b>
+
+       o      <b>day-of-week</b> accepts values <b>1-7</b> or <b>SUN-SAT</b> and wildcards <b>, - * ? L #</b>
+
+       o      <b>year</b> accepts values <b>1970-2199</b> and wildcards <b>, - * /</b>
+</pre><p>Notice how the source maps to the rendering:</p><ul><li>ALL-CAPS lines (<code>NAMES</code>, <code>CRON-BASED SCHEDULES</code>, etc.) become bold section headings</li><li>Backticks around <code>--name</code>, <code>minute</code>, <code>0-59</code>, and <code>, - * /</code> make those tokens stand out from prose without using color</li><li>The 4-space-indented <code>distribe job create ...</code> block in the source renders verbatim, preserving the command shape</li><li>Bullets are rendered with the <code>o</code> glyph used in traditional man pages</li></ul><p>The author didn&rsquo;t write a single piece of formatting markup beyond <code>-</code> for bullets, four spaces for code blocks, and backticks for emphasis. The rest is just how the prose was structured.</p><div class=page-nav><a href=/crest/help/best-practices/ class="prev prev-only"><div class=nav-label>&larr; Previous</div><div class=nav-title>Best Practices</div></a></div></div><div class=toc-rail><div class=toc-rail-inner><h5>On this page</h5><nav id=TableOfContents><ul><li><a href=#source>Source</a></li><li><a href=#rendered>Rendered</a></li></ul></nav></div></div></div><footer><div class=footer-inner><span>&copy; <a href=https://www.tomitribe.com>Tomitribe</a>. Apache License 2.0.</span>
+<span><a href=https://github.com/tomitribe/crest>GitHub</a> &#183; <a href=https://www.tomitribe.io>Community</a></span></div></footer></div></div><script src=/crest/js/main.js></script></body></html>

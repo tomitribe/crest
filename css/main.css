@@ -178,6 +178,15 @@ body {
     background: rgba(229, 113, 37, 0.06);
 }
 
+.sidebar-subsection {
+    list-style: none;
+}
+
+.sidebar-subsection a {
+    padding-left: 2.75rem;
+    font-size: 0.85rem;
+}
+
 /* ── Main content ── */
 .content-area {
     flex: 1;
@@ -609,3 +618,24 @@ footer {
 
     .page-nav .next-only { grid-column: 1; }
 }
+
+/* ── Crest help (terminal-style rendered output) ── */
+.content pre.crest-help {
+    background: var(--darker);
+    color: #d4d4d4;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.84rem;
+    line-height: 1.6;
+    padding: 1.25rem 1.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--gray-border);
+    overflow-x: auto;
+    margin: 0 0 1.5rem 0;
+    white-space: pre;
+}
+
+.content pre.crest-help b {
+    color: var(--white);
+    font-weight: 600;
+}
+

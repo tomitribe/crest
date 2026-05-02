@@ -104,7 +104,14 @@ function _groups__global_flags() {
 }
 
 function _groups_help() {
-  _groups__propose_files
+  local cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+  --all=*) _groups__propose_flag_values "true" "false" ;;
+  -*) _groups__propose_flags "--all=";;
+  *) _groups__propose_files ;;
+  esac
+
 }
 function _groups_svn() {
   local cur=${COMP_WORDS[COMP_CWORD]}

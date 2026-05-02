@@ -105,7 +105,14 @@ function _defaults__global_flags() {
 }
 
 function _defaults_help() {
-  _defaults__propose_files
+  local cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+  --all=*) _defaults__propose_flag_values "true" "false" ;;
+  -*) _defaults__propose_flags "--all=";;
+  *) _defaults__propose_files ;;
+  esac
+
 }
 
 function _defaults_primitives() {

@@ -104,7 +104,14 @@ function _booleanoption__global_flags() {
 }
 
 function _booleanoption_help() {
-  _booleanoption__propose_files
+  local cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+  --all=*) _booleanoption__propose_flag_values "true" "false" ;;
+  -*) _booleanoption__propose_flags "--all=";;
+  *) _booleanoption__propose_files ;;
+  esac
+
 }
 
 function _booleanoption_copy() {

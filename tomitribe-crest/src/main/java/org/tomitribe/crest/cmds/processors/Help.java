@@ -17,6 +17,7 @@
 package org.tomitribe.crest.cmds.processors;
 
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
 import org.tomitribe.crest.cmds.GlobalSpec;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -258,8 +260,38 @@ public class Help {
         }
     }
 
+    public static void printRecursiveListing(final PrintStream out, final Map<String, Cmd> commands, final String prefix) {
+        final List<String[]> rows = new ArrayList<>();
+        collectRecursive(commands, prefix, rows);
+
+        int maxLen = 0;
+        for (final String[] row : rows) {
+            maxLen = Math.max(maxLen, row[0].length());
+        }
+
+        final String format = "   %-" + (maxLen + 3) + "s%s%n";
+
+        for (final String[] row : rows) {
+            out.printf(format, row[0], row[1] != null ? row[1] : "");
+        }
+    }
+
+    private static void collectRecursive(final Map<String, Cmd> commands, final String prefix, final List<String[]> rows) {
+        for (final Map.Entry<String, Cmd> entry : new TreeMap<>(commands).entrySet()) {
+            final String name = entry.getKey();
+            if (prefix.isEmpty() && "help".equals(name)) continue;
+            final Cmd cmd = entry.getValue();
+            final String fullPath = prefix.isEmpty() ? name : prefix + " " + name;
+            if (cmd instanceof CmdGroup) {
+                collectRecursive(((CmdGroup) cmd).getCommandMap(), fullPath, rows);
+            } else {
+                rows.add(new String[]{fullPath, cmd.getDescription()});
+            }
+        }
+    }
+
     @Command
-    public String help() {
+    public String help(@Option("all") final boolean all) {
         final PrintString string = new PrintString();
 
         if (!globalOptionClasses.isEmpty()) {
@@ -273,7 +305,11 @@ public class Help {
         string.println("Commands: ");
         string.println();
 
-        printCommandListing(string, commands);
+        if (all) {
+            printRecursiveListing(string, commands, "");
+        } else {
+            printCommandListing(string, commands);
+        }
 
         printNameAndVersion(string);
 
@@ -281,7 +317,7 @@ public class Help {
     }
 
     @Command
-    public String help(final String name) {
+    public String help(@Option("all") final boolean all, final String name) {
         final Cmd cmd = commands.get(name);
 
         if (cmd == null) {
@@ -289,12 +325,18 @@ public class Help {
         }
 
         final PrintString out = new PrintString();
-        cmd.manual(out);
+
+        if (all && cmd instanceof CmdGroup) {
+            printRecursiveListing(out, ((CmdGroup) cmd).getCommandMap(), name);
+        } else {
+            cmd.manual(out);
+        }
+
         return out.toString();
     }
 
     @Command
-    public String help(final String name, final String subCommand) {
+    public String help(@Option("all") final boolean all, final String name, final String subCommand) {
         final Cmd cmd = commands.get(name);
 
         if (cmd == null) {
@@ -303,8 +345,17 @@ public class Help {
 
         final PrintString out = new PrintString();
 
-        if (cmd instanceof CmdGroup) {
-            CmdGroup cmdGroup = (CmdGroup) cmd;
+        if (all && cmd instanceof CmdGroup) {
+            final Cmd sub = ((CmdGroup) cmd).getCommand(subCommand);
+            if (sub instanceof CmdGroup) {
+                printRecursiveListing(out, ((CmdGroup) sub).getCommandMap(), name + " " + subCommand);
+            } else if (sub != null) {
+                sub.manual(out);
+            } else {
+                return String.format("No such command: %s %s%n", name, subCommand);
+            }
+        } else if (cmd instanceof CmdGroup) {
+            final CmdGroup cmdGroup = (CmdGroup) cmd;
             cmdGroup.manual(subCommand, out);
         } else {
             cmd.manual(out);
@@ -314,7 +365,7 @@ public class Help {
     }
 
     @Command
-    public String help(final String name, final String sub1, final String sub2) {
+    public String help(@Option("all") final boolean all, final String name, final String sub1, final String sub2) {
         final Cmd cmd = commands.get(name);
 
         if (cmd == null) {
@@ -323,7 +374,23 @@ public class Help {
 
         final PrintString out = new PrintString();
 
-        if (cmd instanceof CmdGroup) {
+        if (all && cmd instanceof CmdGroup) {
+            final Cmd sub = ((CmdGroup) cmd).getCommand(sub1);
+            if (sub instanceof CmdGroup) {
+                final Cmd subSub = ((CmdGroup) sub).getCommand(sub2);
+                if (subSub instanceof CmdGroup) {
+                    printRecursiveListing(out, ((CmdGroup) subSub).getCommandMap(), name + " " + sub1 + " " + sub2);
+                } else if (subSub != null) {
+                    subSub.manual(out);
+                } else {
+                    return String.format("No such command: %s %s %s%n", name, sub1, sub2);
+                }
+            } else if (sub != null) {
+                sub.manual(out);
+            } else {
+                return String.format("No such command: %s %s%n", name, sub1);
+            }
+        } else if (cmd instanceof CmdGroup) {
             final Cmd sub = ((CmdGroup) cmd).getCommand(sub1);
             if (sub instanceof CmdGroup) {
                 ((CmdGroup) sub).manual(sub2, out);

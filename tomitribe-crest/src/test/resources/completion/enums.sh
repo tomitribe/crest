@@ -117,7 +117,14 @@ function _enums_red() {
 }
 
 function _enums_help() {
-  _enums__propose_files
+  local cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+  --all=*) _enums__propose_flag_values "true" "false" ;;
+  -*) _enums__propose_flags "--all=";;
+  *) _enums__propose_files ;;
+  esac
+
 }
 
 function _enums_green() {

@@ -111,7 +111,14 @@ function _globalFlags__global_flags() {
 }
 
 function _globalFlags_help() {
-  _globalFlags__propose_files
+  local cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+  --all=*) _globalFlags__propose_flag_values "true" "false" ;;
+  -*) _globalFlags__propose_flags "--all=";;
+  *) _globalFlags__propose_files ;;
+  esac
+
 }
 function _globalFlags_svn() {
   local cur=${COMP_WORDS[COMP_CWORD]}

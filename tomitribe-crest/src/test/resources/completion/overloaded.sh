@@ -104,7 +104,14 @@ function _overloaded__global_flags() {
 }
 
 function _overloaded_help() {
-  _overloaded__propose_files
+  local cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+  --all=*) _overloaded__propose_flag_values "true" "false" ;;
+  -*) _overloaded__propose_flags "--all=";;
+  *) _overloaded__propose_files ;;
+  esac
+
 }
 
 function _overloaded_push() {

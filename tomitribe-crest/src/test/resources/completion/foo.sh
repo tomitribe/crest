@@ -110,7 +110,14 @@ function _foo_red() {
 }
 
 function _foo_help() {
-  _foo__propose_files
+  local cur=${COMP_WORDS[COMP_CWORD]}
+
+  case "$cur" in
+  --all=*) _foo__propose_flag_values "true" "false" ;;
+  -*) _foo__propose_flags "--all=";;
+  *) _foo__propose_files ;;
+  esac
+
 }
 
 function _foo_green() {

@@ -6,6 +6,18 @@ weight: 1
 
 A summary of features and significant enhancements in each release.
 
+## 0.43
+
+- **`help --all`** lists every command in the CLI as a flat, full-path listing. `help <group> --all` scopes the listing to a subtree, and `help <group>` (or bare-group invocation) now defaults to recursive. Groups appear inline alongside leaves so the structure is self-documenting at every level.
+- **`Help:` section** added to listings and man pages, surfacing `help --all` and `help <command>` so users discover detailed help even when they don't already know it exists. On a leaf's man page the hint shows the actual command path, copy-paste ready.
+- **Unlimited sub-command depth** in the `help` command. Varargs collapsed four `help()` overloads into one and now navigate paths of arbitrary depth, replacing the previous 3-level cap.
+- **Optional positional varargs.** Framework no longer requires `≥1` value for listable positional parameters; opt into the strict behavior with `@Required`.
+- **Fix NPE** in `HtmlDocumentParser` that crashed help output when javadoc contained HTML tags like `<p>` or `<br>`.
+
+## 0.42
+
+- **More accurate first-sentence extraction** for `@Command` descriptions sourced from javadoc. The first sentence (split on period+space, exclamation, or question) is now extracted via `DocumentParser` so heading-prefixed and multi-paragraph javadoc resolve correctly.
+
 ## 0.41
 
 - **Multi-level command groups.** `@Command("quote line-item")` on a class creates nested groups to any depth. Class and method paths are concatenated following the JAX-RS `@Path` model. Intermediate groups are auto-created. Multiple classes can contribute to the same deep group.

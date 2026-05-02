@@ -1,0 +1,7 @@
+{{/* crest-help: renders terminal-style help output.
+     Bolds ALL-CAPS heading lines and backtick-wrapped tokens to mirror
+     what the Crest help renderer does in a real terminal. */}}
+{{- $c := .Inner | htmlEscape -}}
+{{- $c = replaceRE `(?m)^([A-Z][A-Z0-9 -]*)$` "<b>$1</b>" $c -}}
+{{- $c = replaceRE "`([^`]+)`" "<b>$1</b>" $c -}}
+<pre class="crest-help">{{ $c | safeHTML }}</pre>

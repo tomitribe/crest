@@ -1,7 +1,7 @@
 ---
 title: "Advanced"
 description: "Advanced features for type conversion, interceptors, validation, custom editors, and more."
-weight: 4
+weight: 5
 ---
 
 Crest provides a rich set of advanced features beyond basic command definition. These capabilities let you build sophisticated CLI tools with custom type handling, cross-cutting concerns, input validation, and fine-grained control over the framework's behavior.

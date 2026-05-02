@@ -31,20 +31,24 @@ theme = 'crest'
     url = "/commands/"
     weight = 2
   [[menu.main]]
+    name = "Help"
+    url = "/help/"
+    weight = 3
+  [[menu.main]]
     name = "Tables"
     url = "/tables/"
-    weight = 3
+    weight = 4
   [[menu.main]]
     name = "Advanced"
     url = "/advanced/"
-    weight = 4
+    weight = 5
   [[menu.main]]
     name = "Changelog"
     url = "/changelog/"
-    weight = 5
+    weight = 6
   [[menu.main]]
     name = "GitHub"
     url = "https://github.com/tomitribe/crest"
-    weight = 6
+    weight = 7
     [menu.main.params]
       external = true

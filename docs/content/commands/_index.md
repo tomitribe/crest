@@ -13,4 +13,3 @@ This section covers everything you need to define and organize commands:
 - **[Command Groups]({{< ref "command-groups" >}})** -- Organize commands into groups with sub-commands using class-level `@Command`.
 - **[Return Types]({{< ref "return-types" >}})** -- Choose from `String`, `StreamingOutput`, `PrintOutput`, `Stream`, and more to control command output.
 - **[I/O Streams]({{< ref "io-streams" >}})** -- Inject `stdin`, `stdout`, and `stderr` into commands with `@In`, `@Out`, and `@Err`.
-- **[Help]({{< ref "help" >}})** -- Built-in help command, man page generation, and option description sources.

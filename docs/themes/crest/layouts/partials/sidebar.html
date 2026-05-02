@@ -10,6 +10,17 @@
                         <a href="{{ .RelPermalink }}"{{ if eq $currentPage.RelPermalink .RelPermalink }} class="active"{{ end }}>
                             {{ .Title }}
                         </a>
+                        {{ if .IsSection }}
+                            <ul class="sidebar-subsection">
+                                {{ range .Pages.ByWeight }}
+                                    <li>
+                                        <a href="{{ .RelPermalink }}"{{ if eq $currentPage.RelPermalink .RelPermalink }} class="active"{{ end }}>
+                                            {{ .Title }}
+                                        </a>
+                                    </li>
+                                {{ end }}
+                            </ul>
+                        {{ end }}
                     </li>
                 {{ end }}
             </ul>

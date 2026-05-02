@@ -1,0 +1,189 @@
+---
+title: "Best Practices"
+description: "Conventions for writing command help that actually helps the next person to run the command."
+weight: 5
+---
+
+Crest will accept whatever you write. The conventions below are how teams that use Crest at scale have learned to make commands self-documenting -- particularly for commands that someone will run with consequences.
+
+## The first line is the listing description
+
+The single most important sentence in your javadoc is the first one. It becomes the description shown next to the command in `myapp help` listings -- the only text a user sees while scanning a list of commands deciding which one to run.
+
+Keep it short. Active voice. Specific enough to distinguish this command from its siblings, but no longer than it needs to be. Someone reading a screen of 30 commands should be able to find the right one by skimming.
+
+```java
+/**
+ * Generates a signed JWT token for the given customer.
+ *
+ * The token includes the customer ID and expiration date,
+ * encrypted with the configured private key.
+ */
+@Command("generate")
+public String generate(...) { ... }
+```
+
+The first sentence -- *"Generates a signed JWT token for the given customer."* -- becomes the description in `myapp help` listings. The rest of the javadoc becomes the man-page DESCRIPTION shown by `myapp help generate`.
+
+If `@Command(description = "...")` is set, that overrides the first sentence. Reach for the annotation only when the listing text genuinely needs to differ from the javadoc's opening sentence -- otherwise the javadoc is the single source of truth.
+
+## Standard sections for ops-impacting commands
+
+For commands that read or write external systems, the following ALL-CAPS sections recur across well-documented Crest CLIs. Each one answers a question someone will ask before pressing return.
+
+All five live in the same javadoc block on the `@Command` method. The snippets below show one section at a time -- the `*  ...` lines stand in for the surrounding content of the larger javadoc.
+
+These aren't enforced by Crest. Use them when they apply -- a leaf utility that just prints a value doesn't need IDEMPOTENCY.
+
+### SYSTEMS
+
+*What external systems does this command touch?*
+
+List each system on its own bullet, with the access mode in parentheses. Common modes are `read`, `write`, and `read,write`.
+
+```java
+/**
+ * ...
+ *
+ * SYSTEMS
+ *
+ *  - AWS S3 (read,write)
+ *  - AWS Lambda (post-processing)
+ *  - Salesforce (read)
+ *
+ * ...
+ */
+```
+
+If the command interacts with no external systems, omit the section entirely.
+
+### IMPACT
+
+*What changes when I run this?*
+
+A short, concrete description of the side effects. Read-only commands say so explicitly so the reader doesn't have to reason about it.
+
+```java
+/**
+ * ...
+ *
+ * IMPACT
+ *
+ * This command writes to AWS S3 and triggers an AWS Lambda that processes
+ * the uploaded files and copies them into customer download areas.
+ *
+ * ...
+ */
+```
+
+For a read-only command:
+
+```java
+/**
+ * ...
+ *
+ * IMPACT
+ *
+ * This command is read-only.
+ *
+ * ...
+ */
+```
+
+### IDEMPOTENCY
+
+*Can I run this twice?*
+
+If yes, say what happens on a repeat run (overwrite, skip, no-op). If no, say what fails and how to recover.
+
+For an idempotent command:
+
+```java
+/**
+ * ...
+ *
+ * IDEMPOTENCY
+ *
+ * It is safe to run this command several times with the same parameters.
+ * Files with the same name will be overwritten in the customer download
+ * area.
+ *
+ * ...
+ */
+```
+
+For a non-idempotent command:
+
+```java
+/**
+ * ...
+ *
+ * IDEMPOTENCY
+ *
+ * This command cannot be run with the same arguments multiple times.
+ * Once a schedule is created with a specific name, no other schedules
+ * can be created with that name. Use `--name` to set the name explicitly.
+ *
+ * ...
+ */
+```
+
+### RELATED
+
+*What should I run before or after this?*
+
+A short list of adjacent commands, each with a one-line context. Indent the command lines by four spaces (inside the javadoc) so they render as preformatted blocks.
+
+```java
+/**
+ * ...
+ *
+ * RELATED
+ *
+ * To list customers who should have access to a particular release:
+ *
+ *     distribe customer allowed <product> <version>
+ *
+ * After uploading, customer download pages can be created via:
+ *
+ *     distribe zendesk publish <product> <version>
+ *
+ * ...
+ */
+```
+
+### EXAMPLES
+
+*What does a real invocation look like?*
+
+At least one realistic command line, indented by four spaces. Show a typical use case rather than every flag combination -- the OPTIONS section already covers individual flags.
+
+```java
+/**
+ * ...
+ *
+ * EXAMPLES
+ *
+ * To upload a directory called /tmp/tomcat-6x and distribute it to a
+ * specific customer:
+ *
+ *     distribe s3 upload tomcat 6.0.44-SP.6 /tmp/tomcat-6x \
+ *                  --customer-id=0016S00003EiXTaQAN
+ *
+ * ...
+ */
+```
+
+## Authoring mechanics
+
+- **Write `@param` descriptions for every option.** Empty `@param customerId` adds nothing to the rendered help and signals "this was generated by my IDE." Either fill it in or remove the tag.
+- **Use ALL-CAPS for section headings.** No markup syntax needed -- the parser detects them. Matches traditional man-page convention.
+- **Wrap tokens in backticks** to make them stand out from prose. Flag names (`--name`), literal values (`0-59`), config keys, character classes (`, - * /`). They render bold.
+- **Indent command examples by four spaces.** They render verbatim, preserving alignment. Don't use code fences -- the parser doesn't recognize them.
+- **Don't leak TODOs.** Comments like `// TODO do we want to also generate...` inside javadoc render to the user. Pull them out into the issue tracker before committing.
+- **Skip `@throws` and `@return`.** Crest doesn't render them. They're noise from the IDE template.
+- **Don't use `<p>` or `<br>`.** They're stripped by the parser, which then re-flows the text. Blank lines do the job and read better in source.
+
+## Don't over-format
+
+Crest's terminal output is monochrome bold. Save backticks for emphasis on tokens that warrant attention -- not for every noun in a sentence. *"the customer's `account` is..."* doesn't help anyone.

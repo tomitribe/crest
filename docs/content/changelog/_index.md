@@ -1,7 +1,7 @@
 ---
 title: "Changelog"
 description: "Release history for Crest."
-weight: 1
+weight: 6
 ---
 
 A summary of features and significant enhancements in each release.

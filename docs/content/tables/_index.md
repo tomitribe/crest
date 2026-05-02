@@ -1,7 +1,7 @@
 ---
 title: "Table Formatting"
 description: "Format command output as structured tables with configurable borders, sorting, and field selection."
-weight: 3
+weight: 4
 ---
 
 Crest can automatically format collection-based command output into structured tables. Commands that return `Stream`, `List`, `Set`, or arrays can be annotated with `@Table` to produce clean tabular output with configurable fields, sorting, borders, and headers.

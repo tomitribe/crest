@@ -159,4 +159,21 @@ public class HelpAllTest extends Assert {
         assertTrue("Expected usage output, got: " + out.toString(),
                 out.toString().contains("Usage:"));
     }
+
+    @Test
+    public void deepArbitraryNesting() {
+        // Verify varargs handles depth beyond the previous 3-level limit
+        final PrintString out = new PrintString();
+        final Main main = Main.builder()
+                .command(QuoteLineItemCommands.class)
+                .out(out)
+                .build();
+
+        main.run("help", "quote", "line-item", "add");
+
+        assertTrue("Expected manual for 'add', got: " + out.toString(),
+                out.toString().contains("Usage:"));
+        assertTrue("Expected --product option in output, got: " + out.toString(),
+                out.toString().contains("--product"));
+    }
 }

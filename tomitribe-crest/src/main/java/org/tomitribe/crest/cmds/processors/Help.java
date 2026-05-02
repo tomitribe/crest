@@ -291,7 +291,37 @@ public class Help {
     }
 
     @Command
-    public String help(@Option("all") final boolean all) {
+    public String help(@Option("all") final boolean all, final String... path) {
+        if (path.length == 0) {
+            return rootHelp(all);
+        }
+
+        Cmd cmd = commands.get(path[0]);
+        if (cmd == null) {
+            return String.format("No such command: %s%n", path[0]);
+        }
+
+        final StringBuilder fullPath = new StringBuilder(path[0]);
+        for (int i = 1; i < path.length; i++) {
+            if (!(cmd instanceof CmdGroup)) break;
+            final Cmd next = ((CmdGroup) cmd).getCommand(path[i]);
+            if (next == null) {
+                return String.format("No such command: %s %s%n", fullPath, path[i]);
+            }
+            cmd = next;
+            fullPath.append(' ').append(path[i]);
+        }
+
+        final PrintString out = new PrintString();
+        if (all && cmd instanceof CmdGroup) {
+            printRecursiveListing(out, ((CmdGroup) cmd).getCommandMap(), fullPath.toString());
+        } else {
+            cmd.manual(out);
+        }
+        return out.toString();
+    }
+
+    private String rootHelp(final boolean all) {
         final PrintString string = new PrintString();
 
         if (!globalOptionClasses.isEmpty()) {
@@ -314,96 +344,6 @@ public class Help {
         printNameAndVersion(string);
 
         return string.toString();
-    }
-
-    @Command
-    public String help(@Option("all") final boolean all, final String name) {
-        final Cmd cmd = commands.get(name);
-
-        if (cmd == null) {
-            return String.format("No such command: %s%n", name);
-        }
-
-        final PrintString out = new PrintString();
-
-        if (all && cmd instanceof CmdGroup) {
-            printRecursiveListing(out, ((CmdGroup) cmd).getCommandMap(), name);
-        } else {
-            cmd.manual(out);
-        }
-
-        return out.toString();
-    }
-
-    @Command
-    public String help(@Option("all") final boolean all, final String name, final String subCommand) {
-        final Cmd cmd = commands.get(name);
-
-        if (cmd == null) {
-            return String.format("No such command: %s%n", name);
-        }
-
-        final PrintString out = new PrintString();
-
-        if (all && cmd instanceof CmdGroup) {
-            final Cmd sub = ((CmdGroup) cmd).getCommand(subCommand);
-            if (sub instanceof CmdGroup) {
-                printRecursiveListing(out, ((CmdGroup) sub).getCommandMap(), name + " " + subCommand);
-            } else if (sub != null) {
-                sub.manual(out);
-            } else {
-                return String.format("No such command: %s %s%n", name, subCommand);
-            }
-        } else if (cmd instanceof CmdGroup) {
-            final CmdGroup cmdGroup = (CmdGroup) cmd;
-            cmdGroup.manual(subCommand, out);
-        } else {
-            cmd.manual(out);
-        }
-
-        return out.toString();
-    }
-
-    @Command
-    public String help(@Option("all") final boolean all, final String name, final String sub1, final String sub2) {
-        final Cmd cmd = commands.get(name);
-
-        if (cmd == null) {
-            return String.format("No such command: %s%n", name);
-        }
-
-        final PrintString out = new PrintString();
-
-        if (all && cmd instanceof CmdGroup) {
-            final Cmd sub = ((CmdGroup) cmd).getCommand(sub1);
-            if (sub instanceof CmdGroup) {
-                final Cmd subSub = ((CmdGroup) sub).getCommand(sub2);
-                if (subSub instanceof CmdGroup) {
-                    printRecursiveListing(out, ((CmdGroup) subSub).getCommandMap(), name + " " + sub1 + " " + sub2);
-                } else if (subSub != null) {
-                    subSub.manual(out);
-                } else {
-                    return String.format("No such command: %s %s %s%n", name, sub1, sub2);
-                }
-            } else if (sub != null) {
-                sub.manual(out);
-            } else {
-                return String.format("No such command: %s %s%n", name, sub1);
-            }
-        } else if (cmd instanceof CmdGroup) {
-            final Cmd sub = ((CmdGroup) cmd).getCommand(sub1);
-            if (sub instanceof CmdGroup) {
-                ((CmdGroup) sub).manual(sub2, out);
-            } else if (sub != null) {
-                sub.manual(out);
-            } else {
-                return String.format("No such command: %s %s%n", name, sub1);
-            }
-        } else {
-            cmd.manual(out);
-        }
-
-        return out.toString();
     }
 
 }

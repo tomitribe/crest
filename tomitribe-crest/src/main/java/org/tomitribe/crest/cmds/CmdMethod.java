@@ -691,12 +691,11 @@ public class CmdMethod implements Cmd {
                     converted.add(new Value(environment.findService(parameter.getType()), false));
                     break;
                 case PLAIN:
-                    if (!args.getList().isEmpty()) {
-                        needed.setCount(needed.getCount() - 1);
-                        converted.add(fillPlainParameter(args, needed, parameter));
-                    } else {
+                    if (args.getList().isEmpty() && !parameter.isListable()) {
                         throw new MissingArgumentException(parameter.getDisplayType().replace("[]", "..."));
                     }
+                    needed.setCount(needed.getCount() - 1);
+                    converted.add(fillPlainParameter(args, needed, parameter));
                     break;
                 case BEAN_OPTION:
                     converted.add(ComplexParam.class.cast(parameter).convert(args, needed));

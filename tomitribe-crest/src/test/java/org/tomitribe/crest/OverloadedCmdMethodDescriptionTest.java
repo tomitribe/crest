@@ -71,6 +71,11 @@ public class OverloadedCmdMethodDescriptionTest extends Assert {
         assertEquals(String.format("Commands: %n" +
                 "%n" +
                 "   help      %n" +
-                "   process   Process input data%n"), out.toString());
+                "   process   Process input data%n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 }

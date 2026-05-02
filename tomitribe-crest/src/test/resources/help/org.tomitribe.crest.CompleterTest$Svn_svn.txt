@@ -1,6 +1,6 @@
-Usage: svn [subcommand] [options]
+   svn checkout   
+   svn commit     
 
-Sub commands: 
+Help: 
 
-   checkout   
-   commit     
+   help <command>   Show detailed help for a command

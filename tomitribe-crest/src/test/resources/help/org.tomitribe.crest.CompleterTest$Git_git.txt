@@ -1,5 +1,5 @@
-Usage: git [subcommand] [options]
+   git push   
 
-Sub commands: 
+Help: 
 
-   push   
+   help <command>   Show detailed help for a command

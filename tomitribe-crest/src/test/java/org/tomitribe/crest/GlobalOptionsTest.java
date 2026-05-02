@@ -58,7 +58,12 @@ public class GlobalOptionsTest extends TestCase {
                         "   blue    %n" +
                         "   green   %n" +
                         "   help    %n" +
-                        "   red     %n"),
+                        "   red     %n" +
+                        "%n" +
+                        "Help: %n" +
+                        "%n" +
+                        "   help --all       List all commands recursively%n" +
+                        "   help <command>   Show detailed help for a command%n"),
                 help.exec(null));
 
     }

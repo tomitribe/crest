@@ -60,7 +60,12 @@ public class CmdGroupDescriptionTest extends Assert {
         assertEquals(String.format("Commands: %n" +
                 "%n" +
                 "   config   Manage configuration%n" +
-                "   help     %n"), out.toString());
+                "   help     %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 
     @Test
@@ -73,12 +78,12 @@ public class CmdGroupDescriptionTest extends Assert {
 
         main.run("help", "config");
 
-        assertEquals(String.format("Usage: config [subcommand] [options]%n" +
+        assertEquals(String.format("   config get   Get a config value%n" +
+                "   config set   Set a config value%n" +
                 "%n" +
-                "Sub commands: %n" +
+                "Help: %n" +
                 "%n" +
-                "   get   Get a config value%n" +
-                "   set   Set a config value%n"), out.toString());
+                "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 
     // --- CmdGroup merge: description from either class ---
@@ -115,7 +120,12 @@ public class CmdGroupDescriptionTest extends Assert {
         assertEquals(String.format("Commands: %n" +
                 "%n" +
                 "   db     Database operations%n" +
-                "   help   %n"), out.toString());
+                "   help   %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 
     @Test
@@ -132,7 +142,12 @@ public class CmdGroupDescriptionTest extends Assert {
         assertEquals(String.format("Commands: %n" +
                 "%n" +
                 "   db     Database operations%n" +
-                "   help   %n"), out.toString());
+                "   help   %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 
     @Test
@@ -146,11 +161,11 @@ public class CmdGroupDescriptionTest extends Assert {
 
         main.run("help", "db");
 
-        assertEquals(String.format("Usage: db [subcommand] [options]%n" +
+        assertEquals(String.format("   db query    Run a query%n" +
+                "   db status   Show database status%n" +
                 "%n" +
-                "Sub commands: %n" +
+                "Help: %n" +
                 "%n" +
-                "   query    Run a query%n" +
-                "   status   Show database status%n"), out.toString());
+                "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 }

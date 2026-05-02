@@ -70,7 +70,12 @@ public class CmdMethodDescriptionTest extends Assert {
                 "   add      Add a new item%n" +
                 "   help     %n" +
                 "   list     %n" +
-                "   remove   Remove an existing item%n"), out.toString());
+                "   remove   Remove an existing item%n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 
     // --- javadoc as description fallback ---
@@ -143,7 +148,12 @@ public class CmdMethodDescriptionTest extends Assert {
                 "   deploy    Deploy the application to the server.%n" +
                 "   help      %n" +
                 "   start     Start the server%n" +
-                "   stop      %n"), out.toString());
+                "   stop      %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 
     // --- javadoc first sentence extraction scenarios ---
@@ -305,6 +315,11 @@ public class CmdMethodDescriptionTest extends Assert {
         assertEquals(String.format("Commands: %n" +
                 "%n" +
                 "   deploy   %n" +
-                "   help     %n"), out.toString());
+                "   help     %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 }

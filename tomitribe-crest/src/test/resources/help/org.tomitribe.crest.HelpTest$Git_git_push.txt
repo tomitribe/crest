@@ -3,3 +3,7 @@ Usage: git push [options] String
 
 Options: 
   --verbose                Output debug information
+
+Help: 
+
+   help git push   Show detailed help

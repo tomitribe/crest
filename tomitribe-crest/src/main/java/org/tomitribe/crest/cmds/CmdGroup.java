@@ -197,15 +197,19 @@ public class CmdGroup implements Cmd {
 
     @Override
     public void help(PrintStream out) {
-        out.print("Usage: ");
-        out.println(getUsage());
-        out.println();
-        out.println("Sub commands: ");
-        out.println();
-
-        Help.printCommandListing(out, commands);
-
+        Help.printRecursiveListing(out, commands, fullPath());
+        Help.printHelpHint(out, false);
         Help.printNameAndVersion(out);
+    }
+
+    private String fullPath() {
+        final java.util.LinkedList<String> parts = new java.util.LinkedList<>();
+        CmdGroup current = this;
+        while (current != null && current.name != null && !current.name.isEmpty()) {
+            parts.addFirst(current.name);
+            current = current.parent;
+        }
+        return String.join(" ", parts);
     }
 
     public void help(String subCommand, PrintStream out) {

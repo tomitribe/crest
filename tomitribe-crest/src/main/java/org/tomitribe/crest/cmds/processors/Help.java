@@ -282,11 +282,40 @@ public class Help {
             if (prefix.isEmpty() && "help".equals(name)) continue;
             final Cmd cmd = entry.getValue();
             final String fullPath = prefix.isEmpty() ? name : prefix + " " + name;
+            rows.add(new String[]{fullPath, cmd.getDescription()});
             if (cmd instanceof CmdGroup) {
                 collectRecursive(((CmdGroup) cmd).getCommandMap(), fullPath, rows);
-            } else {
-                rows.add(new String[]{fullPath, cmd.getDescription()});
             }
+        }
+    }
+
+    public static void printHelpHint(final PrintStream out, final boolean includeAll) {
+        printHelpHint(out, includeAll, null);
+    }
+
+    public static void printHelpHint(final PrintStream out, final boolean includeAll, final String specificCommand) {
+        out.println();
+        out.println("Help: ");
+        out.println();
+
+        final List<String[]> rows = new ArrayList<>();
+        if (includeAll) {
+            rows.add(new String[]{"help --all", "List all commands recursively"});
+        }
+        if (specificCommand != null) {
+            rows.add(new String[]{"help " + specificCommand, "Show detailed help"});
+        } else {
+            rows.add(new String[]{"help <command>", "Show detailed help for a command"});
+        }
+
+        int maxLen = 0;
+        for (final String[] row : rows) {
+            maxLen = Math.max(maxLen, row[0].length());
+        }
+
+        final String format = "   %-" + (maxLen + 3) + "s%s%n";
+        for (final String[] row : rows) {
+            out.printf(format, row[0], row[1]);
         }
     }
 
@@ -313,8 +342,10 @@ public class Help {
         }
 
         final PrintString out = new PrintString();
-        if (all && cmd instanceof CmdGroup) {
+        if (cmd instanceof CmdGroup) {
             printRecursiveListing(out, ((CmdGroup) cmd).getCommandMap(), fullPath.toString());
+            printHelpHint(out, false);
+            printNameAndVersion(out);
         } else {
             cmd.manual(out);
         }
@@ -340,6 +371,8 @@ public class Help {
         } else {
             printCommandListing(string, commands);
         }
+
+        printHelpHint(string, !all);
 
         printNameAndVersion(string);
 

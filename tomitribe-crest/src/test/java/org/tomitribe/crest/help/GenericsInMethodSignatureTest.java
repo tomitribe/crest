@@ -58,7 +58,11 @@ public class GenericsInMethodSignatureTest {
                         "       \n" +
                         "              You  can  also  use  rsync  in  local-only  mode,  where  both  the  source and\n" +
                         "              destination don't have a ':' in the name.  In this  case  it  behaves  like  an\n" +
-                        "              improved copy command.\n",
+                        "              improved copy command.\n" +
+                        "\n" +
+                        "Help: \n" +
+                        "\n" +
+                        "   help commit   Show detailed help\n",
                 env.getOut().toString());
     }
 

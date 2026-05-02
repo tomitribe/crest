@@ -1,6 +1,6 @@
-Usage: git [subcommand] [options]
+   git pull   
+   git push   
 
-Sub commands: 
+Help: 
 
-   pull   
-   push   
+   help <command>   Show detailed help for a command

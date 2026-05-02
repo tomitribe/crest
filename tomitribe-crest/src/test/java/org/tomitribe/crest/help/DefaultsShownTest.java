@@ -60,7 +60,11 @@ public class DefaultsShownTest {
                         "       --message=<String>\n" +
                         "              a message detailing the commit\n" +
                         "       \n" +
-                        "              default: Updates and other fixes\n",
+                        "              default: Updates and other fixes\n" +
+                        "\n" +
+                        "Help: \n" +
+                        "\n" +
+                        "   help commit   Show detailed help\n",
                 env.getOut().toString());
     }
 

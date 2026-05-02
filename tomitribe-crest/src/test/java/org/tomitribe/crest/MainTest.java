@@ -58,7 +58,12 @@ public class MainTest extends TestCase {
                         "   blue    " + ln +
                         "   green   " + ln +
                         "   help    " + ln +
-                        "   red     " + ln,
+                        "   red     " + ln +
+                        "" + ln +
+                        "Help: " + ln +
+                        "" + ln +
+                        "   help --all       List all commands recursively" + ln +
+                        "   help <command>   Show detailed help for a command" + ln,
                 help.exec(null));
 
     }

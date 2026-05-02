@@ -55,6 +55,10 @@ public class ManualTest {
                         "\n" +
                         "       --message=<String>\n" +
                         "              a message detailing the commit\n" +
+                        "\n" +
+                        "Help: \n" +
+                        "\n" +
+                        "   help commit   Show detailed help\n" +
                         "",
                 env.getOut().toString());
     }

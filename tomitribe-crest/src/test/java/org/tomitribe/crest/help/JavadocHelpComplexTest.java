@@ -162,7 +162,11 @@ public class JavadocHelpComplexTest {
                         "              that  it took to complete, it was the 5th transfer of a regular file during the\n" +
                         "              current rsync session, and there are 169 more files for the receiver  to  check\n" +
                         "              (to  see if they are up-to-date or not) remaining out of the 396 total files in\n" +
-                        "              the file-list.\n",
+                        "              the file-list.\n" +
+                        "\n" +
+                        "Help: \n" +
+                        "\n" +
+                        "   help rsync   Show detailed help\n",
                 env.getOut().toString());
     }
 

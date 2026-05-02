@@ -67,6 +67,11 @@ public class EditorInLoaderTest {
                     "   color   %n" +
                     "   help    %n" +
                     "%n" +
+                    "Help: %n" +
+                    "%n" +
+                    "   help --all       List all commands recursively%n" +
+                    "   help <command>   Show detailed help for a command%n" +
+                    "%n" +
                     "Version 3.6.9%n" +
                     ""), result.getOut());
         }

@@ -63,6 +63,11 @@ public class CommandNameAndVersionTest {
                 "   color   %n" +
                 "   help    %n" +
                 "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
+                "%n" +
                 "Version 3.6.9%n" +
                 ""), result.getOut());
     }
@@ -87,6 +92,11 @@ public class CommandNameAndVersionTest {
                 "   color   %n" +
                 "   help    %n" +
                 "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
+                "%n" +
                 "blue 5.16.1%n" +
                 ""), result.getOut());
     }
@@ -110,6 +120,11 @@ public class CommandNameAndVersionTest {
                 "   color   %n" +
                 "   help    %n" +
                 "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
+                "%n" +
                 "orange 2.4.6%n" +
                 ""), result.getOut());
     }
@@ -129,6 +144,11 @@ public class CommandNameAndVersionTest {
                 "%n" +
                 "   color   %n" +
                 "   help    %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
                 "%n" +
                 "blue 6.4.1%n" +
                 ""), result.getOut());
@@ -150,6 +170,11 @@ public class CommandNameAndVersionTest {
                 "   color   %n" +
                 "   help    %n" +
                 "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
+                "%n" +
                 "purple 7.9.8%n" +
                 ""), result.getOut());
     }
@@ -169,6 +194,11 @@ public class CommandNameAndVersionTest {
                 "%n" +
                 "   color   %n" +
                 "   help    %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
                 "%n" +
                 "Version 9.2%n" +
                 ""), result.getOut());
@@ -191,6 +221,11 @@ public class CommandNameAndVersionTest {
                 "%n" +
                 "   color   %n" +
                 "   help    %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
                 "%n" +
                 "yellow 1.2%n" +
                 ""), result.getOut());
@@ -215,6 +250,11 @@ public class CommandNameAndVersionTest {
                 "   color   %n" +
                 "   help    %n" +
                 "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
+                "%n" +
                 "yellow 1.2%n" +
                 ""), result.getOut());
     }
@@ -237,6 +277,11 @@ public class CommandNameAndVersionTest {
                 "   color   %n" +
                 "   help    %n" +
                 "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
+                "%n" +
                 "brown 3.4%n" +
                 ""), result.getOut());
     }
@@ -256,6 +301,11 @@ public class CommandNameAndVersionTest {
                 "%n" +
                 "   color   %n" +
                 "   help    %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n" +
                 "%n" +
                 "pink 3.12%n" +
                 ""), result.getOut());
@@ -278,19 +328,24 @@ public class CommandNameAndVersionTest {
                     "   color   %n" +
                     "   help    %n" +
                     "%n" +
+                    "Help: %n" +
+                    "%n" +
+                    "   help --all       List all commands recursively%n" +
+                    "   help <command>   Show detailed help for a command%n" +
+                    "%n" +
                     "Version 4.11%n" +
                     ""), result.getOut());
         }
         {
             Java.Result result = cli.run("color");
             assertEquals(String.format("Missing sub-command%n" +
-                    "Usage: color [subcommand] [options]%n" +
+                    "   color blue    %n" +
+                    "   color green   %n" +
+                    "   color red     %n" +
                     "%n" +
-                    "Sub commands: %n" +
+                    "Help: %n" +
                     "%n" +
-                    "   blue    %n" +
-                    "   green   %n" +
-                    "   red     %n" +
+                    "   help <command>   Show detailed help for a command%n" +
                     "%n" +
                     "Version 4.11%n"), result.getErr());
         }

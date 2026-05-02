@@ -591,7 +591,9 @@ public class CmdMethod implements Cmd {
         if (width > 120) width -= 7;
 
         final DocumentFormatter formatter = new DocumentFormatter(width, color);
-        final String format = formatter.format(manual.build());
+        final org.tomitribe.util.PrintString hintBuffer = new org.tomitribe.util.PrintString();
+        Help.printHelpHint(hintBuffer, false, fullPath());
+        final String format = formatter.format(manual.build()) + hintBuffer.toString();
 
         final boolean less = !environment.getEnv().containsKey("NOLESS");
         if (!less) {
@@ -628,7 +630,37 @@ public class CmdMethod implements Cmd {
         out.println(getUsage());
         out.println();
 
-        Help.optionHelp(method, getName(), spec.getOptions().values(), out);
+        if (spec.getOptions().isEmpty()) {
+            return;
+        }
+
+        Help.optionHelp(method, getName(), spec.getOptions().values(), out, false);
+
+        if (hasExpandedHelp()) {
+            Help.printHelpHint(out, false, fullPath());
+        }
+
+        Help.printNameAndVersion(out);
+    }
+
+    private String fullPath() {
+        final java.util.LinkedList<String> parts = new java.util.LinkedList<>();
+        parts.add(name);
+        CmdGroup current = parent;
+        while (current != null) {
+            final String pname = current.getName();
+            if (pname == null || pname.isEmpty()) break;
+            parts.addFirst(pname);
+            current = current.getParent();
+        }
+        return String.join(" ", parts);
+    }
+
+    private boolean hasExpandedHelp() {
+        final CommandJavadoc commandJavadoc = CommandJavadoc.getCommandJavadocs(method, name);
+        if (commandJavadoc == null) return false;
+        final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
+        return !javadoc.isEmpty();
     }
 
     public List<Object> parse(final String... rawArgs) {

@@ -326,6 +326,38 @@ public class CmdMethodDescriptionTest extends Assert {
         assertEquals("Display account info.", commands.get("account").getDescription());
     }
 
+    // --- bug #131: identical parameter signatures across distinct command names ---
+
+    public static class IdenticalSignatureCommands {
+
+        /**
+         * Add a Date field.
+         */
+        @Command("date add")
+        public String addDate(final String objectName, final String fieldLabel) {
+            return "date";
+        }
+
+        /**
+         * Add an Email field.
+         */
+        @Command("email add")
+        public String addEmail(final String objectName, final String fieldLabel) {
+            return "email";
+        }
+    }
+
+    @Test
+    public void identicalSignaturesGetDistinctDescriptions() {
+        final Map<String, Cmd> commands = Commands.get(IdenticalSignatureCommands.class);
+
+        final org.tomitribe.crest.cmds.CmdGroup dateGroup = (org.tomitribe.crest.cmds.CmdGroup) commands.get("date");
+        final org.tomitribe.crest.cmds.CmdGroup emailGroup = (org.tomitribe.crest.cmds.CmdGroup) commands.get("email");
+
+        assertEquals("Add a Date field.", dateGroup.getCommand("add").getDescription());
+        assertEquals("Add an Email field.", emailGroup.getCommand("add").getDescription());
+    }
+
     // --- no description at all ---
 
     public static class NoDescriptions {

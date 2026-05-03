@@ -25,19 +25,17 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -57,31 +55,33 @@ public class HelpProcessor extends AbstractProcessor {
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
 
-        final Map<String, List<CommandJavadoc>> all = roundEnv.getElementsAnnotatedWith(Command.class).stream()
+        roundEnv.getElementsAnnotatedWith(Command.class).stream()
                 .filter(annotatedElement -> annotatedElement.getKind() == ElementKind.METHOD)
                 .map(ExecutableElement.class::cast)
                 .map(this::processCommand)
-                .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(CommandJavadoc::getName));
-
-        all.values().forEach(this::writeAll);
+                .forEach(javadoc -> storeProperties(javadoc.getResourceFileName(), javadoc.getProperties()));
 
         return true;
     }
 
 
-    private void writeAll(final List<CommandJavadoc> list) {
-        for (int i = 0; i < list.size(); i++) {
-            final CommandJavadoc commandJavadoc = list.get(i);
-            storeProperties(commandJavadoc.getResourceFileName(i), commandJavadoc.getProperties());
-        }
-    }
-
     private CommandJavadoc processCommand(final ExecutableElement executableElement) {
         final String commandName = getCommandName(executableElement);
         final String className = executableElement.getEnclosingElement().toString();
+        final Types types = processingEnv.getTypeUtils();
 
-        final CommandJavadoc commandJavadoc = new CommandJavadoc(className, commandName);
+        final List<String> paramTypes = executableElement.getParameters().stream()
+                .map(VariableElement::asType)
+                .map(types::erasure)
+                .map(Object::toString)
+                .collect(Collectors.toList());
+
+        final String hash = CommandJavadoc.signatureHash(
+                className,
+                executableElement.getSimpleName().toString(),
+                paramTypes);
+
+        final CommandJavadoc commandJavadoc = new CommandJavadoc(className, commandName, hash);
 
         { // write method javadoc
             final String javadoc = processingEnv.getElementUtils().getDocComment(executableElement);
@@ -97,25 +97,6 @@ public class HelpProcessor extends AbstractProcessor {
             for (final String optionName : option.value()) {
                 commandJavadoc.getProperties().put(optionName, parameter.getSimpleName() + "");
             }
-        }
-
-        { // Record the arg names
-            final List<String> argNames = executableElement.getParameters().stream()
-                    .map(Element::getSimpleName)
-                    .map(Objects::toString)
-                    .collect(Collectors.toList());
-
-            commandJavadoc.setArgNames(argNames);
-        }
-
-        { // Record the arg types
-            final List<String> argTypes = executableElement.getParameters().stream()
-                    .map(VariableElement.class::cast)
-                    .map(Element::asType)
-                    .map(TypeMirror::toString)
-                    .collect(Collectors.toList());
-
-            commandJavadoc.setArgTypes(argTypes);
         }
 
         return commandJavadoc;

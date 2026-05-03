@@ -1,5 +1,5 @@
-   svn checkout   
-   svn commit     
+   svn checkout      
+   svn commit        
 
 Help: 
 

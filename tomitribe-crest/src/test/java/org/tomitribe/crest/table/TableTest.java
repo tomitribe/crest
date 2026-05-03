@@ -275,7 +275,7 @@ public class TableTest {
         final PrintString out = new PrintString();
         table.format(out);
 
-        Assert.assertEquals("   git push   \n" , out.toString());
+        Assert.assertEquals("   git push      \n" , out.toString());
 
     }
 
@@ -296,8 +296,8 @@ public class TableTest {
         final PrintString out = new PrintString();
         table.format(out);
 
-        Assert.assertEquals("   git push               \n" +
-                "   git pull      some text\n" , out.toString());
+        Assert.assertEquals("   git push                  \n" +
+                "   git pull      some text   \n" , out.toString());
 
     }
 

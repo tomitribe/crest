@@ -67,10 +67,10 @@ public class CmdMethodDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   add      Add a new item         %n" +
-                "   help                            %n" +
-                "   list                            %n" +
-                "   remove   Remove an existing item%n" +
+                "   add      Add a new item            %n" +
+                "   help                               %n" +
+                "   list                               %n" +
+                "   remove   Remove an existing item   %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -144,11 +144,50 @@ public class CmdMethodDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   compile   Compile source files into bytecode.  %n" +
-                "   deploy    Deploy the application to the server.%n" +
-                "   help                                           %n" +
-                "   start     Start the server                     %n" +
-                "   stop                                           %n" +
+                "   compile   Compile source files into bytecode.     %n" +
+                "   deploy    Deploy the application to the server.   %n" +
+                "   help                                              %n" +
+                "   start     Start the server                        %n" +
+                "   stop                                              %n" +
+                "%n" +
+                "Help: %n" +
+                "%n" +
+                "   help --all       List all commands recursively%n" +
+                "   help <command>   Show detailed help for a command%n"), out.toString());
+    }
+
+    // --- long description wrapping ---
+
+    public static class LongDescriptionCommands {
+
+        @Command(description = "This is a deliberately long description that should exceed the standard terminal width " +
+                "of one hundred and fifty characters so that the help listing wraps it across multiple lines instead " +
+                "of running off the screen.")
+        public void process() { }
+
+        @Command(description = "This is another deliberately long description that should exceed the standard terminal width " +
+                "of one hundred and fifty characters so that the help listing wraps it across multiple lines instead " +
+                "of running off the screen.")
+        public void compile() { }
+    }
+
+    @Test
+    public void longDescriptionWraps() {
+        final PrintString out = new PrintString();
+        final Main main = Main.builder()
+                .command(LongDescriptionCommands.class)
+                .out(out)
+                .build();
+
+        main.run("help");
+
+        assertEquals(String.format("Commands: %n" +
+                "%n" +
+                "   compile   This  is  another  deliberately long description that should exceed the standard terminal width of one hundred and fifty characters so   %n" +
+                "             that the help listing wraps it across multiple lines instead of running off the screen.                                                  %n" +
+                "   help                                                                                                                                               %n" +
+                "   process   This is a deliberately long description that should exceed the standard terminal width of one hundred and fifty characters so that the   %n" +
+                "             help listing wraps it across multiple lines instead of running off the screen.                                                           %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -314,8 +353,8 @@ public class CmdMethodDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   deploy   %n" +
-                "   help     %n" +
+                "   deploy      %n" +
+                "   help        %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +

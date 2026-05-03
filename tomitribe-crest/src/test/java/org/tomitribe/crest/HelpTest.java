@@ -300,17 +300,26 @@ public class HelpTest extends Assert {
         }
     }
 
+    /**
+     * Run generateHelpTexts() if there has been a change in help output
+     */
     private void assertCommandHelp(final Class clazz, final String name) throws IOException {
         final Map<String, Cmd> commands = Commands.get(clazz);
         assertCommandHelp(clazz, commands.get(name));
     }
 
+    /**
+     * Run generateHelpTexts() if there has been a change in help output
+     */
     private void assertCommandHelp(final Class clazz, final Cmd cmd) throws IOException {
         assertNotNull(cmd);
         String helpFileName = helpFileName(clazz, cmd.getName());
         assertCommandHelp(clazz, cmd, helpFileName);
     }
 
+    /**
+     * Run generateHelpTexts() if there has been a change in help output
+     */
     private void assertCommandHelp(final Class clazz, final Cmd cmd, String helpFileName) throws IOException {
         final URL resource = clazz.getResource("/help/" + helpFileName);
         assertNotNull(resource);
@@ -323,6 +332,10 @@ public class HelpTest extends Assert {
         assertEquals(helpFileName, expected.replace("\r\n", "\n"), actual.toString().replace("\r\n", "\n"));
     }
 
+    /**
+     * This utility can regenerate all the help text in tomitribe-crest/src/test/resources/help/
+     * @throws Exception
+     */
     @Test
     @Ignore
     public void generateHelpTexts() throws Exception {

@@ -55,10 +55,10 @@ public class GlobalOptionsTest extends TestCase {
                         "%n" +
                         "Commands: %n" +
                         "%n" +
-                        "   blue    %n" +
-                        "   green   %n" +
-                        "   help    %n" +
-                        "   red     %n" +
+                        "   blue       %n" +
+                        "   green      %n" +
+                        "   help       %n" +
+                        "   red        %n" +
                         "%n" +
                         "Help: %n" +
                         "%n" +

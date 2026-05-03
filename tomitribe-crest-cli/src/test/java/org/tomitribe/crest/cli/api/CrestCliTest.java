@@ -46,15 +46,15 @@ public class CrestCliTest {
             portable("prompt$help\n" +
             "Commands: \n" +
             "\n" +
-            "   clear     \n" +
-            "   exit      \n" +
-            "   help      \n" +
-            "   history   \n" +
-            "   jgrep     \n" +
-            "   jsed      \n" +
-            "   pretty    \n" +
-            "   test      \n" +
-            "   wc        \n" +
+            "   clear        \n" +
+            "   exit         \n" +
+            "   help         \n" +
+            "   history      \n" +
+            "   jgrep        \n" +
+            "   jsed         \n" +
+            "   pretty       \n" +
+            "   test         \n" +
+            "   wc           \n" +
             "\n" +
             "Help: \n" +
             "\n" +

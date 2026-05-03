@@ -157,8 +157,8 @@ public class Border {
                 .first(null) // no top border
                 .inner(null) // no lines between rows
                 .last(null) // no bottom border
-                .header("   ", " ", "   ", "") // blank line after header
-                .row("   ", "   ", "")
+                .header("   ", " ", "   ", "   ") // blank line after header
+                .row("   ", "   ", "   ")
                 ;
     }
 

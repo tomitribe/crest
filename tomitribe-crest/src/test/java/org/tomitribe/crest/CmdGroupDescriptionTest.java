@@ -59,8 +59,8 @@ public class CmdGroupDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   config   Manage configuration%n" +
-                "   help                         %n" +
+                "   config   Manage configuration   %n" +
+                "   help                            %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -80,8 +80,8 @@ public class CmdGroupDescriptionTest extends Assert {
 
         assertEquals(String.format("Sub-commands:%n" +
                 "%n" +
-                "   config get   Get a config value%n" +
-                "   config set   Set a config value%n" +
+                "   config get   Get a config value   %n" +
+                "   config set   Set a config value   %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -121,8 +121,8 @@ public class CmdGroupDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   db     Database operations%n" +
-                "   help                      %n" +
+                "   db     Database operations   %n" +
+                "   help                         %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -143,8 +143,8 @@ public class CmdGroupDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   db     Database operations%n" +
-                "   help                      %n" +
+                "   db     Database operations   %n" +
+                "   help                         %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -165,8 +165,8 @@ public class CmdGroupDescriptionTest extends Assert {
 
         assertEquals(String.format("Sub-commands:%n" +
                 "%n" +
-                "   db query    Run a query         %n" +
-                "   db status   Show database status%n" +
+                "   db query    Run a query            %n" +
+                "   db status   Show database status   %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +

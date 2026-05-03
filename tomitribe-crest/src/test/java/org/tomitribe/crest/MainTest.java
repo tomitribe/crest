@@ -55,10 +55,10 @@ public class MainTest extends TestCase {
         assertEquals(
                 "Commands: " + ln +
                         "" + ln +
-                        "   blue    " + ln +
-                        "   green   " + ln +
-                        "   help    " + ln +
-                        "   red     " + ln +
+                        "   blue       " + ln +
+                        "   green      " + ln +
+                        "   help       " + ln +
+                        "   red        " + ln +
                         "" + ln +
                         "Help: " + ln +
                         "" + ln +

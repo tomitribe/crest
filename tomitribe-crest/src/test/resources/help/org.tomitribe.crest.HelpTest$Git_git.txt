@@ -1,5 +1,5 @@
-   git pull                  
-   git push   This is awesome
+   git pull                     
+   git push   This is awesome   
 
 Help: 
 

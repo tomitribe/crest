@@ -81,12 +81,12 @@ public class HelpAllTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   config get               Get a config value%n" +
-                "   config set               Set a config value%n" +
-                "   quote create             Create a quote    %n" +
-                "   quote line-item add      Add a line item   %n" +
-                "   quote line-item delete   Delete a line item%n" +
-                "   quote remove             Remove a quote    %n" +
+                "   config get               Get a config value   %n" +
+                "   config set               Set a config value   %n" +
+                "   quote create             Create a quote       %n" +
+                "   quote line-item add      Add a line item      %n" +
+                "   quote line-item delete   Delete a line item   %n" +
+                "   quote remove             Remove a quote       %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -108,10 +108,10 @@ public class HelpAllTest extends Assert {
         assertEquals(String.format(
                 "Sub-commands:%n" +
                         "%n" +
-                        "   quote create             Create a quote    %n" +
-                        "   quote line-item add      Add a line item   %n" +
-                        "   quote line-item delete   Delete a line item%n" +
-                        "   quote remove             Remove a quote    %n" +
+                        "   quote create             Create a quote       %n" +
+                        "   quote line-item add      Add a line item      %n" +
+                        "   quote line-item delete   Delete a line item   %n" +
+                        "   quote remove             Remove a quote       %n" +
                         "%n" +
                         "Help: %n" +
                         "%n" +
@@ -133,8 +133,8 @@ public class HelpAllTest extends Assert {
         assertEquals(String.format(
                 "Sub-commands:%n" +
                         "%n" +
-                        "   quote line-item add      Add a line item   %n" +
-                        "   quote line-item delete   Delete a line item%n" +
+                        "   quote line-item add      Add a line item      %n" +
+                        "   quote line-item delete   Delete a line item   %n" +
                         "%n" +
                         "Help: %n" +
                         "%n" +
@@ -154,9 +154,9 @@ public class HelpAllTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   config   Manage configuration%n" +
-                "   help                         %n" +
-                "   quote    Manage quotes       %n" +
+                "   config   Manage configuration   %n" +
+                "   help                            %n" +
+                "   quote    Manage quotes          %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +

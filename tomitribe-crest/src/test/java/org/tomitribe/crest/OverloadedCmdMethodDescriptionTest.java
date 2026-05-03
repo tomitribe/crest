@@ -97,8 +97,8 @@ public class OverloadedCmdMethodDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   help                        %n" +
-                "   process   Process input data%n" +
+                "   help                           %n" +
+                "   process   Process input data   %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +

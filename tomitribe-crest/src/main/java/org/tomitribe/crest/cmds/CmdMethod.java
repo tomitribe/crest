@@ -635,13 +635,13 @@ public class CmdMethod implements Cmd {
         Help.optionHelp(method, getName(), spec.getOptions().values(), out, false);
 
         if (hasExpandedHelp()) {
-            Help.printHelpHint(out, false, fullPath());
+            Help.printHelpHint(out, false, getFullPath());
         }
 
         Help.printNameAndVersion(out);
     }
 
-    private String fullPath() {
+    public String getFullPath() {
         final java.util.LinkedList<String> parts = new java.util.LinkedList<>();
         parts.add(name);
         CmdGroup current = parent;

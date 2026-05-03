@@ -1,5 +1,5 @@
 
 Usage: copy [options] File File
 
-Options: 
+Options:
   --force                  

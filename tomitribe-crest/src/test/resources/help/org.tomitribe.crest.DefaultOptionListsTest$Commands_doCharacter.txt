@@ -1,5 +1,5 @@
 
 Usage: doCharacter [options]
 
-Options: 
+Options:
   --foo=<Character[]>      default: 2, 3, 5

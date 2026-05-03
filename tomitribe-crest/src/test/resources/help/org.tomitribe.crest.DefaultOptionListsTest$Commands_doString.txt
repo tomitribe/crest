@@ -1,5 +1,5 @@
 
 Usage: doString [options]
 
-Options: 
+Options:
   --foo=<String[]>         default: 2, 3, 5

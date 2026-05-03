@@ -1,7 +1,7 @@
 
 Usage: test [options] URI URI
 
-Options: 
+Options:
   -r, --recursive                recurse into directories
   --links, -l                    copy symlinks as symlinks
   -p, --perms                    preserve permissions

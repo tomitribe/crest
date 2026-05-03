@@ -49,7 +49,7 @@ public class GlobalOptionsTest extends TestCase {
         final Cmd help = main.commands.get("help");
 
         assertEquals(
-                String.format("Options: %n" +
+                String.format("Options:%n" +
                         "  --orange=<String>         %n" +
                         "  --yellow, --no-yellow     %n" +
                         "%n" +

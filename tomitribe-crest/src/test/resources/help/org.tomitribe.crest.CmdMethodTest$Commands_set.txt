@@ -1,6 +1,6 @@
 
 Usage: set [options]
 
-Options: 
+Options:
   --key=<String>           
   --value=<String>         

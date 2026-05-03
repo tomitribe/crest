@@ -1,6 +1,6 @@
 
 Usage: validation [options] String URI
 
-Options: 
+Options:
   --key=<String>           
   --value=<String>         

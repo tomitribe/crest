@@ -277,4 +277,11 @@ public class CmdGroup implements Cmd {
         }
         return results;
     }
+
+    @Override
+    public String toString() {
+        return "CmdGroup{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

@@ -1,5 +1,5 @@
 
 Usage: primitive2 [options]
 
-Options: 
+Options:
   --action                 

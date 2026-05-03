@@ -1,6 +1,6 @@
 
 Usage: doInt [options] Color
 
-Options: 
+Options:
   --foo=<Integer[]>        default: 2, 3, 5
   --color=<Color>          enum: red, green, blue, orange

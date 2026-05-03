@@ -1,6 +1,6 @@
 
 Usage: git push [options]
 
-Options: 
+Options:
   --verbose, -v=<String>     
   -u=<String>                

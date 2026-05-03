@@ -1,7 +1,7 @@
 
 Usage: doRelyOnDefaults [options] Value Value...
 
-Options: 
+Options:
   --user-home=<Value>       default: ${user.home}
   --directory=<Value[]>     default: ${user.home}, ${user.dir}
   --format=<Value>          

@@ -18,6 +18,7 @@ package org.tomitribe.crest.table;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.tomitribe.util.PrintString;
 
 import java.util.function.Supplier;
 
@@ -256,6 +257,48 @@ public class TableTest {
                 "\"Value,1\",\"Value \"\"2\",123,10.0\n" +
                 "Separate,cols,\"with a \"\"tab\"\" or, 4 spaces\",\"-2,027.1\"\n" +
                 "This is a row with only one cell,,,\n", actual);
+    }
+
+    /**
+     * If a column's width is effectively zero, we should be able to
+     * gracefully handle it.
+     */
+    @Test
+    public void emptyColumn() {
+        final String[][] rows = {
+                { "git push", "" }
+        };
+
+        final Data data = new Data(rows, false);
+        final Border.Builder builder = Border.whitespaceCompactIndented();
+        final Table table = new Table(data, builder.build(), 150);
+        final PrintString out = new PrintString();
+        table.format(out);
+
+        Assert.assertEquals("   git push   \n" , out.toString());
+
+    }
+
+    /**
+     * If a column's width is effectively zero, we should be able to
+     * gracefully handle it.
+     */
+    @Test
+    public void emptyColumn2() {
+        final String[][] rows = {
+                { "git push", "", "" },
+                { "git pull", "", "some text" }
+        };
+
+        final Data data = new Data(rows, false);
+        final Border.Builder builder = Border.whitespaceCompactIndented();
+        final Table table = new Table(data, builder.build(), 150);
+        final PrintString out = new PrintString();
+        table.format(out);
+
+        Assert.assertEquals("   git push               \n" +
+                "   git pull      some text\n" , out.toString());
+
     }
 
 

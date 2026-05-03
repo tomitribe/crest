@@ -1,5 +1,5 @@
 
 Usage: doLong [options]
 
-Options: 
+Options:
   --foo=<long[]>           

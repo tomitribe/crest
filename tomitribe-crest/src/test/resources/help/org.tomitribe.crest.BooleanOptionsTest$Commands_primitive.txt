@@ -1,5 +1,5 @@
 
 Usage: primitive [options]
 
-Options: 
+Options:
   --action, --no-action     

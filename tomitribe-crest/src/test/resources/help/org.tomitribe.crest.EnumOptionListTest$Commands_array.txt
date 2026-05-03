@@ -1,5 +1,5 @@
 
 Usage: array [options]
 
-Options: 
+Options:
   --action=<Action[]>      default: WALK

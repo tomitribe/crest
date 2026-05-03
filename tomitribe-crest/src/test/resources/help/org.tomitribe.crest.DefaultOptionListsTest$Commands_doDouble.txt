@@ -1,5 +1,5 @@
 
 Usage: doDouble [options]
 
-Options: 
+Options:
   --foo=<Double[]>         default: 2, 3, 5

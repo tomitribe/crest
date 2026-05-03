@@ -1,5 +1,5 @@
 
 Usage: doByte [options]
 
-Options: 
+Options:
   --foo=<Byte[]>           default: 2, 3, 5

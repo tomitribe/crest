@@ -51,12 +51,12 @@ public class OverloadedCmdHelpTest {
                         "       account zendesk [options3] Name%n" +
                         "       account zendesk [options4] Name%n" +
                         "%n" +
-                        "Options1: %n" +
+                        "Options1:%n" +
                         "  --list, -l               %n" +
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
                         "%n" +
-                        "Options2: %n" +
+                        "Options2:%n" +
                         "  --create, -c             %n" +
                         "  --username=<String>      %n" +
                         "  --token=<String>         %n" +
@@ -64,7 +64,7 @@ public class OverloadedCmdHelpTest {
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
                         "%n" +
-                        "Options3: %n" +
+                        "Options3:%n" +
                         "  --update, -u             %n" +
                         "  --username=<String>      %n" +
                         "  --token=<String>         %n" +
@@ -72,7 +72,7 @@ public class OverloadedCmdHelpTest {
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
                         "%n" +
-                        "Options4: %n" +
+                        "Options4:%n" +
                         "  --delete, -d             %n" +
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
@@ -101,7 +101,7 @@ public class OverloadedCmdHelpTest {
                         "%n" +
                         "Usage: account zendesk [options]%n" +
                         "%n" +
-                        "Options: %n" +
+                        "Options:%n" +
                         "  --list, -l               %n" +
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
@@ -135,12 +135,12 @@ public class OverloadedCmdHelpTest {
                         "       account zendesk [options3] Name%n" +
                         "       account zendesk [options4] Name%n" +
                         "%n" +
-                        "Options1: %n" +
+                        "Options1:%n" +
                         "  --list, -l               %n" +
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
                         "%n" +
-                        "Options2: %n" +
+                        "Options2:%n" +
                         "  --create, -c             %n" +
                         "  --username=<String>      %n" +
                         "  --token=<String>         %n" +
@@ -148,7 +148,7 @@ public class OverloadedCmdHelpTest {
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
                         "%n" +
-                        "Options3: %n" +
+                        "Options3:%n" +
                         "  --update, -u             %n" +
                         "  --username=<String>      %n" +
                         "  --token=<String>         %n" +
@@ -156,7 +156,7 @@ public class OverloadedCmdHelpTest {
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +
                         "%n" +
-                        "Options4: %n" +
+                        "Options4:%n" +
                         "  --delete, -d             %n" +
                         "  --env=<Env>              default: prod%n" +
                         "                           (enum: prod, dev)%n" +

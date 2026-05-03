@@ -1,5 +1,5 @@
 
 Usage: ls [options] File
 
-Options: 
+Options:
   --long, --no-long        

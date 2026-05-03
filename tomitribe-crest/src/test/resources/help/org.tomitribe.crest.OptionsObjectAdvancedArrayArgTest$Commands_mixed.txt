@@ -1,7 +1,7 @@
 
 Usage: mixed [options] String URI Shape URI
 
-Options: 
+Options:
   --size=<int>             default: 0
   --key=<String>           
   --value=<String>         

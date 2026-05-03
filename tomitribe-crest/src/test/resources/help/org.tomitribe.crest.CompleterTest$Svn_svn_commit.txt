@@ -1,6 +1,6 @@
 
 Usage: svn commit [options] String...
 
-Options: 
+Options:
   --username=<String>      
   --password=<String>      

@@ -1,4 +1,4 @@
-   git pull   
+   git pull                  
    git push   This is awesome
 
 Help: 

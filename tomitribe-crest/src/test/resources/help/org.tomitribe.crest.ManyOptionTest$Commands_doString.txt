@@ -1,5 +1,5 @@
 
 Usage: doString [options]
 
-Options: 
+Options:
   --foo, --foox, -f=<String[]>     

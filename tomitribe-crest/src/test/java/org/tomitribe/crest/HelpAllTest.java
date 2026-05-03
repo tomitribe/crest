@@ -81,15 +81,12 @@ public class HelpAllTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   config                   Manage configuration%n" +
                 "   config get               Get a config value%n" +
                 "   config set               Set a config value%n" +
-                "   quote                    Manage quotes%n" +
-                "   quote create             Create a quote%n" +
-                "   quote line-item          Manage line items%n" +
-                "   quote line-item add      Add a line item%n" +
+                "   quote create             Create a quote    %n" +
+                "   quote line-item add      Add a line item   %n" +
                 "   quote line-item delete   Delete a line item%n" +
-                "   quote remove             Remove a quote%n" +
+                "   quote remove             Remove a quote    %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -109,15 +106,16 @@ public class HelpAllTest extends Assert {
         main.run("help", "quote", "--all");
 
         assertEquals(String.format(
-                "   quote create             Create a quote%n" +
-                "   quote line-item          Manage line items%n" +
-                "   quote line-item add      Add a line item%n" +
-                "   quote line-item delete   Delete a line item%n" +
-                "   quote remove             Remove a quote%n" +
-                "%n" +
-                "Help: %n" +
-                "%n" +
-                "   help <command>   Show detailed help for a command%n"), out.toString());
+                "Sub-commands:%n" +
+                        "%n" +
+                        "   quote create             Create a quote    %n" +
+                        "   quote line-item add      Add a line item   %n" +
+                        "   quote line-item delete   Delete a line item%n" +
+                        "   quote remove             Remove a quote    %n" +
+                        "%n" +
+                        "Help: %n" +
+                        "%n" +
+                        "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 
     @Test
@@ -133,12 +131,14 @@ public class HelpAllTest extends Assert {
         main.run("help", "quote", "line-item", "--all");
 
         assertEquals(String.format(
-                "   quote line-item add      Add a line item%n" +
-                "   quote line-item delete   Delete a line item%n" +
-                "%n" +
-                "Help: %n" +
-                "%n" +
-                "   help <command>   Show detailed help for a command%n"), out.toString());
+                "Sub-commands:%n" +
+                        "%n" +
+                        "   quote line-item add      Add a line item   %n" +
+                        "   quote line-item delete   Delete a line item%n" +
+                        "%n" +
+                        "Help: %n" +
+                        "%n" +
+                        "   help <command>   Show detailed help for a command%n"), out.toString());
     }
 
     @Test
@@ -155,8 +155,8 @@ public class HelpAllTest extends Assert {
         assertEquals(String.format("Commands: %n" +
                 "%n" +
                 "   config   Manage configuration%n" +
-                "   help     %n" +
-                "   quote    Manage quotes%n" +
+                "   help                         %n" +
+                "   quote    Manage quotes       %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +

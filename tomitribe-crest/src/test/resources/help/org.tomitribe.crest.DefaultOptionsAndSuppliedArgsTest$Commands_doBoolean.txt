@@ -1,6 +1,6 @@
 
 Usage: doBoolean [options] boolean boolean
 
-Options: 
+Options:
   --p1                     
   --p2                     

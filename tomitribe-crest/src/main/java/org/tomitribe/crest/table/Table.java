@@ -131,6 +131,9 @@ class Table {
         if (line.isPadded()) {
             formats = columns.stream().map(column -> {
                 final int width = column.getWidth().getMax();
+                if (width == 0) {
+                    return column.isNumeric() ? "%s" : "%-s";
+                }
                 return column.isNumeric() ? "%" + width + "s" : "%-" + width + "s";
             }).collect(Collectors.toList());
         } else {

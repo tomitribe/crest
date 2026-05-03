@@ -1,6 +1,6 @@
 
 Usage: defaults [options]
 
-Options: 
+Options:
   --user=<String>          default: ${user.name}
   --home=<File>            default: ${user.dir}

@@ -67,9 +67,9 @@ public class CmdMethodDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   add      Add a new item%n" +
-                "   help     %n" +
-                "   list     %n" +
+                "   add      Add a new item         %n" +
+                "   help                            %n" +
+                "   list                            %n" +
                 "   remove   Remove an existing item%n" +
                 "%n" +
                 "Help: %n" +
@@ -144,11 +144,11 @@ public class CmdMethodDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   compile   Compile source files into bytecode.%n" +
+                "   compile   Compile source files into bytecode.  %n" +
                 "   deploy    Deploy the application to the server.%n" +
-                "   help      %n" +
-                "   start     Start the server%n" +
-                "   stop      %n" +
+                "   help                                           %n" +
+                "   start     Start the server                     %n" +
+                "   stop                                           %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +

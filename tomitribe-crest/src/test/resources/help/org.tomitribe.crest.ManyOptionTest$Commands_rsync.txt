@@ -1,7 +1,7 @@
 
 Usage: rsync [options]
 
-Options: 
+Options:
   -d, --dirs, --no-dirs                          
   -l, --links, --no-links                        
   -e, --rsh, --no-rsh                            

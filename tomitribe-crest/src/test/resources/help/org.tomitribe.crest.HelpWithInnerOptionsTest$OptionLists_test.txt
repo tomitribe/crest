@@ -1,7 +1,7 @@
 
 Usage: test [options] URI URI
 
-Options: 
+Options:
   --recursive=<Boolean[]>     recurse into directories
   --links=<boolean[]>         copy symlinks as symlinks
   --perms                     preserve permissions

@@ -1,6 +1,6 @@
 
 Usage: doBoolean [options] Color
 
-Options: 
+Options:
   --foo=<Boolean[]>        default: false, true, false
   --color=<Color>          enum: red, green, blue, orange

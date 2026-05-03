@@ -1,5 +1,5 @@
 
 Usage: onlyBeforeSubstition [options]
 
-Options: 
+Options:
   --value=<String[]>       default: ${value1}, ${value2}

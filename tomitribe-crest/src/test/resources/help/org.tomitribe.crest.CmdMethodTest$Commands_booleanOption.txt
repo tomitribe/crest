@@ -1,5 +1,5 @@
 
 Usage: booleanOption [options]
 
-Options: 
+Options:
   --long                   

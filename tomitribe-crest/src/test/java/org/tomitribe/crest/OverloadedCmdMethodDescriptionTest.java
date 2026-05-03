@@ -58,6 +58,33 @@ public class OverloadedCmdMethodDescriptionTest extends Assert {
         assertEquals("Process input data", cmd.getDescription());
     }
 
+    public static class ConflictingOverloads {
+
+        @Command(description = "Verbose mode")
+        public String process(@Option("file") final String file,
+                              @Option("verbose") final boolean verbose) {
+            return "vb";
+        }
+
+        @Command(description = "Format mode")
+        public String process(@Option("file") final String file,
+                              @Option("verbose") final boolean verbose,
+                              @Option("format") final String format) {
+            return "fm";
+        }
+    }
+
+    @Test
+    public void firstNonEmptyDescriptionWins() {
+        final Map<String, Cmd> commands = Commands.get(ConflictingOverloads.class);
+        final Cmd cmd = commands.get("process");
+
+        assertNotNull(cmd);
+        // cmdMethodComparator orders by more options first, so the
+        // (file, verbose, format) overload comes before (file, verbose)
+        assertEquals("Format mode", cmd.getDescription());
+    }
+
     @Test
     public void overloadedDescriptionInListing() {
         final PrintString out = new PrintString();
@@ -70,7 +97,7 @@ public class OverloadedCmdMethodDescriptionTest extends Assert {
 
         assertEquals(String.format("Commands: %n" +
                 "%n" +
-                "   help      %n" +
+                "   help                        %n" +
                 "   process   Process input data%n" +
                 "%n" +
                 "Help: %n" +

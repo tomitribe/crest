@@ -1,5 +1,5 @@
 
 Usage: doInt [options]
 
-Options: 
+Options:
   --foo=<Integer[]>        default: 2, 3, 5

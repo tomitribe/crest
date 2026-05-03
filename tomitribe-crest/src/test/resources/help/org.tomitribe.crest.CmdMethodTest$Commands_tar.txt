@@ -1,5 +1,5 @@
 
 Usage: tar [options]
 
-Options: 
+Options:
   -x=<File>                

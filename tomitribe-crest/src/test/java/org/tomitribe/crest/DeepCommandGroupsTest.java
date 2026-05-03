@@ -241,8 +241,7 @@ public class DeepCommandGroupsTest extends Assert {
      * different descriptions, the first non-empty description wins — the
      * same resolution rule used for single-level groups.  Here,
      * {@code ConfigSettingCommands} provides "Manage settings" and
-     * {@code ConfigSettingExtra} provides "Extra settings"; the parent
-     * group listing should show "Manage settings".
+     * {@code ConfigSettingExtra} provides "Extra settings".
      */
     @Test
     public void descriptionConflictAtDepth() {
@@ -253,12 +252,12 @@ public class DeepCommandGroupsTest extends Assert {
                 .out(out)
                 .build();
 
-        // The description shows up in the parent group's listing
-        display.run("help", "config");
+        // --no-all lists direct children of config with their descriptions,
+        // which surfaces the merged 'setting' group's description.
+        display.run("help", "config", "--no-all");
 
         // Both classes provide descriptions; first non-empty wins
-        final String output = out.toString();
-        assertTrue(output.contains("Manage settings"));
+        assertTrue(out.toString().contains("Manage settings"));
     }
 
     // ---------------------------------------------------------------

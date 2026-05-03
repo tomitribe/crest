@@ -47,7 +47,7 @@ public class OptionsUsageTest {
                     "%n" +
                     "Usage: color color [options]%n" +
                     "%n" +
-                    "Options: %n" +
+                    "Options:%n" +
                     "  --opacity=<float>        default: 1.0%n" +
                     "  --blue=<int>             default: 0%n" +
                     "  --green=<int>            default: 165%n" +

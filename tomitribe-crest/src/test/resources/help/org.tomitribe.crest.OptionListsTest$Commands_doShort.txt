@@ -1,5 +1,5 @@
 
 Usage: doShort [options]
 
-Options: 
+Options:
   --foo=<Short[]>          

@@ -56,7 +56,7 @@ public class CmdMethodTest extends TestCase {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         cmd.help(new PrintStream(out));
         assertEquals(
-                "Usage: prefixed [options]Options:   -value=<String>            ----value=<String>",
+                "Usage: prefixed [options]Options:  -value=<String>            ----value=<String>",
                 new String(out.toByteArray()).replace(System.getProperty("line.separator"), "").trim());
     }
 

@@ -1,5 +1,5 @@
 
 Usage: doBoolean [options]
 
-Options: 
+Options:
   --foo=<boolean[]>        

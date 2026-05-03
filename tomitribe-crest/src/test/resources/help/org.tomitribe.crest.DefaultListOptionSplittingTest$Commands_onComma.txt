@@ -1,5 +1,5 @@
 
 Usage: onComma [options]
 
-Options: 
+Options:
   --value=<String[]>       default: 2, 3, 5

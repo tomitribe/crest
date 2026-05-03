@@ -18,9 +18,12 @@ package org.tomitribe.crest.cmds.processors;
 
 import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.api.table.Border;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.cmds.CmdGroup;
+import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.GlobalSpec;
+import org.tomitribe.crest.cmds.OverloadedCmdMethod;
 import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.help.CommandJavadoc;
 import org.tomitribe.crest.help.Document;
@@ -29,9 +32,11 @@ import org.tomitribe.crest.help.Element;
 import org.tomitribe.crest.help.Paragraph;
 import org.tomitribe.crest.javadoc.Javadoc;
 import org.tomitribe.crest.javadoc.JavadocParser;
+import org.tomitribe.crest.table.TableOutput;
 import org.tomitribe.util.PrintString;
 import org.tomitribe.util.reflect.Classes;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -41,10 +46,9 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Help {
 
@@ -86,7 +90,7 @@ public class Help {
 
         final String format = "  %-" + width + "s     %s%n";
 
-        out.println("Options: ");
+        out.println("Options:");
 
         for (final Item item : items) {
             final List<String> lines = new ArrayList<>();
@@ -105,7 +109,6 @@ public class Help {
                 out.printf(format, "", String.format("(%s)", line));
             }
 
-//            out.println();
         }
     }
 
@@ -244,49 +247,77 @@ public class Help {
 
 
     public static void printCommandListing(final PrintStream out, final Map<String, Cmd> commands) {
-        final SortedSet<String> sorted = new TreeSet<>(commands.keySet());
 
-        int maxLen = 0;
-        for (final String command : sorted) {
-            maxLen = Math.max(maxLen, command.length());
+        try {
+            TableOutput.builder()
+                    .data(commands.values())
+                    .fields("name description")
+                    .sort("name")
+                    .border(Border.whitespaceCompactIndented)
+                    .header(false)
+                    .build()
+                    .write(out);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
         }
 
-        final String format = "   %-" + (maxLen + 3) + "s%s%n";
-
-        for (final String command : sorted) {
-            final Cmd cmd = commands.get(command);
-            final String description = cmd != null ? cmd.getDescription() : null;
-            out.printf(format, command, description != null ? description : "");
-        }
     }
 
     public static void printRecursiveListing(final PrintStream out, final Map<String, Cmd> commands, final String prefix) {
-        final List<String[]> rows = new ArrayList<>();
-        collectRecursive(commands, prefix, rows);
+        final Predicate<CmdMethod> wanted = prefix != null && !prefix.isEmpty() ?
+                cmdMethod -> cmdMethod.getFullPath().startsWith(prefix + " ")
+                : cmdMethod -> true;
 
-        int maxLen = 0;
-        for (final String[] row : rows) {
-            maxLen = Math.max(maxLen, row[0].length());
-        }
 
-        final String format = "   %-" + (maxLen + 3) + "s%s%n";
+        final Stream<CmdMethod> methods = getCmdMethods(commands)
+                .filter(wanted)
+                .filter(cmdMethod -> !"help".equals(cmdMethod.getFullPath()));
 
-        for (final String[] row : rows) {
-            out.printf(format, row[0], row[1] != null ? row[1] : "");
+        try {
+            TableOutput.builder()
+                    .data(methods)
+                    .fields("fullPath description")
+                    .sort("fullPath")
+                    .border(Border.whitespaceCompactIndented)
+                    .header(false)
+                    .build()
+                    .write(out);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private static void collectRecursive(final Map<String, Cmd> commands, final String prefix, final List<String[]> rows) {
-        for (final Map.Entry<String, Cmd> entry : new TreeMap<>(commands).entrySet()) {
-            final String name = entry.getKey();
-            if (prefix.isEmpty() && "help".equals(name)) continue;
-            final Cmd cmd = entry.getValue();
-            final String fullPath = prefix.isEmpty() ? name : prefix + " " + name;
-            rows.add(new String[]{fullPath, cmd.getDescription()});
-            if (cmd instanceof CmdGroup) {
-                collectRecursive(((CmdGroup) cmd).getCommandMap(), fullPath, rows);
-            }
+    private static Stream<CmdMethod> getCmdMethods(final Map<String, Cmd> commands) {
+        return commands.values().stream()
+                .flatMap(Help::getCmdMethods);
+    }
+
+    private static Stream<CmdMethod> getCmdMethods(final Cmd cmd) {
+        if (cmd instanceof CmdMethod) {
+            final CmdMethod cmdMethod = (CmdMethod) cmd;
+            return Stream.of(cmdMethod);
         }
+
+        if (cmd instanceof CmdGroup) {
+            final CmdGroup cmdGroup = (CmdGroup) cmd;
+            return getCmdMethods(cmdGroup.getCommandMap());
+        }
+
+        if (cmd instanceof OverloadedCmdMethod) {
+            final OverloadedCmdMethod overloadedCmdMethod = (OverloadedCmdMethod) cmd;
+            final List<CmdMethod> methods = overloadedCmdMethod.getMethods();
+
+            if (methods.isEmpty()) return Stream.empty();
+
+            final CmdMethod method = methods.stream()
+                    .filter(cmdMethod -> cmdMethod.getDescription() != null)
+                    .findFirst()
+                    .orElse(methods.get(0));
+
+            return Stream.of(method);
+        }
+
+        throw new IllegalStateException("Unsupported Cmd implementation " + cmd.getClass().getName());
     }
 
     public static void printHelpHint(final PrintStream out, final boolean includeAll) {
@@ -320,7 +351,8 @@ public class Help {
     }
 
     @Command
-    public String help(@Option("all") final boolean all, final String... path) {
+    public String help(@Option("all") final Boolean recurse, final String... path) {
+        final boolean all = recurse != null ? recurse : path.length > 0;
         if (path.length == 0) {
             return rootHelp(all);
         }
@@ -343,7 +375,14 @@ public class Help {
 
         final PrintString out = new PrintString();
         if (cmd instanceof CmdGroup) {
-            printRecursiveListing(out, ((CmdGroup) cmd).getCommandMap(), fullPath.toString());
+            out.println("Sub-commands:");
+            out.println();
+            final Map<String, Cmd> groupCommands = ((CmdGroup) cmd).getCommandMap();
+            if (all){
+                printRecursiveListing(out, groupCommands, fullPath.toString());
+            } else {
+                printCommandListing(out, groupCommands);
+            }
             printHelpHint(out, false);
             printNameAndVersion(out);
         } else {

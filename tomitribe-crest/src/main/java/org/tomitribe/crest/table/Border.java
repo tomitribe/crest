@@ -143,6 +143,24 @@ public class Border {
                 .row("", "   ", "")
                 ;
     }
+    /**
+     * <pre>
+     *                Col1                  Col2              Col3            Numeric Column
+     *
+     *  Value 1                            Value 2   123                                10.0
+     *  Separate                           cols      with a tab or 4 spaces         -2,027.1
+     *  This is a row with only one cell
+     * </pre>
+     */
+    public static Border.Builder whitespaceCompactIndented() {
+        return builder()
+                .first(null) // no top border
+                .inner(null) // no lines between rows
+                .last(null) // no bottom border
+                .header("   ", " ", "   ", "") // blank line after header
+                .row("   ", "   ", "")
+                ;
+    }
 
     /**
      * <pre>

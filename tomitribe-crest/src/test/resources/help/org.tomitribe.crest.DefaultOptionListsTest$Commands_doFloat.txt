@@ -1,5 +1,5 @@
 
 Usage: doFloat [options]
 
-Options: 
+Options:
   --foo=<Float[]>          default: 2, 3, 5

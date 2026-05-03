@@ -60,7 +60,7 @@ public class CmdGroupDescriptionTest extends Assert {
         assertEquals(String.format("Commands: %n" +
                 "%n" +
                 "   config   Manage configuration%n" +
-                "   help     %n" +
+                "   help                         %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -78,7 +78,9 @@ public class CmdGroupDescriptionTest extends Assert {
 
         main.run("help", "config");
 
-        assertEquals(String.format("   config get   Get a config value%n" +
+        assertEquals(String.format("Sub-commands:%n" +
+                "%n" +
+                "   config get   Get a config value%n" +
                 "   config set   Set a config value%n" +
                 "%n" +
                 "Help: %n" +
@@ -120,7 +122,7 @@ public class CmdGroupDescriptionTest extends Assert {
         assertEquals(String.format("Commands: %n" +
                 "%n" +
                 "   db     Database operations%n" +
-                "   help   %n" +
+                "   help                      %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -142,7 +144,7 @@ public class CmdGroupDescriptionTest extends Assert {
         assertEquals(String.format("Commands: %n" +
                 "%n" +
                 "   db     Database operations%n" +
-                "   help   %n" +
+                "   help                      %n" +
                 "%n" +
                 "Help: %n" +
                 "%n" +
@@ -161,7 +163,9 @@ public class CmdGroupDescriptionTest extends Assert {
 
         main.run("help", "db");
 
-        assertEquals(String.format("   db query    Run a query%n" +
+        assertEquals(String.format("Sub-commands:%n" +
+                "%n" +
+                "   db query    Run a query         %n" +
                 "   db status   Show database status%n" +
                 "%n" +
                 "Help: %n" +

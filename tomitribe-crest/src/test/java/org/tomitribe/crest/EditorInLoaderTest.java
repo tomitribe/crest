@@ -86,7 +86,7 @@ public class EditorInLoaderTest {
                     "%n" +
                     "Usage: color green [options]%n" +
                     "%n" +
-                    "Options: %n" +
+                    "Options:%n" +
                     "  --value=<Environment>     enum: prod, dev%n" +
                     "%n" +
                     "Version 3.6.9%n"), result.getErr());
@@ -182,7 +182,7 @@ public class EditorInLoaderTest {
                     "%n" +
                     "Usage: color green [options]%n" +
                     "%n" +
-                    "Options: %n" +
+                    "Options:%n" +
                     "  --value=<Environment>     enum: prod, dev%n" +
                     "%n" +
                     "color 23.5.6%n"), err.toString());

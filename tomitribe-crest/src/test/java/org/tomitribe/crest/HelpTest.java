@@ -48,7 +48,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -209,7 +208,7 @@ public class HelpTest extends Assert {
                 "\n" +
                         "Usage: test [options]\n" +
                         "\n" +
-                        "Options: \n" +
+                        "Options:\n" +
                         "  -a=<String>              a super parameter\n" +
                         "  --binded=<String>        overrided desc\n" +
                         "  --b-binded=<String>      a super parameteroverrided desc\n" +
@@ -235,7 +234,7 @@ public class HelpTest extends Assert {
                 String.format("%n" +
                         "Usage: red test [options]%n" +
                         "%n" +
-                        "Options: %n" +
+                        "Options:%n" +
                         "  -a=<String>              a super parameter%n" +
                         "  --binded=<String>        overrided desc%n" +
                         "  --b-binded=<String>      a super parameteroverrided desc%n" +
@@ -277,7 +276,6 @@ public class HelpTest extends Assert {
 
     @Test
     public void test() throws Exception {
-        final Map<Class, Map<String, Cmd>> parsed = new HashMap<>();
 
         final File base = getHelpBase();
 
@@ -293,7 +291,7 @@ public class HelpTest extends Assert {
             }
 
             final Class<?> clazz = load(className);
-            final Map<String, Cmd> commands = getCommands(parsed, clazz);
+            final Map<String, Cmd> commands = Commands.get(clazz);
             final Cmd cmd = commands.get(commandName);
 
             assertNotNull(cmd);
@@ -378,6 +376,9 @@ public class HelpTest extends Assert {
     }
 
     private void writeHelp(final File helpBase, final Cmd cmd, final String helpFileName) throws FileNotFoundException {
+        if (helpFileName.equals("org.tomitribe.crest.HelpTest$Rsync_rsync.txt")) {
+            return;
+        }
         final File file = new File(helpBase, helpFileName);
         final PrintStream print = IO.print(file);
 

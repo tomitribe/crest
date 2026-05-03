@@ -1,5 +1,5 @@
 
 Usage: git pull [options] String
 
-Options: 
+Options:
   --verbose                

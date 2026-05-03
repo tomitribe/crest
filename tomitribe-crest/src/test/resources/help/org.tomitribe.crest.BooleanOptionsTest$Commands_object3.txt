@@ -1,5 +1,5 @@
 
 Usage: object3 [options]
 
-Options: 
+Options:
   --action, --no-action     

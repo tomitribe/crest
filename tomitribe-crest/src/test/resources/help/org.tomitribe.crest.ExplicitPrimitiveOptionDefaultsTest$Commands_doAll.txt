@@ -1,7 +1,7 @@
 
 Usage: doAll [options]
 
-Options: 
+Options:
   --byte=<byte>               default: 42
   --char=<char>               default: D
   --boolean, --no-boolean     

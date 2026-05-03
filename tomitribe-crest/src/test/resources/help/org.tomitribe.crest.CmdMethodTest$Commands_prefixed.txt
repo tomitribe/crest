@@ -1,6 +1,6 @@
 
 Usage: prefixed [options]
 
-Options: 
+Options:
   -value=<String>          
   ----value=<String>       

@@ -207,6 +207,19 @@ public class TableOptionsTest {
         assertEquals("green", actual.sort());
     }
 
+    @Test
+    public void overridesVisibleToCommand() throws Exception {
+        final Main main = new Main(Data.class, CrestContextInterceptor.class);
+        main.exec("overrides",
+                "--table-sort=red",
+                "--expected-sort=red",
+                "--table-fields=blue red",
+                "--expected-fields=blue red",
+                "--table-border=redditMarkdown",
+                "--expected-border=redditMarkdown"
+        );
+    }
+
     public static class Data {
         @Table
         @Command
@@ -263,6 +276,21 @@ public class TableOptionsTest {
         public void both2(final TableOptions tableOptions,
                           @Option("unrelated") final String unrelated
         ) {
+        }
+
+        @Table(fields = "red green blue",
+                border = Border.asciiDots,
+                sort = "green"
+        )
+        @Command
+        public void overrides(final TableOptions tableOptions,
+                          @Option("expected-border") final String expectedBorder,
+                          @Option("expected-sort") final String expectedSort,
+                          @Option("expected-fields") final String expectedFields
+        ) {
+            if (expectedBorder != null) assertEquals(expectedBorder, tableOptions.getBorder().toString());
+            if (expectedSort != null) assertEquals(expectedSort, tableOptions.getSort());
+            if (expectedFields != null) assertEquals(expectedFields, tableOptions.getFields());
         }
 
     }

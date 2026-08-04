@@ -1,6 +1,6 @@
 # Java #
 *.class
-
+.jackknife/
 
 # Package Files #
 *.jar

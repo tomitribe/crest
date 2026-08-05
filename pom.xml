@@ -58,6 +58,7 @@
     <module>tomitribe-crest-cli</module>
     <module>tomitribe-crest-generator</module>
     <module>tomitribe-crest-arthur-extension</module>
+    <module>tomitribe-crest-util</module>
   </modules>
 
   <properties>

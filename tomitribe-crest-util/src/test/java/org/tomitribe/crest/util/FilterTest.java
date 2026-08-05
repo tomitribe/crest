@@ -16,7 +16,9 @@ package org.tomitribe.crest.util;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 
@@ -86,6 +88,21 @@ public class FilterTest {
                 "Person{firstName='Homer', lastName='Simpson', age=36, mom=null, dad=Abraham, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
                 "Person{firstName='Lisa', lastName='Simpson', age=8, mom=Marge, dad=Homer, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
                 "Person{firstName='Bart', lastName='Simpson', age=10, mom=Marge, dad=Homer, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void includeMultiplePatterns() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("Flanders")
+                .include("Burns")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Ned', lastName='Flanders', age=60, mom=null, dad=null, address=Address{street='744 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}", results);
     }
 
     @Test
@@ -185,6 +202,62 @@ public class FilterTest {
     }
 
     @Test
+    public void includeByFieldNumeric() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("^104$")
+                .field("age")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}", results);
+    }
+
+    @Test
+    public void includeByFieldUnknown() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("Simpson")
+                .field("nickname")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("", results);
+    }
+
+    @Test
+    public void includeByFieldNullChild() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("Marge")
+                .field("mom.firstName")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Lisa', lastName='Simpson', age=8, mom=Marge, dad=Homer, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Bart', lastName='Simpson', age=10, mom=Marge, dad=Homer, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void includeRegexAnchors() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("^Moe$")
+                .field("firstName")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
     public void exclude() throws Exception {
 
         final Filter<Object> filter = Filter.builder()
@@ -198,6 +271,203 @@ public class FilterTest {
                 "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}\n" +
                 "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}" +
                 "", results);
+    }
+
+    @Test
+    public void excludeMultiplePatterns() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .exclude("Simpson")
+                .exclude("Flanders")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}\n" +
+                "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void excludeByField() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .exclude("Simpson")
+                .field("lastName")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Ned', lastName='Flanders', age=60, mom=null, dad=null, address=Address{street='744 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}\n" +
+                "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void excludeByFieldNested() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .exclude("Simpson")
+                .field("dad.lastName")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Abraham', lastName='Simpson', age=83, mom=null, dad=null, address=Address{street='Springfield Retirement Castle', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Marge', lastName='Simpson', age=34, mom=null, dad=null, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Ned', lastName='Flanders', age=60, mom=null, dad=null, address=Address{street='744 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}\n" +
+                "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void includeAndExclude() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("Simpson")
+                .exclude("Marge")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Abraham', lastName='Simpson', age=83, mom=null, dad=null, address=Address{street='Springfield Retirement Castle', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Homer', lastName='Simpson', age=36, mom=null, dad=Abraham, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void caseSensitiveByDefault() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("simpson")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("", results);
+    }
+
+    @Test
+    public void caseInsensitiveOption() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("flanders")
+                .caseInsensitive(true)
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Ned', lastName='Flanders', age=60, mom=null, dad=null, address=Address{street='744 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void caseInsensitiveExclude() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .exclude("simpson")
+                .caseInsensitive(true)
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Ned', lastName='Flanders', age=60, mom=null, dad=null, address=Address{street='744 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}\n" +
+                "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void caseInsensitiveInlinePattern() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("(?i)szyslak")
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void caseInsensitivePrecompiledPattern() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include(Pattern.compile("burns", Pattern.CASE_INSENSITIVE))
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}", results);
+    }
+
+    @Test
+    public void fieldsList() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("Springfield")
+                .build();
+
+        assertEquals("Person{firstName='Abraham', lastName='Simpson', age=83, mom=null, dad=null, address=Address{street='Springfield Retirement Castle', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Marge', lastName='Simpson', age=34, mom=null, dad=null, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Homer', lastName='Simpson', age=36, mom=null, dad=Abraham, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Lisa', lastName='Simpson', age=8, mom=Marge, dad=Homer, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Bart', lastName='Simpson', age=10, mom=Marge, dad=Homer, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Ned', lastName='Flanders', age=60, mom=null, dad=null, address=Address{street='744 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}\n" +
+                "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}", apply(filter));
+
+        assertEquals("", apply(filter.fields("firstName lastName")));
+    }
+
+    @Test
+    public void fieldsListNested() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .include("Tavern")
+                .build()
+                .fields("firstName address.street");
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void builderIterables() throws Exception {
+
+        final Filter<Object> filter = Filter.builder()
+                .includes(Arrays.asList(Pattern.compile("Flanders"), Pattern.compile("Szyslak")))
+                .excludes(Arrays.asList(Pattern.compile("Tavern")))
+                .fields(Arrays.asList("lastName", "address.street"))
+                .build();
+
+        final String results = apply(filter);
+
+        assertEquals("" +
+                "Person{firstName='Ned', lastName='Flanders', age=60, mom=null, dad=null, address=Address{street='744 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}", results);
+    }
+
+    @Test
+    public void nullPatternsMatchEverything() throws Exception {
+
+        final Filter<Object> filter = new Filter<>(new Filter.Includes(null), new Filter.Excludes(null), null);
+
+        final String results = apply(filter);
+
+        assertEquals("Person{firstName='Abraham', lastName='Simpson', age=83, mom=null, dad=null, address=Address{street='Springfield Retirement Castle', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Marge', lastName='Simpson', age=34, mom=null, dad=null, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Homer', lastName='Simpson', age=36, mom=null, dad=Abraham, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Lisa', lastName='Simpson', age=8, mom=Marge, dad=Homer, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Bart', lastName='Simpson', age=10, mom=Marge, dad=Homer, address=Address{street='742 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Ned', lastName='Flanders', age=60, mom=null, dad=null, address=Address{street='744 Evergreen Terrace', city='Springfield', state='FX', zipCode='06889'}}\n" +
+                "Person{firstName='Charles Montgomery', lastName='Burns', age=104, mom=null, dad=null, address=Address{street='1000 Mammon Lane', city='Springfield', state='FX', zipCode='06891'}}\n" +
+                "Person{firstName='Moe', lastName='Szyslak', age=48, mom=null, dad=null, address=Address{street='Moe's Tavern, 555 Walnut St', city='Springfield', state='FX', zipCode='06889'}}", results);
     }
 
 

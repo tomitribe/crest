@@ -147,6 +147,18 @@ public class Spec {
         return parameters;
     }
 
+    /**
+     * Adds an option contributed by an interceptor bound to the command.
+     * The caller is responsible for conflict checking.
+     */
+    void addOption(final String name, final OptionParam param) {
+        options.put(name, param);
+    }
+
+    void addAlias(final String alias, final OptionParam param) {
+        aliases.put(alias, param);
+    }
+
     public Map<String, OptionParam> getOptions() {
         return Collections.unmodifiableMap(options);
     }

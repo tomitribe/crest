@@ -56,15 +56,14 @@ public class InterceptorInterceptedByTest {
 
     /**
      * The class named in interceptedBy has no @CrestInterceptor method.
-     * Resolution is lazy, so the failure surfaces at execution time.
+     * Bindings resolve at deploy time, so the failure surfaces when the
+     * Main is constructed, before any command runs.
      */
     @Test
     public void interceptorMethodMissing() throws Exception {
 
-        final Main main = new Main(Foo.class);
-
         try {
-            main.exec("broken", "foo");
+            new Main(Broken.class);
             fail("Expected InterceptorAnnotationNotFoundException");
         } catch (final InterceptorAnnotationNotFoundException pass) {
             assertTrue(pass.getMessage().startsWith("@CrestInterceptor not found on any methods of class " +
@@ -83,6 +82,9 @@ public class InterceptorInterceptedByTest {
         public static String ordered(final String arg) {
             return arg;
         }
+    }
+
+    public static class Broken {
 
         @Command(interceptedBy = NotAnInterceptor.class)
         public static String broken(final String arg) {

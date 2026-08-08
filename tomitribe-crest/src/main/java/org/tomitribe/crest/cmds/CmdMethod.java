@@ -43,6 +43,7 @@ import org.tomitribe.crest.help.DocumentFormatter;
 import org.tomitribe.crest.help.DocumentParser;
 import org.tomitribe.crest.help.Element;
 import org.tomitribe.crest.help.Paragraph;
+import org.tomitribe.crest.interceptor.InterceptorOptionConflictException;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptorInvocationContext;
 import org.tomitribe.crest.javadoc.Javadoc;
@@ -75,6 +76,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.NavigableSet;
 import java.util.Queue;
 import java.util.Set;
@@ -94,6 +96,7 @@ import static org.tomitribe.crest.help.DocumentParser.parseOptionDescription;
  */
 public class CmdMethod implements Cmd {
     public static final String[] NO_PREFIX = {""};
+    private static final Object[] NO_OPTIONS = new Object[0];
     public static final Join.NameCallback<String> STRING_NAME_CALLBACK = new Join.NameCallback<String>() {
         @Override
         public String getName(final String object) {
@@ -117,6 +120,13 @@ public class CmdMethod implements Cmd {
     private final BeanValidationImpl beanValidation;
     private final List<ParameterMetadata> parameterMetadatas;
     private CmdGroup parent;
+
+    /**
+     * The resolved interceptor chain, set at deploy time by {@link #link}.
+     * Null when link was never called; exec then falls back to resolving
+     * lazily, without interceptor-declared option support.
+     */
+    private List<InternalInterceptor> chain;
 
     public CmdMethod(final Method method, final Target target, final DefaultsContext defaultsFinder,
                      final BeanValidationImpl beanValidation) {
@@ -209,6 +219,75 @@ public class CmdMethod implements Cmd {
         }
 
         return interceptors.toArray(new Class[0]);
+    }
+
+    /**
+     * Resolves the interceptor chain against the completed registry and
+     * merges any interceptor-declared options into this command's spec so
+     * they parse, appear in help and reach the interceptor at execution.
+     * Idempotent; called by Main once all classes are registered.
+     */
+    @Override
+    public void link(final Map<Class<?>, InternalInterceptor> globalInterceptors) {
+        if (chain != null) {
+            return;
+        }
+
+        if (interceptors.length == 0) {
+            this.chain = Collections.emptyList();
+            return;
+        }
+
+        final List<InternalInterceptor> chain = InternalInterceptor.resolve(globalInterceptors, interceptors);
+
+        for (final InternalInterceptor interceptor : chain) {
+            mergeOptions(interceptor);
+        }
+
+        this.chain = chain;
+    }
+
+    private void mergeOptions(final InternalInterceptor interceptor) {
+        for (final Map.Entry<String, OptionParam> entry : interceptor.getSpec().getOptions().entrySet()) {
+            final String name = entry.getKey();
+            final OptionParam incoming = entry.getValue();
+            final OptionParam existing = spec.getOptions().get(name);
+
+            if (existing == null) {
+                spec.addOption(name, incoming);
+                continue;
+            }
+
+            /*
+             * The command (or another interceptor) already declares this option.
+             * Identical declarations share the value; anything else is ambiguous.
+             */
+            if (!existing.getType().equals(incoming.getType())) {
+                throw new InterceptorOptionConflictException(name, method, interceptor.getClazz(),
+                        String.format("the types differ (%s vs %s)",
+                                incoming.getType().getName(), existing.getType().getName()));
+            }
+
+            if (!Objects.equals(existing.getDefaultValue(), incoming.getDefaultValue())) {
+                throw new InterceptorOptionConflictException(name, method, interceptor.getClazz(),
+                        String.format("the defaults differ (%s vs %s)",
+                                incoming.getDefaultValue(), existing.getDefaultValue()));
+            }
+        }
+
+        for (final Map.Entry<String, OptionParam> entry : interceptor.getSpec().getAliases().entrySet()) {
+            final String alias = entry.getKey();
+            final OptionParam incoming = entry.getValue();
+            final OptionParam existing = spec.getAliases().get(alias);
+
+            if (existing == null) {
+                spec.addAlias(alias, incoming);
+            } else if (!existing.getName().equals(incoming.getName())) {
+                throw new InterceptorOptionConflictException(alias, method, interceptor.getClazz(),
+                        String.format("the alias points at different options (%s vs %s)",
+                                incoming.getName(), existing.getName()));
+            }
+        }
     }
 
     public CmdMethod(final Method method, final Target target, final BeanValidationImpl beanValidation) {
@@ -341,9 +420,9 @@ public class CmdMethod implements Cmd {
 
     @Override
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final String... rawArgs) {
-        final List<Object> list;
+        final ParsedArgs parsed;
         try {
-            list = parse(rawArgs);
+            parsed = parseArgs(rawArgs);
         } catch (final Exception e) {
             /*
              * If any exception in the chain was annotated with @Exit
@@ -361,7 +440,7 @@ public class CmdMethod implements Cmd {
             throw toRuntimeException(e);
         }
 
-        return exec(globalInterceptors, list);
+        return exec(globalInterceptors, parsed);
     }
 
     protected static RuntimeException getExitCode(final Throwable e) {
@@ -374,18 +453,80 @@ public class CmdMethod implements Cmd {
     }
 
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final List<Object> list) {
-        if (interceptors == null || interceptors.length == 0) {
-            return doInvoke(list);
+        return exec(globalInterceptors, new ParsedArgs(list, null));
+    }
+
+    Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final ParsedArgs parsed) {
+        final List<InternalInterceptor> chain;
+        if (this.chain != null) {
+            chain = this.chain;
+        } else if (interceptors == null || interceptors.length == 0) {
+            chain = Collections.emptyList();
+        } else {
+            chain = InternalInterceptor.resolve(globalInterceptors, interceptors);
         }
 
-        final List<InternalInterceptor> chain = InternalInterceptor.resolve(globalInterceptors, interceptors);
+        if (chain.isEmpty()) {
+            return doInvoke(parsed.getArgs());
+        }
 
-        return new InternalInterceptorInvocationContext(chain, name, parameterMetadatas, method, list) {
+        final List<Object[]> interceptorOptions = parsed.getInterceptorOptions() != null
+                ? parsed.getInterceptorOptions()
+                : defaultInterceptorOptions(chain);
+
+        return new InternalInterceptorInvocationContext(chain, interceptorOptions, name, parameterMetadatas, method, parsed.getArgs()) {
             @Override
             protected Object doInvoke(final List<Object> parameters) {
                 return CmdMethod.this.doInvoke(parameters);
             }
         }.proceed();
+    }
+
+    /**
+     * Used when a command executes without raw args to parse, e.g. the
+     * exec(Map, List) path.  Each interceptor's options convert from an
+     * empty command line, so declared defaults still apply.
+     */
+    private List<Object[]> defaultInterceptorOptions(final List<InternalInterceptor> chain) {
+        final List<Object[]> all = new ArrayList<>(chain.size());
+        for (final InternalInterceptor interceptor : chain) {
+            if (!interceptor.hasOptions()) {
+                all.add(NO_OPTIONS);
+                continue;
+            }
+            final Arguments args = new Arguments(defaultsFinder, interceptor.getSpec(), new String[0]);
+            all.add(convertInterceptorOptions(interceptor, args));
+        }
+        return all;
+    }
+
+    private static Object[] convertInterceptorOptions(final InternalInterceptor interceptor, final Arguments args) {
+        final List<Value> values = convert(args, new Needed(0), interceptor.getOptionParams());
+        return toArgs(values).toArray();
+    }
+
+    public static class ParsedArgs {
+        private final List<Object> args;
+
+        /**
+         * Converted option values per chain interceptor, parallel to the
+         * linked chain.  Null when the args were supplied pre-parsed and
+         * interceptor options should fall back to their defaults.
+         */
+        private final List<Object[]> interceptorOptions;
+
+        public ParsedArgs(final List<Object> args, final List<Object[]> interceptorOptions) {
+            this.args = args;
+            this.interceptorOptions = interceptorOptions;
+        }
+
+        public List<Object> getArgs() {
+            return args;
+        }
+
+        public List<Object[]> getInterceptorOptions() {
+            return interceptorOptions;
+        }
     }
 
     public static List<ParameterMetadata> buildApiParameterViews(final List<Param> parameters) {
@@ -666,11 +807,42 @@ public class CmdMethod implements Cmd {
     }
 
     public List<Object> parse(final String... rawArgs) {
+        return parseArgs(rawArgs).getArgs();
+    }
+
+    public ParsedArgs parseArgs(final String... rawArgs) {
         final Arguments args = new Arguments(defaultsFinder, spec, rawArgs);
+
+        /*
+         * Interceptor options convert first, each interceptor from its own
+         * copy of the parsed options, so an option shared with the command
+         * (or another interceptor) is not consumed away from any declarer.
+         */
+        List<Object[]> interceptorOptions = null;
+        final List<InternalInterceptor> chain = this.chain == null ? Collections.emptyList() : this.chain;
+        if (this.chain != null) {
+            interceptorOptions = new ArrayList<>(chain.size());
+            for (final InternalInterceptor interceptor : chain) {
+                interceptorOptions.add(interceptor.hasOptions()
+                        ? convertInterceptorOptions(interceptor, args.copy())
+                        : NO_OPTIONS);
+            }
+        }
 
         final Needed needed = new Needed(spec.getArguments().size());
 
         final List<Value> converted = convert(args, needed, parameters);
+
+        /*
+         * Options owned only by interceptors were consumed from the copies.
+         * Clear them from the original so the leftover check below sees
+         * just the genuinely unclaimed input.
+         */
+        for (final InternalInterceptor interceptor : chain) {
+            for (final String name : interceptor.getSpec().getOptions().keySet()) {
+                args.getOptions().remove(name);
+            }
+        }
 
         if (!args.getList().isEmpty()) {
             throw new IllegalArgumentException("Excess arguments: " + Join.join(", ", args.getList()));
@@ -680,7 +852,7 @@ public class CmdMethod implements Cmd {
             throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", STRING_NAME_CALLBACK, args.getOptions().keySet()));
         }
 
-        return toArgs(converted);
+        return new ParsedArgs(toArgs(converted), interceptorOptions);
     }
 
     public static List<Object> toArgs(final List<Value> converted) {

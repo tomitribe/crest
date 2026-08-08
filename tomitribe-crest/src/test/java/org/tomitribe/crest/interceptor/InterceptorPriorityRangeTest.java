@@ -33,6 +33,8 @@ import static org.junit.Assert.fail;
  * ends.  The whole-number endpoints are deliberately not allowed so no
  * interceptor can take the last spot and shut others out: there is always
  * room to slot in before or after any legal priority.
+ *
+ * Out-of-range priorities fail at deploy time, when the Main is constructed.
  */
 public class InterceptorPriorityRangeTest {
 
@@ -47,12 +49,8 @@ public class InterceptorPriorityRangeTest {
         assertEquals("start, PointOne, TenNine", main.exec("edges", "start"));
     }
 
-    /**
-     * A registered interceptor with an out-of-range priority fails at
-     * deploy time, when the interceptor is registered with Main
-     */
     @Test
-    public void zeroRejectedAtDeployTime() throws Exception {
+    public void zeroRejected() throws Exception {
 
         try {
             new Main(Foo.class, ZeroInterceptor.class);
@@ -68,17 +66,11 @@ public class InterceptorPriorityRangeTest {
         }
     }
 
-    /**
-     * An interceptor bound via interceptedBy resolves lazily, so the
-     * out-of-range priority surfaces at execution time
-     */
     @Test
     public void elevenRejected() throws Exception {
 
-        final Main main = new Main(Foo.class);
-
         try {
-            main.exec("eleven", "start");
+            new Main(Eleven.class);
             fail("Expected InvalidInterceptorPriorityException");
         } catch (final InvalidInterceptorPriorityException pass) {
             assertTrue(pass.getMessage().contains("@Priority(11.0) which is outside the valid range"));
@@ -88,10 +80,8 @@ public class InterceptorPriorityRangeTest {
     @Test
     public void negativeRejected() throws Exception {
 
-        final Main main = new Main(Foo.class);
-
         try {
-            main.exec("negative", "start");
+            new Main(Negative.class);
             fail("Expected InvalidInterceptorPriorityException");
         } catch (final InvalidInterceptorPriorityException pass) {
             assertTrue(pass.getMessage().contains("@Priority(-3.0) which is outside the valid range"));
@@ -105,10 +95,8 @@ public class InterceptorPriorityRangeTest {
     @Test
     public void nanRejected() throws Exception {
 
-        final Main main = new Main(Foo.class);
-
         try {
-            main.exec("nan", "start");
+            new Main(Nan.class);
             fail("Expected InvalidInterceptorPriorityException");
         } catch (final InvalidInterceptorPriorityException pass) {
             assertTrue(pass.getMessage().contains("@Priority(NaN) which is outside the valid range"));
@@ -121,16 +109,25 @@ public class InterceptorPriorityRangeTest {
         public static String edges(final String arg) {
             return arg;
         }
+    }
+
+    public static class Eleven {
 
         @Command(interceptedBy = ElevenInterceptor.class)
         public static String eleven(final String arg) {
             return arg;
         }
+    }
+
+    public static class Negative {
 
         @Command(interceptedBy = NegativeInterceptor.class)
         public static String negative(final String arg) {
             return arg;
         }
+    }
+
+    public static class Nan {
 
         @Command(interceptedBy = NanInterceptor.class)
         public static String nan(final String arg) {

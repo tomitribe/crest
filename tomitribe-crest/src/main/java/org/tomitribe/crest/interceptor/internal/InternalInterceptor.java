@@ -19,11 +19,19 @@ package org.tomitribe.crest.interceptor.internal;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.api.interceptor.Priority;
+import org.tomitribe.crest.cmds.CmdMethod;
+import org.tomitribe.crest.cmds.ComplexParam;
+import org.tomitribe.crest.cmds.Spec;
+import org.tomitribe.crest.cmds.processors.OptionParam;
+import org.tomitribe.crest.cmds.processors.Param;
 import org.tomitribe.crest.cmds.targets.SimpleBean;
 import org.tomitribe.crest.cmds.targets.Target;
+import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.interceptor.InterceptorAnnotationNotFoundException;
 import org.tomitribe.crest.interceptor.InvalidInterceptorPriorityException;
 import org.tomitribe.crest.interceptor.UnresolvedInterceptorAnnotationException;
+import org.tomitribe.crest.val.BeanValidationImpl;
+import org.tomitribe.util.reflect.Reflection;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,18 +43,84 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.Optional.ofNullable;
+import static org.tomitribe.crest.cmds.CmdMethod.NO_PREFIX;
+
 public class InternalInterceptor {
 
     public static final double DEFAULT_PRIORITY = 5d;
 
+    private static final Object[] NO_OPTIONS = new Object[0];
+
     private final Target target;
     private final Method method;
+    private final Class<?> clazz;
     private final double priority;
+
+    /**
+     * The interceptor's own option declarations, parsed from the parameters
+     * of the @CrestInterceptor method.  These merge into the spec of every
+     * command the interceptor is bound to.
+     */
+    private final Spec spec;
+
+    /**
+     * The @CrestInterceptor method's parameters minus the CrestContext,
+     * in declaration order.  Converted per execution and passed to
+     * {@link #intercept(CrestContext, Object[])}.
+     */
+    private final List<Param> optionParams;
+
+    private final int contextIndex;
+    private final int parameterCount;
 
     public InternalInterceptor(final Target target, final Method method, final Class<?> clazz) {
         this.target = target;
         this.method = method;
+        this.clazz = clazz;
         this.priority = readPriority(clazz);
+
+        final BeanValidationImpl beanValidation = ofNullable(Environment.ENVIRONMENT_THREAD_LOCAL.get())
+                .map(e -> e.findService(BeanValidationImpl.class))
+                .orElse(null);
+
+        this.spec = new Spec(beanValidation);
+        final List<Param> params = spec.buildParams(beanValidation, null, NO_PREFIX, null, Reflection.params(method));
+        CmdMethod.buildApiParameterViews(params);
+
+        int contextIndex = -1;
+        final List<Param> optionParams = new ArrayList<>();
+
+        for (int i = 0; i < params.size(); i++) {
+            final Param param = params.get(i);
+
+            if (param instanceof OptionParam || param instanceof ComplexParam) {
+                optionParams.add(param);
+                continue;
+            }
+
+            if (CrestContext.class.equals(param.getType()) && contextIndex < 0) {
+                contextIndex = i;
+                continue;
+            }
+
+            throw new IllegalArgumentException(String.format("Interceptor %s method %s may only declare" +
+                            " @Option parameters, @Options beans and one CrestContext parameter." +
+                            "  Parameter %s (%s) is not allowed." +
+                            "  Remove it or annotate it with @Option",
+                    clazz.getName(), method.getName(), i + 1, param.getType().getName()));
+        }
+
+        if (contextIndex < 0) {
+            throw new IllegalArgumentException(String.format("Interceptor %s method %s must declare a" +
+                            " CrestContext parameter.  Add one, e.g.:" +
+                            " public Object %s(final CrestContext crestContext)",
+                    clazz.getName(), method.getName(), method.getName()));
+        }
+
+        this.contextIndex = contextIndex;
+        this.parameterCount = params.size();
+        this.optionParams = Collections.unmodifiableList(optionParams);
     }
 
     /**
@@ -72,8 +146,19 @@ public class InternalInterceptor {
     }
 
     public Object intercept(final CrestContext crestContext) {
+        return intercept(crestContext, NO_OPTIONS);
+    }
+
+    public Object intercept(final CrestContext crestContext, final Object[] options) {
+        final Object[] args = new Object[parameterCount];
+
+        int option = 0;
+        for (int i = 0; i < parameterCount; i++) {
+            args[i] = i == contextIndex ? crestContext : options[option++];
+        }
+
         try {
-            return target.invoke(method, crestContext);
+            return target.invoke(method, args);
         } catch (final InvocationTargetException e) {
             return throwRuntime(e.getCause());
         } catch (final IllegalAccessException e) {
@@ -87,6 +172,22 @@ public class InternalInterceptor {
 
     public double getPriority() {
         return priority;
+    }
+
+    public Class<?> getClazz() {
+        return clazz;
+    }
+
+    public Spec getSpec() {
+        return spec;
+    }
+
+    public List<Param> getOptionParams() {
+        return optionParams;
+    }
+
+    public boolean hasOptions() {
+        return !optionParams.isEmpty();
     }
 
     /**

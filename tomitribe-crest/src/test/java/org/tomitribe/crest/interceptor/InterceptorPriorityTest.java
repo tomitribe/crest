@@ -84,7 +84,7 @@ public class InterceptorPriorityTest {
     @Test
     public void prioritySpansBindingStyles() throws Exception {
 
-        final Main main = new Main(Foo.class, EarlyInterceptor.class);
+        final Main main = new Main(Mixed.class, EarlyInterceptor.class);
 
         assertEquals("start, Early, Seven", main.exec("mixed", "start"));
     }
@@ -105,6 +105,9 @@ public class InterceptorPriorityTest {
         public static String tied(final String arg) {
             return arg;
         }
+    }
+
+    public static class Mixed {
 
         @Early
         @Command(interceptedBy = SevenInterceptor.class)

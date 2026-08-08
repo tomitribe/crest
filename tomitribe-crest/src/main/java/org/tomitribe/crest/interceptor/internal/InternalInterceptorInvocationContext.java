@@ -23,18 +23,23 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public abstract class InternalInterceptorInvocationContext {
+    private static final Object[] NO_OPTIONS = new Object[0];
+
     private final List<InternalInterceptor> chain;
+    private final List<Object[]> interceptorOptions;
     private final CrestContext context;
 
     private List<Object> parameters;
     private int index = 0;
 
     public InternalInterceptorInvocationContext(final List<InternalInterceptor> chain,
+                                                final List<Object[]> interceptorOptions,
                                                 final String name,
                                                 final List<ParameterMetadata> parameterMetadatas,
                                                 final Method method,
                                                 final List<Object> parameters) {
         this.chain = chain;
+        this.interceptorOptions = interceptorOptions;
         this.parameters = parameters;
         this.context = new CrestContext() {
             @Override
@@ -66,7 +71,8 @@ public abstract class InternalInterceptorInvocationContext {
 
     public Object proceed() {
         if (index < chain.size()) {
-            return chain.get(index++).intercept(context);
+            final Object[] options = interceptorOptions == null ? NO_OPTIONS : interceptorOptions.get(index);
+            return chain.get(index++).intercept(context, options);
         }
         return doInvoke(parameters);
     }

@@ -79,10 +79,10 @@ public class OverloadedCmdMethod implements Cmd {
         while (iterator.hasNext()) {
             final CmdMethod method = iterator.next();
 
-            final List<Object> args;
+            final CmdMethod.ParsedArgs args;
             try {
 
-                args = method.parse(rawArgs);
+                args = method.parseArgs(rawArgs);
 
             } catch (final Exception e) {
                 if (iterator.hasNext()) {
@@ -160,6 +160,13 @@ public class OverloadedCmdMethod implements Cmd {
         }
 
         Help.printNameAndVersion(out);
+    }
+
+    @Override
+    public void link(final Map<Class<?>, InternalInterceptor> globalInterceptors) {
+        for (final CmdMethod method : methods) {
+            method.link(globalInterceptors);
+        }
     }
 
     public void add(final CmdMethod cmd) {

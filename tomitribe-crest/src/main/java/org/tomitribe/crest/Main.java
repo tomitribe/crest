@@ -112,6 +112,15 @@ public class Main implements Completer {
 
         // Built-in commands
         installHelp(defaultsContext);
+
+        /*
+         * All commands and interceptors are registered; resolve interceptor
+         * bindings so binding mistakes fail here at deploy time and any
+         * interceptor-declared options merge into their commands' specs.
+         */
+        for (final Cmd cmd : commands.values()) {
+            cmd.link(interceptors);
+        }
     }
 
     private TargetProvider lookupTargetProviderServiceLoader() {

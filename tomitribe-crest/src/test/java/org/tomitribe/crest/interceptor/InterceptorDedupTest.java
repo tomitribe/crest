@@ -65,7 +65,7 @@ public class InterceptorDedupTest {
     @Test
     public void aliasedAnnotations() throws Exception {
 
-        final Main main = new Main(Foo.class, LoggingMeteringInterceptor.class);
+        final Main main = new Main(Aliased.class, LoggingMeteringInterceptor.class);
 
         assertEquals("foo, intercepted", main.exec("aliased", "foo"));
     }
@@ -76,7 +76,7 @@ public class InterceptorDedupTest {
     @Test
     public void singleAlias() throws Exception {
 
-        final Main main = new Main(Foo.class, LoggingMeteringInterceptor.class);
+        final Main main = new Main(Aliased.class, LoggingMeteringInterceptor.class);
 
         assertEquals("foo, intercepted", main.exec("single", "foo"));
     }
@@ -93,6 +93,9 @@ public class InterceptorDedupTest {
         public static String mixed(final String arg) {
             return arg;
         }
+    }
+
+    public static class Aliased {
 
         @Logged
         @Metered

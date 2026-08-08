@@ -50,13 +50,15 @@ public class InterceptorCustomAnnotationDiscoveredTest {
         assertEquals("BlueInterceptor", main.exec("blue", "foo"));
     }
 
+    /**
+     * No registered interceptor is annotated with @Blue.  Bindings resolve
+     * at deploy time, so the failure surfaces when the Main is constructed
+     */
     @Test
     public void interceptorIndirectlyNamedDoesNotResolve() throws Exception {
 
-        final Main main = new Main(Foo.class);
-
         try {
-            main.exec("blue", "foo");
+            new Main(Foo.class);
             fail("Expected UnresolvedInterceptorAnnotationException");
         } catch (final UnresolvedInterceptorAnnotationException pass) {
             assertEquals("Custom interceptor annotation " +

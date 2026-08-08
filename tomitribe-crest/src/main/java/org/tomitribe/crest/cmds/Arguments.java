@@ -66,6 +66,23 @@ public class Arguments {
 
     }
 
+    private Arguments(final DefaultsContext defaultsFinder, final Spec spec) {
+        this.defaultsFinder = defaultsFinder;
+        this.spec = spec;
+    }
+
+    /**
+     * Converting parameters to values consumes entries from the options map.
+     * Each consumer of a shared option needs its own copy to convert from so
+     * one consumer does not eat a value another also declared.
+     */
+    public Arguments copy() {
+        final Arguments copy = new Arguments(defaultsFinder, spec);
+        copy.options.putAll(this.options);
+        copy.list.addAll(this.list);
+        return copy;
+    }
+
     public List<String> getList() {
         return list;
     }

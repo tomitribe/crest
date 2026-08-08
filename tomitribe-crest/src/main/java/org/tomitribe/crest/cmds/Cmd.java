@@ -32,6 +32,14 @@ public interface Cmd extends Completer {
 
     Object exec(Map<Class<?>, InternalInterceptor> globalInterceptors, String... rawArgs);
 
+    /**
+     * Called once all commands and interceptors are registered.  Resolves
+     * interceptor bindings so binding failures surface at deploy time and
+     * interceptor-declared options can merge into the command spec.
+     */
+    default void link(Map<Class<?>, InternalInterceptor> globalInterceptors) {
+    }
+
     void help(PrintStream out);
 
     default void manual(PrintStream out) {

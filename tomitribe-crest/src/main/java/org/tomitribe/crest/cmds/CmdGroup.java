@@ -118,6 +118,13 @@ public class CmdGroup implements Cmd {
         }
     }
 
+    @Override
+    public void link(final Map<Class<?>, InternalInterceptor> globalInterceptors) {
+        for (final Cmd cmd : commands.values()) {
+            cmd.link(globalInterceptors);
+        }
+    }
+
     public Collection<Cmd> getCommands() {
         return Collections.unmodifiableCollection(commands.values());
     }

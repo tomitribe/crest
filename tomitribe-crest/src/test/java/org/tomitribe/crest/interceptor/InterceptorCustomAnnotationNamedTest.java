@@ -51,15 +51,14 @@ public class InterceptorCustomAnnotationNamedTest {
 
     /**
      * The class named by the custom annotation has no @CrestInterceptor method.
-     * Resolution is lazy, so the failure surfaces at execution time.
+     * Bindings resolve at deploy time, so the failure surfaces when the
+     * Main is constructed, before any command runs.
      */
     @Test
     public void interceptorMethodMissing() throws Exception {
 
-        final Main main = new Main(Foo.class);
-
         try {
-            main.exec("broken", "foo");
+            new Main(BrokenFoo.class);
             fail("Expected InterceptorAnnotationNotFoundException");
         } catch (final InterceptorAnnotationNotFoundException pass) {
             assertTrue(pass.getMessage().startsWith("@CrestInterceptor not found on any methods of class " +
@@ -74,6 +73,9 @@ public class InterceptorCustomAnnotationNamedTest {
         public static String red(final String arg) {
             return arg;
         }
+    }
+
+    public static class BrokenFoo {
 
         @Broken
         @Command

@@ -18,28 +18,23 @@ package org.tomitribe.crest.interceptor.internal;
 
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.ParameterMetadata;
-import org.tomitribe.crest.interceptor.UnresolvedInterceptorAnnotationException;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 
 public abstract class InternalInterceptorInvocationContext {
-    private final Map<Class<?>, InternalInterceptor> interceptors;
+    private final List<InternalInterceptor> chain;
     private final CrestContext context;
-    private final Class<?>[] interceptorKeys;
 
     private List<Object> parameters;
     private int index = 0;
 
-    public InternalInterceptorInvocationContext(final Map<Class<?>, InternalInterceptor> interceptors,
-                                                final Class<?>[] interceptorKeys,
+    public InternalInterceptorInvocationContext(final List<InternalInterceptor> chain,
                                                 final String name,
                                                 final List<ParameterMetadata> parameterMetadatas,
                                                 final Method method,
                                                 final List<Object> parameters) {
-        this.interceptorKeys = interceptorKeys;
-        this.interceptors = interceptors;
+        this.chain = chain;
         this.parameters = parameters;
         this.context = new CrestContext() {
             @Override
@@ -70,20 +65,8 @@ public abstract class InternalInterceptorInvocationContext {
     }
 
     public Object proceed() {
-        if (index < interceptorKeys.length) {
-            final Class<?> interceptorClass = interceptorKeys[index];
-            InternalInterceptor internalInterceptor = interceptors.get(interceptorClass);
-
-            if (internalInterceptor == null) {
-
-                if (interceptorClass.isAnnotation()) {
-                    throw new UnresolvedInterceptorAnnotationException(interceptorClass);
-                }
-
-                internalInterceptor = InternalInterceptor.from(interceptorClass);
-            }
-            index++;
-            return internalInterceptor.intercept(context);
+        if (index < chain.size()) {
+            return chain.get(index++).intercept(context);
         }
         return doInvoke(parameters);
     }

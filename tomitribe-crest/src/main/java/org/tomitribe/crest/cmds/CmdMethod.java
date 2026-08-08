@@ -168,10 +168,12 @@ public class CmdMethod implements Cmd {
     }
 
     private Class<?>[] getInterceptors(final Method method) {
-        final List<Class<?>> interceptors = new ArrayList<>();
+        final Set<Class<?>> interceptors = new LinkedHashSet<>();
 
         /*
-         * We add the interceptors in the order we see them and ultimately reflection determines the order
+         * We add the interceptors in the order we see them.  Declaration order is
+         * the tie-breaker; interceptors annotated with @Priority are sorted at
+         * execution time.  A class referenced more than once is only added once.
          */
         for (final Annotation methodAnnotation : method.getDeclaredAnnotations()) {
 
@@ -376,7 +378,9 @@ public class CmdMethod implements Cmd {
             return doInvoke(list);
         }
 
-        return new InternalInterceptorInvocationContext(globalInterceptors, interceptors, name, parameterMetadatas, method, list) {
+        final List<InternalInterceptor> chain = InternalInterceptor.resolve(globalInterceptors, interceptors);
+
+        return new InternalInterceptorInvocationContext(chain, name, parameterMetadatas, method, list) {
             @Override
             protected Object doInvoke(final List<Object> parameters) {
                 return CmdMethod.this.doInvoke(parameters);

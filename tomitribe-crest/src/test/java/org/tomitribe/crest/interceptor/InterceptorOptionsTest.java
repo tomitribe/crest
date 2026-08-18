@@ -136,8 +136,8 @@ public class InterceptorOptionsTest {
             new Main(Plain.class);
             fail("Expected IllegalArgumentException");
         } catch (final IllegalArgumentException pass) {
-            assertTrue(pass.getMessage().contains("may only declare @Option parameters," +
-                    " @Options beans and one CrestContext parameter"));
+            assertTrue(pass.getMessage(), pass.getMessage().contains("may not declare positional parameters"));
+            assertTrue(pass.getMessage(), pass.getMessage().contains("Annotate it with @Option(\"some-name\") or remove it"));
         }
     }
 

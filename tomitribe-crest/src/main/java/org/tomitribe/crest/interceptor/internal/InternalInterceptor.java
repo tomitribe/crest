@@ -16,8 +16,12 @@
  */
 package org.tomitribe.crest.interceptor.internal;
 
+import org.tomitribe.crest.api.Err;
+import org.tomitribe.crest.api.In;
+import org.tomitribe.crest.api.Out;
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.CrestInterceptor;
+import org.tomitribe.crest.api.interceptor.ParameterMetadata;
 import org.tomitribe.crest.api.interceptor.Priority;
 import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.ComplexParam;
@@ -67,10 +71,11 @@ public class InternalInterceptor {
 
     /**
      * The @CrestInterceptor method's parameters minus the CrestContext,
-     * in declaration order.  Converted per execution and passed to
-     * {@link #intercept(CrestContext, Object[])}.
+     * in declaration order: options, @Options beans and the injected
+     * parameters (@In, @Out, @Err, Environment, services).  Materialized
+     * per execution and passed to {@link #intercept(CrestContext, Object[])}.
      */
-    private final List<Param> optionParams;
+    private final List<Param> injectableParams;
 
     private final int contextIndex;
     private final int parameterCount;
@@ -90,13 +95,13 @@ public class InternalInterceptor {
         CmdMethod.buildApiParameterViews(params);
 
         int contextIndex = -1;
-        final List<Param> optionParams = new ArrayList<>();
+        final List<Param> injectableParams = new ArrayList<>();
 
         for (int i = 0; i < params.size(); i++) {
             final Param param = params.get(i);
 
             if (param instanceof OptionParam || param instanceof ComplexParam) {
-                optionParams.add(param);
+                injectableParams.add(param);
                 continue;
             }
 
@@ -105,10 +110,22 @@ public class InternalInterceptor {
                 continue;
             }
 
-            throw new IllegalArgumentException(String.format("Interceptor %s method %s may only declare" +
-                            " @Option parameters, @Options beans and one CrestContext parameter." +
-                            "  Parameter %s (%s) is not allowed." +
-                            "  Remove it or annotate it with @Option",
+            /*
+             * Everything a command method can inject is equally injectable
+             * here: @In, @Out, @Err, Environment and registered services.
+             * Only positional parameters have no meaning on an interceptor.
+             */
+            final ParameterMetadata.ParamType type = param.getApiView().getType();
+            if (type == ParameterMetadata.ParamType.INTERNAL || type == ParameterMetadata.ParamType.SERVICE) {
+                injectableParams.add(param);
+                continue;
+            }
+
+            throw new IllegalArgumentException(String.format("Interceptor %s method %s may not declare" +
+                            " positional parameters.  Parameter %s (%s) is not an @Option, an @Options bean," +
+                            " one CrestContext parameter, or an injectable parameter (@In InputStream," +
+                            " @Out PrintStream, @Err PrintStream, Environment, a registered service)." +
+                            "  Annotate it with @Option(\"some-name\") or remove it",
                     clazz.getName(), method.getName(), i + 1, param.getType().getName()));
         }
 
@@ -120,36 +137,59 @@ public class InternalInterceptor {
         }
 
         /*
-         * The CrestContext parameter is the only non-option allowed anywhere,
-         * including inside @Options beans, whose constructor parameters also
-         * land in the spec's positional argument list.
+         * @Options bean constructor parameters also land in the spec's
+         * positional argument list, alongside the CrestContext and any
+         * injected parameters.  The injectables are all legal inside a bean
+         * — ComplexParam.build supplies them — so only a genuinely
+         * positional constructor parameter is a mistake.
          */
-        if (spec.getArguments().size() > 1) {
+        for (final Param argument : spec.getArguments()) {
+            if (CrestContext.class.equals(argument.getType())) {
+                continue;
+            }
+
+            final ParameterMetadata.ParamType type = argument.getApiView().getType();
+            if (type == ParameterMetadata.ParamType.INTERNAL || type == ParameterMetadata.ParamType.SERVICE) {
+                continue;
+            }
+
             throw new IllegalArgumentException(String.format("Interceptor %s method %s declares an @Options" +
-                            " bean with a positional constructor parameter.  Interceptor options must all be" +
-                            " named: annotate the constructor parameter with @Option",
-                    clazz.getName(), method.getName()));
+                            " bean with a positional constructor parameter (%s).  Interceptor options must all be" +
+                            " named: annotate the constructor parameter with @Option(\"some-name\")",
+                    clazz.getName(), method.getName(), argument.getType().getName()));
         }
 
         this.contextIndex = contextIndex;
         this.parameterCount = params.size();
-        this.optionParams = Collections.unmodifiableList(optionParams);
+        this.injectableParams = Collections.unmodifiableList(injectableParams);
     }
 
     /**
-     * Builds this interceptor's option arguments from the invocation's
-     * option values as they stand right now.  Called at the interceptor's
-     * turn in the chain, so it sees every replacement made by interceptors
-     * that ran before it.
+     * Builds this interceptor's arguments — minus the CrestContext — from
+     * the invocation's option values as they stand right now, plus the
+     * injected parameters read from the Environment.  Called at the
+     * interceptor's turn in the chain, so it sees every replacement made
+     * by interceptors that ran before it.
      */
-    public Object[] materializeOptions(final OptionsMap options) {
-        final Object[] values = new Object[optionParams.size()];
-        for (int i = 0; i < optionParams.size(); i++) {
-            final Param param = optionParams.get(i);
+    public Object[] materializeArguments(final OptionsMap options) {
+        final Object[] values = new Object[injectableParams.size()];
+        final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+        for (int i = 0; i < injectableParams.size(); i++) {
+            final Param param = injectableParams.get(i);
             if (param instanceof OptionParam) {
                 values[i] = options.get(((OptionParam) param).getName());
-            } else {
+            } else if (param instanceof ComplexParam) {
                 values[i] = ((ComplexParam) param).build(options::get, options::isProvided).getValue();
+            } else if (param.isAnnotationPresent(In.class)) {
+                values[i] = environment.getInput();
+            } else if (param.isAnnotationPresent(Out.class)) {
+                values[i] = environment.getOutput();
+            } else if (param.isAnnotationPresent(Err.class)) {
+                values[i] = environment.getError();
+            } else if (Environment.class.isAssignableFrom(param.getType())) {
+                values[i] = environment;
+            } else {
+                values[i] = environment.findService(param.getType());
             }
         }
         return values;
@@ -214,12 +254,18 @@ public class InternalInterceptor {
         return spec;
     }
 
-    public List<Param> getOptionParams() {
-        return optionParams;
+    public List<Param> getInjectableParams() {
+        return injectableParams;
     }
 
+    /**
+     * True when this interceptor contributes named options to the commands
+     * it is bound to.  Injected parameters (@In, @Out, @Err, Environment,
+     * services) come from the Environment, not the option namespace, so
+     * they do not count.
+     */
     public boolean hasOptions() {
-        return !optionParams.isEmpty();
+        return !spec.getOptions().isEmpty();
     }
 
     /**

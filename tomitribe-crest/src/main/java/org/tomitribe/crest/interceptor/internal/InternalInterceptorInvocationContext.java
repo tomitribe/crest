@@ -80,11 +80,11 @@ public abstract class InternalInterceptorInvocationContext {
             final InternalInterceptor interceptor = chain.get(index++);
 
             /*
-             * The interceptor's option arguments materialize now, at its
-             * turn in the chain, so it sees the option values as replaced
-             * by every interceptor that ran before it.
+             * The interceptor's arguments materialize now, at its turn in
+             * the chain, so it sees the option values as replaced by every
+             * interceptor that ran before it.
              */
-            return interceptor.intercept(context, interceptor.materializeOptions(options));
+            return interceptor.intercept(context, interceptor.materializeArguments(options));
         }
         return doInvoke(parameters);
     }

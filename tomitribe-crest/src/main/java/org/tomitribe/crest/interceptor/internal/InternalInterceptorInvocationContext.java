@@ -18,28 +18,29 @@ package org.tomitribe.crest.interceptor.internal;
 
 import org.tomitribe.crest.api.interceptor.CrestContext;
 import org.tomitribe.crest.api.interceptor.ParameterMetadata;
+import org.tomitribe.crest.cmds.OptionsMap;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 public abstract class InternalInterceptorInvocationContext {
-    private static final Object[] NO_OPTIONS = new Object[0];
 
     private final List<InternalInterceptor> chain;
-    private final List<Object[]> interceptorOptions;
+    private final OptionsMap options;
     private final CrestContext context;
 
     private List<Object> parameters;
     private int index = 0;
 
     public InternalInterceptorInvocationContext(final List<InternalInterceptor> chain,
-                                                final List<Object[]> interceptorOptions,
+                                                final OptionsMap options,
                                                 final String name,
                                                 final List<ParameterMetadata> parameterMetadatas,
                                                 final Method method,
                                                 final List<Object> parameters) {
         this.chain = chain;
-        this.interceptorOptions = interceptorOptions;
+        this.options = options;
         this.parameters = parameters;
         this.context = new CrestContext() {
             @Override
@@ -58,6 +59,11 @@ public abstract class InternalInterceptorInvocationContext {
             }
 
             @Override
+            public Map<String, Object> getOptions() { // mutable; live view where the command declares the option
+                return options;
+            }
+
+            @Override
             public String getName() {
                 return name;
             }
@@ -71,8 +77,14 @@ public abstract class InternalInterceptorInvocationContext {
 
     public Object proceed() {
         if (index < chain.size()) {
-            final Object[] options = interceptorOptions == null ? NO_OPTIONS : interceptorOptions.get(index);
-            return chain.get(index++).intercept(context, options);
+            final InternalInterceptor interceptor = chain.get(index++);
+
+            /*
+             * The interceptor's option arguments materialize now, at its
+             * turn in the chain, so it sees the option values as replaced
+             * by every interceptor that ran before it.
+             */
+            return interceptor.intercept(context, interceptor.materializeOptions(options));
         }
         return doInvoke(parameters);
     }

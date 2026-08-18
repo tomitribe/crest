@@ -21,6 +21,7 @@ import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.api.interceptor.Priority;
 import org.tomitribe.crest.cmds.CmdMethod;
 import org.tomitribe.crest.cmds.ComplexParam;
+import org.tomitribe.crest.cmds.OptionsMap;
 import org.tomitribe.crest.cmds.Spec;
 import org.tomitribe.crest.cmds.processors.OptionParam;
 import org.tomitribe.crest.cmds.processors.Param;
@@ -118,9 +119,40 @@ public class InternalInterceptor {
                     clazz.getName(), method.getName(), method.getName()));
         }
 
+        /*
+         * The CrestContext parameter is the only non-option allowed anywhere,
+         * including inside @Options beans, whose constructor parameters also
+         * land in the spec's positional argument list.
+         */
+        if (spec.getArguments().size() > 1) {
+            throw new IllegalArgumentException(String.format("Interceptor %s method %s declares an @Options" +
+                            " bean with a positional constructor parameter.  Interceptor options must all be" +
+                            " named: annotate the constructor parameter with @Option",
+                    clazz.getName(), method.getName()));
+        }
+
         this.contextIndex = contextIndex;
         this.parameterCount = params.size();
         this.optionParams = Collections.unmodifiableList(optionParams);
+    }
+
+    /**
+     * Builds this interceptor's option arguments from the invocation's
+     * option values as they stand right now.  Called at the interceptor's
+     * turn in the chain, so it sees every replacement made by interceptors
+     * that ran before it.
+     */
+    public Object[] materializeOptions(final OptionsMap options) {
+        final Object[] values = new Object[optionParams.size()];
+        for (int i = 0; i < optionParams.size(); i++) {
+            final Param param = optionParams.get(i);
+            if (param instanceof OptionParam) {
+                values[i] = options.get(((OptionParam) param).getName());
+            } else {
+                values[i] = ((ComplexParam) param).build(options::get, options::isProvided).getValue();
+            }
+        }
+        return values;
     }
 
     /**

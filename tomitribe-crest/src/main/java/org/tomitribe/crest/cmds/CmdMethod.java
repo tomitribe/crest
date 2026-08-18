@@ -75,6 +75,8 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.NavigableSet;
@@ -96,7 +98,6 @@ import static org.tomitribe.crest.help.DocumentParser.parseOptionDescription;
  */
 public class CmdMethod implements Cmd {
     public static final String[] NO_PREFIX = {""};
-    private static final Object[] NO_OPTIONS = new Object[0];
     public static final Join.NameCallback<String> STRING_NAME_CALLBACK = new Join.NameCallback<String>() {
         @Override
         public String getName(final String object) {
@@ -127,6 +128,20 @@ public class CmdMethod implements Cmd {
      * lazily, without interceptor-declared option support.
      */
     private List<InternalInterceptor> chain;
+
+    /**
+     * The list index of each scalar option parameter of the command method,
+     * by option name.  These indexes are what make OptionsMap entries a live
+     * view over the parameter list.
+     */
+    private final Map<String, Integer> optionSlots = new LinkedHashMap<>();
+
+    /**
+     * The list index of each @Options bean parameter of the command method.
+     * Beans are derived values: when an interceptor replaces one of a bean's
+     * constituent options, the bean is rebuilt before the command runs.
+     */
+    private final Map<Integer, ComplexParam> beanSlots = new LinkedHashMap<>();
 
     public CmdMethod(final Method method, final Target target, final DefaultsContext defaultsFinder,
                      final BeanValidationImpl beanValidation) {
@@ -166,6 +181,15 @@ public class CmdMethod implements Cmd {
 
         this.parameters = Collections.unmodifiableList(parameters);
         this.parameterMetadatas = buildApiParameterViews(parameters);
+
+        for (int i = 0; i < parameters.size(); i++) {
+            final Param param = parameters.get(i);
+            if (param instanceof OptionParam) {
+                optionSlots.put(((OptionParam) param).getName(), i);
+            } else if (param instanceof ComplexParam) {
+                beanSlots.put(i, (ComplexParam) param);
+            }
+        }
 
         this.interceptors = getInterceptors(method);
 
@@ -453,7 +477,7 @@ public class CmdMethod implements Cmd {
     }
 
     public Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final List<Object> list) {
-        return exec(globalInterceptors, new ParsedArgs(list, null));
+        return exec(globalInterceptors, new ParsedArgs(list, null, null));
     }
 
     Object exec(final Map<Class<?>, InternalInterceptor> globalInterceptors, final ParsedArgs parsed) {
@@ -470,62 +494,111 @@ public class CmdMethod implements Cmd {
             return doInvoke(parsed.getArgs());
         }
 
-        final List<Object[]> interceptorOptions = parsed.getInterceptorOptions() != null
-                ? parsed.getInterceptorOptions()
-                : defaultInterceptorOptions(chain);
+        final OptionsMap options = buildOptionsMap(chain, parsed);
 
-        return new InternalInterceptorInvocationContext(chain, interceptorOptions, name, parameterMetadatas, method, parsed.getArgs()) {
+        return new InternalInterceptorInvocationContext(chain, options, name, parameterMetadatas, method, parsed.getArgs()) {
             @Override
             protected Object doInvoke(final List<Object> parameters) {
+                rebuildDirtyBeans(options, parameters);
                 return CmdMethod.this.doInvoke(parameters);
             }
         }.proceed();
     }
 
     /**
-     * Used when a command executes without raw args to parse, e.g. the
-     * exec(Map, List) path.  Each interceptor's options convert from an
-     * empty command line, so declared defaults still apply.
+     * Assembles the option namespace of this invocation.  Options the
+     * command method declares are live views over its parameter list;
+     * everything else — interceptor-declared options and bean
+     * constituents — is stored in the map itself.
      */
-    private List<Object[]> defaultInterceptorOptions(final List<InternalInterceptor> chain) {
-        final List<Object[]> all = new ArrayList<>(chain.size());
+    private OptionsMap buildOptionsMap(final List<InternalInterceptor> chain, final ParsedArgs parsed) {
+        final Set<String> provided = parsed.getProvided() != null ? parsed.getProvided() : new HashSet<>();
+        final OptionsMap options = new OptionsMap(spec.getOptions(), provided);
+
+        for (final Map.Entry<String, Integer> slot : optionSlots.entrySet()) {
+            options.addListSlot(slot.getKey(), parsed.getArgs(), slot.getValue());
+        }
+
+        if (parsed.getOptionValues() != null) {
+            for (final Map.Entry<String, Object> entry : parsed.getOptionValues().entrySet()) {
+                if (!optionSlots.containsKey(entry.getKey())) {
+                    options.addLocalSlot(entry.getKey(), entry.getValue());
+                }
+            }
+            return options;
+        }
+
+        /*
+         * The args arrived pre-parsed (the exec(Map, List) path) so there
+         * are no raw strings to convert.  Interceptor-declared options fall
+         * back to their declared defaults.
+         */
         for (final InternalInterceptor interceptor : chain) {
             if (!interceptor.hasOptions()) {
-                all.add(NO_OPTIONS);
                 continue;
             }
-            final Arguments args = new Arguments(defaultsFinder, interceptor.getSpec(), new String[0]);
-            all.add(convertInterceptorOptions(interceptor, args));
+            final Arguments defaults = new Arguments(defaultsFinder, interceptor.getSpec(), new String[0]);
+            for (final Map.Entry<String, OptionParam> entry : interceptor.getSpec().getOptions().entrySet()) {
+                if (!options.containsKey(entry.getKey())) {
+                    final Value value = fillOptionParameter(defaults, entry.getValue(), entry.getKey());
+                    options.addLocalSlot(entry.getKey(), value.getValue());
+                }
+            }
         }
-        return all;
+        return options;
     }
 
-    private static Object[] convertInterceptorOptions(final InternalInterceptor interceptor, final Arguments args) {
-        final List<Value> values = convert(args, new Needed(0), interceptor.getOptionParams());
-        return toArgs(values).toArray();
+    /**
+     * Beans are derived values.  If an interceptor replaced any option a
+     * bean is built from, derive the bean again so the command sees the
+     * final values.  Untouched beans keep their parse-time instance —
+     * including one an interceptor put in the parameter list directly.
+     */
+    private void rebuildDirtyBeans(final OptionsMap options, final List<Object> parameters) {
+        if (options.getDirty().isEmpty()) {
+            return;
+        }
+        for (final Map.Entry<Integer, ComplexParam> slot : beanSlots.entrySet()) {
+            final ComplexParam bean = slot.getValue();
+            if (Collections.disjoint(options.getDirty(), bean.getOptionNames())) {
+                continue;
+            }
+            parameters.set(slot.getKey(), bean.build(options::get, options::isProvided).getValue());
+        }
     }
 
     public static class ParsedArgs {
         private final List<Object> args;
 
         /**
-         * Converted option values per chain interceptor, parallel to the
-         * linked chain.  Null when the args were supplied pre-parsed and
-         * interceptor options should fall back to their defaults.
+         * Every declared option's converted value, one entry per name.
+         * Null when the args were supplied pre-parsed; interceptor options
+         * then fall back to their declared defaults.
          */
-        private final List<Object[]> interceptorOptions;
+        private final Map<String, Object> optionValues;
 
-        public ParsedArgs(final List<Object> args, final List<Object[]> interceptorOptions) {
+        /**
+         * The option names actually supplied on the command line, as
+         * opposed to carrying their declared default
+         */
+        private final Set<String> provided;
+
+        public ParsedArgs(final List<Object> args, final Map<String, Object> optionValues, final Set<String> provided) {
             this.args = args;
-            this.interceptorOptions = interceptorOptions;
+            this.optionValues = optionValues;
+            this.provided = provided;
         }
 
         public List<Object> getArgs() {
             return args;
         }
 
-        public List<Object[]> getInterceptorOptions() {
-            return interceptorOptions;
+        public Map<String, Object> getOptionValues() {
+            return optionValues;
+        }
+
+        public Set<String> getProvided() {
+            return provided;
         }
     }
 
@@ -814,18 +887,18 @@ public class CmdMethod implements Cmd {
         final Arguments args = new Arguments(defaultsFinder, spec, rawArgs);
 
         /*
-         * Interceptor options convert first, each interceptor from its own
-         * copy of the parsed options, so an option shared with the command
-         * (or another interceptor) is not consumed away from any declarer.
+         * Convert each declared option once, non-destructively, into the
+         * option namespace of the invocation — one value per name, shared
+         * by every declarer.  The spec here is the merged universe:
+         * interceptor-declared options and bean constituents included.
          */
-        List<Object[]> interceptorOptions = null;
-        final List<InternalInterceptor> chain = this.chain == null ? Collections.emptyList() : this.chain;
-        if (this.chain != null) {
-            interceptorOptions = new ArrayList<>(chain.size());
-            for (final InternalInterceptor interceptor : chain) {
-                interceptorOptions.add(interceptor.hasOptions()
-                        ? convertInterceptorOptions(interceptor, args.copy())
-                        : NO_OPTIONS);
+        final Map<String, Object> optionValues = new LinkedHashMap<>();
+        final Set<String> provided = new HashSet<>();
+        for (final Map.Entry<String, OptionParam> entry : spec.getOptions().entrySet()) {
+            final Value value = fillOptionParameter(args, entry.getValue(), entry.getKey(), false);
+            optionValues.put(entry.getKey(), value.getValue());
+            if (value.isProvided()) {
+                provided.add(entry.getKey());
             }
         }
 
@@ -834,14 +907,12 @@ public class CmdMethod implements Cmd {
         final List<Value> converted = convert(args, needed, parameters);
 
         /*
-         * Options owned only by interceptors were consumed from the copies.
-         * Clear them from the original so the leftover check below sees
-         * just the genuinely unclaimed input.
+         * Names owned only by interceptors were not consumed by the
+         * command's parameters.  Every declared name is accounted for in
+         * the option namespace, so clear them all before the leftover check.
          */
-        for (final InternalInterceptor interceptor : chain) {
-            for (final String name : interceptor.getSpec().getOptions().keySet()) {
-                args.getOptions().remove(name);
-            }
+        for (final String name : spec.getOptions().keySet()) {
+            args.getOptions().remove(name);
         }
 
         if (!args.getList().isEmpty()) {
@@ -852,7 +923,7 @@ public class CmdMethod implements Cmd {
             throw new IllegalArgumentException("Unknown arguments: " + Join.join(", ", STRING_NAME_CALLBACK, args.getOptions().keySet()));
         }
 
-        return new ParsedArgs(toArgs(converted), interceptorOptions);
+        return new ParsedArgs(toArgs(converted), optionValues, provided);
     }
 
     public static List<Object> toArgs(final List<Value> converted) {
@@ -877,32 +948,6 @@ public class CmdMethod implements Cmd {
         for (final Param parameter : parameters) {
             final ParameterMetadata apiView = parameter.getApiView();
             switch (apiView.getType()) {
-                case INTERNAL: {
-                    if (parameter.isAnnotationPresent(In.class)) {
-                        converted.add(new Value(environment.getInput(), false));
-                        needed.setCount(needed.getCount() - 1);
-                    } else if (parameter.isAnnotationPresent(Out.class)) {
-                        converted.add(new Value(environment.getOutput(), false));
-                        needed.setCount(needed.getCount() - 1);
-                    } else if (parameter.isAnnotationPresent(Err.class)) {
-                        converted.add(new Value(environment.getError(), false));
-                        needed.setCount(needed.getCount() - 1);
-                    } else if (Environment.class.isAssignableFrom(parameter.getType())) {
-                        converted.add(new Value(environment, false));
-                        needed.setCount(needed.getCount() - 1);
-                    }
-                    break;
-                }
-                case SERVICE:
-                    converted.add(new Value(environment.findService(parameter.getType()), false));
-                    break;
-                case PLAIN:
-                    if (args.getList().isEmpty() && !parameter.isListable()) {
-                        throw new MissingArgumentException(parameter.getDisplayType().replace("[]", "..."));
-                    }
-                    needed.setCount(needed.getCount() - 1);
-                    converted.add(fillPlainParameter(args, needed, parameter));
-                    break;
                 case BEAN_OPTION:
                     converted.add(ComplexParam.class.cast(parameter).convert(args, needed));
                     break;
@@ -910,14 +955,50 @@ public class CmdMethod implements Cmd {
                     converted.add(fillOptionParameter(args, parameter, apiView.getName()));
                     break;
                 default:
-                    throw new IllegalStateException("Unsupported ParamType: " + apiView.getType());
+                    converted.add(convertNonOption(args, needed, parameter, apiView, environment));
             }
         }
         return converted;
     }
 
+    private static Value convertNonOption(final Arguments args, final Needed needed, final Param parameter,
+                                          final ParameterMetadata apiView, final Environment environment) {
+        switch (apiView.getType()) {
+            case INTERNAL: {
+                if (parameter.isAnnotationPresent(In.class)) {
+                    needed.setCount(needed.getCount() - 1);
+                    return new Value(environment.getInput(), false);
+                } else if (parameter.isAnnotationPresent(Out.class)) {
+                    needed.setCount(needed.getCount() - 1);
+                    return new Value(environment.getOutput(), false);
+                } else if (parameter.isAnnotationPresent(Err.class)) {
+                    needed.setCount(needed.getCount() - 1);
+                    return new Value(environment.getError(), false);
+                } else if (Environment.class.isAssignableFrom(parameter.getType())) {
+                    needed.setCount(needed.getCount() - 1);
+                    return new Value(environment, false);
+                }
+                throw new IllegalStateException("Unsupported internal parameter: " + parameter.getType());
+            }
+            case SERVICE:
+                return new Value(environment.findService(parameter.getType()), false);
+            case PLAIN:
+                if (args.getList().isEmpty() && !parameter.isListable()) {
+                    throw new MissingArgumentException(parameter.getDisplayType().replace("[]", "..."));
+                }
+                needed.setCount(needed.getCount() - 1);
+                return fillPlainParameter(args, needed, parameter);
+            default:
+                throw new IllegalStateException("Unsupported ParamType: " + apiView.getType());
+        }
+    }
+
     private static Value fillOptionParameter(final Arguments args, final Param parameter, final String name) {
-        final String value = args.getOptions().remove(name);
+        return fillOptionParameter(args, parameter, name, true);
+    }
+
+    private static Value fillOptionParameter(final Arguments args, final Param parameter, final String name, final boolean consume) {
+        final String value = consume ? args.getOptions().remove(name) : args.getOptions().get(name);
         if (parameter.isListable()) {
             return convert(parameter, OptionParam.getSeparatedValues(value), name);
         }
@@ -1103,23 +1184,24 @@ public class CmdMethod implements Cmd {
 
     private Collection<String> findMatcingParametersOptions(String prefix, boolean isIncludeAliasChar) {
         final List<String> result = new ArrayList<>();
-        for (Param param : parameters) {
-            if (param instanceof OptionParam) {
-                final OptionParam optionParam = (OptionParam) param;
 
-                final String optionParamName = optionParam.getName();
-                if (optionParamName.startsWith(prefix)) {
-                    if (optionParamName.startsWith("-")) {
-                        result.add(optionParamName);
-                        continue;
-                    }
-                    if (optionParamName.length() > 1) {
-                        result.add("--" + optionParamName);
-                        continue;
-                    }
-                    if (isIncludeAliasChar) {
-                        result.add("-" + optionParamName);
-                    }
+        /*
+         * The spec is the full option universe of the command: the method's
+         * own options plus @Options bean constituents plus options declared
+         * by interceptors bound to the command.  All of them complete.
+         */
+        for (final String optionParamName : spec.getOptions().keySet()) {
+            if (optionParamName.startsWith(prefix)) {
+                if (optionParamName.startsWith("-")) {
+                    result.add(optionParamName);
+                    continue;
+                }
+                if (optionParamName.length() > 1) {
+                    result.add("--" + optionParamName);
+                    continue;
+                }
+                if (isIncludeAliasChar) {
+                    result.add("-" + optionParamName);
                 }
             }
         }

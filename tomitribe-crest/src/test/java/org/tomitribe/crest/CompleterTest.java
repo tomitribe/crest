@@ -24,8 +24,12 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
+import org.tomitribe.crest.api.Options;
 import org.tomitribe.crest.api.StreamingOutput;
+import org.tomitribe.crest.api.interceptor.CrestContext;
+import org.tomitribe.crest.api.interceptor.CrestInterceptor;
 import org.tomitribe.crest.cmds.Cmd;
 import org.tomitribe.crest.interceptor.internal.InternalInterceptor;
 import org.tomitribe.crest.val.Exists;
@@ -143,6 +147,41 @@ public class CompleterTest extends TestCase {
         assertTrue(gitCandidates.contains("-v"));
         assertTrue(gitCandidates.contains("--verbose"));
 
+    }
+
+    /**
+     * The constituent options of an @Options bean parameter complete just
+     * like options declared directly on the command method
+     */
+    public void testCompleteOptionsBeanConstituents() throws Exception {
+        final Main main = new Main(Paged.class);
+
+        Collection<String> candidates = main.complete("page --", 7);
+        assertEquals(2, candidates.size());
+        assertTrue(candidates.contains("--offset"));
+        assertTrue(candidates.contains("--limit"));
+
+        candidates = main.complete("page --off", 10);
+        assertEquals(1, candidates.size());
+        assertTrue(candidates.contains("--offset"));
+    }
+
+    /**
+     * Options declared by an interceptor bound to the command complete
+     * alongside the command's own options
+     */
+    public void testCompleteInterceptorOptions() throws Exception {
+        final Main main = new Main(Filtered.class);
+
+        Collection<String> candidates = main.complete("list --", 7);
+        assertEquals(3, candidates.size());
+        assertTrue(candidates.contains("--region"));
+        assertTrue(candidates.contains("--include"));
+        assertTrue(candidates.contains("--exclude"));
+
+        candidates = main.complete("list --inc", 10);
+        assertEquals(1, candidates.size());
+        assertTrue(candidates.contains("--include"));
     }
 
     public void testCompleteFile() throws Exception {
@@ -287,5 +326,46 @@ public class CompleterTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
+    }
+
+    public static class Paged {
+
+        @Command
+        public static String page(final Pager pager) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Options
+    public static class Pager {
+
+        public Pager(@Option("offset") @Default("0") final Integer offset,
+                     @Option("limit") @Default("10") final Integer limit) {
+        }
+    }
+
+    public static class Filtered {
+
+        @Command(interceptedBy = FilterLikeInterceptor.class)
+        public static String list(@Option("region") final String region) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public static class FilterLikeInterceptor {
+
+        @CrestInterceptor
+        public Object intercept(final CrestContext crestContext,
+                                @Option("include") final String include,
+                                final Excludes excludes) {
+            return crestContext.proceed();
+        }
+    }
+
+    @Options
+    public static class Excludes {
+
+        public Excludes(@Option("exclude") final String exclude) {
+        }
     }
 }

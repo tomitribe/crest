@@ -17,7 +17,9 @@
 package org.tomitribe.crest.api.interceptor;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public interface CrestContext {
     /**
@@ -44,4 +46,21 @@ public interface CrestContext {
      * @return the metadata about parameters.
      */
     List<ParameterMetadata> getParameterMetadata();
+
+    /**
+     * The <b>mutable</b> option values of this command invocation, keyed by
+     * option name: every option declared by the command method or by any
+     * interceptor bound to it, whether or not a value was supplied.
+     *
+     * Where the command method declares an option, the entry is a live view
+     * over the same storage as {@link #getParameters()} — a write through
+     * either is seen through both.  Replacing a value is seen by every
+     * interceptor later in the chain and by the command itself.  Values are
+     * type checked against the option's declared type on put.
+     *
+     * @return the option values of this invocation, keyed by option name.
+     */
+    default Map<String, Object> getOptions() {
+        return Collections.emptyMap();
+    }
 }

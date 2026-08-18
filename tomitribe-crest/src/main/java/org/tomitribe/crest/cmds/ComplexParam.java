@@ -20,7 +20,9 @@ import org.tomitribe.crest.api.In;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Out;
 import org.tomitribe.crest.api.Required;
+import org.tomitribe.crest.cmds.processors.OptionParam;
 import org.tomitribe.crest.cmds.processors.Param;
+import org.tomitribe.crest.environments.Environment;
 import org.tomitribe.crest.val.BeanValidationImpl;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.reflect.Parameter;
@@ -32,7 +34,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class ComplexParam extends Param {
 
@@ -108,8 +114,63 @@ public class ComplexParam extends Param {
             }
         }
 
+        return instantiate(CmdMethod.toArgs(converted).toArray(new Object[converted.size()]));
+    }
+
+    /**
+     * Constructs the bean from already-converted option values, read by name.
+     * Beans are derived values: each receiver gets an instance built from the
+     * option values as they stand at its turn in the interceptor chain.
+     */
+    public CmdMethod.Value build(final Function<String, Object> values, final Predicate<String> provided) {
+        if (nullable && !anyProvided(this, provided)) {
+            return new CmdMethod.Value(null, false);
+        }
+
+        final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+        final Object[] args = new Object[parameters.size()];
+
+        for (int i = 0; i < parameters.size(); i++) {
+            final Param param = parameters.get(i);
+
+            if (param instanceof OptionParam) {
+                args[i] = values.apply(((OptionParam) param).getName());
+            } else if (param instanceof ComplexParam) {
+                args[i] = ((ComplexParam) param).build(values, provided).getValue();
+            } else if (param.isAnnotationPresent(In.class)) {
+                args[i] = environment.getInput();
+            } else if (param.isAnnotationPresent(Out.class)) {
+                args[i] = environment.getOutput();
+            } else if (param.isAnnotationPresent(Err.class)) {
+                args[i] = environment.getError();
+            } else if (Environment.class.isAssignableFrom(param.getType())) {
+                args[i] = environment;
+            } else if (environment.findService(param.getType()) != null) {
+                args[i] = environment.findService(param.getType());
+            } else {
+                throw new IllegalStateException(String.format("@Options class %s constructor parameter %s (%s)" +
+                        " is not an option and cannot be built from option values",
+                        getType().getName(), i + 1, param.getType().getName()));
+            }
+        }
+
+        return instantiate(args);
+    }
+
+    private static boolean anyProvided(final ComplexParam bean, final Predicate<String> provided) {
+        for (final Param param : bean.parameters) {
+            if (param instanceof OptionParam && provided.test(((OptionParam) param).getName())) {
+                return true;
+            }
+            if (param instanceof ComplexParam && anyProvided((ComplexParam) param, provided)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private CmdMethod.Value instantiate(final Object[] args) {
         try {
-            final Object[] args = CmdMethod.toArgs(converted).toArray(new Object[converted.size()]);
             if (beanValidation != null) {
                 beanValidation.validateParameters(constructor, args);
             }
@@ -122,6 +183,26 @@ public class ComplexParam extends Param {
         } catch (Exception e) {
 
             throw CmdMethod.toRuntimeException(e);
+        }
+    }
+
+    /**
+     * The names of every option this bean is derived from, including those
+     * of nested beans
+     */
+    public Set<String> getOptionNames() {
+        final Set<String> names = new LinkedHashSet<>();
+        collectOptionNames(this, names);
+        return names;
+    }
+
+    private static void collectOptionNames(final ComplexParam bean, final Set<String> names) {
+        for (final Param param : bean.parameters) {
+            if (param instanceof OptionParam) {
+                names.add(((OptionParam) param).getName());
+            } else if (param instanceof ComplexParam) {
+                collectOptionNames((ComplexParam) param, names);
+            }
         }
     }
 

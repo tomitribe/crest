@@ -6,6 +6,37 @@ weight: 6
 
 A summary of features and significant enhancements in each release.
 
+## 0.48
+
+- **Interceptors can declare options.** The `@CrestInterceptor` method may take `@Option` parameters and `@Options` beans alongside its `CrestContext`. Declared options parse from the command line, appear in help and bash completion, and are passed to the interceptor at execution — the command method does not need to declare them. A command and interceptor declaring the identical option (same name, type, and default) share one value; conflicting declarations fail at deploy time naming both parties.
+- **`CrestContext.getOptions()`** — the mutable option namespace of the invocation, keyed by option name: every option declared by the command or any interceptor bound to it. Where the command declares the option, the entry is a live view over the same storage as `getParameters()`. Replacing a value is seen by every interceptor later in the chain and by the command itself; writes are type checked against the declared option type. `@Options` beans are derived values, rebuilt from their constituents when one is replaced.
+- **`@Priority` for interceptor ordering.** Double-valued: lower runs first (outermost), unannotated interceptors run at 5, ties keep declaration order. The valid range is greater than 0 and less than 11 — the endpoints are deliberately excluded so there is always room to slot a new interceptor before or after any existing priority without renumbering: between 6 and 7 there is 6.5, before 1 there is 0.9.
+- **Deploy-time interceptor binding.** Bindings resolve when the `Main` is constructed: an unresolved custom annotation, a class with no `@CrestInterceptor` method, an out-of-range priority, or an option conflict fails at startup instead of on first invocation.
+- **Interceptors run once** even when reachable through several bindings on the same command, e.g. an interceptor class carrying two custom annotations both used on the method.
+- **Bash completion** now offers the constituent options of `@Options` bean parameters and interceptor-declared options.
+- **`toolz` demo module.**
+
+## 0.47
+
+- **`tomitribe-crest-util` module** with a generic include/exclude regex `Filter` for list commands.
+- Commands can see which fields will be visible in table output.
+- Update to tomitribe-util 1.5.14.
+
+## 0.46
+
+- Fix wrong javadoc description resolved for a method ([#131](https://github.com/tomitribe/crest/issues/131)).
+
+## 0.45
+
+- Wrap long command descriptions in listings.
+- Omit groups from recursive listings.
+
+## 0.44
+
+- Expanded help documentation and fully rendered examples.
+- Don't show the help suggestion on man-page style output.
+- Fix javadoc bullet indentation/continuation ([#129](https://github.com/tomitribe/crest/issues/129)).
+
 ## 0.43
 
 - **`help --all`** lists every command in the CLI as a flat, full-path listing. `help <group> --all` scopes the listing to a subtree, and `help <group>` (or bare-group invocation) now defaults to recursive. Groups appear inline alongside leaves so the structure is self-documenting at every level.

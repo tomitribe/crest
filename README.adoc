@@ -797,9 +797,19 @@ The constraint for an interceptor are:
 
 - being decorated with `@CrestInterceptor`
 - the method needs to be public
-- the method needs to table a single parameter of type `CrestContext`
+- the method needs to take a parameter of type `CrestContext`
+- the method may additionally declare `@Option` parameters and `@Options` beans of its own; they parse from
+  the command line, appear in the command's help and completion, and are passed to the interceptor when it
+  runs -- the command method does not need to declare them
 
 NOTE: you can pass `@CrestInterceptor` a value changing the key used to mark the interceptor.
+
+Interceptors bound to the same command run in ascending `@Priority` order -- lower runs first (outermost).
+Unannotated interceptors run at 5, ties keep declaration order, and the valid range is greater than 0 and
+less than 11 so a new interceptor can always slot before, after or between existing priorities (11 is not
+a valid value, but between 6 and 7 there is always 6.5). Option values are shared by name across the
+invocation and can be read or replaced via `CrestContext.getOptions()`; a replacement is seen by every
+interceptor later in the chain and by the command itself.
 
 To let a command use an interceptor or multiple ones just list them ordered in `interceptedBy` parameter:
 

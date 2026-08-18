@@ -29,10 +29,36 @@
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - `day-of-week` accepts values `1-7` or `SUN-SAT` and wildcards `, - * ? L #`
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - `year` accepts values `1970-2199` and wildcards `, - * /`
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * The following wildcards are supported:
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - The `,` (comma) wildcard includes additional values. In the Month field,
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   JAN,FEB,MAR includes January, February, and March.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - The `-` (dash) wildcard specifies ranges. In the Day field, 1-15 includes
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   days 1 through 15 of the specified month.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - The `*` (asterisk) wildcard includes all values in the field. In the Hours
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   field, * includes every hour. You can&#39;t use * in both the `day-of-month`
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   and `day-of-week` fields. If you use it in one, you must use ? in the other.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - The `/` (slash) wildcard specifies increments. In the Minutes field, you
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   could enter 1/10 to specify every tenth minute, starting from the first
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   minute of the hour (for example, the 11th, 21st, and 31st minute, and so on).
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - The `?` (question mark) wildcard specifies any. In the `day-of-month` field
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   you could enter 7 and if any day of the week was acceptable, you could
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   enter ? in the `day-of-week` field.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - The `L` wildcard in the `day-of-month` or `day-of-week` fields specifies
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   the last day of the month or week.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - The `W` wildcard in the `day-of-month` field specifies a weekday. In the
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   `day-of-month` field, 3W specifies the weekday closest to the third day
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   of the month.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * - The `#` wildcard in the `day-of-week` field specifies a certain instance
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   of the specified day of the week within a month. For example, 3#2 would
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   be the second Tuesday of the month: the 3 refers to Tuesday because it is
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   the third day of each week, and the 2 refers to the second day of that
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *   type within the month.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * EXAMPLES
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
-</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * Say you want to list the releases every month and email them to
-</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * support-team@tomitribe.com:
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * Say you want to list the releases every month (`distribe s3 releases`) and
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * email them to support-team@tomitribe.com:
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *     distribe job create --day-of-month=1 --to=support-team@tomitribe.com s3 releases
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
@@ -51,7 +77,7 @@
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * IMPACT
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * This command creates a schedule in AWS EventBridge that triggers the
-</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * JobsLambda setup as an AWS Lambda.
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * `JobsLambda` setup as an AWS Lambda.
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * RELATED
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
@@ -67,14 +93,18 @@
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *     distribe job delete the-job-name
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> *
-</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param to       the email addresses where the command will be sent
-</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param name     the unique name of the job
-</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param command  the distribe command to execute, minus the &#34;distribe&#34; prefix
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param to           the email addresses where the command will be sent
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param name         the unique name of the job
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param targetLambda which Jobs Lambda environment to schedule the command on
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param schedule     the cron-style schedule -- minute, hour, day-of-month, month, day-of-week, year
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param config       the distribe configuration profile to use
+</span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> * @param command      the distribe command to execute, minus the &#34;distribe&#34; prefix
 </span></span></span><span style=display:flex><span><span style=color:#8b949e;font-style:italic> */</span><span style=color:#6e7681>
 </span></span></span><span style=display:flex><span><span style=color:#d2a8ff;font-weight:700>@Command</span><span style=color:#6e7681>
 </span></span></span><span style=display:flex><span><span style=color:#ff7b72>public</span><span style=color:#6e7681> </span>String<span style=color:#6e7681> </span><span style=color:#d2a8ff;font-weight:700>create</span>(<span style=color:#6e7681>
 </span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#d2a8ff;font-weight:700>@Option</span>(<span style=color:#a5d6ff>&#34;to&#34;</span>)<span style=color:#6e7681> </span><span style=color:#ff7b72>final</span><span style=color:#6e7681> </span>List<span style=color:#ff7b72;font-weight:700>&lt;</span>Email<span style=color:#ff7b72;font-weight:700>&gt;</span><span style=color:#6e7681> </span>to,<span style=color:#6e7681>
 </span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#d2a8ff;font-weight:700>@Option</span>(<span style=color:#a5d6ff>&#34;name&#34;</span>)<span style=color:#6e7681> </span>String<span style=color:#6e7681> </span>name,<span style=color:#6e7681>
+</span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#d2a8ff;font-weight:700>@Option</span>(<span style=color:#a5d6ff>&#34;target&#34;</span>)<span style=color:#6e7681> </span><span style=color:#d2a8ff;font-weight:700>@Default</span>(<span style=color:#a5d6ff>&#34;JOBS_PROD&#34;</span>)<span style=color:#6e7681> </span><span style=color:#ff7b72>final</span><span style=color:#6e7681> </span>JobsLambdas<span style=color:#6e7681> </span>targetLambda,<span style=color:#6e7681>
 </span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#ff7b72>final</span><span style=color:#6e7681> </span>Schedule<span style=color:#6e7681> </span>schedule,<span style=color:#6e7681>
 </span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#ff7b72>final</span><span style=color:#6e7681> </span>Config<span style=color:#6e7681> </span>config,<span style=color:#6e7681>
 </span></span></span><span style=display:flex><span><span style=color:#6e7681>    </span><span style=color:#ff7b72>final</span><span style=color:#6e7681> </span>String...<span style=color:#6e7681> </span>command)<span style=color:#6e7681> </span>{<span style=color:#6e7681> </span>...<span style=color:#6e7681> </span>}<span style=color:#6e7681>
@@ -121,5 +151,113 @@
        o      <b>day-of-week</b> accepts values <b>1-7</b> or <b>SUN-SAT</b> and wildcards <b>, - * ? L #</b>
 
        o      <b>year</b> accepts values <b>1970-2199</b> and wildcards <b>, - * /</b>
-</pre><p>Notice how the source maps to the rendering:</p><ul><li>ALL-CAPS lines (<code>NAMES</code>, <code>CRON-BASED SCHEDULES</code>, etc.) become bold section headings</li><li>Backticks around <code>--name</code>, <code>minute</code>, <code>0-59</code>, and <code>, - * /</code> make those tokens stand out from prose without using color</li><li>The 4-space-indented <code>distribe job create ...</code> block in the source renders verbatim, preserving the command shape</li><li>Bullets are rendered with the <code>o</code> glyph used in traditional man pages</li></ul><p>The author didn&rsquo;t write a single piece of formatting markup beyond <code>-</code> for bullets, four spaces for code blocks, and backticks for emphasis. The rest is just how the prose was structured.</p><div class=page-nav><a href=/crest/help/best-practices/ class="prev prev-only"><div class=nav-label>&larr; Previous</div><div class=nav-title>Best Practices</div></a></div></div><div class=toc-rail><div class=toc-rail-inner><h5>On this page</h5><nav id=TableOfContents><ul><li><a href=#source>Source</a></li><li><a href=#rendered>Rendered</a></li></ul></nav></div></div></div><footer><div class=footer-inner><span>&copy; <a href=https://www.tomitribe.com>Tomitribe</a>. Apache License 2.0.</span>
+
+       The following wildcards are supported:
+
+       o      The <b>,</b> (comma) wildcard includes additional values. In the
+              Month field, JAN,FEB,MAR includes January, February, and March.
+
+       o      The <b>-</b> (dash) wildcard specifies ranges. In the Day field,
+              1-15 includes days 1 through 15 of the specified month.
+
+       o      The <b>*</b> (asterisk) wildcard includes all values in the field.
+              In the Hours field, * includes every hour. You can&#39;t use * in
+              both the <b>day-of-month</b> and <b>day-of-week</b> fields. If you use
+              it in one, you must use ? in the other.
+
+       o      The <b>/</b> (slash) wildcard specifies increments. In the Minutes
+              field, you could enter 1/10 to specify every tenth minute,
+              starting from the first minute of the hour (for example, the
+              11th, 21st, and 31st minute, and so on).
+
+       o      The <b>?</b> (question mark) wildcard specifies any. In the
+              <b>day-of-month</b> field you could enter 7 and if any day of the
+              week was acceptable, you could enter ? in the <b>day-of-week</b>
+              field.
+
+       o      The <b>L</b> wildcard in the <b>day-of-month</b> or <b>day-of-week</b> fields
+              specifies the last day of the month or week.
+
+       o      The <b>W</b> wildcard in the <b>day-of-month</b> field specifies a
+              weekday. In the <b>day-of-month</b> field, 3W specifies the weekday
+              closest to the third day of the month.
+
+       o      The <b>#</b> wildcard in the <b>day-of-week</b> field specifies a
+              certain instance of the specified day of the week within a
+              month. For example, 3#2 would be the second Tuesday of the
+              month: the 3 refers to Tuesday because it is the third day of
+              each week, and the 2 refers to the second day of that type
+              within the month.
+
+<b>EXAMPLES</b>
+
+       Say you want to list the releases every month (<b>distribe s3
+       releases</b>) and email them to support-team@tomitribe.com:
+
+           distribe job create --day-of-month=1 --to=support-team@tomitribe.com s3 releases
+
+<b>IDEMPOTENCY</b>
+
+       This command cannot be run with the same arguments multiple times.
+       Once a schedule is created with a specific name, no other schedules
+       can be created with that name. Use <b>--name</b> to set the name
+       explicitly instead of relying on defaults.
+
+<b>SYSTEMS</b>
+
+       o      AWS EventBridge (read,write)
+
+       o      AWS Simple Email Service (write)
+
+<b>IMPACT</b>
+
+       This command creates a schedule in AWS EventBridge that triggers the
+       <b>JobsLambda</b> setup as an AWS Lambda.
+
+<b>RELATED</b>
+
+       To list the current schedules
+
+           distribe job list
+
+       To get greater detail on any specific job
+
+           distribe job get the-job-name
+
+       To delete an existing job so it can be redefined
+
+           distribe job delete the-job-name
+
+<b>OPTIONS</b>
+    --to=&lt;Email[]&gt;
+            the email addresses where the command will be sent
+
+    --name=&lt;String&gt;
+            the unique name of the job
+
+    --target=&lt;JobsLambdas&gt;
+            which Jobs Lambda environment to schedule the command on
+            default: JOBS_PROD. enum: JOBS_PROD, JOBS_DEV, JOBS_USA
+
+    --day-of-month=&lt;String&gt;
+            default: *
+
+    --day-of-week=&lt;String&gt;
+            default: ?
+
+    --hour=&lt;String&gt;
+            default: 0
+
+    --minute=&lt;String&gt;
+            default: 0
+
+    --month=&lt;String&gt;
+            default: *
+
+    --year=&lt;String&gt;
+            default: *
+
+    --config=&lt;String&gt;
+            default: default
+</pre><p>Notice how the source maps to the rendering:</p><ul><li>ALL-CAPS lines (<code>NAMES</code>, <code>CRON-BASED SCHEDULES</code>, <code>EXAMPLES</code>, <code>IDEMPOTENCY</code>, <code>SYSTEMS</code>, <code>IMPACT</code>, <code>RELATED</code>, <code>OPTIONS</code>) become bold section headings.</li><li>Backticks around <code>--name</code>, <code>minute</code>, <code>0-59</code>, and <code>, - * /</code> make those tokens stand out from prose without using color.</li><li>The 4-space-indented <code>distribe job create ...</code> blocks in the source render verbatim, preserving the command shape.</li><li>Bullets are rendered with the <code>o</code> glyph used in traditional man pages.</li><li><code>@param</code> tags become the descriptions under each <code>--flag</code> in OPTIONS. Options without a matching <code>@param</code> show only their type and default.</li></ul><p>The author didn&rsquo;t write a single piece of formatting markup beyond <code>-</code> for bullets, four spaces for code blocks, and backticks for emphasis. The rest is just how the prose was structured.</p><div class=page-nav><a href=/crest/help/best-practices/ class="prev prev-only"><div class=nav-label>&larr; Previous</div><div class=nav-title>Best Practices</div></a></div></div><div class=toc-rail><div class=toc-rail-inner><h5>On this page</h5><nav id=TableOfContents><ul><li><a href=#source>Source</a></li><li><a href=#rendered>Rendered</a></li></ul></nav></div></div></div><footer><div class=footer-inner><span>&copy; <a href=https://www.tomitribe.com>Tomitribe</a>. Apache License 2.0.</span>
 <span><a href=https://github.com/tomitribe/crest>GitHub</a> &#183; <a href=https://www.tomitribe.io>Community</a></span></div></footer></div></div><script src=/crest/js/main.js></script></body></html>

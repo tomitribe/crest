@@ -389,10 +389,36 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - `day-of-week` accepts values `1-7` or `SUN-SAT` and wildcards `, - * ? L #`
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - `year` accepts values `1970-2199` and wildcards `, - * /`
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * The following wildcards are supported:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - The `,` (comma) wildcard includes additional values. In the Month field,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * JAN,FEB,MAR includes January, February, and March.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - The `-` (dash) wildcard specifies ranges. In the Day field, 1-15 includes
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * days 1 through 15 of the specified month.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - The `*` (asterisk) wildcard includes all values in the field. In the Hours
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * field, * includes every hour. You can&amp;#39;t use * in both the `day-of-month`
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * and `day-of-week` fields. If you use it in one, you must use ? in the other.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - The `/` (slash) wildcard specifies increments. In the Minutes field, you
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * could enter 1/10 to specify every tenth minute, starting from the first
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * minute of the hour (for example, the 11th, 21st, and 31st minute, and so on).
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - The `?` (question mark) wildcard specifies any. In the `day-of-month` field
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * you could enter 7 and if any day of the week was acceptable, you could
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * enter ? in the `day-of-week` field.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - The `L` wildcard in the `day-of-month` or `day-of-week` fields specifies
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * the last day of the month or week.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - The `W` wildcard in the `day-of-month` field specifies a weekday. In the
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * `day-of-month` field, 3W specifies the weekday closest to the third day
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * of the month.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * - The `#` wildcard in the `day-of-week` field specifies a certain instance
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * of the specified day of the week within a month. For example, 3#2 would
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * be the second Tuesday of the month: the 3 refers to Tuesday because it is
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * the third day of each week, and the 2 refers to the second day of that
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * type within the month.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * EXAMPLES
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * Say you want to list the releases every month and email them to
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * support-team@tomitribe.com:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * Say you want to list the releases every month (`distribe s3 releases`) and
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * email them to support-team@tomitribe.com:
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * distribe job create --day-of-month=1 --to=support-team@tomitribe.com s3 releases
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
@@ -411,7 +437,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * IMPACT
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * This command creates a schedule in AWS EventBridge that triggers the
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * JobsLambda setup as an AWS Lambda.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * `JobsLambda` setup as an AWS Lambda.
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * RELATED
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
@@ -429,12 +455,16 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; *
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param to the email addresses where the command will be sent
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param name the unique name of the job
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param targetLambda which Jobs Lambda environment to schedule the command on
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param schedule the cron-style schedule -- minute, hour, day-of-month, month, day-of-week, year
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param config the distribe configuration profile to use
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; * @param command the distribe command to execute, minus the &amp;#34;distribe&amp;#34; prefix
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#8b949e;font-style:italic"&gt; */&lt;/span&gt;&lt;span style="color:#6e7681"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Command&lt;/span&gt;&lt;span style="color:#6e7681"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ff7b72"&gt;public&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;create&lt;/span&gt;(&lt;span style="color:#6e7681"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Option&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;to&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;List&lt;span style="color:#ff7b72;font-weight:bold"&gt;&amp;lt;&lt;/span&gt;Email&lt;span style="color:#ff7b72;font-weight:bold"&gt;&amp;gt;&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;to,&lt;span style="color:#6e7681"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Option&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String&lt;span style="color:#6e7681"&gt; &lt;/span&gt;name,&lt;span style="color:#6e7681"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Option&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;target&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#d2a8ff;font-weight:bold"&gt;@Default&lt;/span&gt;(&lt;span style="color:#a5d6ff"&gt;&amp;#34;JOBS_PROD&amp;#34;&lt;/span&gt;)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;JobsLambdas&lt;span style="color:#6e7681"&gt; &lt;/span&gt;targetLambda,&lt;span style="color:#6e7681"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;Schedule&lt;span style="color:#6e7681"&gt; &lt;/span&gt;schedule,&lt;span style="color:#6e7681"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;Config&lt;span style="color:#6e7681"&gt; &lt;/span&gt;config,&lt;span style="color:#6e7681"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;&lt;span style="color:#ff7b72"&gt;final&lt;/span&gt;&lt;span style="color:#6e7681"&gt; &lt;/span&gt;String...&lt;span style="color:#6e7681"&gt; &lt;/span&gt;command)&lt;span style="color:#6e7681"&gt; &lt;/span&gt;{&lt;span style="color:#6e7681"&gt; &lt;/span&gt;...&lt;span style="color:#6e7681"&gt; &lt;/span&gt;}&lt;span style="color:#6e7681"&gt;
@@ -482,6 +512,114 @@
  o &lt;b&gt;day-of-week&lt;/b&gt; accepts values &lt;b&gt;1-7&lt;/b&gt; or &lt;b&gt;SUN-SAT&lt;/b&gt; and wildcards &lt;b&gt;, - * ? L #&lt;/b&gt;
 
  o &lt;b&gt;year&lt;/b&gt; accepts values &lt;b&gt;1970-2199&lt;/b&gt; and wildcards &lt;b&gt;, - * /&lt;/b&gt;
+
+ The following wildcards are supported:
+
+ o The &lt;b&gt;,&lt;/b&gt; (comma) wildcard includes additional values. In the
+ Month field, JAN,FEB,MAR includes January, February, and March.
+
+ o The &lt;b&gt;-&lt;/b&gt; (dash) wildcard specifies ranges. In the Day field,
+ 1-15 includes days 1 through 15 of the specified month.
+
+ o The &lt;b&gt;*&lt;/b&gt; (asterisk) wildcard includes all values in the field.
+ In the Hours field, * includes every hour. You can&amp;#39;t use * in
+ both the &lt;b&gt;day-of-month&lt;/b&gt; and &lt;b&gt;day-of-week&lt;/b&gt; fields. If you use
+ it in one, you must use ? in the other.
+
+ o The &lt;b&gt;/&lt;/b&gt; (slash) wildcard specifies increments. In the Minutes
+ field, you could enter 1/10 to specify every tenth minute,
+ starting from the first minute of the hour (for example, the
+ 11th, 21st, and 31st minute, and so on).
+
+ o The &lt;b&gt;?&lt;/b&gt; (question mark) wildcard specifies any. In the
+ &lt;b&gt;day-of-month&lt;/b&gt; field you could enter 7 and if any day of the
+ week was acceptable, you could enter ? in the &lt;b&gt;day-of-week&lt;/b&gt;
+ field.
+
+ o The &lt;b&gt;L&lt;/b&gt; wildcard in the &lt;b&gt;day-of-month&lt;/b&gt; or &lt;b&gt;day-of-week&lt;/b&gt; fields
+ specifies the last day of the month or week.
+
+ o The &lt;b&gt;W&lt;/b&gt; wildcard in the &lt;b&gt;day-of-month&lt;/b&gt; field specifies a
+ weekday. In the &lt;b&gt;day-of-month&lt;/b&gt; field, 3W specifies the weekday
+ closest to the third day of the month.
+
+ o The &lt;b&gt;#&lt;/b&gt; wildcard in the &lt;b&gt;day-of-week&lt;/b&gt; field specifies a
+ certain instance of the specified day of the week within a
+ month. For example, 3#2 would be the second Tuesday of the
+ month: the 3 refers to Tuesday because it is the third day of
+ each week, and the 2 refers to the second day of that type
+ within the month.
+
+&lt;b&gt;EXAMPLES&lt;/b&gt;
+
+ Say you want to list the releases every month (&lt;b&gt;distribe s3
+ releases&lt;/b&gt;) and email them to support-team@tomitribe.com:
+
+ distribe job create --day-of-month=1 --to=support-team@tomitribe.com s3 releases
+
+&lt;b&gt;IDEMPOTENCY&lt;/b&gt;
+
+ This command cannot be run with the same arguments multiple times.
+ Once a schedule is created with a specific name, no other schedules
+ can be created with that name. Use &lt;b&gt;--name&lt;/b&gt; to set the name
+ explicitly instead of relying on defaults.
+
+&lt;b&gt;SYSTEMS&lt;/b&gt;
+
+ o AWS EventBridge (read,write)
+
+ o AWS Simple Email Service (write)
+
+&lt;b&gt;IMPACT&lt;/b&gt;
+
+ This command creates a schedule in AWS EventBridge that triggers the
+ &lt;b&gt;JobsLambda&lt;/b&gt; setup as an AWS Lambda.
+
+&lt;b&gt;RELATED&lt;/b&gt;
+
+ To list the current schedules
+
+ distribe job list
+
+ To get greater detail on any specific job
+
+ distribe job get the-job-name
+
+ To delete an existing job so it can be redefined
+
+ distribe job delete the-job-name
+
+&lt;b&gt;OPTIONS&lt;/b&gt;
+ --to=&amp;lt;Email[]&amp;gt;
+ the email addresses where the command will be sent
+
+ --name=&amp;lt;String&amp;gt;
+ the unique name of the job
+
+ --target=&amp;lt;JobsLambdas&amp;gt;
+ which Jobs Lambda environment to schedule the command on
+ default: JOBS_PROD. enum: JOBS_PROD, JOBS_DEV, JOBS_USA
+
+ --day-of-month=&amp;lt;String&amp;gt;
+ default: *
+
+ --day-of-week=&amp;lt;String&amp;gt;
+ default: ?
+
+ --hour=&amp;lt;String&amp;gt;
+ default: 0
+
+ --minute=&amp;lt;String&amp;gt;
+ default: 0
+
+ --month=&amp;lt;String&amp;gt;
+ default: *
+
+ --year=&amp;lt;String&amp;gt;
+ default: *
+
+ --config=&amp;lt;String&amp;gt;
+ default: default
 &lt;/pre&gt;
 
 &lt;p&gt;Notice how the source maps to the rendering:&lt;/p&gt;</description></item><item><title>Exit Codes</title><link>https://tomitribe.github.io/crest/advanced/exit-codes/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://tomitribe.github.io/crest/advanced/exit-codes/</guid><description>&lt;p&gt;The &lt;code&gt;@Exit&lt;/code&gt; annotation controls the process exit code when a command throws an exception. Annotate your exception classes with &lt;code&gt;@Exit&lt;/code&gt; to map specific error conditions to specific exit codes.&lt;/p&gt;

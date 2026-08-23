@@ -46,6 +46,9 @@ public class ParamWithPreformattedTextTest {
                         "DESCRIPTION\n" +
                         "       Commit the changes from the directory into the repository specified.\n" +
                         "\n" +
+                        "ARGUMENTS\n" +
+                        "       File   the git repository cloned to the local system where changes should be committed\n" +
+                        "\n" +
                         "OPTIONS\n" +
                         "       --all  indicates all changes should be committed, including deleted files\n" +
                         "\n" +

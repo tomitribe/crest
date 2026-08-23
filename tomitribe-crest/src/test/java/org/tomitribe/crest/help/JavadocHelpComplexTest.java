@@ -50,6 +50,13 @@ public class JavadocHelpComplexTest {
                         "       two sets of files across the network connection, using an efficient check-  sum-search\n" +
                         "       algorithm  described  in  the  technical  report  that  accompanies  this  pack-  age.\n" +
                         "\n" +
+                        "ARGUMENTS\n" +
+                        "       URI... one  or more sources to sync to the destination.  A source can be a file or URI\n" +
+                        "              such as [USER@]HOST:SRC or rsync://[USER@]HOST[:PORT]/SRC\n" +
+                        "\n" +
+                        "       URI    the destination file being updated. Acceptable forms include DEST,\n" +
+                        "              [USER@]HOST:DEST or rsync://[USER@]HOST[:PORT]/DEST\n" +
+                        "\n" +
                         "OPTIONS\n" +
                         "       --recursive\n" +
                         "              This  tells  rsync  to  copy  directories  recursively.   See also --dirs (-d).\n" +

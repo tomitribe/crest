@@ -134,18 +134,34 @@ public class HelpProcessor extends AbstractProcessor {
         }
 
         // Add the parameter data
-        for (final VariableElement parameter : executableElement.getParameters()) {
+        addParameterData(commandJavadoc, executableElement);
+
+        return commandJavadoc;
+    }
+
+    /**
+     * Records how the runtime can find each parameter's @param javadoc.
+     * Options map by their option names.  Everything else — the positional
+     * arguments — maps by declaration index under an "@arg.N" key, the one
+     * identity both this processor and runtime reflection agree on.
+     */
+    private void addParameterData(final CommandJavadoc commandJavadoc, final ExecutableElement executableElement) {
+        final List<? extends VariableElement> parameters = executableElement.getParameters();
+
+        for (int i = 0; i < parameters.size(); i++) {
+            final VariableElement parameter = parameters.get(i);
 
             processBean(parameter.asType());
 
             final Option option = parameter.getAnnotation(Option.class);
-            if (option == null) continue;
+            if (option == null) {
+                commandJavadoc.getProperties().put("@arg." + i, parameter.getSimpleName() + "");
+                continue;
+            }
             for (final String optionName : option.value()) {
                 commandJavadoc.getProperties().put(optionName, parameter.getSimpleName() + "");
             }
         }
-
-        return commandJavadoc;
     }
 
     /**
@@ -194,16 +210,7 @@ public class HelpProcessor extends AbstractProcessor {
                 }
             }
 
-            for (final VariableElement parameter : constructor.getParameters()) {
-
-                processBean(parameter.asType());
-
-                final Option option = parameter.getAnnotation(Option.class);
-                if (option == null) continue;
-                for (final String optionName : option.value()) {
-                    beanJavadoc.getProperties().put(optionName, parameter.getSimpleName() + "");
-                }
-            }
+            addParameterData(beanJavadoc, constructor);
         }
 
         storeProperties(resourceFileName, beanJavadoc.getProperties());

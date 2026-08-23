@@ -47,6 +47,9 @@ public class DefaultsShownTest {
                         "       of  what is included by any of the above for the next commit by giving the same set of\n" +
                         "       parameters (options and paths).\n" +
                         "\n" +
+                        "ARGUMENTS\n" +
+                        "       File   the git repository cloned to the local system where changes should be committed\n" +
+                        "\n" +
                         "OPTIONS\n" +
                         "       --time=<TimeUnit>\n" +
                         "              indicates all changes should be committed, including deleted files\n" +

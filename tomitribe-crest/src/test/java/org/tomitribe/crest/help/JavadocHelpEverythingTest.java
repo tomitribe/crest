@@ -171,6 +171,11 @@ public class JavadocHelpEverythingTest {
                         "\n" +
                         "           2026-08-18T14:02:11Z dblevins mirror central exit=0 41s\n" +
                         "\n" +
+                        "ARGUMENTS\n" +
+                        "       String the repository to copy from\n" +
+                        "\n" +
+                        "       String the repository to copy into\n" +
+                        "\n" +
                         "OPTIONS\n" +
                         "       --verbose\n" +
                         "              print each artifact as it lands rather than a final summary\n" +

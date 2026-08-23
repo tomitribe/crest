@@ -50,6 +50,9 @@ public class ManualTest {
                         "       If  you  make a commit and then find a mistake immediately after that, you can recover\n" +
                         "       from it with git reset.\n" +
                         "\n" +
+                        "ARGUMENTS\n" +
+                        "       File   the git repository cloned to the local system where changes should be committed\n" +
+                        "\n" +
                         "OPTIONS\n" +
                         "       --all  indicates all changes should be committed, including deleted files\n" +
                         "\n" +

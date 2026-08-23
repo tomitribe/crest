@@ -383,25 +383,35 @@ public class CmdMethod implements Cmd {
         }
 
         for (final Param parameter : spec.getArguments()) {
-            boolean skip = Environment.class.isAssignableFrom(parameter.getType());
-            for (final Annotation a : parameter.getAnnotations()) {
-                final CrestAnnotation crestAnnotation = a.annotationType().getAnnotation(CrestAnnotation.class);
-                if (crestAnnotation != null) {
-                    skip = crestAnnotation.skipUsage();
-                    break;
-                }
-            }
-            if (!skip) {
-                skip = parameter.getAnnotation(NotAService.class) == null &&
-                        Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(parameter.getType()) != null;
-            }
-            if (skip) {
+            if (isHiddenFromUsage(parameter)) {
                 continue;
             }
             parts.add(parameter.getDisplayType().replace("[]", "..."));
         }
 
         return Join.join(" ", parts);
+    }
+
+    /**
+     * Injected parameters — Environment, services, and anything whose
+     * annotation opts out via skipUsage — are supplied by the runtime, not
+     * the command line, so neither the SYNOPSIS nor the ARGUMENTS section
+     * shows them.
+     */
+    private static boolean isHiddenFromUsage(final Param parameter) {
+        boolean skip = Environment.class.isAssignableFrom(parameter.getType());
+        for (final Annotation a : parameter.getAnnotations()) {
+            final CrestAnnotation crestAnnotation = a.annotationType().getAnnotation(CrestAnnotation.class);
+            if (crestAnnotation != null) {
+                skip = crestAnnotation.skipUsage();
+                break;
+            }
+        }
+        if (!skip) {
+            skip = parameter.getAnnotation(NotAService.class) == null &&
+                    Environment.ENVIRONMENT_THREAD_LOCAL.get().findService(parameter.getType()) != null;
+        }
+        return skip;
     }
 
     private String usage() {
@@ -769,6 +779,26 @@ public class CmdMethod implements Cmd {
             }
         }
 
+        /*
+         * The ARGUMENTS section renders when at least one positional is
+         * documented; it then lists every positional in invocation order —
+         * undocumented ones as bare type entries — so arity and order stay
+         * readable.  No positionals or none documented: no section.
+         */
+        final List<Argument> arguments = arguments(commandJavadoc);
+
+        if (arguments.stream().anyMatch(argument -> argument.description != null)) {
+            manual.heading("ARGUMENTS");
+
+            for (final Argument argument : arguments) {
+                final Document.Builder description = Document.builder();
+                if (argument.description != null) {
+                    description.inline(parseOptionDescription(argument.description));
+                }
+                manual.element(new org.tomitribe.crest.help.Option(argument.type, description.build()));
+            }
+        }
+
         if (spec.getOptions().size() > 0) {
             manual.heading("OPTIONS");
 
@@ -995,6 +1025,75 @@ public class CmdMethod implements Cmd {
         }
 
         return description;
+    }
+
+    /**
+     * The positional arguments of the invocation in the order they are
+     * supplied, each paired with the javadoc written at its declaring
+     * site: the command method's @param for its own positionals, the bean
+     * constructor's @param for bean-sourced ones.
+     */
+    private List<Argument> arguments(final CommandJavadoc commandJavadoc) {
+        final List<Argument> arguments = new ArrayList<>();
+        collectArguments(parameters, commandJavadoc, arguments);
+        return arguments;
+    }
+
+    private static void collectArguments(final List<Param> params, final CommandJavadoc source, final List<Argument> arguments) {
+        for (final Param param : params) {
+            if (param instanceof OptionParam) {
+                continue;
+            }
+
+            if (param instanceof ComplexParam) {
+                final ComplexParam bean = (ComplexParam) param;
+                collectArguments(bean.getParameters(), CommandJavadoc.getBeanJavadocs(bean.getType()), arguments);
+                continue;
+            }
+
+            if (isHiddenFromUsage(param)) {
+                continue;
+            }
+
+            arguments.add(new Argument(param.getDisplayType().replace("[]", "..."), argumentDoc(source, param)));
+        }
+    }
+
+    /**
+     * The @param text captured for this positional.  Positionals have no
+     * option name, so the lookup goes by declaration index — the "@arg.N"
+     * mapping the annotation processor stores for every non-option
+     * parameter.
+     */
+    private static String argumentDoc(final CommandJavadoc source, final Param param) {
+        if (source == null) {
+            return null;
+        }
+
+        final String parameterName = source.getProperties().getProperty("@arg." + param.getIndex());
+        if (parameterName == null) {
+            return null;
+        }
+
+        final Javadoc.Param doc = JavadocParser.parse(source.getJavadoc())
+                .getParametersByName()
+                .get(parameterName);
+
+        return doc == null ? null : doc.getDescription();
+    }
+
+    /**
+     * One ARGUMENTS entry: the display type the SYNOPSIS shows as the
+     * term, the @param text as the body
+     */
+    private static final class Argument {
+        private final String type;
+        private final String description;
+
+        private Argument(final String type, final String description) {
+            this.type = type;
+            this.description = description;
+        }
     }
 
     /**

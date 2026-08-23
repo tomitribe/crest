@@ -48,6 +48,9 @@ public class JavadocHelpInterceptorTest {
                         "\n" +
                         "       The retry interceptor repeats a failed send until it succeeds or the attempts run out.\n" +
                         "\n" +
+                        "ARGUMENTS\n" +
+                        "       String the text of the message\n" +
+                        "\n" +
                         "OPTIONS\n" +
                         "       --to=<String>\n" +
                         "              the address the message is delivered to\n" +

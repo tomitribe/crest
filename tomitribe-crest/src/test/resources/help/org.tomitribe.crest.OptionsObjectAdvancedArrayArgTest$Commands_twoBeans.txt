@@ -1,5 +1,5 @@
 
-Usage: twoBeans  String URI
+Usage: twoBeans [options] String URI
 
 Options:
   --key=<String>           

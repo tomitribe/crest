@@ -1,12 +1,53 @@
-= $artifactId Crest Project
+= $artifactId
 
-This project was created using Crest Archetype.
+A command-line tool built with https://github.com/tomitribe/crest[Tomitribe Crest].
 
 == Build
 
-`mvn package` builds the project and creates an executable uberjar (all in one) which means you can then run your CLI with:
+[source,bash]
+----
+mvn package
+----
+
+The build produces a self-executing binary at `target/$artifactId` — a shaded
+jar with a shell stub prepended, created by the crest-maven-plugin `executable`
+goal.  No `java -jar` needed.
+
+== Run
 
 [source,bash]
 ----
-java -jar target/<artifact>-all.jar
+./target/$artifactId                          # list the available commands
+./target/$artifactId help greet               # man page rendered from the javadoc
+./target/$artifactId greet World
+./target/$artifactId greet --language=ES Ecuador
+----
+
+== How it works
+
+- There is no `main()` method in this project.  `org.tomitribe.crest.Main` is
+  the entry point, set by the shade plugin's `ManifestResourceTransformer`.
+- Commands are discovered at build time: the crest-maven-plugin `descriptor`
+  goal writes the annotated classes to `crest-commands.txt`, and the shade
+  plugin's `AppendingTransformer` merges those descriptors across jars — no
+  classpath scanning at startup.
+- The javadoc on a `@Command` method is its documentation: the first sentence
+  shows in the command listing and the full comment renders as a man page via
+  `help <command>`.  Write plain text — inline javadoc tags render literally.
+- Positional arguments are typed: `Name` is a small value object whose
+  single-String constructor validates the input, so the usage line reads
+  `greet [options] Name` instead of `greet [options] String`.
+- Options use `@Option` with `@Default`; enums get their values validated and
+  listed for free.
+- `slf4j-nop` keeps startup clean.  Replace it with a real SLF4J binding if
+  this CLI should log.
+
+== Test
+
+Commands are plain methods.  `CliTest` drives them through
+`org.tomitribe.crest.Main` in-process — the same path the binary runs.
+
+[source,bash]
+----
+mvn test
 ----

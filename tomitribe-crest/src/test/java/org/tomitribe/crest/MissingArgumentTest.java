@@ -35,7 +35,7 @@ public class MissingArgumentTest {
 
         Assert.assertEquals("Missing argument: String\n" +
                 "\n" +
-                "Usage: hello  String\n" +
+                "Usage: hello String\n" +
                 "\n", result.getErr());
     }
 

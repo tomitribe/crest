@@ -368,7 +368,17 @@ public class CmdMethod implements Cmd {
             }
         }
 
-        final List<Object> args = new ArrayList<>();
+        final List<String> parts = new ArrayList<>();
+        parts.add(commandName);
+
+        /*
+         * The linked spec is the full option universe of the invocation:
+         * the command's own options, bean-sourced options, and options
+         * contributed by interceptors.  If any exist, the synopsis says so.
+         */
+        if (!spec.getOptions().isEmpty()) {
+            parts.add("[options]");
+        }
 
         for (final Param parameter : spec.getArguments()) {
             boolean skip = Environment.class.isAssignableFrom(parameter.getType());
@@ -386,11 +396,10 @@ public class CmdMethod implements Cmd {
             if (skip) {
                 continue;
             }
-            args.add(parameter.getDisplayType().replace("[]", "..."));
+            parts.add(parameter.getDisplayType().replace("[]", "..."));
         }
 
-        return String.format("%s %s %s", commandName, args.size() == method.getParameterTypes().length ? "" : "[options]",
-                Join.join(" ", args)).trim();
+        return Join.join(" ", parts);
     }
 
     private String usage() {
@@ -731,15 +740,13 @@ public class CmdMethod implements Cmd {
     @Override
     public void manual(final PrintStream out) {
         final CommandJavadoc commandJavadoc = CommandJavadoc.getCommandJavadocs(method, name);
+        final List<CommandJavadoc> fallbacks = javadocFallbacks();
 
-        if (commandJavadoc == null) {
-            help(out);
-            return;
-        }
+        final Javadoc javadoc = JavadocParser.parse(commandJavadoc == null ? null : commandJavadoc.getJavadoc());
 
-        final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
+        final List<Document> descriptions = composeDescription(commandJavadoc, fallbacks);
 
-        if (javadoc.isEmpty()) {
+        if (javadoc.isEmpty() && descriptions.isEmpty()) {
             help(out);
             return;
         }
@@ -750,18 +757,17 @@ public class CmdMethod implements Cmd {
                 .heading("SYNOPSIS")
                 .paragraph(getUsage());
 
-        {
-            final Document description = DocumentParser.parser(javadoc.getContent());
-            if (description.getElements().size() > 0) {
-                manual.heading("DESCRIPTION")
-                        .inline(description);
+        if (!descriptions.isEmpty()) {
+            manual.heading("DESCRIPTION");
+            for (final Document document : descriptions) {
+                manual.inline(document);
             }
         }
 
         if (spec.getOptions().size() > 0) {
             manual.heading("OPTIONS");
 
-            final List<Item> items = Help.getItems(method, name, spec.getOptions().values(), commandJavadoc);
+            final List<Item> items = Help.getItems(method, name, spec.getOptions().values(), commandJavadoc, fallbacks);
 
             for (final Item item : items) {
 
@@ -850,13 +856,40 @@ public class CmdMethod implements Cmd {
             return;
         }
 
-        Help.optionHelp(method, getName(), spec.getOptions().values(), out, false);
+        Help.optionHelp(method, getName(), spec.getOptions().values(), javadocFallbacks(), out, false);
 
         if (hasExpandedHelp()) {
             Help.printHelpHint(out, false, getFullPath());
         }
 
         Help.printNameAndVersion(out);
+    }
+
+    /**
+     * The javadoc sources this command's option descriptions may resolve
+     * from, beyond the command method's own javadoc, ordered closest
+     * declarer first: the command's @Options beans (constructor @param
+     * entries document a bean's options), then each interceptor in the
+     * chain — its beans, then its @CrestInterceptor method.  Each source
+     * only fills descriptions still missing, so the command's own
+     * documentation always wins over an interceptor's for a shared name.
+     */
+    private List<CommandJavadoc> javadocFallbacks() {
+        final List<CommandJavadoc> javadocs = new ArrayList<>();
+
+        for (final Param param : parameters) {
+            if (param instanceof ComplexParam) {
+                ((ComplexParam) param).collectJavadocs(javadocs);
+            }
+        }
+
+        if (chain != null) {
+            for (final InternalInterceptor interceptor : chain) {
+                interceptor.collectJavadocs(javadocs);
+            }
+        }
+
+        return javadocs;
     }
 
     public String getFullPath() {
@@ -874,9 +907,50 @@ public class CmdMethod implements Cmd {
 
     private boolean hasExpandedHelp() {
         final CommandJavadoc commandJavadoc = CommandJavadoc.getCommandJavadocs(method, name);
-        if (commandJavadoc == null) return false;
-        final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
-        return !javadoc.isEmpty();
+
+        if (commandJavadoc != null && !JavadocParser.parse(commandJavadoc.getJavadoc()).isEmpty()) {
+            return true;
+        }
+
+        return !composeDescription(commandJavadoc, javadocFallbacks()).isEmpty();
+    }
+
+    /**
+     * Composes the canonical DESCRIPTION of this command: the command
+     * method's own javadoc body, then its @Options beans' in parameter
+     * order — each bean recursively composed with its nested beans, the
+     * bean class narrative before its constructor's — then each
+     * interceptor's in the order they run, each first composed with its
+     * own beans by the same rule.  A participant with no javadoc
+     * contributes nothing.
+     */
+    private List<Document> composeDescription(final CommandJavadoc commandJavadoc, final List<CommandJavadoc> fallbacks) {
+        final List<Document> description = new ArrayList<>();
+
+        addBody(description, commandJavadoc == null ? null : commandJavadoc.getJavadoc());
+
+        for (final CommandJavadoc source : fallbacks) {
+            addBody(description, source.getClassJavadoc());
+            addBody(description, source.getJavadoc());
+        }
+
+        return description;
+    }
+
+    /**
+     * Parses one participant's raw javadoc and adds its body — the
+     * narrative above the tags — as a Document.  Javadoc that is missing
+     * or holds only tags adds nothing, so undocumented participants leave
+     * no blank artifacts behind.
+     */
+    private static void addBody(final List<Document> description, final String javadocText) {
+        final String content = JavadocParser.parse(javadocText).getContent();
+
+        final Document document = DocumentParser.parser(content);
+
+        if (!document.getElements().isEmpty()) {
+            description.add(document);
+        }
     }
 
     public List<Object> parse(final String... rawArgs) {

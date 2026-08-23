@@ -112,7 +112,7 @@ public class EditorInLoaderTest {
         main.run("color", "red");
         assertEquals(String.format("Missing argument: Environment%n" +
                 "%n" +
-                "Usage: color red  Environment%n" +
+                "Usage: color red Environment%n" +
                 "%n"), err.toString());
     }
 

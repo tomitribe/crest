@@ -49,6 +49,20 @@ public class CommandJavadoc {
         return this.getProperties().getProperty("@javadoc");
     }
 
+    /**
+     * For @Options and @GlobalOptions beans: the javadoc of the bean class
+     * itself, alongside the constructor javadoc stored under "@javadoc".
+     * The class javadoc carries the bean's narrative; the constructor's
+     * @param entries document its options.
+     */
+    public void setClassJavadoc(final String javadoc) {
+        this.getProperties().put("@class-javadoc", javadoc);
+    }
+
+    public String getClassJavadoc() {
+        return this.getProperties().getProperty("@class-javadoc");
+    }
+
     public String getClazzName() {
         return clazzName;
     }
@@ -122,6 +136,25 @@ public class CommandJavadoc {
             throw new InvalidJavadocFileException(resourceFileName, e);
         }
         return javadoc;
+    }
+
+    /**
+     * The name and hash used for an @Options or @GlobalOptions bean's
+     * javadoc resource.  Beans are looked up by type alone — the options
+     * they contribute are documented as @param entries on the constructor
+     * — so the file is keyed purely by the bean's class name.
+     */
+    public static String beanHash(final String dottedClassName) {
+        return String.format("%016x", XxHash64.hash(dottedClassName));
+    }
+
+    public static String getBeanResourceFileName(final String dottedClassName) {
+        return getResourceFileName(dottedClassName, "bean", beanHash(dottedClassName));
+    }
+
+    public static CommandJavadoc getBeanJavadocs(final Class<?> beanClass) {
+        final String clazzName = beanClass.getName().replace('$', '.');
+        return loadJavadoc(clazzName, "bean", beanHash(clazzName));
     }
 
     public static CommandJavadoc getCommandJavadocs(final Method method, final String name) {

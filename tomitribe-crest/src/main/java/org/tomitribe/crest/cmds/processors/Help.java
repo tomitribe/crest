@@ -41,6 +41,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -71,11 +72,17 @@ public class Help {
 
     public static void optionHelp(final Method method, final String commandName,
                                   final Collection<OptionParam> optionParams, final PrintStream out, final boolean printVersion) {
+        optionHelp(method, commandName, optionParams, Collections.emptyList(), out, printVersion);
+    }
+
+    public static void optionHelp(final Method method, final String commandName,
+                                  final Collection<OptionParam> optionParams, final List<CommandJavadoc> fallbacks,
+                                  final PrintStream out, final boolean printVersion) {
         if (optionParams.isEmpty()) {
             return;
         }
 
-        final List<Item> items = getItems(method, commandName, optionParams);
+        final List<Item> items = getItems(method, commandName, optionParams, fallbacks);
 
         printItems(out, items);
 
@@ -128,9 +135,14 @@ public class Help {
     }
 
     public static List<Item> getItems(final Method method, final String commandName, final Collection<OptionParam> optionParams) {
+        return getItems(method, commandName, optionParams, Collections.emptyList());
+    }
+
+    public static List<Item> getItems(final Method method, final String commandName, final Collection<OptionParam> optionParams,
+                                      final List<CommandJavadoc> fallbacks) {
         final CommandJavadoc commandJavadoc = CommandJavadoc.getCommandJavadocs(method, commandName);
 
-        final List<Item> items = getItems(method, commandName, optionParams, commandJavadoc);
+        final List<Item> items = getItems(method, commandName, optionParams, commandJavadoc, fallbacks);
 
         return items.stream()
                 .map(Help::trimDescriptions)
@@ -164,10 +176,32 @@ public class Help {
     }
 
     public static List<Item> getItems(final Method method, final String commandName, final Collection<OptionParam> optionParams, final CommandJavadoc commandJavadoc) {
+        return getItems(method, commandName, optionParams, commandJavadoc, Collections.emptyList());
+    }
+
+    public static List<Item> getItems(final Method method, final String commandName, final Collection<OptionParam> optionParams,
+                                      final CommandJavadoc commandJavadoc, final List<CommandJavadoc> fallbacks) {
         final Class<?> clazz = method.getDeclaringClass();
         final List<Item> items = getItems(clazz, commandName, optionParams);
 
-        if (commandJavadoc == null || commandJavadoc.getJavadoc() == null) return items;
+        applyJavadoc(items, commandJavadoc);
+
+        for (final CommandJavadoc fallback : fallbacks) {
+            applyJavadoc(items, fallback);
+        }
+
+        return items;
+    }
+
+    /**
+     * Fills in descriptions from a method's captured javadoc for any item
+     * that does not have one yet.  Only undescribed items are touched, so
+     * calling this once per source in priority order — the command method
+     * first, then each interceptor in the chain — lets the earliest
+     * declarer win when several document the same option.
+     */
+    public static void applyJavadoc(final List<Item> items, final CommandJavadoc commandJavadoc) {
+        if (commandJavadoc == null || commandJavadoc.getJavadoc() == null) return;
 
         final Javadoc javadoc = JavadocParser.parse(commandJavadoc.getJavadoc());
 
@@ -192,8 +226,6 @@ public class Help {
 
             iterator.set(updated);
         }
-
-        return items;
     }
 
     public static List<Item> getItems(final Class<?> clazz, final String commandName, final Collection<OptionParam> optionParams) {
@@ -398,7 +430,13 @@ public class Help {
             final GlobalSpec spec = GlobalSpec.builder()
                     .optionsClasses(globalOptionClasses)
                     .build();
-            printItems(string, getItems(spec.getOptions().values()));
+
+            final List<Item> items = getItems(spec.getOptions().values());
+            for (final Class<?> optionsClass : globalOptionClasses) {
+                applyJavadoc(items, CommandJavadoc.getBeanJavadocs(optionsClass));
+            }
+
+            printItems(string, items);
             string.println();
         }
 

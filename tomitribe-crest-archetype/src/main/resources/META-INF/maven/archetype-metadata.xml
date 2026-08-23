@@ -21,16 +21,6 @@
             https://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0
             http://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd"
            name="tomitribe-crest-archetype">
-  <requiredProperties>
-    <requiredProperty key="enableArthur">
-      <defaultValue>true</defaultValue>
-      <validationRegex>^(true|false)$</validationRegex>
-    </requiredProperty>
-    <requiredProperty key="enableBeanValidation">
-      <defaultValue>true</defaultValue>
-      <validationRegex>^(true|false)$</validationRegex>
-    </requiredProperty>
-  </requiredProperties>
   <fileSets>
     <fileSet filtered="true" encoding="UTF-8">
       <directory></directory>

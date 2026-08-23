@@ -32,6 +32,7 @@ import org.tomitribe.crest.cmds.processors.Param;
 import org.tomitribe.crest.cmds.targets.SimpleBean;
 import org.tomitribe.crest.cmds.targets.Target;
 import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.help.CommandJavadoc;
 import org.tomitribe.crest.interceptor.InterceptorAnnotationNotFoundException;
 import org.tomitribe.crest.interceptor.InvalidInterceptorPriorityException;
 import org.tomitribe.crest.interceptor.UnresolvedInterceptorAnnotationException;
@@ -252,6 +253,38 @@ public class InternalInterceptor {
 
     public Spec getSpec() {
         return spec;
+    }
+
+    /**
+     * The javadoc the annotation processor captured for the
+     * @CrestInterceptor method at compile time, stored under the method's
+     * own name since interceptors have no @Command name.  Documents the
+     * options this interceptor contributes via its @param entries.  Null
+     * when the interceptor was compiled without the crest annotation
+     * processor on the classpath.
+     */
+    public CommandJavadoc getJavadoc() {
+        return CommandJavadoc.getCommandJavadocs(method, method.getName());
+    }
+
+    /**
+     * Collects this interceptor's javadoc sources: the interceptor method's
+     * own javadoc, then each of its @Options beans' in parameter order,
+     * recursively.  An interceptor's option names cannot collide with its
+     * own beans' — its spec would reject the duplicate — so this one order
+     * serves both description composition and @param resolution.
+     */
+    public void collectJavadocs(final List<CommandJavadoc> javadocs) {
+        final CommandJavadoc javadoc = getJavadoc();
+        if (javadoc != null) {
+            javadocs.add(javadoc);
+        }
+
+        for (final Param param : injectableParams) {
+            if (param instanceof ComplexParam) {
+                ((ComplexParam) param).collectJavadocs(javadocs);
+            }
+        }
     }
 
     public List<Param> getInjectableParams() {

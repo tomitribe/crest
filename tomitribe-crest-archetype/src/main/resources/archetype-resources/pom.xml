@@ -7,33 +7,35 @@
   <version>\${version}</version>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
     <crest.version>${project.version}</crest.version>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest</artifactId>
-      <version>${crest.version}</version>
+      <version>\${crest.version}</version>
+    </dependency>
+    <!-- Keeps startup clean of SLF4J warnings.  Replace with the SLF4J
+         binding of your choice if this CLI should do real logging. -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>1.7.36</version>
     </dependency>
 
-    <!-- to get scanning in java mode (optional, you can use crest-commands.txt or SPI loading) -->
     <dependency>
-      <groupId>org.tomitribe</groupId>
-      <artifactId>tomitribe-crest-xbean</artifactId>
-      <version>${crest.version}</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.9.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.9.3</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -41,59 +43,74 @@
     <defaultGoal>package</defaultGoal>
 
     <plugins>
-      <!-- make an uber jar with all deps -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>17</release>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+      </plugin>
+      <!-- Shade all dependencies into one jar.  There is no main() method in
+           this project: org.tomitribe.crest.Main is the entry point and finds
+           the commands via the crest-commands.txt descriptors, which the
+           AppendingTransformer merges across jars. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>3.5.1</version>
         <executions>
           <execution>
-            <id>all</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
             <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>all</shadedClassifierName>
-              <dependencyReducedPomLocation>${project.build.directory}/reduced-pom.xml</dependencyReducedPomLocation>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
               <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                  <resource>crest-commands.txt</resource>
+                </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>org.tomitribe.crest.Main</mainClass>
                 </transformer>
+                <!-- Merge ServiceLoader files from dependencies -->
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
               </transformers>
             </configuration>
           </execution>
         </executions>
       </plugin>
-      <!-- now make the jar chmod +x style executable -->
-      <plugin>
-        <groupId>org.skife.maven</groupId>
-        <artifactId>really-executable-jar-maven-plugin</artifactId>
-        <version>1.5.0</version>
-        <configuration>
-          <!-- value of flags will be interpolated into the java invocation -->
-          <!-- as "java $flags -jar ..." -->
-          <flags>-Dcmd="$0" $JAVA_OPTS -Xmx1G</flags>
-          <programFile>\${project.artifactId}</programFile>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>really-executable-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+      <!-- descriptor: writes crest-commands.txt so commands are found without
+           classpath scanning.  executable: prepends a shell stub to the shaded
+           jar producing target/\${artifactId} which runs directly. -->
       <plugin>
         <groupId>org.tomitribe</groupId>
         <artifactId>crest-maven-plugin</artifactId>
-        <version>${crest.version}</version>
+        <version>\${crest.version}</version>
+        <configuration>
+          <programFile>\${artifactId}</programFile>
+        </configuration>
         <executions>
           <execution>
             <goals>
               <goal>descriptor</goal>
+              <goal>executable</goal>
             </goals>
           </execution>
         </executions>

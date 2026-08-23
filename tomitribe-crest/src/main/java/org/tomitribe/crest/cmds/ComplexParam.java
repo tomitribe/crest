@@ -23,6 +23,7 @@ import org.tomitribe.crest.api.Required;
 import org.tomitribe.crest.cmds.processors.OptionParam;
 import org.tomitribe.crest.cmds.processors.Param;
 import org.tomitribe.crest.environments.Environment;
+import org.tomitribe.crest.help.CommandJavadoc;
 import org.tomitribe.crest.val.BeanValidationImpl;
 import org.tomitribe.util.Join;
 import org.tomitribe.util.reflect.Parameter;
@@ -208,6 +209,26 @@ public class ComplexParam extends Param {
 
     public List<Param> getParameters() {
         return parameters;
+    }
+
+    /**
+     * Collects the javadoc captured at compile time for this bean's
+     * constructor, then for any nested beans, in declaration order.  The
+     * options a bean contributes are documented as @param entries on its
+     * constructor — the declaring site closest to the option — so these
+     * apply before the javadoc of the method that declared the bean.
+     */
+    public void collectJavadocs(final List<CommandJavadoc> javadocs) {
+        final CommandJavadoc javadoc = CommandJavadoc.getBeanJavadocs(getType());
+        if (javadoc != null) {
+            javadocs.add(javadoc);
+        }
+
+        for (final Param param : parameters) {
+            if (param instanceof ComplexParam) {
+                ((ComplexParam) param).collectJavadocs(javadocs);
+            }
+        }
     }
 
     @Override

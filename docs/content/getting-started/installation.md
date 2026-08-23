@@ -31,4 +31,4 @@ mvn archetype:generate \
     -DarchetypeArtifactId=tomitribe-crest-archetype
 ```
 
-This generates a project with the correct dependencies, a sample command class, and a `Main` entry point ready to run.
+This generates a project with the correct dependencies and a sample command class — but no `main()` method of its own. `org.tomitribe.crest.Main` is the entry point: the crest-maven-plugin's `descriptor` goal records the command classes at build time and its `executable` goal produces a self-executing binary, so after `mvn package` the tool runs as `./target/<artifactId> <command>`. The sample command also demonstrates typed positional arguments — a small `Name` value object rather than a bare `String` — so the usage line names what the argument is.

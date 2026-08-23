@@ -18,8 +18,8 @@ public class Cli {
      * Prints a one-line greeting composed from the language option and the
      * name given on the command line.  This javadoc is the command's
      * documentation: the first sentence appears in the command listing and
-     * the whole comment renders as a man page via 'help greet'.  Keep the
-     * text plain - inline javadoc tags such as code or link render literally.
+     * the whole comment renders as a man page via 'help greet'.  Inline
+     * javadoc tags such as code or link are reduced to their plain text.
      *
      * @param language the language to greet in: EN, ES or FR
      * @param name the person, place or thing to greet, e.g. 'World'

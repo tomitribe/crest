@@ -162,7 +162,13 @@ public class DocumentParser {
     private boolean processBullet(final String line) {
         { // Is this line the start of a bullet?
             final Matcher matcher = bullet.matcher(line);
-            if (matcher.find()) {
+
+            /*
+             * A dash sitting at preformatted indentation is literal content
+             * — think an example flag like `--chunk-size=1048576` — not a
+             * bullet.  Bullets start in the first four columns.
+             */
+            if (matcher.find() && !preformatted.matcher(line).find()) {
                 terminate();
 
                 final String prefix = matcher.group(1);

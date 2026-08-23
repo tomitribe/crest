@@ -33,7 +33,8 @@ goal.  No `java -jar` needed.
   classpath scanning at startup.
 - The javadoc on a `@Command` method is its documentation: the first sentence
   shows in the command listing and the full comment renders as a man page via
-  `help <command>`.  Write plain text — inline javadoc tags render literally.
+  `help <command>`.  Inline javadoc tags such as `{@code}` and `{@link}` are
+  reduced to their plain text in the rendered page.
 - Positional arguments are typed: `Name` is a small value object whose
   single-String constructor validates the input, so the usage line reads
   `greet [options] Name` instead of `greet [options] String`.

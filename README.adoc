@@ -28,7 +28,7 @@ Use the Maven archetype and run your first command now.  Copy the following comm
 mvn archetype:generate -DarchetypeGroupId=org.tomitribe -DarchetypeArtifactId=tomitribe-crest-archetype -DarchetypeVersion=0.41 -DgroupId=org.example -DartifactId=mycommand
 cd mycommand/
 mvn clean install
-./target/mycommand hello
+./target/mycommand greet World
 ----
 If all went well you should see the following output:
 
@@ -999,8 +999,10 @@ A maven archetype is available to quickly bootstrap small projects complete with
 mvn archetype:generate \
  -DarchetypeGroupId=org.tomitribe \
  -DarchetypeArtifactId=tomitribe-crest-archetype \
- -DarchetypeVersion=1.0.0-SNAPSHOT
+ -DarchetypeVersion=0.41
 ----
+
+The generated project has no `main()` method of its own — `org.tomitribe.crest.Main` is the entry point.  The crest-maven-plugin `descriptor` goal records the command classes at build time and the `executable` goal turns the shaded jar into a self-executing binary, so after `mvn package` the tool runs as `./target/<artifactId> <command>`.  The sample command also shows typed positional arguments: a small `Name` value object instead of a bare `String`, so the usage line reads `greet [options] Name`.
 
 == Maven Plugin
 

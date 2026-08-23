@@ -28,6 +28,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -64,6 +65,11 @@ public class HelpProcessor extends AbstractProcessor {
         annotations.add(Command.class.getCanonicalName());
         annotations.add(CrestInterceptor.class.getCanonicalName());
         return annotations;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
     }
 
     @Override
@@ -121,7 +127,7 @@ public class HelpProcessor extends AbstractProcessor {
         final CommandJavadoc commandJavadoc = new CommandJavadoc(className, commandName, hash);
 
         { // write method javadoc
-            final String javadoc = processingEnv.getElementUtils().getDocComment(executableElement);
+            final String javadoc = translate(executableElement, executableElement.getEnclosingElement());
             if (javadoc != null) {
                 commandJavadoc.setJavadoc(javadoc);
             }
@@ -173,7 +179,7 @@ public class HelpProcessor extends AbstractProcessor {
         final CommandJavadoc beanJavadoc = new CommandJavadoc(className, "bean", CommandJavadoc.beanHash(className));
 
         { // the bean class javadoc carries its narrative
-            final String classJavadoc = processingEnv.getElementUtils().getDocComment(typeElement);
+            final String classJavadoc = translate(typeElement, typeElement);
             if (classJavadoc != null) {
                 beanJavadoc.setClassJavadoc(classJavadoc);
             }
@@ -182,7 +188,7 @@ public class HelpProcessor extends AbstractProcessor {
         for (final ExecutableElement constructor : ElementFilter.constructorsIn(typeElement.getEnclosedElements())) {
 
             if (beanJavadoc.getJavadoc() == null) {
-                final String javadoc = processingEnv.getElementUtils().getDocComment(constructor);
+                final String javadoc = translate(constructor, typeElement);
                 if (javadoc != null) {
                     beanJavadoc.setJavadoc(javadoc);
                 }
@@ -201,6 +207,19 @@ public class HelpProcessor extends AbstractProcessor {
         }
 
         storeProperties(resourceFileName, beanJavadoc.getProperties());
+    }
+
+    /**
+     * Reads the element's doc comment with its inline javadoc tags
+     * translated to the plain text a man page shows.  The enclosing type
+     * lets {@code {@value}} resolve constants by their short names.
+     */
+    private String translate(final Element documented, final Element enclosing) {
+        final String javadoc = processingEnv.getElementUtils().getDocComment(documented);
+
+        final TypeElement enclosingType = enclosing instanceof TypeElement ? (TypeElement) enclosing : null;
+
+        return JavadocInlineTags.translate(javadoc, processingEnv.getElementUtils(), enclosingType);
     }
 
     private void storeProperties(final String resourceFile, final Properties properties) {

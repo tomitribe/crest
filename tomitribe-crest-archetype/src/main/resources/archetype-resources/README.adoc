@@ -35,6 +35,11 @@ goal.  No `java -jar` needed.
   shows in the command listing and the full comment renders as a man page via
   `help <command>`.  Inline javadoc tags such as `{@code}` and `{@link}` are
   reduced to their plain text in the rendered page.
+- The pom sets `<proc>full</proc>` on the maven-compiler-plugin because that
+  javadoc extraction is an annotation processor: JDK 23+ javac no longer runs
+  processors discovered on the class path unless processing is explicitly
+  enabled.  Remove the setting and `help <command>` silently degrades to a
+  bare usage line when built on a current JDK.
 - Positional arguments are typed: `Name` is a small value object whose
   single-String constructor validates the input, so the usage line reads
   `greet [options] Name` instead of `greet [options] String`.

@@ -17,12 +17,14 @@
 package org.tomitribe.crest.help;
 
 import org.tomitribe.util.IO;
-import org.tomitribe.util.hash.XxHash64;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -106,7 +108,29 @@ public class CommandJavadoc {
 
     public static String signatureHash(final String declaringClassName, final String methodName, final List<String> paramTypeNames) {
         final String canonical = canonicalSignature(declaringClassName, methodName, paramTypeNames);
-        return String.format("%016x", XxHash64.hash(canonical));
+        return hash(canonical);
+    }
+
+    /**
+     * A 64-bit hex name hash via the JDK's own digest.  Deliberately not
+     * tomitribe-util's XxHash64: its Unsafe-based implementation makes every
+     * JDK 24+ JVM print "terminally deprecated method in sun.misc.Unsafe"
+     * warnings the moment help renders — noise on the stderr of every
+     * command-line tool built on crest.
+     */
+    private static String hash(final String text) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] bytes = digest.digest(text.getBytes(StandardCharsets.UTF_8));
+
+            final StringBuilder hex = new StringBuilder();
+            for (int i = 0; i < 8; i++) {
+                hex.append(String.format("%02x", bytes[i]));
+            }
+            return hex.toString();
+        } catch (final NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 is required by the JDK specification", e);
+        }
     }
 
     /**
@@ -145,7 +169,7 @@ public class CommandJavadoc {
      * — so the file is keyed purely by the bean's class name.
      */
     public static String beanHash(final String dottedClassName) {
-        return String.format("%016x", XxHash64.hash(dottedClassName));
+        return hash(dottedClassName);
     }
 
     public static String getBeanResourceFileName(final String dottedClassName) {
@@ -167,5 +191,22 @@ public class CommandJavadoc {
                 paramTypes);
         final String clazzName = method.getDeclaringClass().getName().replace('$', '.');
         return loadJavadoc(clazzName, name, hash);
+    }
+
+    /**
+     * The resource file {@link #getCommandJavadocs(Method, String)} would
+     * load for this method.  Lets a caller name the missing file when the
+     * lookup comes back empty.
+     */
+    public static String getResourceFileName(final Method method, final String name) {
+        final List<String> paramTypes = Stream.of(method.getParameterTypes())
+                .map(CommandJavadoc::classSignature)
+                .collect(Collectors.toList());
+        final String hash = signatureHash(
+                method.getDeclaringClass().getName(),
+                method.getName(),
+                paramTypes);
+        final String clazzName = method.getDeclaringClass().getName().replace('$', '.');
+        return getResourceFileName(clazzName, name, hash);
     }
 }

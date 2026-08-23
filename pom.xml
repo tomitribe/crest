@@ -135,10 +135,20 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.14.0</version>
         <configuration combine.self="override">
           <source>1.8</source>
           <target>1.8</target>
+          <!--
+            JDK 23+ javac no longer runs annotation processors discovered on
+            the class path unless processing is explicitly enabled.  Crest's
+            help system is built on such processors: auto-service registers
+            HelpProcessor, and HelpProcessor captures @Command javadoc into
+            META-INF/crest resources.  Without proc:full a JDK 23+ build
+            silently ships jars with no processor registration and no javadoc
+            help.  https://github.com/tomitribe/crest/issues/143
+          -->
+          <proc>full</proc>
         </configuration>
       </plugin>
       <plugin>

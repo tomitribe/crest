@@ -68,6 +68,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -84,6 +85,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
@@ -747,6 +749,9 @@ public class CmdMethod implements Cmd {
         final List<Document> descriptions = composeDescription(commandJavadoc, fallbacks);
 
         if (javadoc.isEmpty() && descriptions.isEmpty()) {
+            if (commandJavadoc == null && !BUILT_IN_COMMANDS.contains(method.getDeclaringClass().getName())) {
+                warnMissingJavadocResources();
+            }
             help(out);
             return;
         }
@@ -843,6 +848,61 @@ public class CmdMethod implements Cmd {
 
     public static boolean has(final List<?> list) {
         return list != null && list.size() > 0;
+    }
+
+    /**
+     * One warning per run: a missing javadoc resource means the whole build
+     * skipped annotation processing, so every command is equally affected
+     * and repeating the message per render would only bury it.
+     */
+    private static final AtomicBoolean JAVADOC_RESOURCES_WARNED = new AtomicBoolean();
+
+    /**
+     * Crest's own built-in commands compile in the same javac round as
+     * HelpProcessor itself, so their javadoc resources can never exist.
+     * Absence there is the tool's nature, not a consumer misconfiguration,
+     * and must not trip the missing-resource warning.
+     */
+    private static final Set<String> BUILT_IN_COMMANDS = new HashSet<>(Arrays.asList(
+            "org.tomitribe.crest.cmds.processors.Help",
+            "org.tomitribe.crest.BashCompletion"));
+
+    /**
+     * The annotation processor writes a properties resource for every
+     * command method it sees — javadoc'd or not — so an absent resource
+     * means the processor did not run when the class was compiled.  JDK 23+
+     * javac skips class-path processors unless processing is explicitly
+     * enabled, which makes this the expected failure mode of an otherwise
+     * healthy build.  A command that merely has no javadoc still has its
+     * resource and stays silent.
+     */
+    private void warnMissingJavadocResources() {
+        if (!JAVADOC_RESOURCES_WARNED.compareAndSet(false, true)) {
+            return;
+        }
+
+        final Environment environment = Environment.ENVIRONMENT_THREAD_LOCAL.get();
+        final PrintStream err = environment != null ? environment.getError() : System.err;
+
+        err.printf("WARNING: Expanded help is unavailable for command '%s'.%n", name);
+        err.printf("The classpath is missing the javadoc resource%n");
+        err.printf("  %s%n", CommandJavadoc.getResourceFileName(method, name));
+        err.printf("which crest's annotation processor generates when a command class compiles.%n");
+        err.printf("JDK 23+ javac no longer runs class-path annotation processors by default, so%n");
+        err.printf("the class was most likely compiled without annotation processing enabled (or%n");
+        err.printf("without tomitribe-crest on the compile classpath).  To restore javadoc-derived%n");
+        err.printf("help, rebuild the project with:%n");
+        err.printf("%n");
+        err.printf("  <plugin>%n");
+        err.printf("    <groupId>org.apache.maven.plugins</groupId>%n");
+        err.printf("    <artifactId>maven-compiler-plugin</artifactId>%n");
+        err.printf("    <version>3.14.0</version>%n");
+        err.printf("    <configuration>%n");
+        err.printf("      <proc>full</proc>%n");
+        err.printf("    </configuration>%n");
+        err.printf("  </plugin>%n");
+        err.printf("%n");
+        err.printf("See https://github.com/tomitribe/crest/issues/143%n");
     }
 
     @Override

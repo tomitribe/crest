@@ -46,9 +46,18 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
+        <version>3.14.0</version>
         <configuration>
           <release>17</release>
+          <!--
+            Crest extracts the javadoc of @Command methods at compile time
+            via an annotation processor and renders it as 'help <command>'
+            man pages.  JDK 23+ javac no longer runs processors found on the
+            class path unless processing is explicitly enabled, so without
+            proc:full a build on a current JDK silently loses all javadoc
+            help.  https://github.com/tomitribe/crest/issues/143
+          -->
+          <proc>full</proc>
         </configuration>
       </plugin>
       <plugin>

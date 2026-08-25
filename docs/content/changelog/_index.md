@@ -6,6 +6,21 @@ weight: 6
 
 A summary of features and significant enhancements in each release.
 
+## 0.49
+
+- **Interceptors accept the full injectable parameter suite.** Beyond `CrestContext`, `@Option` parameters and `@Options` beans, a `@CrestInterceptor` method may now declare `@In InputStream`, `@Out`/`@Err PrintStream`, `Environment`, and any registered service — everything a command method can inject. Only positional parameters remain illegal, and the error names the offending parameter and the exact annotation to add ([#133](https://github.com/tomitribe/crest/issues/133)).
+- **Help composes one document from every participant.** The man page `DESCRIPTION` is assembled from the command method's javadoc, its `@Options` beans, and each interceptor in the chain in the order they run. Option descriptions resolve the same way, with the earliest declarer winning when several document the same option, so an interceptor-contributed option is documented by the interceptor that declares it ([#134](https://github.com/tomitribe/crest/issues/134)).
+- **`ARGUMENTS` section on man pages.** Positional arguments are listed in invocation order with the `@param` text written at their declaring site — the command method for its own positionals, the bean constructor for bean-sourced ones. The section renders when at least one positional is documented; injected parameters never appear ([#144](https://github.com/tomitribe/crest/issues/144)).
+- **Inline javadoc tags are translated** at capture time: `{@code}`/`{@literal}` reduce to their content, `{@link}`/`{@linkplain}` to the label or shortened reference, `{@value}` to the resolved constant. Unknown tags drop their braces and keep their text, so a raw `{@` can never reach rendered help ([#139](https://github.com/tomitribe/crest/issues/139)).
+- **Javadoc captured for interceptors and `@Options` beans.** The annotation processor now stores javadoc for `@CrestInterceptor` methods and for `@Options`/`@GlobalOptions` beans — including nested beans — keyed so the runtime can resolve them from the method or parameter type alone ([#135](https://github.com/tomitribe/crest/issues/135)).
+- **Modernized archetype.** The generated project has no `main()` of its own: `org.tomitribe.crest.Main` is the entry point, the `descriptor` goal records commands at build time, and the `executable` goal turns the shaded jar into `./target/<artifactId>`. The sample command demonstrates javadoc-sourced help, an enum option, and a typed positional argument so the usage line reads `greet [options] Name` ([#138](https://github.com/tomitribe/crest/issues/138)).
+- **Annotation processing explicitly enabled** with `-proc:full`. JDK 23+ javac no longer runs processors found on the class path, which silently produced jars with no processor registration and no javadoc help ([#143](https://github.com/tomitribe/crest/issues/143)).
+- `[options]` in the `SYNOPSIS` now reflects the linked option spec, so interceptor-contributed options count ([#136](https://github.com/tomitribe/crest/issues/136)).
+- Fix preformatted lines starting with a dash being parsed as bullets ([#140](https://github.com/tomitribe/crest/issues/140)).
+- `HelpProcessor` declares `SourceVersion.latestSupported()`, ending the `RELEASE_6` warnings on every consumer compile ([#141](https://github.com/tomitribe/crest/issues/141)).
+- README and installation docs updated to the archetype's modern recipe ([#142](https://github.com/tomitribe/crest/issues/142)).
+- Whole-document help test suite covering interceptors, beans, global options, precedence, preformatted text, and sparse javadoc ([#137](https://github.com/tomitribe/crest/issues/137)).
+
 ## 0.48
 
 - **Interceptors can declare options.** The `@CrestInterceptor` method may take `@Option` parameters and `@Options` beans alongside its `CrestContext`. Declared options parse from the command line, appear in help and bash completion, and are passed to the interceptor at execution — the command method does not need to declare them. A command and interceptor declaring the identical option (same name, type, and default) share one value; conflicting declarations fail at deploy time naming both parties.

@@ -338,7 +338,16 @@ public class InternalInterceptor {
         return chain;
     }
 
-    public static InternalInterceptor from(final Class<?> clazz){
+    public static InternalInterceptor from(final Class<?> clazz) {
+        return from(clazz, new SimpleBean(null));
+    }
+
+    /**
+     * Interceptor instances come from the same {@link Target} as command
+     * instances, so a custom {@code TargetProvider} (an IoC container, say)
+     * can hand an interceptor its dependencies exactly as it does a command.
+     */
+    public static InternalInterceptor from(final Class<?> clazz, final Target target) {
         for (final Method method : clazz.getMethods()) {
             if (Object.class == method.getDeclaringClass()) {
                 continue;
@@ -346,7 +355,7 @@ public class InternalInterceptor {
 
             final CrestInterceptor interceptor = method.getAnnotation(CrestInterceptor.class);
             if (interceptor != null) {
-                return new InternalInterceptor(new SimpleBean(null), method, clazz);
+                return new InternalInterceptor(target, method, clazz);
             }
         }
 

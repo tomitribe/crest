@@ -6,6 +6,10 @@ weight: 6
 
 A summary of features and significant enhancements in each release.
 
+## 0.50
+
+- **Interceptor instances come from the `TargetProvider`.** `Main` obtains interceptor instances through the same `TargetProvider` it uses for commands, so a custom provider — an IoC container, for example — can construct an interceptor with dependencies it could never receive through a no-arg constructor. The default provider is unchanged: interceptors are still instantiated reflectively via their no-arg constructor.
+
 ## 0.49
 
 - **Interceptors accept the full injectable parameter suite.** Beyond `CrestContext`, `@Option` parameters and `@Options` beans, a `@CrestInterceptor` method may now declare `@In InputStream`, `@Out`/`@Err PrintStream`, `Environment`, and any registered service — everything a command method can inject. Only positional parameters remain illegal, and the error names the offending parameter and the exact annotation to add ([#133](https://github.com/tomitribe/crest/issues/133)).

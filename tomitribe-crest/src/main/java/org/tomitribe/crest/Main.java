@@ -188,7 +188,7 @@ public class Main implements Completer {
             }
         } else {
 
-            final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz);
+            final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz, targetProvider.getTarget(clazz));
             if (interceptors.put(clazz, internalInterceptor) != null) {
                 throw new IllegalArgumentException(clazz + " interceptor is conflicting");
             }

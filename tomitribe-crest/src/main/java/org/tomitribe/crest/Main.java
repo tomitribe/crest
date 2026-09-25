@@ -16,6 +16,7 @@
  */
 package org.tomitribe.crest;
 
+import org.tomitribe.crest.api.Command;
 import org.tomitribe.crest.api.Editor;
 import org.tomitribe.crest.api.Exit;
 import org.tomitribe.crest.api.GlobalOptions;
@@ -51,6 +52,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -103,8 +105,11 @@ public class Main implements Completer {
 
         targetProvider = provider == null ? lookupTargetProviderServiceLoader() : provider;
 
-        for (final Class clazz : classes) {
-            processClass(defaultsContext, clazz);
+        final HashSet<Class<?>> seen = new HashSet<>();
+        for (final Class<?> clazz : classes) {
+            if (seen.add(clazz)){
+                processClass(defaultsContext, clazz);
+            }
         }
 
         // Built-in formatters
@@ -181,23 +186,25 @@ public class Main implements Completer {
                 } else if (existing instanceof CmdGroup || entry.getValue() instanceof CmdGroup) {
                     throw new IllegalArgumentException(
                             "Conflict: '" + entry.getKey() + "' is both a command and a command group. " +
-                            "A name cannot be used as both a leaf command and a group containing sub-commands.");
+                                    "A name cannot be used as both a leaf command and a group containing sub-commands.");
                 } else {
                     this.commands.put(entry.getKey(), entry.getValue());
                 }
             }
-        } else {
+            return;
+        } else if (clazz.isAnnotationPresent(Command.class)) {
+            throw new IllegalArgumentException("No @Command methods found on " + clazz);
+        }
 
-            final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz, targetProvider.getTarget(clazz));
-            if (interceptors.put(clazz, internalInterceptor) != null) {
-                throw new IllegalArgumentException(clazz + " interceptor is conflicting");
-            }
+        final InternalInterceptor internalInterceptor = InternalInterceptor.from(clazz, targetProvider.getTarget(clazz));
+        if (interceptors.put(clazz, internalInterceptor) != null) {
+            throw new IllegalArgumentException(clazz + " interceptor is conflicting");
+        }
 
-            for (final Annotation annotation : clazz.getDeclaredAnnotations()) {
-                if (isCustomInterceptorAnnotation(annotation)) {
-                    if (interceptors.put(annotation.annotationType(), internalInterceptor) != null) {
-                        throw new IllegalArgumentException(clazz + " interceptor is conflicting");
-                    }
+        for (final Annotation annotation : clazz.getDeclaredAnnotations()) {
+            if (isCustomInterceptorAnnotation(annotation)) {
+                if (interceptors.put(annotation.annotationType(), internalInterceptor) != null) {
+                    throw new IllegalArgumentException(clazz + " interceptor is conflicting");
                 }
             }
         }

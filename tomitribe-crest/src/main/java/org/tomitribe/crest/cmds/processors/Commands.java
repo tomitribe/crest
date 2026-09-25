@@ -36,7 +36,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -45,6 +47,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
@@ -55,18 +58,105 @@ public class Commands {
         // no-op
     }
 
+    /**
+     * The @Command methods of a class.  Discovery goes through getMethods(),
+     * so only public methods can ever be commands.  Before returning them we
+     * check the whole hierarchy for @Command uses that discovery would skip
+     * and reject the class rather than silently drop them.
+     */
     public static Iterable<Method> commands(final Class<?> clazz) {
+        validate(clazz);
         return new FilteredIterable<>(Reflection.methods(clazz),
                 new FilteredIterator.Filter<Method>() {
                     @Override
                     public boolean accept(final Method method) {
-                        return method.isAnnotationPresent(Command.class);
+                        return !Modifier.isAbstract(method.getModifiers()) && method.isAnnotationPresent(Command.class);
                     }
                 }
         );
     }
 
-    public static Map<String, Cmd> get(final Object bean) {
+    /**
+     * Collects every @Command use on the class, its superclasses and its
+     * interfaces that the runtime would ignore, and throws once listing
+     * all of them.
+     *
+     * Non-public methods are invisible to getMethods().  Abstract methods
+     * can never be invoked as themselves, and a concrete override does not
+     * inherit the annotation, so @Command on an abstract method is lost
+     * either way.
+     */
+    public static void validate(final Class<?> clazz) {
+        final List<String> violations = new ArrayList<>();
+
+        for (final Class<?> type : hierarchy(clazz)) {
+            for (final Method method : type.getDeclaredMethods()) {
+                if (!method.isAnnotationPresent(Command.class)) {
+                    continue;
+                }
+                if (!Modifier.isPublic(method.getModifiers())) {
+                    violations.add(describe(clazz, method) + " is " + visibility(method) + ", must be public");
+                }
+                if (Modifier.isAbstract(method.getModifiers())) {
+                    violations.add(describe(clazz, method) + " is abstract, must be concrete");
+                }
+            }
+        }
+
+        if (!violations.isEmpty()) {
+            throw new InvalidCommandUsageException(clazz, violations);
+        }
+    }
+
+    /**
+     * The class, every superclass below Object, and every interface any
+     * of them implement, each listed once.
+     */
+    private static Set<Class<?>> hierarchy(final Class<?> clazz) {
+        final Set<Class<?>> types = new LinkedHashSet<>();
+        for (Class<?> current = clazz; current != null && current != Object.class; current = current.getSuperclass()) {
+            types.add(current);
+            interfaces(current, types);
+        }
+        return types;
+    }
+
+    private static void interfaces(final Class<?> type, final Set<Class<?>> types) {
+        for (final Class<?> iface : type.getInterfaces()) {
+            if (types.add(iface)) {
+                interfaces(iface, types);
+            }
+        }
+    }
+
+    private static String describe(final Class<?> clazz, final Method method) {
+        final StringBuilder sb = new StringBuilder();
+        if (method.getDeclaringClass() != clazz) {
+            sb.append(method.getDeclaringClass().getName()).append('.');
+        }
+        sb.append(method.getName()).append('(');
+        final Class<?>[] types = method.getParameterTypes();
+        for (int i = 0; i < types.length; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(types[i].getSimpleName());
+        }
+        return sb.append(')').toString();
+    }
+
+    private static String visibility(final Method method) {
+        final int modifiers = method.getModifiers();
+        if (Modifier.isPrivate(modifiers)) {
+            return "private";
+        }
+        if (Modifier.isProtected(modifiers)) {
+            return "protected";
+        }
+        return "package-private";
+    }
+
+        public static Map<String, Cmd> get(final Object bean) {
         return get(bean.getClass(), new SimpleBean(bean), new SystemPropertiesDefaultsContext());
     }
 

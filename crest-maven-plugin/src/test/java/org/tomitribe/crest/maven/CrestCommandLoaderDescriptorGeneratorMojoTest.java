@@ -20,6 +20,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Test;
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.GlobalOptions;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,7 +55,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojoTest {
         }
         reader.close();
 
-        assertEquals(new HashSet<String>() {{ add(ClassCommand.class.getName()); add(MethodCommand.class.getName()); }}, found);
+        assertEquals(new HashSet<String>() {{ add(ClassCommand.class.getName()); add(MethodCommand.class.getName()); add(Options.class.getName()); }}, found);
     }
 
     @Test
@@ -127,6 +128,10 @@ public class CrestCommandLoaderDescriptorGeneratorMojoTest {
 
     @Command
     public static class ClassCommand {
+    }
+
+    @GlobalOptions
+    public static class Options {
     }
 
     public static class MethodCommand {

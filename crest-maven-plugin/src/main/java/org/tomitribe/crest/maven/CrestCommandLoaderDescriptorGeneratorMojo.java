@@ -48,6 +48,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
     private static final String COMMAND_MARKER = "Lorg/tomitribe/crest/api/Command;";
     private static final String INTERCEPTOR_MARKER = "Lorg/tomitribe/crest/api/interceptor/CrestInterceptor;";
     private static final String EDITOR_MARKER = "Lorg/tomitribe/crest/api/Editor;";
+    private static final String GLOBAL_OPTIONS_MARKER = "Lorg/tomitribe/crest/api/GlobalOptions;";
 
     @Parameter(property = "crest.descriptor.classes", defaultValue = "${project.build.outputDirectory}")
     protected File classes;
@@ -71,7 +72,7 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
             return;
         }
 
-        // find all annotated classes: @Command, @Editor, @CrestInterceptor
+        // find all annotated classes: @Command, @Editor, @CrestInterceptor, @GlobalOptions
         final Collection<String> found = new TreeSet<>(); // sorted if a human wants to check it
         try {
             scan(found, classes);
@@ -158,6 +159,9 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
                     if (EDITOR_MARKER.equals(desc)) {
                         throw new CommandFoundException(new ScanResult(ScanResultType.EDITOR, className));
                     }
+                    if (GLOBAL_OPTIONS_MARKER.equals(desc)) {
+                        throw new CommandFoundException(new ScanResult(ScanResultType.GLOBAL_OPTIONS, className));
+                    }
                     return super.visitAnnotation(desc, visible);
                 }
 
@@ -211,7 +215,8 @@ public class CrestCommandLoaderDescriptorGeneratorMojo extends AbstractMojo {
         NONE,
         COMMAND,
         INTERCEPTOR,
-        EDITOR
+        EDITOR,
+        GLOBAL_OPTIONS
     }
 
     private static class ScanResult {

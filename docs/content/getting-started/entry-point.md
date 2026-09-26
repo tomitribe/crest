@@ -58,7 +58,7 @@ If no classes are added via `command()`, the builder falls back to classpath dis
 
 ## ServiceLoader Discovery
 
-By default, `new Main()` uses Java's `ServiceLoader` to find an implementation of `org.tomitribe.crest.api.Loader`. The `Loader` interface returns all the classes Crest should inspect for commands, interceptors, and editors.
+By default, `new Main()` uses Java's `ServiceLoader` to find an implementation of `org.tomitribe.crest.api.Loader`. The `Loader` interface returns all the classes Crest should inspect for commands, interceptors, editors, and global options.
 
 Create a `Loader` implementation:
 

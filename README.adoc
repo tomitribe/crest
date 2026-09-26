@@ -1027,6 +1027,8 @@ Here is how to define it in your pom:
 </plugin>
 ----
 
+By default only the module's own compiled classes are scanned.  Set `scanDependencies` to `true` in the plugin configuration to also scan every runtime-scope dependency, the same set `maven-shade-plugin` inlines into an uber jar.  Use `excludes` to drop any classes you do not want; the Crest runtime itself is never scanned.
+
 == DeltaSpike Annotation Processor
 
 

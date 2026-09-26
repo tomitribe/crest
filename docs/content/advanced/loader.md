@@ -4,7 +4,7 @@ description: "The central registry for commands, interceptors, and editors, with
 weight: 5
 ---
 
-The `Loader` is the central registry for all classes Crest needs to discover. It returns `@Command` classes, `@CrestInterceptor` classes, and `@Editor` classes. Crest inspects each class and registers it according to its annotations.
+The `Loader` is the central registry for all classes Crest needs to discover. It returns `@Command` classes, `@CrestInterceptor` classes, `@Editor` classes, and `@GlobalOptions` classes. Crest inspects each class and registers it according to its annotations.
 
 ## Implementing a Loader
 
@@ -28,7 +28,15 @@ public class MyLoader implements Loader {
 }
 ```
 
-Crest handles the classification automatically -- it checks each class for `@Editor`, `@CrestInterceptor`, or `@Command` annotations and registers it in the appropriate registry.
+Crest handles the classification automatically -- it checks each class for `@Editor`, `@GlobalOptions`, `@CrestInterceptor`, or `@Command` annotations and registers it in the appropriate registry.
+
+## What Crest Checks
+
+Every class a `Loader` returns is checked as it is registered, and a mistake fails `Main` construction rather than surfacing later as a missing command:
+
+- A `@Command` method must be public and concrete. A private, protected, package-private, or abstract `@Command` method anywhere in the class, its superclasses, or its interfaces is rejected with an `InvalidCommandUsageException` that lists every offender.
+- A class-level `@Command` must have at least one `@Command` method.
+- A class returned more than once, by one `Loader` or by several, is registered once.
 
 ## META-INF/services Registration
 

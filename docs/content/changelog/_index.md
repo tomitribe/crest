@@ -6,6 +6,14 @@ weight: 6
 
 A summary of features and significant enhancements in each release.
 
+## 0.51
+
+- **The `descriptor` goal can scan dependencies.** Set `scanDependencies` to `true` on the crest-maven-plugin and every runtime-scope dependency is scanned alongside the module's own classes. That is the same artifact set `maven-shade-plugin` inlines, so commands living in a library you depend on land in `crest-commands.txt` without that library shipping a descriptor of its own. Unpackaged reactor modules are scanned as directories, the Crest runtime itself is skipped, and `excludes` apply to everything found.
+- **`@GlobalOptions` classes are found by the `descriptor` goal.** They previously had to be listed by hand in `includes`.
+- **`@Command` usage is validated at startup.** A `@Command` method that is not public, or is abstract, could never be invoked and was silently ignored. Crest now rejects the class with an `InvalidCommandUsageException` that lists every offending method across the class, its superclasses and its interfaces, and says what is wrong with each.
+- **Class-level `@Command` with no `@Command` methods is rejected** with a message saying exactly that, instead of being mistaken for an interceptor and failing with a `@CrestInterceptor not found` error.
+- **A class returned more than once is registered once.** Several `Loader`s, or a `crest-commands.txt` merged from several jars, can list the same class. The repeat no longer fails with `interceptor is conflicting`.
+
 ## 0.50
 
 - **Interceptor instances come from the `TargetProvider`.** `Main` obtains interceptor instances through the same `TargetProvider` it uses for commands, so a custom provider — an IoC container, for example — can construct an interceptor with dependencies it could never receive through a no-arg constructor. The default provider is unchanged: interceptors are still instantiated reflectively via their no-arg constructor.

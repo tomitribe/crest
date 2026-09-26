@@ -121,7 +121,7 @@ Creates a single jar containing all dependencies (your modules, Crest, transitiv
 
 Provides two goals:
 
-**`descriptor`** — Runs at compile time to scan your compiled classes for `@Command`, `@Editor`, and `@CrestInterceptor` annotations and generate a `crest-commands.txt` file. It also generates the `META-INF/services/org.tomitribe.crest.api.Loader` service file pointing to the built-in `CrestCommandsLoader`, unless you provide your own.
+**`descriptor`** — Runs at compile time to scan your compiled classes for `@Command`, `@Editor`, `@CrestInterceptor`, and `@GlobalOptions` annotations and generate a `crest-commands.txt` file. With `scanDependencies` it also scans your runtime dependencies, the same set the shade plugin inlines. It also generates the `META-INF/services/org.tomitribe.crest.api.Loader` service file pointing to the built-in `CrestCommandsLoader`, unless you provide your own.
 
 **`executable`** — Runs at package time to prepend a shell stub to the shaded jar, making it directly executable on Unix systems without typing `java -jar`. After `mvn package`, you get an executable named after your artifact:
 
@@ -133,7 +133,7 @@ The default shell stub passes `-Dcmd="$0"` so Crest can show the script name in 
 
 #### Descriptor Goal Configuration
 
-The `descriptor` goal scans your compiled classes and generates `crest-commands.txt`. Use `excludes` to remove classes from the scan results and `includes` to add classes that the scanner wouldn't find:
+The `descriptor` goal scans your compiled classes and generates `crest-commands.txt`. Set `scanDependencies` to also scan the jars that will end up in your uber jar. Use `excludes` to remove classes from the scan results and `includes` to add classes that the scanner wouldn't find:
 
 ```xml
 <plugin>
@@ -146,6 +146,8 @@ The `descriptor` goal scans your compiled classes and generates `crest-commands.
                 <goal>descriptor</goal>
                 <goal>executable</goal>
             </goals>
+            <configuration>
+                <scanDependencies>true</scanDependencies>
             <configuration>
                 <excludes>
                     <exclude>com.example.internal.*</exclude>
@@ -161,6 +163,8 @@ The `descriptor` goal scans your compiled classes and generates `crest-commands.
 ```
 
 Exclude patterns support `*` as a wildcard that matches any characters. For example, `com.example.internal.*` matches all classes in that package and its sub-packages.
+
+`scanDependencies` is off by default. When on, every artifact resolved at runtime scope is scanned, which is the same set `maven-shade-plugin` inlines by default, so commands living in a library you depend on are discovered without that library shipping its own descriptor. Dependencies that are still unpackaged reactor modules are scanned as directories. The Crest runtime itself is never scanned. If a dependency contributes commands you do not want, drop them with `excludes`.
 
 #### Executable Goal Configuration
 

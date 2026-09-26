@@ -17,6 +17,8 @@ public String greet(@Option("name") @Default("World") final String name) {
 
 CLI usage: `greet --name=Alice`
 
+A `@Command` method must be public and concrete. Crest discovers commands through `getMethods()`, so a private, protected, package-private, or abstract `@Command` method could never run. Rather than ignore it, Crest rejects the class at startup with a message naming every such method.
+
 ### Custom Command Names
 
 Use the `value` parameter to override the default method name. This is especially useful when the desired command name is a Java reserved word:
@@ -58,7 +60,7 @@ public void commit(@Option("all") final boolean all,
 
 ### Class-Level @Command
 
-When placed on a class, `@Command` defines a command group. All `@Command`-annotated methods inside the class become sub-commands. See [Command Groups]({{< ref "command-groups" >}}) for details.
+When placed on a class, `@Command` defines a command group. All `@Command`-annotated methods inside the class become sub-commands, and there must be at least one; a class-level `@Command` with no `@Command` methods is rejected at startup. See [Command Groups]({{< ref "command-groups" >}}) for details.
 
 ```java
 /**

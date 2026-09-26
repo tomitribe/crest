@@ -43,8 +43,9 @@ public class SimpleBean implements Target {
         if (bean != null) {
             return bean;
         }
+
         if (Modifier.isStatic(method.getModifiers())) {
-            return bean;
+            return null;
         }
 
         final Class<?> declaringClass = method.getDeclaringClass();
